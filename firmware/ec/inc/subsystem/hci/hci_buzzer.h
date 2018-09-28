@@ -6,15 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef _HCI_BUZZER_H
 #define _HCI_BUZZER_H
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/common/global_header.h"
 #include "drivers/OcGpio.h"
+#include "inc/common/global_header.h"
 
 #include <stdint.h>
 

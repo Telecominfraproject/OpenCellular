@@ -189,6 +189,38 @@ ReturnStatus adt7481_get_mfg_id(const I2C_Dev *i2c_dev,
     return status;
 }
 
+/*****************************************************************************
+ **    FUNCTION NAME   : adt7481_probe
+ **
+ **    DESCRIPTION     : Read the Manufacturer ID from Temperature sensor ADT7481.
+ **
+ **    ARGUMENTS       : I2C driver config and POST Data struct
+ **                      id.
+ **
+ **    RETURN TYPE     : ePostCode
+ **
+ *****************************************************************************/
+ePostCode adt7481_probe(const I2C_Dev *i2c_dev,
+                              POSTData *postData)
+{
+    ePostCode postcode = POST_DEV_MISSING;
+    ReturnStatus status = RETURN_OK;
+    uint8_t devId = 0x0000;
+    uint8_t manfId = 0x0000;
+    status = adt7481_get_dev_id(i2c_dev, &devId);
+    status = adt7481_get_mfg_id(i2c_dev, &manfId);
+    if (status != RETURN_OK) {
+        postcode = POST_DEV_MISSING;
+    } else if ((devId == TEMP_ADT7481_DEV_ID)
+            && (manfId == TEMP_ADT7481_MANF_ID)) {
+        postcode = POST_DEV_FOUND;
+    } else {
+        postcode = POST_DEV_ID_MISMATCH;
+    }
+    post_update_POSTData(postData, i2c_dev->bus, i2c_dev->slave_addr,manfId, devId);
+    return postcode;
+}
+
 /******************************************************************************
  * @fn          adt7481_get_config1
  *

@@ -1,7 +1,15 @@
-#include "src/registry/Framework.h"
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+#include "common/inc/ocmp_wrappers/ocmp_ina226.h"
 
+#include "common/inc/global/Framework.h"
 #include "inc/devices/ina226.h"
-#include "inc/devices/ocmp_wrappers/ocmp_ina226.h"
 
 typedef enum INA226Status {
     INA226_STATUS_BUS_VOLTAGE = 0,
@@ -69,9 +77,9 @@ static bool _set_config(void *driver, unsigned int param_id,
     }
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return ina226_probe(driver);
+    return ina226_probe(driver,postData);
 }
 
 static void _alert_handler(INA226_Event evt, uint16_t value, void *alert_data)
@@ -108,24 +116,7 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver INA226 = {
-    .name = "INA226",
-    .status = (Parameter[]){
-        { .name = "busvoltage", .type = TYPE_UINT16 },
-        { .name = "shuntvoltage", .type = TYPE_UINT16 },
-        { .name = "current", .type = TYPE_UINT16 },
-        { .name = "power", .type = TYPE_UINT16 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "currlimit", .type = TYPE_UINT16 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "Overcurrent", .type = TYPE_UINT16 },
-        {}
-    },
-
+const Driver_fxnTable INA226_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef INC_UTILS_OCMP_UTIL_H_
 #define INC_UTILS_OCMP_UTIL_H_
+
+#include "common/inc/global/ocmp_frame.h"
 
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "inc/common/ocmp_frame.h"
 
 /*****************************************************************************
  **    FUNCTION NAME   : OCMP_mallocFrame

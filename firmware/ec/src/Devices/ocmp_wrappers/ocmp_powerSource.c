@@ -6,13 +6,11 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+#include "common/inc/ocmp_wrappers/ocmp_powersource.h"
 
-#include "src/registry/Framework.h"
-
-#include "helpers/array.h"
+#include "common/inc/global/Framework.h"
 #include "inc/devices/powerSource.h"
-#include "inc/devices/ocmp_wrappers/ocmp_powerSource.h"
-
+#include "helpers/array.h"
 
 static bool _get_status(void *driver, unsigned int param_id,
         void *return_buf)
@@ -20,7 +18,7 @@ static bool _get_status(void *driver, unsigned int param_id,
     bool ret = false;
     /* TODO: As of now using pwr_get_sourc_info as it is for Power source Update.
      * Once we change the handing of the powersource status #298 this will also changed. */
-    pwr_get_source_info();
+    pwr_get_source_info(driver);
     if ( pwr_process_get_status_parameters_data(param_id,return_buf) == RETURN_OK) {
         ret = true;
     }
@@ -29,29 +27,18 @@ static bool _get_status(void *driver, unsigned int param_id,
 
 static ePostCode _probe(void *driver)
 {
-    return POST_DEV_FOUND;
+    pwr_source_config(driver);
+    return POST_DEV_NOSTATUS;
 }
 
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
     pwr_source_init();
-    return POST_DEV_CFG_DONE;
+    return POST_DEV_NO_CFG_REQ;
 }
 
-const Driver PWRSRC = {
-    .name = "powerSource",
-    .status = (Parameter[]){
-        { .name = "poeAvailability", .type = TYPE_UINT8 },
-        { .name = "poeAccessebility", .type = TYPE_UINT8 },
-        { .name = "solarAvailability", .type = TYPE_UINT8 },
-        { .name = "solarAccessebility", .type = TYPE_UINT8 },
-        { .name = "extBattAccessebility", .type = TYPE_UINT8 },
-        { .name = "extBattAccessebility", .type = TYPE_UINT8 },
-        { .name = "intBattAccessebility", .type = TYPE_UINT8 },
-        { .name = "intBattAccessebility", .type = TYPE_UINT8 },
-        {}
-    },
+const Driver_fxnTable PWRSRC_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

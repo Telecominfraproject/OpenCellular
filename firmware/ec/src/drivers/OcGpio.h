@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef _OCGPIO_H_
 #define _OCGPIO_H_
 
@@ -34,6 +33,7 @@ typedef int (*OcGpio_disableIntFn) (const OcGpio_Pin *pin);
 typedef int (*OcGpio_enableIntFn) (const OcGpio_Pin *pin);
 
 typedef struct OcGpio_FnTable {
+    OcGpio_initFn   probe;
     OcGpio_initFn   init; /*!< Port initialization - called once */
     OcGpio_writeFn  write;
     OcGpio_readFn   read;
@@ -148,13 +148,30 @@ typedef union OcGpio_ioCfg {
  * OcGpio.c instead.
  */
 
+/*! Probe the device for POStT
+ * probe function
+ * @param pin OcGPio_Port pointer to the driver instance to find the device
+ * @return 0 on success, negative on failure
+ */
+static inline int OcGpio_probe(const OcGpio_Port *port) {
+    if( port && port->fn_table && port->fn_table->probe) {
+        return port->fn_table->probe(port);
+    } else {
+        return OCGPIO_FAILURE;
+    }
+}
+
 /*! Initialize the port - tempted to remove in favor of more generic device
  * init function
  * @param pin OcGPio_Port pointer to the driver instance to initialize
  * @return 0 on success, negative on failure
  */
 static inline int OcGpio_init(const OcGpio_Port *port) {
-    return port->fn_table->init(port);
+    if( port && port->fn_table && port->fn_table->init) {
+        return port->fn_table->init(port);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Write a value to a GPIO pin
@@ -163,7 +180,12 @@ static inline int OcGpio_init(const OcGpio_Port *port) {
  * @return 0 on success, negative on failure
  */
 static inline int OcGpio_write(const OcGpio_Pin *pin, bool value) {
-    return pin->port->fn_table->write(pin, value);
+    if( pin && pin->port && pin->port->fn_table &&
+                        pin->port->fn_table->write) {
+        return pin->port->fn_table->write(pin, value);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Read a value from a GPIO pin
@@ -171,7 +193,12 @@ static inline int OcGpio_write(const OcGpio_Pin *pin, bool value) {
  * @return Boolean value of pin, or negative if failure
  */
 static inline int OcGpio_read(const OcGpio_Pin *pin) {
-    return pin->port->fn_table->read(pin);
+    if( pin && pin->port && pin->port->fn_table &&
+                pin->port->fn_table->read) {
+        return pin->port->fn_table->read(pin);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Configure a GPIO pin's parameters (both io and hw params)
@@ -181,7 +208,12 @@ static inline int OcGpio_read(const OcGpio_Pin *pin) {
  * @return 0 on success, negative on failure
  */
 static inline int OcGpio_configure(const OcGpio_Pin *pin, uint32_t cfg) {
-    return pin->port->fn_table->configure(pin, cfg);
+    if( pin && pin->port && pin->port->fn_table &&
+                    pin->port->fn_table->configure) {
+        return pin->port->fn_table->configure(pin, cfg);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Add a callback subscriber to an interrupt-enabled pin
@@ -194,7 +226,12 @@ static inline int OcGpio_configure(const OcGpio_Pin *pin, uint32_t cfg) {
 static inline int OcGpio_setCallback (const OcGpio_Pin *pin,
                                       OcGpio_CallbackFn callback,
                                       void *context) {
-    return pin->port->fn_table->setCallback(pin, callback, context);
+    if( pin && pin->port && pin->port->fn_table &&
+                        pin->port->fn_table->setCallback) {
+        return pin->port->fn_table->setCallback(pin, callback, context);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Disable pin interrupt
@@ -202,7 +239,12 @@ static inline int OcGpio_setCallback (const OcGpio_Pin *pin,
  * @return 0 on success, negative on failure
  */
 static inline int OcGpio_disableInt(const OcGpio_Pin *pin) {
-    return pin->port->fn_table->disableInt(pin);
+    if( pin && pin->port && pin->port->fn_table &&
+                pin->port->fn_table->disableInt) {
+        return pin->port->fn_table->disableInt(pin);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 /*! Enable pin interrupt
@@ -212,7 +254,12 @@ static inline int OcGpio_disableInt(const OcGpio_Pin *pin) {
  * @return 0 on success, negative on failure
  */
 static inline int OcGpio_enableInt(const OcGpio_Pin *pin) {
-    return pin->port->fn_table->enableInt(pin);
+    if( pin && pin->port && pin->port->fn_table &&
+                pin->port->fn_table->enableInt) {
+        return pin->port->fn_table->enableInt(pin);
+    } else {
+        return OCGPIO_FAILURE;
+    }
 }
 
 #endif /* _OCGPIO_H_ */

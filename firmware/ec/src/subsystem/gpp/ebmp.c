@@ -10,11 +10,11 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/subsystem/gpp/ebmp.h"
-#include "inc/subsystem/gpp/gpp.h"
 
 #include "Board.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
+#include "inc/subsystem/gpp/gpp.h"
 #include "inc/utils/util.h"
 
 #include <driverlib/gpio.h>
@@ -29,10 +29,6 @@
 /* Task Handle */
 static Task_Struct ebmpTask;
 static Char ebmpTaskStack[EBMP_TASK_STACK_SIZE];
-
-/* GPP device config */
-extern void *sys_config[];
-#define GPP ((Gpp_Cfg *)sys_config[OC_SS_GPP])
 
 /* Semaphore Handle */
 Semaphore_Handle semStateHandle;
@@ -57,6 +53,10 @@ volatile int oldState = STATE_INVALID;
 volatile int secondIteration = 0;
 volatile uint32_t stateChangeWaitTimeMax = 10000;
 volatile uint32_t stateChangeTimeElapsed = 0;
+static OcGpio_Pin *pin_soc_pltrst_n;
+static OcGpio_Pin *pin_soc_corepwr_ok;
+static OcGpio_Pin *pin_ap_boot_alert1;
+static OcGpio_Pin *pin_ap_boot_alert2;
 
 //*****************************************************************************
 //                                EXTERN FUNCTIONS
@@ -138,7 +138,7 @@ void ebmp_check_soc_plt_reset(void)
 {
     //Resetting Iteration counter for GPIO Toggle to zero.
     secondIteration = 0;
-    if (OcGpio_read(&GPP->pin_soc_pltrst_n)) {
+    if (OcGpio_read(pin_soc_pltrst_n)) {
         /*************************************************************
          *  Semaphore to be released to the EBMP telling the SoC is
          * out of reset
@@ -154,7 +154,7 @@ void ebmp_check_soc_plt_reset(void)
 #if 0
         apState = oldState = STATE_INVALID;
 #else
-        if (OcGpio_read(&GPP->pin_soc_corepwr_ok)) {
+        if (OcGpio_read(pin_soc_corepwr_ok)) {
             apState = oldState = STATE_T0;
         } else {
             apState = oldState = STATE_INVALID;
@@ -176,8 +176,8 @@ void ebmp_check_boot_pin_status(void)
     int32_t bootstatus_1 = 0;
     int32_t bootstatus_2 = 0;
 
-    bootstatus_1 = OcGpio_read(&GPP->pin_ap_boot_alert1);
-    bootstatus_2 = OcGpio_read(&GPP->pin_ap_boot_alert2);
+    bootstatus_1 = OcGpio_read(pin_ap_boot_alert1);
+    bootstatus_2 = OcGpio_read(pin_ap_boot_alert2);
     if (!secondIteration) {
             if (bootstatus_2 == 0) {
                 if (bootstatus_1) {
@@ -232,33 +232,38 @@ static void ebmp_handle_irq(void *context) {
  **    ARGUMENTS       : None
  **    RETURN TYPE     : None
  *****************************************************************************/
-void ebmp_init(void)
+void ebmp_init(Gpp_gpioCfg *driver)
 {
-    if (GPP->pin_ap_boot_alert1.port) {
+	pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
+	pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
+	pin_soc_pltrst_n = &driver->pin_soc_pltrst_n;
+	pin_soc_corepwr_ok = &driver->pin_soc_corepwr_ok;
+
+	if (pin_ap_boot_alert1->port) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-        if (OcGpio_configure(&GPP->pin_ap_boot_alert1, pin_evt_cfg) < OCGPIO_SUCCESS) {
+        if (OcGpio_configure(pin_ap_boot_alert1, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
         /* Use a threaded interrupt to handle IRQ */
-        ThreadedInt_Init(&GPP->pin_ap_boot_alert1, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_1);
+        ThreadedInt_Init(pin_ap_boot_alert1, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_1);
     }
 
-    if (GPP->pin_ap_boot_alert2.port) {
+    if (pin_ap_boot_alert2->port) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-        if (OcGpio_configure(&GPP->pin_ap_boot_alert2, pin_evt_cfg) < OCGPIO_SUCCESS) {
+        if (OcGpio_configure(pin_ap_boot_alert2, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
         /* Use a threaded interrupt to handle IRQ */
-        ThreadedInt_Init(&GPP->pin_ap_boot_alert2, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_2);
+        ThreadedInt_Init(pin_ap_boot_alert2, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_2);
     }
 
-    if (GPP->pin_soc_pltrst_n.port) {
+    if (pin_soc_pltrst_n->port) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-        if (OcGpio_configure(&GPP->pin_soc_pltrst_n, pin_evt_cfg) < OCGPIO_SUCCESS) {
+        if (OcGpio_configure(pin_soc_pltrst_n, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
         /* Use a threaded interrupt to handle IRQ */
-        ThreadedInt_Init(&GPP->pin_soc_pltrst_n, ebmp_handle_irq, (void *)AP_RESET);
+        ThreadedInt_Init(pin_soc_pltrst_n, ebmp_handle_irq, (void *)AP_RESET);
     }
 }
 
@@ -374,9 +379,9 @@ void ebmp_task_fxn(UArg a0, UArg a1)
             }
         }
         DEBUG("EBMP:INFO:: Boot Monitor Pin 1 [PE3] : %d Boot Monitor Pin 2 [PL3] : %d SOC PLTRST : %d.\n",
-                OcGpio_read(&GPP->pin_ap_boot_alert1)? 1: 0,
-                OcGpio_read(&GPP->pin_ap_boot_alert2)? 1: 0,
-                OcGpio_read(&GPP->pin_soc_pltrst_n)? 1: 0);
+                OcGpio_read(pin_ap_boot_alert1)? 1: 0,
+                OcGpio_read(pin_ap_boot_alert2)? 1: 0,
+                OcGpio_read(pin_soc_pltrst_n)? 1: 0);
         oldState = apState;
     }
 }

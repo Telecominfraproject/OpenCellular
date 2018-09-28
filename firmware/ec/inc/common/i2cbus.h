@@ -21,8 +21,8 @@
  *                              STRUCT DEFINITIONS
  *****************************************************************************/
 typedef struct I2C_Dev {
-    const unsigned int bus;
-    const uint8_t slave_addr;
+    unsigned int bus;
+    uint8_t slave_addr;
 } I2C_Dev;
 
 /*****************************************************************************

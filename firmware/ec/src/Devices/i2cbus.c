@@ -10,11 +10,10 @@
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "inc/common/i2cbus.h"
-
 #include "Board.h"
 #include "helpers/array.h"
 #include "inc/common/global_header.h"
+#include "inc/common/i2cbus.h"
 
 /* TI-RTOS driver files */
 #include <ti/drivers/I2C.h>
@@ -150,4 +149,3 @@ ReturnStatus i2c_reg_read(  I2C_Handle i2cHandle,
     }
     return status;
 }
-

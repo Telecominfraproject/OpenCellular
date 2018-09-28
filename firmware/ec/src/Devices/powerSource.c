@@ -10,18 +10,18 @@
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include <inc/devices/powerSource.h>
+#include "inc/devices/powerSource.h"
+
 #include "Board.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
-#include <ti/sysbios/knl/Task.h>
 #include "inc/subsystem/power/power.h"
+
+#include <ti/sysbios/knl/Task.h>
 #include <stdlib.h>
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-extern void *sys_config[];
-#define PWR ((Power_Cfg *)sys_config[OC_SS_PWR])
 static tPowerSource Power_SourceInfo[PWR_SRC_MAX];
 
 
@@ -74,6 +74,16 @@ static ReturnStatus pwr_source_inuse(ePowerSource *inUse)
     }
     return ret;
 }
+
+void pwr_source_config(PWRSRC_Dev* driver)
+{
+    //Configuring GPIOS
+    OcGpio_configure(&driver->cfg.pin_solar_aux_prsnt_n, OCGPIO_CFG_INPUT);
+    OcGpio_configure(&driver->cfg.pin_poe_prsnt_n, OCGPIO_CFG_INPUT);
+    OcGpio_configure(&driver->cfg.pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
+    OcGpio_configure(&driver->cfg.pin_ext_bat_prsnt, OCGPIO_CFG_INPUT);
+}
+
 /*****************************************************************************
  **    FUNCTION NAME   : pwr_source_init
  **
@@ -84,13 +94,9 @@ static ReturnStatus pwr_source_inuse(ePowerSource *inUse)
  **     RETURN TYPE    : None
  **
  *****************************************************************************/
-void pwr_source_init(void)
+void pwr_source_init()
 {
-    ReturnStatus status = RETURN_NOTOK;
-    ePowerSource powerSource = PWR_SRC_AUX_OR_SOLAR ;
     ePowerSource itr = PWR_SRC_AUX_OR_SOLAR ;
-    uint8_t class =0x00;
-
     for (; itr < PWR_SRC_MAX; itr++) {
         Power_SourceInfo[itr].powerSource = itr;
         Power_SourceInfo[itr].state = PWR_SRC_NON_AVAILABLE;
@@ -107,7 +113,7 @@ void pwr_source_init(void)
  *
  * @return      ReturnStatus
  */
-static ReturnStatus pwr_check_aux_or_solar(void)
+static ReturnStatus pwr_check_aux_or_solar(PWRSRC_Dev *pwrSrcDev)
 {
 
 
@@ -115,7 +121,7 @@ static ReturnStatus pwr_check_aux_or_solar(void)
     ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
     //For Checking SOLAR POWER SOURCE
     uint8_t value = 0;
-    value = OcGpio_read(&PWR->pin_solar_aux_prsnt_n);
+    value = OcGpio_read(&pwrSrcDev->cfg.pin_solar_aux_prsnt_n);
     if (value == 0) {
         status=PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
@@ -133,13 +139,13 @@ static ReturnStatus pwr_check_aux_or_solar(void)
  *
  * @return      ReturnStatus
  */
-static ReturnStatus pwr_check_poe(void)
+static ReturnStatus pwr_check_poe(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
     ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
     //For Checking POE POWER SOURCE
-    value = OcGpio_read(&PWR->pin_poe_prsnt_n);
+    value = OcGpio_read(&pwrSrcDev->cfg.pin_poe_prsnt_n);
     if ( value == 0) {
         status=PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
@@ -157,14 +163,14 @@ static ReturnStatus pwr_check_poe(void)
  *
  * @return      ReturnStatus
  */
-static ReturnStatus pwr_check_int_batt(void)
+static ReturnStatus pwr_check_int_batt(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
     ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
 
     //For Checking INTERNAL BATTERY SOURCE
-    value = OcGpio_read(&PWR->pin_int_bat_prsnt);
+    value = OcGpio_read(&pwrSrcDev->cfg.pin_int_bat_prsnt);
     if (value == 0) { /* If read fails, we'll get a negative value */
         status = PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
@@ -183,13 +189,13 @@ static ReturnStatus pwr_check_int_batt(void)
  *
  * @return      ReturnStatus
  */
-static ReturnStatus pwr_check_ext_batt(void)
+static ReturnStatus pwr_check_ext_batt(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
     ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
 
-    value = OcGpio_read(&PWR->pin_ext_bat_prsnt);
+    value = OcGpio_read(&pwrSrcDev->cfg.pin_ext_bat_prsnt);
     if (value == 0) { /* If read fails, we'll get a negative value */
         status=PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
@@ -208,22 +214,22 @@ static ReturnStatus pwr_check_ext_batt(void)
  **    RETURN TYPE     : None
  **
  ******************************************************************************/
-static void pwr_check_presence_of_source(void)
+static void pwr_check_presence_of_source(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
-    ret =  pwr_check_aux_or_solar();
+    ret =  pwr_check_aux_or_solar(pwrSrcDev);
         LOGGER("POWER:INFO:: Power Source Aux/Solar %s.\n",
                     ((ret == RETURN_OK) ? "available" : "not available"));
 
-    ret = pwr_check_poe();
+    ret = pwr_check_poe(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source POE %s.\n",
                 ((ret == RETURN_OK) ? "available" : "not available"));
 
-    ret = pwr_check_int_batt();
+    ret = pwr_check_int_batt(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source INTERNAL BATTERY %s.\n",
                 ((ret == RETURN_OK) ? "available" : "not available"));
 
-    ret = pwr_check_ext_batt();
+    ret = pwr_check_ext_batt(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source EXTERNAL BATTERY %s.\n",
                 ((ret == RETURN_OK) ? "available" : "not available"));
 
@@ -240,12 +246,12 @@ static void pwr_check_presence_of_source(void)
  **     RETURN TYPE     : None
  **
  *****************************************************************************/
-void pwr_get_source_info(void)
+void pwr_get_source_info(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus status = RETURN_NOTOK;
     ePowerSource powerSource = PWR_SRC_AUX_OR_SOLAR;
     /* Check the presence of power sources*/
-    pwr_check_presence_of_source();
+    pwr_check_presence_of_source(pwrSrcDev);
 
     /* Find the primary power source and update Power Source info for same.*/
     status = pwr_source_inuse(&powerSource);

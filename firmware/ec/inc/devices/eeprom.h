@@ -6,16 +6,15 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/ocmp_frame.h" /* Temporary, just for OCMPSubsystem def */
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/ocmp_frame.h" /* Temporary, just for OCMPSubsystem def */
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
@@ -48,7 +47,15 @@ typedef struct Eeprom_Cfg {
     I2C_Dev i2c_dev;
     OcGpio_Pin *pin_wp;
     EepromDev_Cfg type; /*!< Device specific config (page size, etc) */
+    OCMPSubsystem ss; /* TODO: The HW config need not know about the subsytem
+    to be fixed later */
 } Eeprom_Cfg, *Eeprom_Handle;
+
+typedef enum {
+    OC_STAT_SYS_SERIAL_ID = 0,
+    OC_STAT_SYS_GBC_BOARD_ID,
+    OC_STAT_SYS_STATE
+} eOCStatusParamId;
 
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
@@ -60,7 +67,7 @@ ReturnStatus eeprom_read(Eeprom_Cfg *cfg,
                          void *buffer,
                          size_t size);
 
-ReturnStatus eeprom_write(Eeprom_Cfg *cfg,
+ReturnStatus eeprom_write(const Eeprom_Cfg *cfg,
                           uint16_t address,
                           const void *buffer,
                           size_t size);
@@ -71,14 +78,14 @@ ReturnStatus eeprom_enable_write(Eeprom_Cfg *cfg);
 
 ReturnStatus eeprom_read_oc_info(uint8_t * oc_serial);
 
-ReturnStatus eeprom_read_board_info(OCMPSubsystem subSystem,
+ReturnStatus eeprom_read_board_info(const Eeprom_Cfg *cfg,
                                     uint8_t * rom_info);
 
-ReturnStatus eeprom_read_device_info_record(OCMPSubsystem subSystem,
+ReturnStatus eeprom_read_device_info_record(const Eeprom_Cfg *cfg,
                                             uint8_t recordNo,
                                             char * device_info);
 
-ReturnStatus eeprom_write_device_info_record(OCMPSubsystem subSystem,
+ReturnStatus eeprom_write_device_info_record(Eeprom_Cfg *cfg,
                                              uint8_t recordNo,
                                              char * device_info);
 

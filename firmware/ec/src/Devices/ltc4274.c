@@ -10,11 +10,11 @@
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
+#include "inc/devices/ltc4274.h"
 
 #include "Board.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
-#include "inc/devices/ltc4274.h"
 #include "inc/subsystem/power/power.h"
 
 #include <stdlib.h>
@@ -123,9 +123,6 @@ typedef struct {
 } tPower_PSEStatus_Info;
 
 static tPower_PSEStatus_Info PSEStatus_Info;
-
-extern void *sys_config[];
-#define PWR ((Power_Cfg *)sys_config[OC_SS_PWR])
 
 /******************************************************************************
  * @fn         ltc4274_raw_write
@@ -569,7 +566,7 @@ ReturnStatus ltc4274_get_class_status(const I2C_Dev *i2c_dev, ePSEClassType *pse
         LOGGER("LTC4274:ERROR:: PSE class status read failed.\n");
     }
     if (!(LTC4274_CLASSIFICATION_COMPLETE(val))) {
-        *pseClass =LTC4274_DETECT_ERROR;
+        *pseClass = LTC4274_CLASS_ERROR;
     } else {
         status = ltc4274_read( i2c_dev, LTC4274_REG_STATUS, &val);
         if (status != RETURN_OK) {
@@ -801,12 +798,12 @@ ReturnStatus ltc4274_debug_read(const I2C_Dev *i2c_dev,
  *
  * @return      void
  */
-void ltc4274_enable(uint8_t enableVal)
+void ltc4274_enable(LTC4274_Dev* dev, uint8_t enableVal)
 {
     if (enableVal) {
-        OcGpio_write(&PWR->pin_necpse_rst, false);
+        OcGpio_write(&dev->cfg.reset_pin, false);
     } else {
-        OcGpio_write(&PWR->pin_necpse_rst, true);
+        OcGpio_write(&dev->cfg.reset_pin, true);
     }
 }
 
@@ -863,6 +860,24 @@ ReturnStatus ltc4274_detect(const I2C_Dev *i2c_dev,
 }
 
 /*****************************************************************************
+ **    FUNCTION NAME   : ltc4274_config
+ **
+ **    DESCRIPTION     : configure gpio and bring it out of reset .
+ **
+ **    ARGUMENTS       : None
+ **
+ **    RETURN TYPE     : ePostCode
+ **
+ *****************************************************************************/
+void ltc4274_config(LTC4274_Dev *dev)
+{
+    OcGpio_configure(&dev->cfg.reset_pin, OCGPIO_CFG_OUTPUT |
+                                                  OCGPIO_CFG_OUT_HIGH);
+    //Enable PSE device.
+    ltc4274_enable(dev,true);
+}
+
+/*****************************************************************************
  **    FUNCTION NAME   : ltc4274_probe
  **
  **    DESCRIPTION     : reset PSE device.
@@ -872,12 +887,12 @@ ReturnStatus ltc4274_detect(const I2C_Dev *i2c_dev,
  **    RETURN TYPE     : ePostCode
  **
  *****************************************************************************/
-ePostCode ltc4274_probe(const I2C_Dev *i2c_dev)
+ePostCode ltc4274_probe(const LTC4274_Dev *dev, POSTData *postData)
 {
     ePostCode postcode = POST_DEV_MISSING;
     uint8_t devId = 0x00;
     ReturnStatus status = RETURN_NOTOK;
-    status = ltc4274_get_devid(i2c_dev, &devId);
+    status = ltc4274_get_devid(&dev->cfg.i2c_dev, &devId);
     if (status != RETURN_OK) {
         postcode = POST_DEV_MISSING;
     } else if (devId == LTC4274_DEV_ID){
@@ -885,6 +900,7 @@ ePostCode ltc4274_probe(const I2C_Dev *i2c_dev)
     } else {
         postcode = POST_DEV_ID_MISMATCH;
     }
+    post_update_POSTData(postData, dev->cfg.i2c_dev.bus, dev->cfg.i2c_dev.slave_addr,0xFF, devId);
     return postcode;
 }
 
@@ -898,14 +914,14 @@ ePostCode ltc4274_probe(const I2C_Dev *i2c_dev)
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-ReturnStatus ltc4274_reset()
+ReturnStatus ltc4274_reset(LTC4274_Dev *dev)
 {
     ReturnStatus status = RETURN_OK;
 
 
-    OcGpio_write(&PWR->pin_necpse_rst, true);
+    OcGpio_write(&dev->cfg.reset_pin, true);
     Task_sleep(100);
-    OcGpio_write(&PWR->pin_necpse_rst, false);
+    OcGpio_write(&dev->cfg.reset_pin, false);
 
 
     return status;
@@ -976,7 +992,7 @@ void  ltc4274_init(LTC4274_Dev *dev)
 
     dev->obj.mutex = GateMutex_create(NULL, NULL);
     if (!dev->obj.mutex) {
-        return RETURN_NOTOK;
+        return;
     }
 
     ltc4274_initPSEStateInfo();
@@ -984,7 +1000,7 @@ void  ltc4274_init(LTC4274_Dev *dev)
     if (dev->cfg.pin_evt) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING;
         if (OcGpio_configure(dev->cfg.pin_evt, pin_evt_cfg) < OCGPIO_SUCCESS) {
-            return RETURN_NOTOK;
+            return ;
         }
 
         /* Use a threaded interrupt to handle IRQ */

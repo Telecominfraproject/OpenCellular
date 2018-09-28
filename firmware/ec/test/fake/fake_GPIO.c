@@ -12,6 +12,19 @@
 
 #include <stdlib.h>
 
+static bool *FakeGpio_reg;
+static uint32_t *FakeGpio_cfg_reg;
+
+void FakeGpio_registerDevSimple(void *GpioPins, void *GpioConfig) {
+    if (GpioPins) {
+        FakeGpio_reg = GpioPins;
+    }
+    if (GpioConfig) {
+        FakeGpio_cfg_reg = GpioConfig;
+    }
+    return;
+}
+
 static int FakeGpio_init(const OcGpio_Port *port) {
     FakeGpio_Obj *obj = port->object_data;
     *obj = (FakeGpio_Obj){};
@@ -19,19 +32,27 @@ static int FakeGpio_init(const OcGpio_Port *port) {
 }
 
 static int FakeGpio_write(const OcGpio_Pin *pin, bool value) {
-    UNUSED(pin);
-    UNUSED(value);
+    uint16_t final_pin=pin->idx;
+    if (pin->hw_cfg & OCGPIO_CFG_INVERT) {
+        value = !value;
+    }
+    FakeGpio_reg[final_pin] = value;
     return OCGPIO_SUCCESS;
 }
 
 static int FakeGpio_read(const OcGpio_Pin *pin) {
-    UNUSED(pin);
-    return 0;
+    bool chk =0;
+    uint16_t final_pin=pin->idx;
+    chk = FakeGpio_reg[final_pin];
+    if (pin->hw_cfg & OCGPIO_CFG_INVERT) {
+        chk = !chk;
+    }
+    return chk;
 }
 
 static int FakeGpio_configure(const OcGpio_Pin *pin, uint32_t cfg) {
-    UNUSED(pin);
-    UNUSED(cfg);
+    uint16_t final_pin=pin->idx;
+    FakeGpio_cfg_reg[final_pin] = cfg;
     return OCGPIO_SUCCESS;
 }
 

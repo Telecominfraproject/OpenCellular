@@ -15,11 +15,6 @@ static const I2C_Dev s_sx1509_dev = {
     .slave_addr = I2C_ADDR,
 };
 
-static const I2C_Dev s_sx1509_no_dev = {
-    .bus = I2C_BUS,
-    .slave_addr = 0x01,
-};
-
 static uint8_t SX1509_regs[] = {
     [0x00] = 0x00, /* Input buffer disable register B */
     [0x01] = 0x00, /* Input buffer disable register A */
@@ -509,7 +504,8 @@ void test_ioexp_led_clear_interrupt_source(void)
 
 void test_ioexp_led_not_present(void)
 {
-    I2C_Dev invalid_dev = s_sx1509_no_dev;
+    I2C_Dev invalid_dev = s_sx1509_dev;
+    invalid_dev.slave_addr = 0x01;
 
     /* Ensure that we fail properly if the device isn't on the bus */
     uint8_t dummy_val;

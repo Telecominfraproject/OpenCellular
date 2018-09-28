@@ -12,10 +12,10 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "drivers/OcGpio.h"
 #include "inc/devices/ina226.h"
 #include "inc/devices/se98a.h"
 #include "inc/common/system_states.h"
-#include "drivers/OcGpio.h"
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
@@ -51,9 +51,7 @@ typedef struct mSATA_Cfg {
     INA226_Dev current_sensor;
 } mSATA_Cfg;
 
-typedef struct Gpp_Cfg {
-    AP_Cfg ap;
-    mSATA_Cfg msata;
+typedef struct Gpp_gpioCfg {
     OcGpio_Pin pin_soc_pltrst_n;
     OcGpio_Pin pin_soc_corepwr_ok;
     OcGpio_Pin pin_msata_ec_das;
@@ -62,10 +60,10 @@ typedef struct Gpp_Cfg {
     OcGpio_Pin pin_ec_reset_to_proc;
     OcGpio_Pin pin_ap_boot_alert1;
     OcGpio_Pin pin_ap_boot_alert2;
-} Gpp_Cfg;
+} Gpp_gpioCfg;
 
-bool gpp_pre_init(void *returnValue);
-bool gpp_post_init(eSubSystemStates *returnValue);
+bool gpp_pre_init(void *driver, void *returnValue);
+bool gpp_post_init(void *driver, void *returnValue);
 bool GPP_ap_Reset(void *driver, void *params);
 
 #endif /* GPP_H_ */

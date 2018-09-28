@@ -7,16 +7,15 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef LTC4015_H_
 #define LTC4015_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/post_frame.h"
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
@@ -197,6 +196,6 @@ ReturnStatus LTC4015_enableLimitAlerts(LTC4015_Dev *dev, uint16_t alert_mask);
 ReturnStatus LTC4015_enableChargerStateAlerts(LTC4015_Dev *dev,
                                               uint16_t alert_mask);
 
-ePostCode LTC4015_probe(LTC4015_Dev *dev);
+ePostCode LTC4015_probe(LTC4015_Dev *dev, POSTData *postData);
 
 #endif /* LTC4015_H_ */

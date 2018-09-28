@@ -12,23 +12,29 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/Framework.h"
 #include "inc/common/global_header.h"
 #include "inc/subsystem/rffe/rffe.h"
-#include "src/registry/Framework.h"
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define RFFE_CHANNEL1_IO_TX_ATTEN_ADDR              0x18
-#define RFFE_CHANNEL1_IO_RX_ATTEN_ADDR              0x1A
-#define RFFE_CHANNEL2_IO_TX_ATTEN_ADDR              0x1C
-#define RFFE_CHANNEL2_IO_RX_ATTEN_ADDR              0x1D
-#define RFFE_IO_REVPOWER_ALERT_ADDR                 0x1B
 #define RFFE_IO_BOARD_CFG_ADDR                      0x19
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
+/* RF Channel Type */
+typedef enum rfChannel {
+    RFFE_CHANNEL1 = 0,
+    RFFE_CHANNEL2,
+    RFFE_MAX_CHANNEL
+} rffeChannel;
+
+typedef struct FE_Ch_Band_cfg {
+    rffeChannel channel;
+}FE_Ch_Band_cfg;
+
 /* RFFE Band Type */
 typedef enum {
     RFFE_BAND2_1900 = 1,
@@ -41,11 +47,9 @@ typedef enum {
     RFFE_SHUTDOWN
 } rffeBand;
 
-/* RF Channel Type */
-typedef enum rfChannel {
-    RFFE_CHANNEL1 = 0,
-    RFFE_CHANNEL2
-} rffeChannel;
+typedef struct FE_Band_Cfg {
+    rffeBand band;
+}FE_Band_Cfg;
 
 /* Power Amplifier Control Type */
 typedef enum rfPACtrl {
@@ -60,16 +64,19 @@ typedef struct RfWatchdog_Cfg {
     OcGpio_Pin *pin_interrupt;
 } RfWatchdog_Cfg;
 
+typedef struct Fe_Ch_Pwr_Cfg {
+    rffeChannel channel;
+    Fe_Cfg *fe_Rffecfg;
+} Fe_Ch_Pwr_Cfg;
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-ReturnStatus rffe_ctrl_get_band(rffeChannel channel, rffeBand *band);
-ReturnStatus rffe_ctrl_configure_power_amplifier(rffeChannel channel,
+bool rffe_ctrl_set_band(rffeChannel channel, rffeBand band);
+bool rffe_ctrl_get_band(rffeChannel channel, rffeBand *band);
+ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *channel,
                                                  rffePaCtrlType rfPACtrl);
-
 bool RFFE_enablePA(void *driver, void *params);
 bool RFFE_disablePA(void *driver, void *params);
-
-extern Driver RFFEWatchdog;
+void _rffe_watchdog_handler(void *context);
 
 #endif /* RFFE_CTRL_H_ */

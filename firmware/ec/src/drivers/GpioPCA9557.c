@@ -14,6 +14,16 @@
 #include "inc/common/global_header.h"
 #include "inc/devices/pca9557.h"
 
+static int GpioPCA9557_probe(const OcGpio_Port *port) {
+    /* if we are able to read configuration register this means PCA device is accessible*/
+    const PCA9557_Cfg *pca_cfg = port->cfg;
+    PCA9557_Obj *obj = port->object_data;
+    if (PCA9557_getConfig(&pca_cfg->i2c_dev, &obj->reg_config) != RETURN_OK) {
+        return OCGPIO_FAILURE;
+    }
+    return OCGPIO_SUCCESS;
+}
+
 static int GpioPCA9557_init(const OcGpio_Port *port) {
     const PCA9557_Cfg *pca_cfg = port->cfg;
     PCA9557_Obj *obj = port->object_data;
@@ -152,6 +162,7 @@ static int GpioPCA9557_enableInt(const OcGpio_Pin *pin) {
 }
 
 const OcGpio_FnTable GpioPCA9557_fnTable = {
+    .probe = GpioPCA9557_probe,
     .init = GpioPCA9557_init,
     .write = GpioPCA9557_write,
     .read = GpioPCA9557_read,

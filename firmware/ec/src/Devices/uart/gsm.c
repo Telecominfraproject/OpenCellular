@@ -20,6 +20,10 @@
 #define CMGD_TIMEOUT 10000
 #define CFUN_TIMEOUT 12000
 
+#define TESTMOD_TASK_PRIORITY     2
+#define TESTMOD_TASK_STACK_SIZE   2048
+static Char testmodTaskStack[TESTMOD_TASK_STACK_SIZE];
+
 static const char CTRL_Z = 26;
 
 static GsmCallbackList gsmCallbackList = {}; // TODO: move into handle
@@ -289,8 +293,8 @@ bool GSM_cregRead(GSM_Handle handle, GsmCregInfo *info_out) {
             s_AtRes.param[3].type != AT_PARAM_TYPE_STR) {
             return false;
         }
-        info_out->lac = strtoull(s_AtRes.param[2].pStr, NULL, 16);
-        info_out->cid = strtoull(s_AtRes.param[3].pStr, NULL, 16);
+        info_out->lac = strtoumax(s_AtRes.param[2].pStr, NULL, 16);
+        info_out->cid = strtoumax(s_AtRes.param[3].pStr, NULL, 16);
     }
 
     return true;

@@ -6,13 +6,11 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "src/registry/Framework.h"
+#include "common/inc/ocmp_wrappers/ocmp_ltc4275.h"
 
 #include "helpers/array.h"
 #include "helpers/math.h"
 #include "inc/devices/ltc4275.h"
-#include "inc/devices/ocmp_wrappers/ocmp_ltc4275.h"
-
 
 static bool _get_status(void *driver, unsigned int param_id,
         void *return_buf)
@@ -22,7 +20,7 @@ static bool _get_status(void *driver, unsigned int param_id,
     case LTC4275_STATUS_CLASS:
     {
         ePDClassType *res = (ePDClassType*)return_buf;
-        if (ltc4275_get_class(res) == RETURN_OK) {
+        if (ltc4275_get_class(driver, res) == RETURN_OK) {
             ret = true;
         }
     }
@@ -30,7 +28,7 @@ static bool _get_status(void *driver, unsigned int param_id,
     case LTC4275_STATUS_POWERGOOD:
     {
         ePDPowerState *res =(ePDPowerState*) return_buf;
-        if (ltc4275_get_power_good(res) == RETURN_OK) {
+        if (ltc4275_get_power_good(driver, res) == RETURN_OK) {
             ret = true;
         }
         break;
@@ -46,9 +44,10 @@ static bool _get_status(void *driver, unsigned int param_id,
 
 /*****************************************************************************
  *****************************************************************************/
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return ltc4275_probe(driver);
+    ltc4275_config(driver);
+    return ltc4275_probe(driver,postData);
 }
 
 /*****************************************************************************
@@ -87,20 +86,7 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver LTC4275 = {
-    .name = "LTC4275",
-    .status = (Parameter[]){
-        { .name = "class", .type = TYPE_ENUM },
-        { .name = "powerGoodState", .type = TYPE_ENUM },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "INCOMPATIBLE", .type = TYPE_ENUM },
-        { .name = "DISCONNECT", .type = TYPE_ENUM },
-        { .name = "CONNECT", .type = TYPE_ENUM },
-        {}
-    },
-
+const Driver_fxnTable LTC4275_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

@@ -6,18 +6,17 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef INA226_H_
 #define INA226_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/Framework.h"
+#include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/post_frame.h"
 #include "inc/devices/sx1509.h"
-
 #include "inc/subsystem/hci/hci_led.h"
 
 /*****************************************************************************
@@ -82,13 +81,11 @@ typedef struct {
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
-ReturnStatus hci_led_turnon_green(void);
-ReturnStatus hci_led_turnon_red(void);
-ReturnStatus hci_led_turnoff_all(void);
-
-ReturnStatus hci_led_system_boot(void);
-
-ReturnStatus led_init(void);
-ePostCode led_probe(void);
+ReturnStatus hci_led_turnon_green(const HciLedCfg *driver);
+ReturnStatus hci_led_turnon_red(const HciLedCfg *driver);
+ReturnStatus hci_led_turnoff_all(const HciLedCfg *driver);
+ReturnStatus hci_led_system_boot(const HciLedCfg *driver);
+ReturnStatus led_init(const HciLedCfg *driver);
+ePostCode led_probe(const HciLedCfg *driver,POSTData* postData);
 
 #endif /* INA226_H_ */

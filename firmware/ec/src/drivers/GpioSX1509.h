@@ -6,14 +6,12 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef _GPIOSX1509_H_
 #define _GPIOSX1509_H_
 
-#include "OcGpio.h"
-
-#include "inc/common/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/devices/sx1509.h"
+#include "OcGpio.h"
 
 #include <ti/sysbios/gates/GateMutex.h>
 

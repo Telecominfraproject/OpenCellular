@@ -9,8 +9,10 @@
 
 #include "Board.h"
 #include "comm/gossiper.h"
-#include "inc/common/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/utils/util.h"
+#include "inc/common/global_header.h"
+#include <src/interfaces/Ethernet/tcp_tx_rx.h>
 
 #include <driverlib/gpio.h>
 #include <driverlib/interrupt.h>
@@ -26,7 +28,8 @@
 #include <xdc/std.h>
 #include <xdc/runtime/Error.h>
 #include <xdc/runtime/System.h>
-//#include <string.h> KASHIF
+
+#include <string.h>
 #include <stdbool.h>
 
 #define TCPPORT         1000
@@ -42,6 +45,9 @@ Queue_Struct ethTxMsg;
 
 int bytesRcvd;
 
+extern const char *destIp;
+extern uint8_t numRepeat;
+
 /* Prototypes */
 Void tcpHandler(UArg arg0, UArg arg1);
 
@@ -56,7 +62,7 @@ Void tcp_Tx_Worker(UArg arg0, UArg arg1)
     int bytesSent;
     uint8_t *buffer;
 
-    System_printf("tcpWorker: start clientfd = 0x%x\n", clientfd);
+    LOGGER_DEBUG("tcpWorker: start clientfd = 0x%x\n", clientfd);
 
     while (clientfd) {
         Semaphore_pend(ethTxsem, BIOS_WAIT_FOREVER);
@@ -64,7 +70,7 @@ Void tcp_Tx_Worker(UArg arg0, UArg arg1)
             buffer = Util_dequeueMsg(ethTxMsgQueue);
             bytesSent = send(clientfd, buffer, TCPPACKETSIZE, 0);
             if (bytesSent < 0) {
-                System_printf("Error: send failed.\n");
+                LOGGER_DEBUG("Error: send failed.\n");
                 break;
             }
         }
@@ -82,11 +88,11 @@ Void tcp_Rx_Worker(UArg arg0, UArg arg1)
     int clientfd = (int) arg0;
     char buffer[TCPPACKETSIZE];
 
-    System_printf("tcpWorker: start clientfd = 0x%x\n", clientfd);
+    LOGGER_DEBUG("tcpWorker: start clientfd = 0x%x\n", clientfd);
     while ((bytesRcvd = recv(clientfd, buffer, TCPPACKETSIZE, 0)) > 0) {
         Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, (uint8_t *) buffer);
     }
-    System_printf("tcpWorker stop clientfd = 0x%x\n", clientfd);
+    LOGGER_DEBUG("tcpWorker stop clientfd = 0x%x\n", clientfd);
 
     close(clientfd);
 }
@@ -103,6 +109,54 @@ static void sw_update_cb(void) {
     Types_FreqHz sys_clk;
     BIOS_getCpuFreq(&sys_clk);
     SoftwareUpdateBegin(sys_clk.lo);
+}
+
+/*
+ *  ======== tcpHandler_client ========
+ *  Create new Task to make new TCP connection and sends test data.
+ */
+
+Void tcpHandler_client(UArg arg0, UArg arg1)
+{
+    SOCKET lSocket;
+    struct sockaddr_in sLocalAddr;
+    /*Tiva operates at 120Mhz. We use delays based on this*/
+    uint32_t g_ui32SysClock = 120000000;
+
+    fdOpenSession(TaskSelf());
+
+    lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (lSocket < 0) {
+        LOGGER_DEBUG("tcpHandler: socket failed\n");
+        Task_exit();
+        return;
+    }else {
+        LOGGER_DEBUG(" %d socket success\n", fdError());
+    }
+    System_flush();
+    memset((char *)&sLocalAddr, 0, sizeof(sLocalAddr));
+    LOGGER_DEBUG(" Ip in client: %s\n",destIp);
+    sLocalAddr.sin_family = AF_INET;
+    sLocalAddr.sin_addr.s_addr = inet_addr(destIp);
+    sLocalAddr.sin_port = htons(arg0);
+
+    while(connect(lSocket, (struct sockaddr *)&sLocalAddr, sizeof(sLocalAddr)) < 0){
+        SysCtlDelay(g_ui32SysClock/100/3);
+    }
+    System_flush();
+    /* Test pattern to be sent across the TCP connection to external server */
+    char *buffer = "5A A5 5A A5 5A";
+    int nbytes = 14; /* Test Pattern length */
+
+    while (numRepeat > 0) {
+        send(lSocket, (char *)buffer, nbytes, 0 );
+        Task_sleep(500);
+        numRepeat--;
+        System_flush();
+    }
+    if (lSocket > 0)
+    close(lSocket);
+    fdCloseSession(TaskSelf());
 }
 
 /*
@@ -127,7 +181,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
     server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server == -1) {
-        System_printf("Error: socket not created.\n");
+        LOGGER_DEBUG("Error: socket not created.\n");
         goto shutdown;
     }
 
@@ -138,26 +192,26 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
     status = bind(server, (struct sockaddr *) &localAddr, sizeof(localAddr));
     if (status == -1) {
-        System_printf("Error: bind failed.\n");
+        LOGGER_DEBUG("Error: bind failed.\n");
         goto shutdown;
     }
 
     status = listen(server, NUMTCPWORKERS);
     if (status == -1) {
-        System_printf("Error: listen failed.\n");
+        LOGGER_DEBUG("Error: listen failed.\n");
         goto shutdown;
     }
 
     optval = 1;
     if (setsockopt(server, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
-        System_printf("Error: setsockopt failed\n");
+        LOGGER_DEBUG("Error: setsockopt failed\n");
         goto shutdown;
     }
 
     while ((clientfd = accept(server, (struct sockaddr *) &clientAddr, &addrlen))
             != -1) {
 
-        System_printf("tcpHandler: Creating thread clientfd = %d\n", clientfd);
+        LOGGER_DEBUG("tcpHandler: Creating thread clientfd = %d\n", clientfd);
 
         /* Init the Error_Block */
         Error_init(&eb);
@@ -169,7 +223,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         task_Tx_Handle = Task_create((Task_FuncPtr) tcp_Tx_Worker,
                                         &task_Tx_Params, &eb);
         if (task_Tx_Handle == NULL) {
-            System_printf("Error: Failed to create new Task\n");
+            LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
         }
 
@@ -180,7 +234,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         task_Rx_Handle = Task_create((Task_FuncPtr) tcp_Rx_Worker,
                                         &task_Rx_Params, &eb);
         if (task_Rx_Handle == NULL) {
-            System_printf("Error: Failed to create new Task\n");
+            LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
         }
 
@@ -188,7 +242,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         addrlen = sizeof(clientAddr);
     }
 
-    System_printf("Error: accept failed.\n");
+    LOGGER_DEBUG("Error: accept failed.\n");
 
     shutdown: if (server > 0) {
         close(server);
@@ -254,7 +308,7 @@ void netOpenHook()
     taskParams.arg0 = TCPPORT;
     taskHandle = Task_create((Task_FuncPtr) tcpHandler, &taskParams, &eb);
     if (taskHandle == NULL) {
-        System_printf("netOpenHook: Failed to create tcpHandler Task\n");
+        LOGGER_DEBUG("netOpenHook: Failed to create tcpHandler Task\n");
     }
 
     /* Start a thread to listen for SW update packets */

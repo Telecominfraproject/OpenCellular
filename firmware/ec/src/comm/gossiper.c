@@ -11,9 +11,10 @@
  *                                HEADER FILES
  *****************************************************************************/
 #include "comm/gossiper.h"
+
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
 #include "inc/interfaces/uartdma.h"
 
 #include <ti/sysbios/BIOS.h>
@@ -182,10 +183,10 @@ static ReturnStatus gossiper_process_rx_msg(uint8_t *pMsg)
     OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
     if (pOCMPMessageFrame != NULL) {
         LOGGER_DEBUG("GOSSIPER:INFO:: RX Msg recieved with Length: 0x%x, Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
-                         pOCMPMessageFrame->header.ocmp_frameLen,
-                         pOCMPMessageFrame->header.ocmp_interface,
-                         pOCMPMessageFrame->header.ocmp_seqNumber,
-                         pOCMPMessageFrame->header.ocmp_timestamp);
+                         pOCMPMessageFrame->header.ocmpFrameLen,
+                         pOCMPMessageFrame->header.ocmpInterface,
+                         pOCMPMessageFrame->header.ocmpSeqNumber,
+                         pOCMPMessageFrame->header.ocmpTimestamp);
         /*Update the Debug info required based on the debug jumper connected*/
         //status = CheckDebugEnabled()
         if (pOCMPMessageFrame->message.msgtype == OCMP_MSG_TYPE_DEBUG) {
@@ -221,15 +222,15 @@ static ReturnStatus gossiper_process_tx_msg(uint8_t *pMsg)
     LOGGER_DEBUG("GOSSIPER:INFO:: Processing Gossiper TX Message.\n");
     OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
     if (pOCMPMessageFrame != NULL) {
-        if (pOCMPMessageFrame->header.ocmp_interface == OCMP_COMM_IFACE_UART) {
+        if (pOCMPMessageFrame->header.ocmpInterface == OCMP_COMM_IFACE_UART) {
             status = gossiper_uart_send_msg(pMsg);
-        } else if (pOCMPMessageFrame->header.ocmp_interface
+        } else if (pOCMPMessageFrame->header.ocmpInterface
                 == OCMP_COMM_IFACE_ETHERNET) {
             status = gossiper_ethernet_send_msg(pMsg);
-        } else if (pOCMPMessageFrame->header.ocmp_interface
+        } else if (pOCMPMessageFrame->header.ocmpInterface
                 == OCMP_COMM_IFACE_SBD) {
                 // Will be added later.
-        } else if (pOCMPMessageFrame->header.ocmp_interface
+        } else if (pOCMPMessageFrame->header.ocmpInterface
                 == OCMP_COMM_IFACE_USB) {
             status = gossiper_usb_send_msg(pMsg);
         }

@@ -22,11 +22,6 @@ static const I2C_Dev pca9557_dev = {
     .slave_addr = 0x00,
 };
 
-static const I2C_Dev pca9557_no_dev = {
-    .bus = 2,
-    .slave_addr = 0x01,
-};
-
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
 {
@@ -125,8 +120,9 @@ void test_PCA9557_not_present(void)
 {
     /* Ensure that we fail properly if the device isn't on the bus */
     uint8_t dummy_val;
-    I2C_Dev invalid_dev = pca9557_no_dev;
-	
+    I2C_Dev invalid_dev = pca9557_dev;
+    invalid_dev.slave_addr = 0x01;
+
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       PCA9557_getInput(&invalid_dev, &dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,

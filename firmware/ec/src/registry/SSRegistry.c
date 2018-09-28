@@ -6,24 +6,35 @@
 * LICENSE file in the root directory of this source tree. An additional grant
 * of patent rights can be found in the PATENTS file in the same directory.
 */
-
 #include "SSRegistry.h"
-#include "Framework.h"
 
+#include "common/inc/global/Framework.h"
 #include "helpers/array.h"
 #include "inc/common/bigbrother.h" /* For sending msg back via BB */
-#include "inc/common/post.h" /* For sending POST response */
+#include "inc/common/post.h"
+#include "inc/common/post_util.h" /* For sending POST response */
 #include "inc/common/global_header.h"
 #include "inc/utils/ocmp_util.h"
 #include "inc/utils/util.h"
 
+#define OCMP_ACTION_TYPE_GET    1
+#define OCMP_ACTION_TYPE_SET    2
+#define OCMP_ACTION_TYPE_REPLY  3
+#define OCMP_ACTION_TYPE_ACTIVE 4
+
 /* TODO: configurable directory (allow us to target different platforms) */
-#include "platform/oc-sdr/schema.h"
+#include "platform/oc-sdr/schema/schema.h"
 
 #include <ti/sysbios/BIOS.h>
 
+#define OC_TASK_STACK_SIZE    2048
+#define OC_TASK_PRIORITY      2
+
+static char OC_task_stack[SUBSYSTEM_COUNT][OC_TASK_STACK_SIZE];
+
 extern const Component sys_schema[SUBSYSTEM_COUNT];
-static OCSubsystem *ss_reg[SUBSYSTEM_COUNT] = {};
+
+OCSubsystem *ss_reg[SUBSYSTEM_COUNT] = {};
 
 static const size_t PARAM_SIZE_MAP[] = {
     [TYPE_NULL] = 0,
@@ -114,121 +125,23 @@ void OCMP_GenerateAlert(const AlertData *alert_data,
     }
 }
 
-/* Execute POST for a given device driver (performs deep copy of alert_data) */
-static ReturnStatus _postDriver(const Component *subsystem,
-                                const Component *dev,
-                                const AlertData *alert_data)
-{
-    if (!dev->driver) {
-        return RETURN_OK;
-    }
-
-    ePostCode postcode = POST_DEV_FOUND;
-    if (dev->driver->cb_probe) {
-        dev->driver->cb_probe(dev->driver_cfg);
-    }
-    LOGGER_DEBUG("%s:INFO:: %s (%s) %s\n", subsystem->name,
-           dev->name,  dev->driver->name,
-           (postcode == POST_DEV_FOUND) ? "found" : "not found");
-
-    if (subsystem->ss->state == SS_STATE_INIT) {
-        if (postcode == POST_DEV_FOUND) {
-            if (dev->driver->cb_init) {
-                AlertData *alert_data_cp = malloc(sizeof(AlertData));
-                *alert_data_cp = *alert_data;
-                postcode = dev->driver->cb_init(dev->driver_cfg,
-                                                dev->factory_config,
-                                                alert_data_cp);
-            } else {
-                postcode = POST_DEV_CFG_DONE;
-            }
-            LOGGER_DEBUG("%s:INFO:: Configuration status for %s (%s) is %s\n",
-                         subsystem->name,
-                         dev->name,
-                         dev->driver->name,
-                         (postcode == POST_DEV_CFG_DONE) ? "OK" : "NOT OK");
-        }
-        return ((postcode == POST_DEV_CFG_DONE) ?
-                RETURN_OK : RETURN_NOTOK);
-    } else {
-        return ((postcode == POST_DEV_FOUND) ?
-                RETURN_OK : RETURN_NOTOK);
-    }
-}
-
-static ReturnStatus _execPost(OCMPMessageFrame *pMsg,
-                              unsigned int subsystem_id)
-{
-    const Component *subsystem = &sys_schema[subsystem_id];
-
-    /* TODO: this is messy and assumes we have a pointer to the subsystem -
-     * we'll want to change this once the framework is more mature */
-    if (subsystem->ss->state == SS_STATE_PWRON) {
-        subsystem->ss->state = SS_STATE_INIT;
-    }
-
-    /* Iterate over each component & device within the subsystem, calling
-     * its post callback */
-    ReturnStatus status = RETURN_OK;
-    if(subsystem->ssHookSet) {
-        if(subsystem->ssHookSet->preInitFxn) {
-            if (!(subsystem->ssHookSet->preInitFxn(&(subsystem->ss->state)))) {
-                status = RETURN_NOTOK;
-                return status;
-            }
-        }
-    }
-    const Component *comp = &subsystem->components[0];
-    for (uint8_t comp_id = 0; _compIsValid(comp); ++comp, ++comp_id) { /* Component level (ec, ap, ch1, etc.) */
-        /* If we have a driver at the component level, init */
-        AlertData alert_data = {
-            .subsystem = (OCMPSubsystem)subsystem_id,
-            .componentId = comp_id,
-            .deviceId = 0,
-        };
-        _postDriver(subsystem, comp, &alert_data);
-
-        const Component *dev = &comp->components[0];
-        for (uint8_t dev_id = 0; _compIsValid(dev); ++dev, ++dev_id) { /* Device level (ts, ina, etc) */
-            AlertData alert_data = {
-                .subsystem = (OCMPSubsystem)subsystem_id,
-                .componentId = comp_id,
-                .deviceId = dev_id,
-            };
-            _postDriver(subsystem, dev, &alert_data);
-        }
-    }
-    if(subsystem->ssHookSet) {
-        if(subsystem->ssHookSet->postInitFxn){
-            if (!(subsystem->ssHookSet->postInitFxn(&(subsystem->ss->state)))) {
-                subsystem->ss->state = SS_STATE_FAULTY;
-            }
-        }
-    }
-    if (subsystem->ss->state == SS_STATE_INIT && status == RETURN_OK) {
-        subsystem->ss->state = SS_STATE_CFG;
-    } else {
-        subsystem->ss->state = SS_STATE_FAULTY;
-    }
-
-    LOGGER("%s:INFO:: Modules and sensors are %s.\n", subsystem->name,
-           ((status == RETURN_OK) ? "initialized." : "not initialized."));
-    return status;
-}
-
 static bool _handleMsgTypeCmd(OCMPMessageFrame *pMsg, const Component *comp)
 {
-    if (pMsg->message.subsystem != OC_SS_DEBUG) {
-        const Command *cmd = comp->commands[pMsg->message.action];
-        if (cmd && cmd->cb_cmd) {
-            cmd->cb_cmd(comp->driver_cfg, pMsg->message.ocmp_data);
-            return true;
+    const Command *cmd;
+    Component *dev;
+    if (comp) {
+        if (pMsg->message.parameters > 0) {
+            dev = &comp->components[(pMsg->message.parameters)-1];
+        } else {
+            dev = comp;
         }
-    } else {
-        const Component *subComp = &comp->components[pMsg->message.parameters];
-        const Command *cmd = subComp->driver->commands[pMsg->message.action];
+        if (dev->driver && dev->driver->commands) {
+            cmd = &dev->driver->commands[pMsg->message.action];
+        } else {
+            cmd = &dev->commands[pMsg->message.action];
+        }
         if (cmd && cmd->cb_cmd) {
-            cmd->cb_cmd(subComp->driver_cfg, pMsg->message.ocmp_data);
+            cmd->cb_cmd(dev->driver_cfg, pMsg->message.ocmp_data);
             return true;
         }
     }
@@ -240,12 +153,12 @@ static bool _handle_cmd_get(OCMPMessageFrame *pMsg, const Component *comp,
 {
     switch (pMsg->message.msgtype) {
         case OCMP_MSG_TYPE_CONFIG:
-            return (comp->driver->cb_get_config &&
-                    comp->driver->cb_get_config(comp->driver_cfg, param_id,
+            return (comp->driver->fxnTable->cb_get_config &&
+                    comp->driver->fxnTable->cb_get_config(comp->driver_cfg, param_id,
                                                 buf_ptr));
         case OCMP_MSG_TYPE_STATUS:
-            return (comp->driver->cb_get_status &&
-                    comp->driver->cb_get_status(comp->driver_cfg, param_id,
+            return (comp->driver->fxnTable->cb_get_status &&
+                    comp->driver->fxnTable->cb_get_status(comp->driver_cfg, param_id,
                                                 buf_ptr));
         default:
             return false;
@@ -257,8 +170,8 @@ static bool _handle_cmd_set(OCMPMessageFrame *pMsg, const Component *comp,
 {
     switch (pMsg->message.msgtype) {
         case OCMP_MSG_TYPE_CONFIG:
-            return (comp->driver->cb_set_config &&
-                    comp->driver->cb_set_config(comp->driver_cfg, param_id,
+            return (comp->driver->fxnTable->cb_set_config &&
+                    comp->driver->fxnTable->cb_set_config(comp->driver_cfg, param_id,
                                                 data));
         default:
             return false;
@@ -293,7 +206,7 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
     while (param_list[normalized_id].name) {
         if (pMsg->message.parameters & (1 << *param_id)) {
             switch (pMsg->message.action) {
-                case OCMP_AXN_TYPE_GET:
+                case OCMP_ACTION_TYPE_GET:
                     if (_handle_cmd_get(pMsg, dev, normalized_id,
                                         *buf_ptr)) {
                         dev_handled = true;
@@ -301,7 +214,7 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
                         pMsg->message.parameters &= ~(1 << *param_id);
                     }
                     break;
-                case OCMP_AXN_TYPE_SET:
+                case OCMP_ACTION_TYPE_SET:
                     if (_handle_cmd_set(pMsg, dev, normalized_id,
                                         *buf_ptr)) {
                         dev_handled = true;
@@ -319,6 +232,71 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
         }
         (*param_id)++;
         normalized_id++;
+    }
+    return dev_handled;
+}
+
+static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
+{
+    bool ret = false;
+    OCMPMessageFrame *buffer;
+    const Post *postCmd = &comp->driver->post[(pMsg->message.action)-1];
+    if (postCmd && postCmd->cb_postCmd) {
+        ret = postCmd->cb_postCmd(&buffer);
+        if (ret) {
+            Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*)buffer);
+        }
+    }
+    pMsg->message.ocmp_data[0] = !(ret); //RETURN_OK =0;
+    return ret;
+}
+
+static bool _handle_post_active(OCMPMessageFrame *pMsg,unsigned int subsystem_id)
+{
+    ReturnStatus status = _execPost(pMsg, subsystem_id);
+    return (status == RETURN_OK);
+}
+
+static bool _handle_post_get_results(const Component *comp,OCMPMessageFrame *pMsg)
+{
+    bool ret = false;
+    const Post *postCmd = &comp->driver->post[(pMsg->message.action)-1];
+    if (postCmd && postCmd->cb_postCmd) {
+        postCmd->cb_postCmd(pMsg);
+        ret = true;
+    }
+    return ret;
+}
+
+static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp, unsigned int subsystem_id)
+{
+    /* Determine driver & parameter */
+    unsigned int param_id = 0;
+    uint8_t *buf_ptr = pMsg->message.ocmp_data;
+    bool dev_handled = false;
+    switch (pMsg->message.action) {
+        case OCMP_ACTION_TYPE_SET:
+            if (_handle_post_enable(comp, pMsg)) {
+                dev_handled = true;
+            }
+            break;
+        case OCMP_ACTION_TYPE_ACTIVE:
+            if (_handle_post_active(pMsg,subsystem_id)) {
+                dev_handled = true;
+            }
+            break;
+        case OCMP_ACTION_TYPE_GET:
+            if (_handle_post_get_results(comp, pMsg)) {
+                dev_handled = true;
+            }
+            break;
+/*        case OCMP_ACTION_REPLY:
+            if (_handle_post_reply(pMsg, *buf_ptr)) {
+                dev_handled = true;
+            }
+            break;*/
+        default:
+            break;
     }
     return dev_handled;
 }
@@ -348,26 +326,12 @@ static bool _handleMsgTypeStatCfg(OCMPMessageFrame *pMsg, const Component *comp)
 static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
 {
     const Component *subsystem = &sys_schema[subsystem_id];
-
-    /* The main exception to the flow right now is POST - check for it first */
-    if (pMsg->message.msgtype == OCMP_MSG_TYPE_POST) {
-        ReturnStatus status = _execPost(pMsg, subsystem_id);
-
-        memcpy((pMsg->message.ocmp_data), &status, 1);
-        pMsg->message.action = OCMP_AXN_TYPE_REPLY;
-        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
-
-        return true;
-    }
-
     /* Validate component ID */
-    if (pMsg->message.componentID >= _subcompCount(subsystem)) {
+    if (pMsg->message.componentID > _subcompCount(subsystem)) {
         LOGGER_ERROR("Component %d out of bounds\n", pMsg->message.componentID);
         return false;
     }
-
-    const Component *comp = &subsystem->components[pMsg->message.componentID];
-
+    const Component *comp = &subsystem->components[(pMsg->message.componentID)-1];
     /* TODO: clean up special handling for commands */
     bool dev_handled = false;
     switch (pMsg->message.msgtype) {
@@ -378,6 +342,11 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
         case OCMP_MSG_TYPE_STATUS:
             dev_handled = _handleMsgTypeStatCfg(pMsg, comp);
             break;
+        case OCMP_MSG_TYPE_POST:
+            dev_handled = _handleMsgTypePOST(pMsg, comp, subsystem_id);
+            //pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
+            //Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
+            break;
         default:
             break;
     }
@@ -386,10 +355,15 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
     if (!dev_handled) {
         pMsg->message.parameters = 0x00;
     }
-
-    /* Send reply to the middleware */
-    pMsg->message.action = OCMP_AXN_TYPE_REPLY;
-    Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg, (uint8_t *)pMsg);
+    /* The main exception to the flow right now is POST - check for it first */
+    if ((pMsg->message.msgtype == OCMP_MSG_TYPE_POST) && (pMsg->message.action == OCMP_ACTION_TYPE_ACTIVE)) {
+        pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
+        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
+    } else {
+        /* Send reply to the middleware */
+        pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
+        Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg, (uint8_t *)pMsg);
+    }
     return true;
 }
 
@@ -422,13 +396,11 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
 }
 
 static void subsystem_init(OCMPSubsystem ss_id) {
-    OCSubsystem *ss = sys_schema[ss_id].ss;
+    OCSubsystem *ss = (OCSubsystem*)malloc(sizeof(OCSubsystem));
     if (!ss) {
         return;
     }
-
     ss_reg[ss_id] = ss;
-
     ss->state = SS_STATE_PWRON;
 
     /* Create Semaphore for RX Message Queue */
@@ -449,9 +421,9 @@ static void subsystem_init(OCMPSubsystem ss_id) {
     /* Spin up the task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
-    taskParams.stack = ss->taskStack;
-    taskParams.stackSize = ss->taskStackSize;
-    taskParams.priority = ss->taskPriority;
+    taskParams.stack = OC_task_stack[ss_id];// ss->taskStack;
+    taskParams.stackSize = OC_TASK_STACK_SIZE;//ss->taskStackSize;
+    taskParams.priority = OC_TASK_PRIORITY;//ss->taskPriority;
     taskParams.arg0 = (UArg)ss;
     taskParams.arg1 = ss_id;
 

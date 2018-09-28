@@ -6,9 +6,52 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+#include "common/inc/ocmp_wrappers/ocmp_eth_sw.h"
+
+#include "common/inc/global/Framework.h"
 #include "inc/devices/eth_sw.h"
-#include "src/registry/Framework.h"
-#include "inc/devices/ocmp_wrappers/ocmp_eth_sw.h"
+
+bool ETHERNET_reset(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_set_config_soft_reset(PORT0);
+    return status;
+}
+
+bool ETHERNET_enLoopBk(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_enable_loopback(driver, params);
+    return status;
+}
+
+bool ETHERNET_disLoopBk(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_disable_loopback(driver, params);
+    return status;
+}
+
+bool ETHERNET_enPktGen(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_enable_packet_gen(driver, params);
+    return status;
+}
+
+bool ETHERNET_disPktGen(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_disable_packet_gen(driver);
+    return status;
+}
+
+bool ETHERNET_tivaClient(void *driver, void *params)
+{
+    ReturnStatus status = RETURN_OK;
+    status = eth_sw_config_tiva_client(driver, params);
+    return status;
+}
 
 static bool _get_status(void *driver, unsigned int param_id,
                         void *return_buf)
@@ -78,11 +121,13 @@ static bool _get_config(void *driver, unsigned int param_id,
         case ETH_SW_CONFIG_SW_RESET: {
             uint8_t *res = return_buf;
             *res = 0;
+            return false;
 
         }
         case ETH_SW_CONFIG_RESTART_AUTONEG: {
             uint8_t *res = return_buf;
             *res = 0;
+            return false;
         }
         default:
             LOGGER_ERROR("ETH_SW::Unknown config param %d\n", param_id);
@@ -95,41 +140,36 @@ static bool _set_config(void *driver, unsigned int param_id,
 {
     Eth_cfg *cfg = (Eth_cfg*)driver;
     switch (param_id) {
-#if 0
-		KASHIF
            case ETH_SW_CONFIG_SPEED: {
-               uint8_t *res = data;
-               return (eth_sw_set_config_speed(cfg->eth_sw_port, (port_duplex)*res)
+               uint8_t *res = (uint8_t*)data;
+               return (eth_sw_set_config_speed(cfg->eth_sw_port, *res)
                        == RETURN_OK);
            }
            case ETH_SW_CONFIG_DUPLEX: {
-               uint8_t *res = data;
-               return (eth_sw_set_config_duplex(cfg->eth_sw_port, (port_duplex)*res)
+               uint8_t *res = (uint8_t*)data;
+               return (eth_sw_set_config_duplex(cfg->eth_sw_port, *res)
                        == RETURN_OK);
            }
-#endif
            case ETH_SW_CONFIG_POWER_DOWN: {
-               uint8_t *res = data;
-               return (eth_sw_set_config_power_down(cfg->eth_sw_port, res)
+               uint8_t *res = (uint8_t*)data;
+               return (eth_sw_set_config_power_down(cfg->eth_sw_port, *res)
                        == RETURN_OK);
            }
            case ETH_SW_CONFIG_SLEEPMODE_EN: {
-               uint8_t *res = data;
-               return (eth_sw_set_config_sleep_mode_enable(cfg->eth_sw_port, res)
+               uint8_t *res = (uint8_t*)data;
+               return (eth_sw_set_config_sleep_mode_enable(cfg->eth_sw_port, *res)
                        == RETURN_OK);
            }
            case ETH_SW_CONFIG_INTERRUPT_EN: {
-               uint8_t *res = data;
+               uint8_t *res = (uint8_t*)data;
                return (eth_sw_set_config_interrupt_enable(cfg->eth_sw_port, res)
                        == RETURN_OK);
            }
            case ETH_SW_CONFIG_SW_RESET: {
-               uint8_t *res = data;
                return (eth_sw_set_config_soft_reset(cfg->eth_sw_port)
                        == RETURN_OK);
            }
            case ETH_SW_CONFIG_RESTART_AUTONEG: {
-               uint8_t *res = data;
                return (eth_sw_set_config_restart_neg(cfg->eth_sw_port) == RETURN_OK);
            }
            default:
@@ -138,9 +178,10 @@ static bool _set_config(void *driver, unsigned int param_id,
        }
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return eth_sw_probe(driver);
+    eth_sw_configure(driver);
+    return eth_sw_probe(postData);
 }
 
 static void _alert_handler(Eth_Sw_Events evt, int16_t value, void *alert_data)
@@ -190,36 +231,7 @@ static ePostCode _init(void *driver, const void *config,
     return ret;
 }
 
-const Driver ETH_SW = {
-    .name = "Marvel_88E6071",
-    .status = (Parameter[]){
-        { .name = "speed", .type = TYPE_UINT8 },
-        { .name = "duplex", .type = TYPE_UINT8 },
-        { .name = "autoneg_on", .type = TYPE_UINT8 },
-        { .name = "sleep_mode_en", .type = TYPE_UINT8 },
-        { .name = "autoneg_complete", .type = TYPE_UINT8 },
-        { .name = "link_up", .type = TYPE_UINT8 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "speed", .type = TYPE_UINT8 },
-        { .name = "duplex", .type = TYPE_UINT8 },
-        { .name = "autoneg_on", .type = TYPE_UINT8 },
-        { .name = "sleep_mode_en", .type = TYPE_UINT8 },
-        { .name = "autoneg_complete", .type = TYPE_UINT8 },
-        { .name = "link_up", .type = TYPE_UINT8 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "speed", .type = TYPE_UINT8 },
-        { .name = "duplex", .type = TYPE_UINT8 },
-        { .name = "autoneg_complete", .type = TYPE_UINT8 },
-        { .name = "crossover_det", .type = TYPE_UINT8 },
-        { .name = "energy_det", .type = TYPE_UINT8 },
-        { .name = "polarity_change", .type = TYPE_UINT8 },
-        { .name = "jabber_det", .type = TYPE_UINT8 },
-        {}
-    },
+const Driver_fxnTable eth_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

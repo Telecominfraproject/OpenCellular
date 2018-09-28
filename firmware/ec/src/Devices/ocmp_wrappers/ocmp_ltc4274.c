@@ -6,14 +6,11 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
-#include "src/registry/Framework.h"
+#include "common/inc/ocmp_wrappers/ocmp_ltc4274.h"
 
 #include "helpers/array.h"
 #include "helpers/math.h"
 #include "inc/devices/ltc4274.h"
-#include "inc/devices/ocmp_wrappers/ocmp_ltc4274.h"
-
 
 typedef enum LTC7274Status {
     LTC7274_STATUS_DETECT = 0,
@@ -40,6 +37,13 @@ typedef enum LTC7274Alert {
     LTC4274_ALERT_TSTART,
     LTC4274_ALERT_SUPPLY
 } LTC7274Alert;
+
+bool LTC4274_reset(void *driver, void *params)
+{
+	ReturnStatus status = RETURN_OK;
+	status = ltc4274_reset();
+	return status;
+}
 
 static bool _get_status(void *driver, unsigned int param_id,
         void *return_buf) {
@@ -187,9 +191,11 @@ static bool _get_config(void *driver, unsigned int param_id,
     }
     return ret;
 }
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return ltc4274_probe(driver);
+    ltc4274_config(driver);
+    return ltc4274_probe(driver, postData);
+
 }
 
 static void _alert_handler(LTC4274_Event evt,
@@ -263,35 +269,7 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver LTC4274 = {
-    .name = "PSE",
-    .status = (Parameter[]){
-        { .name = "detectStatus", .type = TYPE_UINT16 },
-        { .name = "classStatus", .type = TYPE_UINT16 },
-        { .name = "powerGoodStatus", .type = TYPE_UINT16 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "operatingMode", .type = TYPE_UINT16 },
-        { .name = "detectEnable", .type = TYPE_UINT16 },
-        { .name = "interruptMask", .type = TYPE_UINT16 },
-        { .name = "interruptEnable", .type = TYPE_UINT16 },
-        { .name = "pseHpEnable", .type = TYPE_UINT16 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "NoAlert", .type = TYPE_UINT8 },
-        { .name = "PowerEnable", .type = TYPE_UINT8 },
-        { .name = "PowerGood", .type = TYPE_UINT8 },
-        { .name = "DiconnectAlert", .type = TYPE_UINT8 },
-        { .name = "DetectionAlert", .type = TYPE_UINT8 },
-        { .name = "ClassAlert", .type = TYPE_UINT8 },
-        { .name = "TCUTAler", .type = TYPE_UINT8 },
-        { .name = "TStartAlert", .type = TYPE_UINT8 },
-        { .name = "SupplyAlert", .type = TYPE_UINT8 },
-        {}
-    },
-
+const Driver_fxnTable LTC4274_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

@@ -10,7 +10,7 @@
 #ifndef _SSREGISTRY_H_
 #define _SSREGISTRY_H_
 
-#include "inc/common/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/common/system_states.h"
 
 #include <ti/sysbios/knl/Queue.h>
@@ -27,11 +27,6 @@ typedef struct OCSubsystem {
     /* Message queue handles */
     Queue_Handle msgQueue;
     Semaphore_Handle sem;
-
-    /* Task variables */
-    xdc_Int taskPriority;
-    xdc_Ptr taskStack;
-    xdc_SizeT taskStackSize;
 
     /* Private variables (reduce dynamic allocation needs) */
     Queue_Struct queueStruct;

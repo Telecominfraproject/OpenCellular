@@ -12,9 +12,10 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/post_frame.h"
+#include "common/inc/global/Framework.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/post_frame.h"
 
 #include <ti/sysbios/gates/GateMutex.h>
 
@@ -38,7 +39,7 @@ typedef void (*SE98A_CallbackFn) (SE98A_Event evt, int8_t temperature,
                                   void *context);
 
 typedef struct SE98A_Cfg {
-    const I2C_Dev dev;
+    I2C_Dev dev;
     OcGpio_Pin *pin_evt;
 } SE98A_Cfg;
 
@@ -80,10 +81,10 @@ ReturnStatus se98a_enable_alerts(SE98A_Dev *dev);
  * POST (probe device, then init) - I propose that this should all be
  * in a single function */
 /*! Tests the SE98A device and verifies that the driver supports it
- * @param dev Device struct pointer
+ * @param dev Device struct pointer, Post data struct
  * @return POST_DEV_FOUND on success, error code on failure
  */
-ePostCode se98a_probe(SE98A_Dev *dev);
+ePostCode se98a_probe(SE98A_Dev *dev,  POSTData *postData);
 
 /*! Sets one of the 3 alert thresholds on the device
  * @param dev Device struct pointer

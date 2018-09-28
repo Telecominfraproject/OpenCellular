@@ -17,25 +17,10 @@
  *                             HANDLES DEFINITION
  *****************************************************************************/
 /* Global Task Configuration Variables */
-static Char hciTaskStack[HCI_TASK_STACK_SIZE];
 
-OCSubsystem ssHci = {
-    .taskStackSize = HCI_TASK_STACK_SIZE,
-    .taskPriority = HCI_TASK_PRIORITY,
-    .taskStack = hciTaskStack,
-};
-
-extern void *sys_config[];
-#define HCI ((Hci_Cfg *)sys_config[OC_SS_HCI])
-
-bool HCI_Init(void *return_buf)
+bool HCI_Init(void* driver, void *return_buf)
 {
-    /* Initialize IO pins */
-    OcGpio_configure(&HCI->led.pin_ec_gpio, OCGPIO_CFG_OUTPUT |
-                                            OCGPIO_CFG_OUT_HIGH);
-
     HciBuzzer_init();
-
     return true;
 }
 

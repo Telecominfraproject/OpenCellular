@@ -7,13 +7,13 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 #include "inc/devices/se98a.h"
+
 #include "inc/common/byteorder.h"
 #include "devices/i2c/threaded_int.h"
 #include "helpers/math.h"
 #include "helpers/memory.h"
 
 #include <ti/sysbios/knl/Task.h>
-
 #include <math.h>
 
 /*****************************************************************************
@@ -328,9 +328,9 @@ ReturnStatus se98a_init(SE98A_Dev *dev)
     }
 
     /* Make sure we're talking to the right device */
-    if (se98a_probe(dev) != POST_DEV_FOUND) {
-        return RETURN_NOTOK;
-    }
+    //if (se98a_probe(dev) != POST_DEV_FOUND) {
+    //    return RETURN_NOTOK;
+    //}
 
     /* The only way to truly reset this device is to cycle power - we'll just
      * clear out the config register to be safe and clear any interrupts from
@@ -383,7 +383,7 @@ ReturnStatus se98a_enable_alerts(SE98A_Dev *dev)
 
 /*****************************************************************************
  *****************************************************************************/
-ePostCode se98a_probe(SE98A_Dev *dev)
+ePostCode se98a_probe(SE98A_Dev *dev,  POSTData *postData)
 {
     uint8_t devId = 0x00;
     uint16_t manfId = 0x0000;
@@ -400,6 +400,6 @@ ePostCode se98a_probe(SE98A_Dev *dev)
     if (manfId != SE98A_MFG_ID) {
         return POST_DEV_ID_MISMATCH;
     }
-
+    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,manfId, devId);
     return POST_DEV_FOUND;
 }

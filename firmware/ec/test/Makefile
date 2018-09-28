@@ -4,8 +4,8 @@
 #   [Released under MIT License. Please refer to license.txt for details]
 # ==========================================
 
-UNITY_ROOT = /Users/kashi/work/tools/Unity
-OCWARE_ROOT = ..
+UNITY_ROOT ?= ../../../../../Unity
+OCWARE_ROOT ?= ..
 
 PATHT = suites/
 PATHB = build/
@@ -33,7 +33,7 @@ CFLAGS += -Wno-unknown-pragmas
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
 CFLAGS += -Wold-style-definition
-CFLAGS += -DTEST
+CFLAGS += -DTEST -DUT_POST -DUT_FRAMEWORK
 CFLAGS += -g
 CFLAGS += -Dxdc_target_types__="xdc_target_posix.h"
 
@@ -65,9 +65,9 @@ ifeq ($(OS),Windows_NT)
     MKDIR = mkdir -p
   endif
 else
-  DIR_XDC=/Users/kashi/work/tools/tirtos/xdctools_3_32_00_06_core/packages/
-  DIR_SYSBIOS=/Users/kashi/work/tools/tirtos/tirtos_tivac_2_16_01_14//products/bios_6_45_02_31/packages/
-  DIR_TIDRIVERS=/Users/kashi/work/tools/tirtos/tirtos_tivac_2_16_01_14/products/tidrivers_tivac_2_16_01_13/packages/
+  DIR_XDC ?= $(HOME)/ti/xdctools_3_32_00_06_core/packages/
+  DIR_SYSBIOS ?= $(HOME)/ti/tirtos_tivac_2_16_01_14/products/bios_6_45_02_31/packages/
+  DIR_TIDRIVERS ?= $(HOME)/ti/tirtos_tivac_2_16_01_14/products/tidrivers_tivac_2_16_01_13/packages/
 
   CLEANUP = rm -f
   MKDIR = mkdir -p
@@ -92,7 +92,7 @@ TEST_PCA9557_SRC=$(OCWARE_ROOT)/src/Devices/pca9557.c $(OCWARE_ROOT)/src/Devices
 $(PATHB)Test_pca9557$(TARGET_EXTENSION): $(STD_FILES) $(TEST_PCA9557_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@
 
-TEST_SE98A_SRC=$(OCWARE_ROOT)/src/Devices/se98a.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c
+TEST_SE98A_SRC=$(OCWARE_ROOT)/src/Devices/se98a.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/post/post_util.c
 $(PATHB)Test_se98a$(TARGET_EXTENSION): $(STD_FILES) $(TEST_SE98A_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
 
@@ -100,7 +100,7 @@ TEST_GpioPCA9557_SRC=$(OCWARE_ROOT)/src/Devices/pca9557.c $(OCWARE_ROOT)/src/Dev
 $(PATHB)Test_GpioPCA9557$(TARGET_EXTENSION): $(STD_FILES) $(TEST_GpioPCA9557_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@
 
-TEST_INA226_SRC=$(OCWARE_ROOT)/src/Devices/ina226.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c
+TEST_INA226_SRC=$(OCWARE_ROOT)/src/Devices/ina226.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/post/post_util.c
 $(PATHB)Test_ina226$(TARGET_EXTENSION): $(STD_FILES) $(TEST_INA226_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@
 
@@ -112,9 +112,37 @@ TEST_GpioSX1509_SRC=$(OCWARE_ROOT)/src/Devices/sx1509.c $(OCWARE_ROOT)/src/Devic
 $(PATHB)Test_GpioSX1509$(TARGET_EXTENSION): $(STD_FILES) $(TEST_GpioSX1509_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@
 	
-TEST_LTC4015_SRC=$(OCWARE_ROOT)/src/Devices/ltc4015.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c
+TEST_LTC4015_SRC=$(OCWARE_ROOT)/src/Devices/ltc4015.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/post/post_util.c
 $(PATHB)Test_ltc4015$(TARGET_EXTENSION): $(STD_FILES) $(TEST_LTC4015_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+	
+TEST_powerSource_SRC=$(OCWARE_ROOT)/src/Devices/powerSource.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/Devices/sx1509.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c
+$(PATHB)Test_powerSource$(TARGET_EXTENSION): $(STD_FILES) $(TEST_powerSource_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+
+TEST_EEPROM_SRC=$(OCWARE_ROOT)/src/Devices/eeprom.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/Devices/sx1509.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c
+$(PATHB)Test_eeprom$(TARGET_EXTENSION): $(STD_FILES) $(TEST_EEPROM_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+
+TEST_LTC4275_SRC=$(OCWARE_ROOT)/src/Devices/ltc4275.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c
+$(PATHB)Test_ltc4275$(TARGET_EXTENSION): $(STD_FILES) $(TEST_LTC4275_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+
+TEST_OCMP_ADT7481_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_adt7481.c $(OCWARE_ROOT)/src/Devices/adt7481.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/post/post_util.c
+$(PATHB)Test_ocmp_adt7481$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_ADT7481_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+
+TEST_OCMP_LTC4274_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_ltc4274.c $(OCWARE_ROOT)/src/Devices/ltc4274.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/post/post_util.c
+$(PATHB)Test_ocmp_ltc4274$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_LTC4274_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -lm -o $@
+
+TEST_PINGROUP_SRC=$(OCWARE_ROOT)/src/drivers/PinGroup.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_I2C.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/helpers/memory.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/drivers/GpioPCA9557.c $(OCWARE_ROOT)/src/Devices/pca9557.c
+$(PATHB)Test_PinGroup_driver$(TARGET_EXTENSION): $(STD_FILES) $(TEST_PINGROUP_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
+
+TEST_OCGPIO_SRC=$(OCWARE_ROOT)/src/drivers/OcGpio.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_I2C.c fake/fake_GPIO.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/helpers/memory.c stub/stub_GateMutex.c
+$(PATHB)Test_OcGpio$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCGPIO_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 
 # Dummy target to allow us to force rebuild of testresults every time
 FORCE:

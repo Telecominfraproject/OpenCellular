@@ -6,15 +6,15 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef POWERSOURCE_H_
 #define POWERSOURCE_H_
 
-#include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
-#include "inc/common/post_frame.h"
-#include "inc/common/i2cbus.h"
+#include "common/inc/global/post_frame.h"
+#include "common/inc/global/ocmp_frame.h"
+#include "common/inc/global/Framework.h"
 #include "drivers/OcGpio.h"
+#include "inc/common/global_header.h"
+#include "inc/common/i2cbus.h"
 
 #include <ti/sysbios/gates/GateMutex.h>
 
@@ -72,7 +72,10 @@ typedef struct  __attribute__((packed, aligned(1))) {
 } tPower_Status_Data;
 
 typedef struct PWRSRC_Cfg {
-    OcGpio_Pin *pin_evt;
+    OcGpio_Pin pin_solar_aux_prsnt_n;
+    OcGpio_Pin pin_poe_prsnt_n;
+    OcGpio_Pin pin_int_bat_prsnt;
+    OcGpio_Pin pin_ext_bat_prsnt;
 } PWRSRC_Cfg;
 
 typedef struct PWRSRC_Cfg_Obj {
@@ -80,12 +83,13 @@ typedef struct PWRSRC_Cfg_Obj {
 } PWRSRC_Obj;
 
 typedef struct PWRSRC_Dev {
-    PWRSRC_Cfg cfg;
+    const PWRSRC_Cfg cfg;
     PWRSRC_Obj obj;
 } PWRSRC_Dev;
 
 void pwr_source_init(void);
-void pwr_get_source_info(void);
+void pwr_get_source_info(PWRSRC_Dev *pwrSrcDev);
 ReturnStatus pwr_process_get_status_parameters_data(
         ePower_StatusParamId paramIndex, uint8_t *pPowerStatusData);
+
 #endif /* POWERSOURCE_H_ */

@@ -6,27 +6,25 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "inc/devices/led.h"
 #include "inc/subsystem/hci/hci_led.h"
 
 #include "inc/common/system_states.h"
+#include "inc/devices/led.h"
 #include "inc/subsystem/hci/hci.h"
 
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Task.h>
 
+extern void *led_hci_ioexp;
+#define HCI ((HciLedCfg*)led_hci_ioexp)
+
 //*****************************************************************************
 //                             HANDLES DEFINITION
 //*****************************************************************************
 ledSystemState s_ledState = SYSTEM_BOOT;
-
-extern void *sys_config[];
-#define HCI ((Hci_Cfg *)sys_config[OC_SS_HCI])
-
 
 /* TODO: Change the following approach for booting up and resetting led counter
  * for synchronization in future if needed */
@@ -49,12 +47,12 @@ static void HCI_LedTaskFxn(UArg a0, UArg a1)
 {
     while (true) {
         if (s_ledState == SYSTEM_BOOT) {
-            hci_led_system_boot();
+            //hci_led_system_boot();
         } else if ((s_ledState == SYSTEM_RUNNING)
                 || (s_ledState == SYSTEM_FAILURE)) {
-            OcGpio_write(&HCI->led.pin_ec_gpio, false);
+            OcGpio_write(&HCI->pin_ec_gpio, false);
             Task_sleep(100);
-            OcGpio_write(&HCI->led.pin_ec_gpio, true);
+            OcGpio_write(&HCI->pin_ec_gpio, true);
         }
     }
 }

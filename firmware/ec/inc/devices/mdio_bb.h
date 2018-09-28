@@ -19,8 +19,8 @@
  *****************************************************************************/
 void mdiobb_set_bits(int smi_device, int reg_addr, int datamask);
 void mdiobb_clear_bits(int smi_device, int reg_addr, int datamask);
-int mdiobb_read_data(int smi_device, int reg_addr);
-void mdiobb_write_data(int smi_device, int reg_addr, int data);
+int mdiobb_read_by_paging(int smi_device, int reg_addr);
+void mdiobb_write_by_paging(int smi_device, int reg_addr, int data);
 int mdiobb_write(int phy, int reg, uint16_t val);
 int mdiobb_read(int phy, unsigned int reg);
 
