@@ -1,0 +1,6 @@
+# Enable autocrlf by default for this respository (in case global setting is different)
+* text=auto
+
+# Explicitely ensure our source files get EOL converted
+*.c text
+*.h text

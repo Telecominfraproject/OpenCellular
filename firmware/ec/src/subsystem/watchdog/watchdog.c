@@ -6,16 +6,17 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "inc/subsystem/gpp/gpp.h"
 #include "inc/subsystem/watchdog/watchdog.h"
 
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
+#include "inc/subsystem/gpp/gpp.h"
 #include "inc/utils/util.h"
 
 #include <ti/sysbios/BIOS.h>
@@ -72,7 +73,7 @@ extern const void *sys_config[];
 void watchdog_reset_ap(void)
 {
     uint32_t delay = 0;
-    const Gpp_Cfg *cfg = sys_config[OC_SS_GPP];
+    const Gpp_gpioCfg *cfg = sys_config[OC_SS_GPP];
 
     OcGpio_write(&cfg->pin_ec_reset_to_proc, false);
     delay = 0x1000000;
@@ -105,8 +106,8 @@ void watchdog_send_messages(OCMPMessageFrame * pWatchdogMsg)
 void watchdog_send_cmd_message(void)
 {
     OCMPMessageFrame *pWatchdogMsg = (OCMPMessageFrame *) malloc(32);
-    pWatchdogMsg->header.ocmp_interface = OCMP_COMM_IFACE_UART;
-    pWatchdogMsg->header.ocmp_sof = OCMP_MSG_SOF;
+    pWatchdogMsg->header.ocmpInterface = OCMP_COMM_IFACE_UART;
+    pWatchdogMsg->header.ocmpSof = OCMP_MSG_SOF;
     pWatchdogMsg->message.subsystem = OC_SS_WD;
     pWatchdogMsg->message.msgtype = OCMP_MSG_TYPE_STATUS;
     pWatchdogMsg->message.action = OCMP_AXN_TYPE_SET;

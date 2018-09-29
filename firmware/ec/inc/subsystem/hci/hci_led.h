@@ -6,15 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef HCI_LED_H_
 #define HCI_LED_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
 #include "inc/devices/se98a.h"
 #include "inc/devices/sx1509.h"
 
@@ -35,11 +34,10 @@ typedef enum {
 } HciLed_DriverId;
 
 /* Subsystem config */
-typedef struct HciLed_Cfg {
-    SE98A_Dev temp_sensor;
+typedef struct HciLedCfg {
     I2C_Dev sx1509_dev[HCI_LED_DRIVER_COUNT];
     OcGpio_Pin pin_ec_gpio;
-} HciLed_Cfg;
+} HciLedCfg;
 
 /* LED System States */
 typedef enum {

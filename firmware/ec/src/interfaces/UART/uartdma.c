@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "inc/interfaces/uartdma.h"
-
 #include "comm/gossiper.h"
+#include "common/inc/global/ocmp_frame.h"
+#include "inc/interfaces/uartdma.h"
 #include "inc/common/global_header.h"
-#include "inc/common/ocmp_frame.h"
 
 #include <driverlib/gpio.h>
 #include <driverlib/interrupt.h>

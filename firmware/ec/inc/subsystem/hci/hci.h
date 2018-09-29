@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef HCI_H_
 #define HCI_H_
 
@@ -31,12 +30,12 @@
 /* Subsystem config */
 typedef struct Hci_Cfg {
     HciBuzzer_Cfg buzzer;
-    HciLed_Cfg led;
+    HciLedCfg led;
 } Hci_Cfg;
 
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-bool HCI_Init(void *return_buf);
+bool HCI_Init(void *driver, void *return_buf);
 
 #endif /* HCI_H_ */

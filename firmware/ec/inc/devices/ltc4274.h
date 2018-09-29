@@ -6,17 +6,16 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
- 
 #ifndef LTC4274_H_
 #define LTC4274_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/post_frame.h"
 
 #include <ti/sysbios/gates/GateMutex.h>
 
@@ -119,6 +118,7 @@ typedef void (*LTC4274_CallbackFn) (LTC4274_Event evt,
 typedef struct LTC4274_Cfg {
     I2C_Dev i2c_dev;
     OcGpio_Pin *pin_evt;
+    OcGpio_Pin reset_pin;
 } LTC4274_Cfg;
 
 typedef struct LTC4274_Obj {
@@ -155,13 +155,15 @@ ReturnStatus ltc4274_debug_write(const I2C_Dev *i2c_dev,
                                    uint8_t reg_address, uint8_t value);
 ReturnStatus ltc4274_debug_read(const I2C_Dev *i2c_dev,
                                 uint8_t reg_address, uint8_t *value);
-void ltc4274_enable(uint8_t enableVal);
+void ltc4274_enable(LTC4274_Dev *dev, uint8_t enableVal);
 ReturnStatus ltc4274_get_devid(const I2C_Dev *i2c_dev,
                                uint8_t *devID);
 ReturnStatus ltc4274_detect(const I2C_Dev *i2c_dev,
                               uint8_t *detect, uint8_t *val);
-ePostCode ltc4274_probe(const I2C_Dev *i2c_dev);
+ePostCode ltc4274_probe(const LTC4274_Dev *i2c_dev, POSTData *postData);
 void  ltc4274_init(LTC4274_Dev *dev);
 void  ltc4274_initPSEStateInfo();
 void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev);
+ReturnStatus ltc4274_reset();
+
 #endif /* LTC4274_H_ */

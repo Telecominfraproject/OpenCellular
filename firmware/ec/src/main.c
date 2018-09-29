@@ -26,7 +26,6 @@ extern int ethernet_start(void);
 
 static void openCellular_init(void)
 {
-
     LOGGER_DEBUG("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG("||||        ||||        ||||       |||||    ||||||  ||||       ||||       ||||  |||||||||  |||||||||  ||||  ||||  |||||||||        ||||        ||||\n");
@@ -38,7 +37,6 @@ static void openCellular_init(void)
     LOGGER_DEBUG("||||        ||||  ||||||||||       |||||  ||||||    ||||       ||||       ||||       ||||       ||||        ||||       ||||  ||||  ||||  ||||  ||||\n");
     LOGGER_DEBUG("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
-
     LOGGER_DEBUG("\nOCWare v"
                  xstr(_FW_REV_MAJOR_)"."
                  xstr(_FW_REV_MINOR_)"."
@@ -59,7 +57,6 @@ int main(void)
 {
     /* Install an exit handler to catch if we fault out */
     System_atexit(exit_handler);
-
     openCellular_init();
     /* Call board init functions */
     Board_initGeneral();
@@ -69,9 +66,7 @@ int main(void)
     Board_initUART();
     ethernet_start();
     bigbrother_createtask();
-
     /* Start BIOS */
     BIOS_start();
-
     return (0);
 }

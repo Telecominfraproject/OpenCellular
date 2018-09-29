@@ -50,21 +50,21 @@ typedef struct Fe_Lna_Cfg {
 } Fe_Lna_Cfg;
 
 typedef struct Fe_Ch1_Gain_Cfg {
-    Fe_Gain_Cfg fe_gain_cfg;
+    Fe_Gain_Cfg* fe_gain_cfg;
 } Fe_Ch1_Gain_Cfg;
 
 typedef struct Fe_Ch2_Gain_Cfg {
     OcGpio_Pin pin_ch1_2g_lb_band_sel_l;
-    Fe_Gain_Cfg fe_gain_cfg;
+    Fe_Gain_Cfg* fe_gain_cfg;
 } Fe_Ch2_Gain_Cfg;
 
 typedef struct Fe_Ch1_Lna_Cfg {
-    Fe_Lna_Cfg fe_lna_cfg;
+    Fe_Lna_Cfg* fe_lna_cfg;
 } Fe_Ch1_Lna_Cfg;
 
 typedef struct Fe_Ch2_Lna_Cfg {
     OcGpio_Pin pin_ch1_rf_pwr_off;
-    Fe_Lna_Cfg fe_lna_cfg;
+    Fe_Lna_Cfg* fe_lna_cfg;
 } Fe_Ch2_Lna_Cfg;
 
 typedef struct Fe_Watchdog_Cfg {
@@ -78,24 +78,19 @@ typedef struct Fe_Watchdog_Cfg {
     OcGpio_Pin pin_copol_fpga;
 } Fe_Watchdog_Cfg;
 
-typedef struct Fe_Cfg {
+typedef struct Fe_gpioCfg {
     OcGpio_Pin pin_rf_pgood_ldo;
     OcGpio_Pin pin_fe_12v_ctrl;
     OcGpio_Pin pin_trxfe_conn_reset;
+}Fe_gpioCfg;
 
-    Fe_Ch1_Gain_Cfg fe_ch1_gain_cfg;
-    Fe_Ch2_Gain_Cfg fe_ch2_gain_cfg;
-    Fe_Ch1_Lna_Cfg fe_ch1_lna_cfg;
-    Fe_Ch2_Lna_Cfg fe_ch2_lna_cfg;
-    Fe_Watchdog_Cfg fe_watchdog_cfg;
-
-    INA226_Dev ina226_ch1_5_7v; /* CH1 5.7V Power Sensor */
-    INA226_Dev ina226_ch2_5_7v; /* CH2 5.7V Power Sensor */
-    I2C_Dev adt7481_ch1; /* CH1 Temperature Sensor */
-    I2C_Dev adt7481_ch2; /* CH2 Temperature Sensor */
-    Eeprom_Cfg *eeprom_inventory;
-    I2C_Dev ads7830_ch1; /* CH1 Power Monitor */
-    I2C_Dev ads7830_ch2; /* CH2 Power Monitor */
+typedef struct Fe_Cfg {
+    Fe_gpioCfg* fe_gpio_cfg;
+    Fe_Ch1_Gain_Cfg* fe_ch1_gain_cfg;
+    Fe_Ch2_Gain_Cfg* fe_ch2_gain_cfg;
+    Fe_Ch1_Lna_Cfg* fe_ch1_lna_cfg;
+    Fe_Ch2_Lna_Cfg* fe_ch2_lna_cfg;
+    Fe_Watchdog_Cfg* fe_watchdog_cfg;
 } Fe_Cfg;
 
 typedef struct __attribute__((packed, aligned(1))) {
@@ -106,8 +101,8 @@ typedef struct __attribute__((packed, aligned(1))) {
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-bool rffe_pre_init(void *returnValue);
-bool rffe_post_init(eSubSystemStates *ssState);
+bool rffe_pre_init(void *driver, void *returnValue);
+bool rffe_post_init(void *driver, void *ssState);
 
 bool RFFE_reset(void *driver, void *params);
 bool RFFE_InventoryGetStatus(void *driver, unsigned int param_id,

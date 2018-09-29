@@ -10,7 +10,6 @@
 /*****************************************************************************
  *                                HEADER FILES
  *****************************************************************************/
-
 #include "inc/utils/ocmp_util.h"
 
 /*****************************************************************************
@@ -30,7 +29,7 @@ OCMPMessageFrame * OCMP_mallocFrame(uint16_t len)
     pMsg = (OCMPMessageFrame *)malloc(sizeof(OCMPMessageFrame)+len);
     if (pMsg != NULL) {
         // Assign Data Length of Frame
-        pMsg->header.ocmp_frameLen = len;
+        pMsg->header.ocmpFrameLen = len;
         // Assign pData to first byte of payload
         // Pointer arithmetic of + 1 is equal to sizeof(OCMPMessageFrame) bytes
         // then cast to unsigned char * for pData
@@ -68,9 +67,9 @@ OCMPMessageFrame* create_ocmp_msg_frame(OCMPSubsystem subSystem,
     if (ocmp_msg) {
             *ocmp_msg = (OCMPMessageFrame){
                 .header = {
-                        .ocmp_sof = OCMP_MSG_SOF,
-                        .ocmp_interface = OCMP_COMM_IFACE_USB,
-                        .ocmp_frameLen = payloadSize,
+                        .ocmpSof = OCMP_MSG_SOF,
+                        .ocmpInterface = OCMP_COMM_IFACE_USB,
+                        .ocmpFrameLen = payloadSize,
                         //.ocmp_seqNumber = 0x00;
                         //.ocmp_timestamp = 0x00; //Get RTC TimeStamp
                 },

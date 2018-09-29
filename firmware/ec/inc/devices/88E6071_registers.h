@@ -212,4 +212,12 @@
 #define PHY_1_INT_EN                (1 << 1)
 #define PHY_0_INT_EN                (1 << 0)
 
+//REG_C45_PACKET_GEN        0x8030
+#define CRC_ENABLE                  (1 << 6)
+#define FRAME_COUNT_EN              (1 << 5)
+#define FORCE_BURST_STOP            (1 << 4)
+#define PACKET_GEN_EN               (1 << 3)
+#define PAYLOAD_TYPE                (1 << 2)
+#define PACKET_LENGTH               (1 << 1)
+#define ERROR_PACKET_INJECTION      (1 << 0)
 #endif /* _88E6071_REGISTERS_H_ */

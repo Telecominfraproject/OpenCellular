@@ -14,8 +14,8 @@
 
 #include "Board.h"
 #include "comm/gossiper.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
-#include "inc/common/ocmp_frame.h"
 #include "inc/common/post.h"
 #include "inc/common/system_states.h"
 #include "inc/subsystem/hci/hci_buzzer.h"
@@ -98,109 +98,15 @@ static ReturnStatus bigbrother_process_tx_msg(uint8_t *pMsg)
 }
 
 /*****************************************************************************
- **    FUNCTION NAME   : bb_process_sys_post_msg
+ **    FUNCTION NAME   : uart_enable
  **
- **    DESCRIPTION     : Start the procudre for enabling POST.
- **
- **    ARGUMENTS       : None
- **
- **    RETURN TYPE     : ReturnStatus
- **
- *****************************************************************************/
-static ReturnStatus bb_sys_post_enable(void)
-{
-    ReturnStatus status = RETURN_OK;
-    LOGGER("POST:INFO:: Starting POST test for OpenCellular.\n");
-
-    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(OC_SS_BB,
-                                                         OCMP_MSG_TYPE_POST,
-                                                         OCMP_AXN_TYPE_ACTIVE,
-                                                         0x00,
-                                                         0x00,
-                                                         1);
-    //OCMPMessageFrame *postExeMsg = (OCMPMessageFrame *)OCMP_mallocFrame(1);
-    if (postExeMsg != NULL) {
-        postExeMsg->message.ocmp_data[0] = status;
-        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) postExeMsg);
-    }
-    return status;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_sys_post_get_results
- **
- **    DESCRIPTION     : Get POST results from EEPROM.
+ **    DESCRIPTION     : Enable UART link between EC and AP.
  **
  **    ARGUMENTS       : None
  **
- **    RETURN TYPE     : ReturnStatus
+ **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus bb_sys_post_get_results(OCMPMessageFrame *getpostResultMsg)
-{
-    ReturnStatus status = RETURN_OK;
-    /* Return the POST results*/
-    uint8_t iter = 0x00;
-    uint8_t index = 0x00;
-
-    /* Get the subssystem info for which message is required */
-    OCMPMessageFrame *postResultMsg = create_ocmp_msg_frame(
-            getpostResultMsg->message.subsystem, OCMP_MSG_TYPE_POST,
-            OCMP_AXN_TYPE_REPLY,0x00,0x00,30);
-    if (postResultMsg) {
-        /* Getting data assigned*/
-        postResultMsg->header.ocmp_sof = getpostResultMsg->header.ocmp_sof;
-        postResultMsg->header.ocmp_interface = getpostResultMsg->header
-                                                .ocmp_interface;
-        postResultMsg->header.ocmp_seqNumber = getpostResultMsg->header
-                                                .ocmp_seqNumber;
-        for (iter = 0; iter < 30; iter++) {
-            if (PostResult[iter].subsystem
-                    == getpostResultMsg->message.ocmp_data[0]) {
-                postResultMsg->message.ocmp_data[(5 * index) + 0] =
-                        PostResult[iter].subsystem;             //SubSystem
-                postResultMsg->message.ocmp_data[(5 * index) + 1] =
-                        PostResult[iter].devSno;                //Device serial Number
-                postResultMsg->message.ocmp_data[(5 * index) + 2] =
-                        (PostResult[iter].devId & 0xFF00) >> 8; //Device Id MSB
-                postResultMsg->message.ocmp_data[(5 * index) + 3] =
-                        (PostResult[iter].devId & 0x00FF);      //Device Id LSB
-                postResultMsg->message.ocmp_data[(5 * index) + 4] =
-                        PostResult[iter].status;                //Status ok
-                index++;
-            }
-        }
-        LOGGER_DEBUG("BIGBROTHER:INFO::POST message sent for subsystem 0x%x.\n");
-        /*Size of payload*/
-        postResultMsg->header.ocmp_frameLen = index * 5;
-        /*Updating Subsystem*/
-        //postResultMsg->message.subsystem = (OCMPSubsystem)PostResult[iter].subsystem;
-        /* Number of devices found under subsytem*/
-        postResultMsg->message.parameters = index;
-        Util_enqueueMsg(gossiperTxMsgQueue, semGossiperMsg,
-                        (uint8_t*) postResultMsg);
-        index = 0;
-    } else {
-        LOGGER("BIGBROTHER:ERROR:: Failed to allocate memory for POST results.\n");
-    }
-    /* Free memory for request message */
-    if (getpostResultMsg) {
-        free(getpostResultMsg);
-    }
-    return status;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : eeprom_enable_write
-     **
-     **    DESCRIPTION     : Read the values from the EEPROM register.
-     **
-     **    ARGUMENTS       : EEPROM (Slave) address, Register address and
-     **                      pointer to value read.
-     **
-     **    RETURN TYPE     : Success or failure
-     **
-     *****************************************************************************/
 
 extern OcGpio_Pin pin_uart_sel;
 ReturnStatus uart_enable()
@@ -209,122 +115,6 @@ ReturnStatus uart_enable()
         return RETURN_NOTOK;
     }
     return RETURN_OK;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_sys_post_complete
- **
- **    DESCRIPTION     : Get POST results from EEPROM.
- **
- **    ARGUMENTS       : None
- **
- **    RETURN TYPE     : ReturnStatus
- **
- *****************************************************************************/
-ReturnStatus bb_sys_post_complete(OCMPMessageFrame *postResultMsg)
-{
-    ReturnStatus status = RETURN_OK;
-    LOGGER_DEBUG("BIGBROTHER:INFO::POST test is completed.\n");
-    return status;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_process_sys_post_msg
- **
- **    DESCRIPTION     : Start the procudre for enabling POST.
- **
- **    ARGUMENTS       : None
- **
- **    RETURN TYPE     : ReturnStatus
- **
- *****************************************************************************/
-static ReturnStatus bb_sys_post_activate(OCMPMessageFrame *postExeMsg)
-{
-    /*TODO: Look if all the task has been spwaned.*/
-    ReturnStatus status = RETURN_OK;
-    LOGGER_DEBUG("BIGBROTHER:INFO::Processing Big Brother subsystem POST Activate message.\n");
-    if (postExeMsg != NULL) {
-        postExeMsg->message.ocmp_data[0] = status;
-        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) postExeMsg);
-    }
-    return RETURN_OK;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_process_sys_post_msg
- **
- **    DESCRIPTION     : Processes the big brother incoming post messages.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : ReturnStatus
- **
- *****************************************************************************/
-static ReturnStatus bb_process_sys_post_msg(OCMPMessageFrame *pMsg)
-{
-    ReturnStatus status = RETURN_NOTOK;
-    LOGGER_DEBUG("BIGBROTHER:INFO::Processing Big Brother subsystem POST message.\n");
-    switch (pMsg->message.action) {
-        case OCMP_AXN_TYPE_ENABLE:
-        {
-            status = bb_sys_post_enable();
-            bigbrother_process_tx_msg((uint8_t*) pMsg);
-            break;
-        }
-        case OCMP_AXN_TYPE_ACTIVE:
-        {
-            status = bb_sys_post_activate(pMsg);
-            break;
-        }
-        case OCMP_AXN_TYPE_GET:
-        {
-            status = bb_sys_post_get_results(pMsg);
-            break;
-        }
-        case OCMP_AXN_TYPE_REPLY:
-        {
-            /* Sent by POST once all the testing is over*/
-            //Change system state to initialized.
-            status = bb_sys_post_complete(pMsg);
-            //Event_post(interruptEvent, Event_Id_00);
-            break;
-        }
-        default:
-        {
-            LOGGER_ERROR("BIGBROTHER::ERROR::No such action type present in the OpenCellular System for POST message.\n");
-            if (pMsg)
-                free(pMsg);
-        }
-    }
-    return status;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_process_sys_msg
- **
- **    DESCRIPTION     : Processes the big brother incoming messages for
- **                     OpenCellular system.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : None
- **
- *****************************************************************************/
-static void bb_process_sys_msg(OCMPMessageFrame *pMsg)
-{
-    LOGGER_DEBUG("BIGBROTHER:INFO::Processing Big Brother System messages.\n");
-    switch (pMsg->message.msgtype) {
-        case OCMP_MSG_TYPE_POST:
-            bb_process_sys_post_msg(pMsg);
-            break;
-        default:
-            LOGGER_ERROR("BIGBROTHER::ERROR::No such message type present in "
-                         "the OpenCellular System.\n");
-            if (pMsg) {
-                free(pMsg);
-            }
-            break;
-    }
 }
 
 /*****************************************************************************
@@ -343,21 +133,18 @@ static ReturnStatus bigbrother_process_rx_msg(uint8_t *pMsg)
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother RX Message.\n");
     OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
     if (pOCMPMessageFrame != NULL) {
-        LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg recieved with Length: 0x%x, Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
-                pOCMPMessageFrame->header.ocmp_frameLen,
-                pOCMPMessageFrame->header.ocmp_interface,
-                pOCMPMessageFrame->header.ocmp_seqNumber,
-                pOCMPMessageFrame->header.ocmp_timestamp);
+        LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg recieved with Length: 0x%x,"
+                    "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
+                     pOCMPMessageFrame->header.ocmpFrameLen,
+                     pOCMPMessageFrame->header.ocmpInterface,
+                     pOCMPMessageFrame->header.ocmpSeqNumber,
+                     pOCMPMessageFrame->header.ocmpTimestamp);
         // Forward this to respective subsystem.
-        if (pOCMPMessageFrame->message.subsystem == OC_SS_BB) {
-            bb_process_sys_msg(pOCMPMessageFrame);
-        } else {
-            if (!SSRegistry_sendMessage(pOCMPMessageFrame->message.subsystem,
-                                        pMsg)) {
-                LOGGER_ERROR("BIGBROTHER::ERROR::Subsystem %d doesn't exist\n",
-                             pOCMPMessageFrame->message.subsystem);
-                free(pMsg);
-            }
+        if (!SSRegistry_sendMessage(pOCMPMessageFrame->message.subsystem,
+                                    pMsg)) {
+            LOGGER_ERROR("BIGBROTHER::ERROR::Subsystem %d doesn't exist\n",
+                         pOCMPMessageFrame->message.subsystem);
+            free(pMsg);
         }
     } else {
         LOGGER_ERROR("BIGBROTHER:ERROR:: No message recieved.\n");

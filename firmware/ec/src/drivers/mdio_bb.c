@@ -174,7 +174,7 @@ int mdiobb_write(int phy, int reg, uint16_t val)
     return 0;
 }
 
-void mdiobb_write_data(int smi_device, int reg_addr, int data)
+void mdiobb_write_by_paging(int smi_device, int reg_addr, int data)
 {
     int read_val = 0;
     int write_reg = 0;
@@ -201,7 +201,7 @@ void mdiobb_write_data(int smi_device, int reg_addr, int data)
     } while (1);
 }
 
-int mdiobb_read_data(int smi_device, int reg_addr)
+int mdiobb_read_by_paging(int smi_device, int reg_addr)
 {
     int read_val = 0xf00f;
     int write_reg = 0;
@@ -233,7 +233,7 @@ int mdiobb_read_data(int smi_device, int reg_addr)
 }
 
 /* Try to write directly using 0x18 and 0x19 registers */
-void mdiobb_write_data_c45( int smi_device,
+void mdiobb_write_by_paging_c45( int smi_device,
                             unsigned int reg_addr,
                             unsigned int data)
 {
@@ -317,7 +317,7 @@ void mdiobb_write_data_c45( int smi_device,
 }
 
 /* try to read the C45 registers using 13 and 14 registers */
-unsigned int mdiobb_read_data_c45(int smi_device, unsigned int reg_addr)
+unsigned int mdiobb_read_by_paging_c45(int smi_device, unsigned int reg_addr)
 {
     unsigned int read_val = 0xf00f;
     unsigned int write_reg = 0;
@@ -407,7 +407,7 @@ void mdiobb_set_bits(int smi_device, int reg_addr, int datamask)
     /*
      * First take the contains of the register
      */
-    read_val = mdiobb_read_data(smi_device, reg_addr);
+    read_val = mdiobb_read_by_paging(smi_device, reg_addr);
     datamask |= read_val;
 
     /*
@@ -441,7 +441,7 @@ void mdiobb_clear_bits(int smi_device, int reg_addr, int datamask)
     /*
      * First take the contains of the register
      */
-    read_val = mdiobb_read_data(smi_device, reg_addr);
+    read_val = mdiobb_read_by_paging(smi_device, reg_addr);
     datamask = (~datamask) & read_val;
     /*
      * First make sure Switch is idle for the operation by reading the bit 15
@@ -475,11 +475,11 @@ void mdiobb_set_bits_C45(   int smi_device,
     /*
      * First take the contains of the register and set the bits.
      */
-    read_val = mdiobb_read_data_c45(smi_device, reg_addr);
+    read_val = mdiobb_read_by_paging_c45(smi_device, reg_addr);
     datamask |= read_val;
 
     /* Write back into the register */
-    mdiobb_write_data_c45(smi_device, reg_addr, datamask);
+    mdiobb_write_by_paging_c45(smi_device, reg_addr, datamask);
 }
 
 void mdiobb_clear_bits_C45( int smi_device,
@@ -491,11 +491,11 @@ void mdiobb_clear_bits_C45( int smi_device,
     /*
      * First take the contains of the register clear the bits
      */
-    read_val = mdiobb_read_data_c45(smi_device, reg_addr);
+    read_val = mdiobb_read_by_paging_c45(smi_device, reg_addr);
     datamask = (~datamask) & read_val;
 
     /* Write back into the register */
-    mdiobb_write_data_c45(smi_device, reg_addr, datamask);
+    mdiobb_write_by_paging_c45(smi_device, reg_addr, datamask);
 }
 
 void prepare_mdio(void)

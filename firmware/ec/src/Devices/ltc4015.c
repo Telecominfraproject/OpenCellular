@@ -11,11 +11,12 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/devices/ltc4015.h"
-#include "ltc4015_registers.h"
-#include "inc/common/byteorder.h"
+
 #include "devices/i2c/threaded_int.h"
+#include "inc/common/byteorder.h"
 #include "helpers/math.h"
 #include "helpers/memory.h"
+#include "ltc4015_registers.h"
 
 #include <math.h>
 #include <stdlib.h> /* For abort() */
@@ -583,7 +584,12 @@ ReturnStatus LTC4015_enableChargerStateAlerts(LTC4015_Dev *dev,
     return _enable_charger_state_alerts(dev, alert_reg);
 }
 
-ePostCode LTC4015_probe(LTC4015_Dev *dev)
+void LTC4015_configure(LTC4015_Dev *dev)
+{
+    OcGpio_configure(&dev->cfg.pin_lt4015_i2c_sel, OCGPIO_CFG_OUTPUT);
+}
+
+ePostCode LTC4015_probe(LTC4015_Dev *dev, POSTData *postData)
 {
     uint16_t ltcStatusReg = 0;
     /* TODO: Check reading bits from System regsiter is enough to conclude
@@ -594,5 +600,6 @@ ePostCode LTC4015_probe(LTC4015_Dev *dev)
     if (!(ltcStatusReg & LTC4015_CHARGER_ENABLED)) {
         return POST_DEV_MISSING;
     }
+    post_update_POSTData(postData, dev->cfg.i2c_dev.bus, dev->cfg.i2c_dev.slave_addr,0xFF, 0xFF);
     return POST_DEV_FOUND;
 }

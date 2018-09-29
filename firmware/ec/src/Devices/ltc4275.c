@@ -6,21 +6,21 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/devices/ltc4275.h"
-#include "inc/common/byteorder.h"
+
 #include "devices/i2c/threaded_int.h"
 #include "helpers/math.h"
 #include "helpers/memory.h"
+#include "inc/common/byteorder.h"
 #include "inc/subsystem/power/power.h"
+
 #include <ti/sysbios/knl/Task.h>
 
 #include <math.h>
-
-extern void *sys_config[];
-#define PWR ((Power_Cfg *)sys_config[OC_SS_PWR])
 
 tPower_PDStatus_Info PDStatus_Info;
 
@@ -36,13 +36,9 @@ tPower_PDStatus_Info PDStatus_Info;
  */
 static void ltc4275_handle_irq(void *context) {
     LTC4275_Dev *dev = context;
-    uint8_t class = 0;
-    uint8_t powerGood= 0;
-    ReturnStatus res = RETURN_NOTOK;
+
     const IArg mutexKey = GateMutex_enter(dev->obj.mutex); {
-
-        ltc4275_update_status();
-
+        ltc4275_update_status(dev);
     } GateMutex_leave(dev->obj.mutex, mutexKey);
 
     /* See if we have a callback assigned to handle alerts */
@@ -62,6 +58,21 @@ static void ltc4275_handle_irq(void *context) {
 }
 
 /******************************************************************************
+ * @fn          ltc4275_configure
+ *
+ * @brief       configure GPIO's.
+ *
+ * @args        None
+ *
+ * @return      None
+ */
+void ltc4275_config(const LTC4275_Dev *dev)
+{
+    OcGpio_configure(dev->cfg.pin_evt, OCGPIO_CFG_INPUT);
+    OcGpio_configure(dev->cfg.pin_detect, OCGPIO_CFG_INPUT);
+}
+
+/******************************************************************************
  * @fn          ltc4275_probe
  *
  * @brief       Intializes PD update struct.
@@ -70,14 +81,14 @@ static void ltc4275_handle_irq(void *context) {
  *
  * @return      None
  */
-ePostCode ltc4275_probe(LTC4275_Dev *dev)
+ePostCode ltc4275_probe(const LTC4275_Dev *dev, POSTData *postData)
 {
     ePostCode postCode = POST_DEV_MISSING;
     ePDPowerState pdStatus = LTC4275_POWERGOOD_NOTOK;
-    ReturnStatus ret = ltc4275_get_power_good(&pdStatus);
+    ReturnStatus ret = ltc4275_get_power_good(dev, &pdStatus);
     if (ret != RETURN_OK) {
         LOGGER("LTC4275::ERROR: Power good signal read failed.\n");
-        return ret;
+        return postCode;
     }
     if (pdStatus == LTC4275_POWERGOOD ) {
         PDStatus_Info.pdStatus.classStatus = LTC4275_CLASSTYPE_UNKOWN;
@@ -91,6 +102,7 @@ ePostCode ltc4275_probe(LTC4275_Dev *dev)
         PDStatus_Info.state = LTC4275_STATE_NOTOK;
         PDStatus_Info.pdalert = LTC4275_DISCONNECT_ALERT;
     }
+    post_update_POSTData(postData, 0xFF,0xFF,0xFF,0xFF);
     return postCode;
 }
 
@@ -113,13 +125,13 @@ ReturnStatus ltc4275_init(LTC4275_Dev *dev)
         return RETURN_NOTOK;
     }
 
-    ret = ltc4275_get_power_good(&PDStatus_Info.pdStatus.powerGoodStatus);
+    ret = ltc4275_get_power_good(dev, &PDStatus_Info.pdStatus.powerGoodStatus);
     if (ret != RETURN_OK) {
         LOGGER("LTC4275::ERROR: Power good signal read failed.\n");
         return ret;
     }
     if (PDStatus_Info.pdStatus.powerGoodStatus == LTC4275_POWERGOOD) {
-        ret = ltc4275_get_class(&PDStatus_Info.pdStatus.classStatus);
+        ret = ltc4275_get_class(dev, &PDStatus_Info.pdStatus.classStatus);
         if (ret != RETURN_OK) {
             LOGGER("LTC4275::ERROR: Reading PD classification failed.\n");
             return ret;
@@ -166,14 +178,14 @@ void ltc4275_set_alert_handler(LTC4275_Dev *dev, LTC4275_CallbackFn alert_cb,
  *
  * @return      ReturnStatus
  */
-ReturnStatus ltc4275_get_power_good(ePDPowerState *val)
+ReturnStatus ltc4275_get_power_good(const LTC4275_Dev *dev, ePDPowerState *val)
 {
     ReturnStatus ret = RETURN_OK;
     /*set default to 1*/
     *val = LTC4275_POWERGOOD_NOTOK;
 
     /* Check Power Good */
-    *val = (ePDPowerState) OcGpio_read(&PWR->pin_ec_pd_pwrgd_ok);
+    *val = (ePDPowerState) OcGpio_read(dev->cfg.pin_evt);
     if(*val == 0)
     {
         *val = LTC4275_POWERGOOD;
@@ -191,7 +203,7 @@ ReturnStatus ltc4275_get_power_good(ePDPowerState *val)
  *
  * @return      ReturnStatus
  */
-ReturnStatus ltc4275_get_class(ePDClassType *val)
+ReturnStatus ltc4275_get_class(const LTC4275_Dev *dev, ePDClassType *val)
 {
     ReturnStatus ret = RETURN_OK;
     uint8_t i = 0;
@@ -200,7 +212,7 @@ ReturnStatus ltc4275_get_class(ePDClassType *val)
     uint8_t toggle = 0;
 
     for (i = 0; i < 15; i++) {
-        value = OcGpio_read(&PWR->pin_lt4275_ec_nt2p);
+        value = OcGpio_read(dev->cfg.pin_detect);
         LOGGER_DEBUG("LTC4275:INFO:: PD-nT2P activity status %d.\n", value);
         if (value == 1) {
             *val = LTC4275_CLASSTYPE_2;
@@ -230,19 +242,19 @@ ReturnStatus ltc4275_get_class(ePDClassType *val)
  *
  * @return      None
  */
-void ltc4275_update_status()
+void ltc4275_update_status(const LTC4275_Dev *dev)
 {
     ReturnStatus ret = RETURN_NOTOK;
-    ret = ltc4275_get_power_good(&PDStatus_Info.pdStatus.powerGoodStatus);
+    ret = ltc4275_get_power_good(dev,&PDStatus_Info.pdStatus.powerGoodStatus);
     if (ret != RETURN_OK) {
         LOGGER("LTC4275::ERROR: Power good signal read failed.\n");
-        return ret;
+        return;
     }
     if (PDStatus_Info.pdStatus.powerGoodStatus == LTC4275_POWERGOOD) {
-        ret = ltc4275_get_class(&PDStatus_Info.pdStatus.classStatus);
+        ret = ltc4275_get_class(dev, &PDStatus_Info.pdStatus.classStatus);
         if (ret != RETURN_OK) {
             LOGGER("LTC4275::ERROR: Reading PD classification failed.\n");
-            return ret;
+            return;
         }
         if (PDStatus_Info.pdStatus.classStatus == LTC4275_CLASSTYPE_POEPP) {
             PDStatus_Info.state = LTC4275_STATE_OK;

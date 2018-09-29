@@ -6,15 +6,16 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef LTC4275_H_
 #define LTC4275_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/common/global_header.h"
+#include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
+#include "inc/common/global_header.h"
+
 #include <ti/sysbios/gates/GateMutex.h>
 
 typedef enum {
@@ -84,10 +85,12 @@ typedef struct LTC4275A_Dev {
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
+void ltc4275_config(const LTC4275_Dev *dev);
+ePostCode ltc4275_probe(const LTC4275_Dev *dev, POSTData *postData);
 ReturnStatus ltc4275_init(LTC4275_Dev *dev);
 void ltc4275_set_alert_handler(LTC4275_Dev *dev, LTC4275_CallbackFn alert_cb, void *cb_context);
-ReturnStatus ltc4275_get_power_good(ePDPowerState *val);
-ReturnStatus pwr_pd_check_class(ePDClassType *val);
-ReturnStatus ltc4275_get_class(ePDClassType *val);
-void ltc4275_update_status();
+ReturnStatus ltc4275_get_power_good(const LTC4275_Dev *dev, ePDPowerState *val);
+ReturnStatus ltc4275_get_class(const LTC4275_Dev *dev, ePDClassType *val);
+void ltc4275_update_status(const LTC4275_Dev *dev);
+
 #endif /* LTC4275_H_ */

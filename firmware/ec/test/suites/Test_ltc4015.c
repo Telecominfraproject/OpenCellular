@@ -1,5 +1,12 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "unity.h"
-
 #include "inc/devices/ltc4015.h"
 
 #include "fake/fake_GPIO.h"
@@ -114,9 +121,17 @@ static uint16_t LTC4015_regs[] = {
     [0x4A] = 0x00, /* Measurement valid bit */
 };
 
+static bool LTC4015_GpioPins[] = {
+    [0x05] = 0x1,
+};
+
+static uint32_t LTC4015_GpioConfig[] = {
+    [0x05] = OCGPIO_CFG_INPUT,
+};
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
 {
+    FakeGpio_registerDevSimple(LTC4015_GpioPins, LTC4015_GpioConfig);
     fake_I2C_init();
 
     fake_I2C_registerDevSimple(I2C_DEV.bus, I2C_DEV.slave_addr, LTC4015_regs,
@@ -158,7 +173,7 @@ void test_ltc4015_init(void)
     TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_init(&alerted_dev));
 }
 
-static struct AlertData {
+static struct Test_AlertData {
     bool triggered;
     LTC4015_Event evt;
     int16_t val;
@@ -167,7 +182,7 @@ static struct AlertData {
 
 static void _alert_handler(LTC4015_Event evt, int16_t value, void *context)
 {
-    s_alert_data = (struct AlertData){
+    s_alert_data = (struct Test_AlertData){
         .triggered = true,
         .evt = evt,
         .val = value,
@@ -205,7 +220,7 @@ static void _test_alert(LTC4015_Dev *dev, LTC4015_Event evt,
 
 void test_LTC4015_alerts(void)
 {
-    s_alert_data = (struct AlertData){};
+    s_alert_data = (struct Test_AlertData){};
 
     /* Now try to init with a pin associated */
     LTC4015_Dev alerted_dev = {
@@ -260,16 +275,17 @@ void test_LTC4015_enableLimitAlerts(void)
 
 void test_LTC4015_probe(void)
 {
+    POSTData postData;
     /* Test with the actual value */
     LTC4015_regs[0x39] = LTC4015_CHARGER_ENABLED;
-    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_probe(&s_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4015_probe(&s_dev,&postData));
 
     /* Test with an incorrect value */
     LTC4015_regs[0x39] = ~LTC4015_CHARGER_ENABLED;
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_dev,&postData));
 
     /* Test with a missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_invalid_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_invalid_dev,&postData));
 }
 
 void test_LTC4015_cfg_icharge(void)

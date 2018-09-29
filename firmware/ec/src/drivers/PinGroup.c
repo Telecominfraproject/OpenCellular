@@ -42,7 +42,7 @@ ReturnStatus PinGroup_read(const PinGroup *group, uint8_t *value)
         if (group->pins[i].port) {
             int pin_val = OcGpio_read(&group->pins[i]);
             if (pin_val > OCGPIO_FAILURE) {
-                *value |= (0x01 << i);
+                *value |= (pin_val << i);
             } else {
                 return RETURN_NOTOK;
             }

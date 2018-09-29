@@ -11,11 +11,15 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/devices/eeprom.h"
+
 #include "Board.h"
 #include "inc/common/global_header.h"
 #include "inc/common/byteorder.h"
+
 #include <ti/drivers/I2C.h>
+#ifndef UT_FRAMEWORK
 #include <driverlib/emac.h> /* TODO: for htons - clean up this random include */
+#endif
 #include <string.h>
 
 #define WP_ASSERT   1
@@ -109,7 +113,7 @@ ReturnStatus eeprom_read(Eeprom_Cfg *cfg,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus eeprom_write(Eeprom_Cfg *cfg,
+ReturnStatus eeprom_write(const Eeprom_Cfg *cfg,
                           uint16_t address,
                           const void *buffer,
                           size_t size)
@@ -272,10 +276,9 @@ ReturnStatus eeprom_read_oc_info(uint8_t * oc_serial)
     status = eeprom_read(&eeprom_gbc_sid, OC_CONNECT1_SERIAL_INFO,
                          oc_serial, OC_CONNECT1_SERIAL_SIZE);
     if (status != RETURN_OK) {
-        LOGGER_ERROR("EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
-                     eeprom_gbc_sid.i2c_dev.slave_addr);
+        LOGGER_ERROR("EEPROM:ERROR:: Failed to get I2C Bus for GBC serial ID EEPROM.\n");
     } else {
-        LOGGER_ERROR("EEPROM:Info:: OC Connect1 %s.\n", oc_serial);
+        LOGGER_ERROR("EEPROM:Info:: OC Connect1 %d.\n", *oc_serial);
     }
     return status;
 }
@@ -291,32 +294,28 @@ ReturnStatus eeprom_read_oc_info(uint8_t * oc_serial)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus eeprom_read_board_info(OCMPSubsystem subSystem, uint8_t * rom_info)
+ReturnStatus eeprom_read_board_info(const Eeprom_Cfg *cfg, uint8_t * rom_info)
 {
     ReturnStatus status = RETURN_NOTOK;
     uint8_t info_size = 0x00;
     uint16_t eepromOffset = 0x0000;
-    Eeprom_Cfg *cfg = NULL;
-    switch (subSystem) {
+    switch (cfg->ss) {
         case OC_SS_SYS:
         {
             info_size = OC_GBC_BOARD_INFO_SIZE;
             eepromOffset = OC_GBC_BOARD_INFO;
-            cfg = &eeprom_gbc_sid;
             break;
         }
         case OC_SS_SDR:
         {
             info_size = OC_SDR_BOARD_INFO_SIZE;
             eepromOffset = OC_SDR_BOARD_INFO;
-            cfg = &eeprom_sdr_inv;
             break;
         }
         case OC_SS_RF:
         {
             info_size = OC_RFFE_BOARD_INFO_SIZE;
             eepromOffset = OC_RFFE_BOARD_INFO;
-            cfg = &eeprom_fe_inv;
             break;
         }
         default:
@@ -346,31 +345,27 @@ ReturnStatus eeprom_read_board_info(OCMPSubsystem subSystem, uint8_t * rom_info)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus eeprom_read_device_info_record(OCMPSubsystem subSystem,
+ReturnStatus eeprom_read_device_info_record(const Eeprom_Cfg *cfg,
                                             uint8_t recordNo,
                                             char * device_info)
 {
     ReturnStatus status = RETURN_NOTOK;
     uint8_t info_size = OC_DEVICE_INFO_SIZE;
     uint16_t eepromOffset = 0x0000;
-    Eeprom_Cfg *cfg = NULL;
-    switch (subSystem) {
+    switch (cfg->ss) {
         case OC_SS_SYS:
         {
             eepromOffset = OC_GBC_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_gbc_sid;
             break;
         }
         case OC_SS_SDR:
         {
             eepromOffset = OC_SDR_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_sdr_inv;
             break;
         }
         case OC_SS_RF:
         {
             eepromOffset = OC_RFFE_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_fe_inv;
             break;
         }
         default:
@@ -401,31 +396,27 @@ ReturnStatus eeprom_read_device_info_record(OCMPSubsystem subSystem,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus eeprom_write_device_info_record(OCMPSubsystem subSystem,
+ReturnStatus eeprom_write_device_info_record(Eeprom_Cfg *cfg,
                                              uint8_t recordNo,
                                              char * device_info)
 {
     ReturnStatus status = RETURN_NOTOK;
     uint8_t info_size = OC_DEVICE_INFO_SIZE;
     uint16_t eepromOffset = 0x0000;
-    Eeprom_Cfg *cfg = NULL;
-    switch (subSystem) {
+    switch (cfg->ss) {
         case OC_SS_SYS:
         {
             eepromOffset = OC_GBC_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_gbc_sid;
             break;
         }
         case OC_SS_SDR:
         {
             eepromOffset = OC_SDR_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_sdr_inv;
             break;
         }
         case OC_SS_RF:
         {
             eepromOffset = OC_RFFE_DEVICE_INFO + (recordNo * info_size);
-            cfg = &eeprom_fe_inv;
             break;
         }
         default:

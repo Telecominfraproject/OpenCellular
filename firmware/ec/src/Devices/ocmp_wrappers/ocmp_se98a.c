@@ -1,9 +1,16 @@
-#include "src/registry/Framework.h"
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+#include "common/inc/ocmp_wrappers/ocmp_se98a.h"
 
 #include "helpers/array.h"
 #include "helpers/math.h"
 #include "inc/devices/se98a.h"
-#include "inc/devices/ocmp_wrappers/ocmp_se98a.h"
 
 typedef enum Se98aStatus {
     SE98A_STATUS_TEMPERATURE = 0,
@@ -76,9 +83,9 @@ static bool _set_config(void *driver, unsigned int param_id,
     return false;
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return se98a_probe(driver);
+    return se98a_probe(driver, postData);
 }
 
 static void _alert_handler(SE98A_Event evt, int8_t temperature,
@@ -111,7 +118,6 @@ static ePostCode _init(void *driver, const void *config,
     if (se98a_init(driver) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-
     if (!config) {
         return POST_DEV_CFG_DONE;
     }
@@ -131,25 +137,7 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver SE98A = {
-    .name = "SE98A",
-    .status = (Parameter[]){
-        { .name = "temperature", .type = TYPE_UINT8 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "lowlimit", .type = TYPE_UINT8 },
-        { .name = "highlimit", .type = TYPE_UINT8 },
-        { .name = "critlimit", .type = TYPE_UINT8 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BAW", .type = TYPE_UINT8 },
-        { .name = "AAW", .type = TYPE_UINT8 },
-        { .name = "ACW", .type = TYPE_UINT8 },
-        {}
-    },
-
+const Driver_fxnTable SE98_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

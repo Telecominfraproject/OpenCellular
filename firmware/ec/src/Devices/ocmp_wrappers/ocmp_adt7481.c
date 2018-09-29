@@ -6,11 +6,10 @@
 * LICENSE file in the root directory of this source tree. An additional grant
 * of patent rights can be found in the PATENTS file in the same directory.
 */
-#include "src/registry/Framework.h"
+#include "common/inc/ocmp_wrappers/ocmp_adt7481.h"
 
 #include "helpers/array.h"
 #include "inc/devices/adt7481.h"
-#include "inc/devices/ocmp_wrappers/ocmp_adt7481.h"
 
 typedef enum Adt7481Status {
     ADT7481_STATUS_TEMPERATURE = 0,
@@ -85,31 +84,18 @@ static bool _set_config(void *driver, unsigned int param_id,
     return false;
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
-    ReturnStatus status = RETURN_OK;
-    ePostCode postcode = POST_DEV_MISSING;
-    uint8_t devId = 0x0000;
-    uint8_t manfId = 0x0000;
-
-    status = adt7481_get_dev_id(driver, &devId);
-    status = adt7481_get_mfg_id(driver, &manfId);
-    if (status != RETURN_OK) {
-        postcode = POST_DEV_MISSING;
-    } else if ((devId == TEMP_ADT7481_DEV_ID)
-            && (manfId == TEMP_ADT7481_MANF_ID)) {
-        postcode = POST_DEV_FOUND;
-    } else {
-        postcode = POST_DEV_ID_MISMATCH;
-    }
-
-    return postcode;
+    return adt7481_probe(driver,postData);
 }
 
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
     const ADT7481_Config *adt7481_config = config;
+    if (adt7481_config == NULL) {
+        return POST_DEV_CFG_FAIL;
+    }
     for (int i = 0; i < ARRAY_SIZE(adt7481_config->limits); ++i) {
         if (adt7481_set_local_temp_limit(
                 driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
@@ -136,25 +122,7 @@ static ePostCode _init(void *driver, const void *config,
 
 /* TODO: dedup with SE98A driver */
 /* TODO: enable alerts (requires major ADT driver changes) */
-const Driver ADT7481 = {
-    .name = "ADT7481",
-    .status = (Parameter[]){
-        { .name = "temperature", .type = TYPE_UINT8 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "lowlimit", .type = TYPE_UINT8 },
-        { .name = "highlimit", .type = TYPE_UINT8 },
-        { .name = "critlimit", .type = TYPE_UINT8 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BAW", .type = TYPE_UINT8 },
-        { .name = "AAW", .type = TYPE_UINT8 },
-        { .name = "ACW", .type = TYPE_UINT8 },
-        {}
-    },
-
+const Driver_fxnTable ADT7481_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

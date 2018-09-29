@@ -39,7 +39,7 @@
 #define LAN_MUX_SELECT_PIN          GPIO_PIN_1
 
 #define ETH_SW_DEV_SERIAL_NO        1
-
+#define IPPARAMS                    4
 /*
  * Ethernet Components ID. This is the part of the OCMPMsg in componentID field.
  */
@@ -141,6 +141,20 @@ typedef struct Eth_cfg {
     Eth_Sw_Port eth_sw_port;
 } Eth_cfg;
 
+typedef struct Eth_LoopBack_Params {
+    uint8_t loopBackType;
+}Eth_LoopBack_Params;
+
+typedef struct Eth_PacketGen_Params {
+    uint16_t reg_value;
+}Eth_PacketGen_Params;
+
+typedef struct Eth_TcpClient_Params {
+    uint8_t ipAddress[IPPARAMS];
+    uint16_t tcpPort;
+    uint8_t repeat;
+}Eth_TcpClient_Params;
+
 ePostCode eth_sw_probe();
 ePostCode eth_sw_init();
 void eth_enable_interrupt();
@@ -152,7 +166,7 @@ ReturnStatus eth_sw_get_status_sleep_mode(uint8_t port, port_duplex *sleep_mode_
 ReturnStatus eth_sw_get_status_auto_neg_complete(uint8_t port, port_duplex *autoneg_complete);
 ReturnStatus eth_sw_get_status_link_up(uint8_t port, port_duplex *link_up);
 ReturnStatus restart_autoneg(uint8_t port);
-ReturnStatus eth_sw_set_config_speed(uint8_t port, port_duplex speed);
+ReturnStatus eth_sw_set_config_speed(uint8_t port, port_speed speed);
 ReturnStatus eth_sw_set_config_duplex(uint8_t port, port_duplex duplex);
 ReturnStatus eth_sw_set_config_power_down(uint8_t port,uint8_t power_down);
 ReturnStatus eth_sw_set_config_sleep_mode_enable(uint8_t port,uint8_t sleep_mode_en);
@@ -164,5 +178,12 @@ ReturnStatus eth_sw_get_config_duplex(uint8_t port, port_duplex* duplex);
 ReturnStatus eth_sw_get_config_power_down(uint8_t port, uint8_t* power_dwn);
 ReturnStatus eth_sw_get_config_sleep_mode(uint8_t port, uint8_t* sleep_mode);
 ReturnStatus eth_sw_get_config_interrupt_enable(uint8_t port, uint8_t* interrupt_enb);
+ReturnStatus eth_sw_enable_loopback(void *driver, void *params);
+ReturnStatus eth_sw_disable_loopback(void *driver, void *params);
+ReturnStatus eth_sw_enable_macloopback(uint8_t port);
+ReturnStatus eth_sw_disable_macloopback(uint8_t port);
+ReturnStatus eth_sw_enable_packet_gen(void *driver, void *params);
+ReturnStatus eth_sw_disable_packet_gen(void *driver);
 void eth_sw_setAlertHandler(Eth_cfg *ethCfg, Eth_Sw_CallbackFn alert_cb, void *cb_context);
+
 #endif /* INC_DEVICES_ETH_SW_H_ */

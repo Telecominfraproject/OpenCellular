@@ -11,11 +11,11 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/devices/ina226.h"
+
 #include "devices/i2c/threaded_int.h"
+#include "inc/common/byteorder.h"
 #include "inc/common/global_header.h"
 #include "helpers/memory.h"
-#include "inc/common/byteorder.h"
-
 
 /*****************************************************************************
  *                          REGISTER DEFINITIONS
@@ -558,7 +558,7 @@ ReturnStatus ina226_enableAlert(INA226_Dev *dev, INA226_Event evt)
 
 /*****************************************************************************
  *****************************************************************************/
-ePostCode ina226_probe(INA226_Dev *dev)
+ePostCode ina226_probe(INA226_Dev *dev, POSTData *postData)
 {
     uint16_t devId = 0x00;
     uint16_t manfId = 0x0000;
@@ -575,6 +575,6 @@ ePostCode ina226_probe(INA226_Dev *dev)
     if (manfId != INA226_MANFACTURE_ID) {
         return POST_DEV_ID_MISMATCH;
     }
-
+    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,manfId, devId);
     return POST_DEV_FOUND;
 }

@@ -1,5 +1,12 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "unity.h"
-
 #include "inc/devices/se98a.h"
 
 #include "fake/fake_GPIO.h"
@@ -42,7 +49,13 @@ static uint16_t SE98A_regs[] = {
     [0x06] = 0x00, /* MFG ID */
     [0x07] = 0x00, /* Device ID */
 };
+static bool SE98A_GpioPins[] = {
+    [0x05] = 0x1,
+};
 
+static uint32_t SE98A_GpioConfig[] = {
+    [0x05] = OCGPIO_CFG_INPUT,
+};
 /* ============================= Fake Functions ============================= */
 #include <ti/sysbios/knl/Task.h>
 unsigned int s_task_sleep_ticks;
@@ -54,6 +67,7 @@ xdc_Void ti_sysbios_knl_Task_sleep__E( xdc_UInt32 nticks )
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
 {
+    FakeGpio_registerDevSimple(SE98A_GpioPins, SE98A_GpioConfig);
     fake_I2C_init();
     fake_I2C_registerDevSimple(s_dev.cfg.dev.bus, s_dev.cfg.dev.slave_addr,
                                SE98A_regs, sizeof(SE98A_regs),
@@ -108,7 +122,7 @@ void test_se98a_init(void)
     TEST_ASSERT_EQUAL(RETURN_OK, se98a_init(&alerted_dev));
 }
 
-static struct AlertData {
+static struct Test_AlertData {
     bool triggered;
     SE98A_Event evt;
     int8_t temp;
@@ -117,7 +131,7 @@ static struct AlertData {
 
 static void alert_handler(SE98A_Event evt, int8_t temperature, void *context)
 {
-    s_alert_data = (struct AlertData){
+    s_alert_data = (struct Test_AlertData){
         .triggered = true,
         .evt = evt,
         .temp = temperature,
@@ -145,7 +159,7 @@ static void _test_alert(SE98A_Dev *dev, uint16_t temp_reg, SE98A_Event exp_evt,
 
 void test_se98a_alerts(void)
 {
-    s_alert_data = (struct AlertData){};
+    s_alert_data = (struct Test_AlertData){};
 
     /* Now try to init with a pin associated */
     SE98A_Dev alerted_dev = {
@@ -200,21 +214,22 @@ void test_se98a_probe(void)
     /* Test with the actual values
      * (dev id is hi-byte)
      * (1131h = NXP Semiconductors PCI-SIG)*/
+    POSTData postData;
     SE98A_regs[0x07] = 0xA102;
     SE98A_regs[0x06] = 0x1131;
-    TEST_ASSERT_EQUAL(RETURN_OK, se98a_probe(&s_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND, se98a_probe(&s_dev,&postData));
 
     /* Test with an incorrect device ID */
     SE98A_regs[0x07] = 0xFACE;
-    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, se98a_probe(&s_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, se98a_probe(&s_dev,&postData));
 
     /* Test with an incorrect mfg ID */
     SE98A_regs[0x07] = 0xA102;
     SE98A_regs[0x06] = 0xABCD;
-    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, se98a_probe(&s_dev));
+    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, se98a_probe(&s_dev,&postData));
 
     /* Test with a missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, se98a_probe(&s_invalid));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING, se98a_probe(&s_invalid,&postData));
 }
 
 /* Helper to let us run through the various limits we can set */

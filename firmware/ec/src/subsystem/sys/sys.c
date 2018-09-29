@@ -8,9 +8,10 @@
  */
 #include "inc/subsystem/sys/sys.h"
 
+#include "common/inc/global/Framework.h"
+#include "inc/common/post.h"
 #include "inc/devices/eeprom.h"
 #include "inc/subsystem/gpp/gpp.h" /* For resetting AP */
-#include "src/registry/Framework.h"
 
 #include <driverlib/flash.h>
 #include <driverlib/sysctl.h>
@@ -20,277 +21,11 @@
 
 #define OC_MAC_ADDRESS_SIZE     13
 
+extern POSTData PostResult[POST_RECORDS];
+
 typedef enum {
     OC_SYS_CONF_MAC_ADDRESS = 0
 } eOCConfigParamId;
-
-typedef enum {
-    OC_STAT_SYS_SERIAL_ID = 0,
-    OC_STAT_SYS_GBC_BOARD_ID,
-    OC_STAT_SYS_STATE
-} eOCStatusParamId;
-
-OCSubsystem ssSystem = {
-    .taskStackSize = 1024,
-    .taskPriority = 4,
-};
-
-/* Driver definitions for the various devices within SYS */
-static ePostCode _init_eeprom(void *driver, const void *config,
-                              const void *alert_token);
-static bool _sid_get_status_parameters_data(void *drvier,
-                                            unsigned int param,
-                                            void *data);
-static bool _mac_get_config_parameters_data(void *driver,
-                                            unsigned int param,
-                                            void *pOCConfigData);
-static bool _mac_set_config_parameters_data(void *driver,
-                                            unsigned int param,
-                                            const void *pOCConfigData);
-
-const Driver Driver_EepromSID = {
-    .name = "EEPROM",
-    .status = (Parameter[]){
-        { .name = "gbcboardinfo", .type = TYPE_STR, .size = 21 },
-        { .name = "ocserialinfo", .type = TYPE_STR, .size = 21 },
-    },
-    .cb_init = _init_eeprom,
-    .cb_get_status = _sid_get_status_parameters_data,
-};
-
-const Driver Driver_EepromInv = {
-    .name = "EEPROM",
-    .cb_init = _init_eeprom
-};
-
-const Driver Driver_MAC = {
-    .name = "MAC",
-    .config = (Parameter[]){
-        { .name = "address", .type = TYPE_STR,
-          .size = OC_MAC_ADDRESS_SIZE + 1 }
-    },
-    .cb_get_config = _mac_get_config_parameters_data,
-    .cb_set_config = _mac_set_config_parameters_data,
-};
-
-/* Intitialize an EEPROM device and test writing to the very end of memory */
-static ePostCode _init_eeprom(void *driver, const void *config,
-                              const void *alert_token)
-{
-    Eeprom_Cfg *eeprom = driver;
-    uint8_t write = 0x01;
-    uint8_t read = 0x00;
-
-    eeprom_init(eeprom);
-    eeprom_enable_write(eeprom);
-    eeprom_write(eeprom, OC_TEST_ADDRESS, &write, 1);
-    NOP_DELAY(); /* TODO: the eeprom driver should handle this */
-    eeprom_disable_write(eeprom);
-    eeprom_read(eeprom, OC_TEST_ADDRESS, &read, 1);
-
-    if (write == read) {
-        return POST_DEV_CFG_DONE;
-    }
-    return POST_DEV_CFG_FAIL;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_get_mac_address
- **
- **    DESCRIPTION     : Get EC MAC address.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : Success or Failure
- **
- *****************************************************************************/
-static ReturnStatus bb_get_mac_address(uint8_t *macAddress)
-{
-    uint32_t ulUser0 = 0, ulUser1 = 0;
-
-    /* Get the MAC address */
-    if((FlashUserGet(&ulUser0, &ulUser1)) != 0) {
-        return RETURN_NOTOK;
-    }
-    uint8_t i = 0;
-    uint8_t temp[6] = {'\0'};
-
-    if ((ulUser0 != 0xffffffff) && (ulUser1 != 0xffffffff)) {
-        /*
-         *  Convert the 24/24 split MAC address from NV ram into a 32/16 split
-         *  MAC address needed to program the hardware registers, then program
-         *  the MAC address into the Ethernet Controller registers.
-         */
-        temp[0] = ((ulUser0 >> 0) & 0xff);
-        temp[1] = ((ulUser0 >> 8) & 0xff);
-        temp[2] = ((ulUser0 >> 16) & 0xff);
-        temp[3] = ((ulUser1 >> 0) & 0xff);
-        temp[4] = ((ulUser1 >> 8) & 0xff);
-        temp[5] = ((ulUser1 >> 16) & 0xff);
-
-        for( i = 0; i < 6; i++ )
-        {
-            sprintf((char *)&macAddress[i*2], "%X", ((temp[i]&0xf0) >> 4));
-            sprintf((char *)&macAddress[(i*2)+1], "%X", temp[i]&0xf);
-        }
-    } else {
-        strncpy((char *)macAddress, "FFFFFFFFFFFF", 12);
-    }
-
-    return RETURN_OK;
-}
-
-static uint32_t str_to_val(const char *str)
-{
-    uint32_t value = 0;
-    uint8_t temp;
-    char *ptr;
-    value = strtol(str, &ptr, 16);
-    temp = (value & 0XFF0000) >> 16;
-    value = (value & 0X00FF00) | ((value & 0X0000FF) << 16);
-    value = value | temp;
-    return value;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_set_mac_address
- **
- **    DESCRIPTION     : Set EC MAC address.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : Success or Failure
- **
- *****************************************************************************/
-ReturnStatus bb_set_mac_address(const uint8_t *macAddress)
-{
-    uint32_t ulUser0, ulUser1;
-    if(macAddress != NULL) {
-        char temp[6];
-        strncpy(temp, (const char *)macAddress, 6);
-        ulUser0 = str_to_val(temp);
-        strncpy(temp, (const char *)(macAddress + 6), 6);
-        ulUser1 = str_to_val(temp);
-        /* Set the MAC address */
-        if((FlashUserSet(ulUser0, ulUser1)) != 0) {
-            return RETURN_NOTOK;
-        } else {
-            if(FlashUserSave() != 0) {
-                return RETURN_NOTOK;
-            }
-        }
-        /*SysCtlDelay(2000000);
-        SysCtlReset();*/
-    }
-
-    return RETURN_OK;
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : mac_get_config_parameters_data
- **
- **    DESCRIPTION     : Get OC Config Message.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : Success or Failure
- **
- *****************************************************************************/
-static bool _mac_get_config_parameters_data(void *driver,
-                                            unsigned int param,
-                                            void *pOCConfigData)
-{
-    const eOCConfigParamId paramIndex = (eOCConfigParamId)param;
-    ReturnStatus status = RETURN_OK;
-    switch (paramIndex) {
-        case OC_SYS_CONF_MAC_ADDRESS:
-        {
-            memset(pOCConfigData, '\0', OC_MAC_ADDRESS_SIZE + 1);
-            status = bb_get_mac_address(pOCConfigData);
-            LOGGER_DEBUG("SYS:INFO:: OC Connect1 MAC Address: %s.\n",
-                         pOCConfigData);
-            break;
-        }
-        default:
-        {
-            status = RETURN_NOTOK;
-        }
-    }
-    return (status == RETURN_OK);
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : mac_set_config_parameters_data
- **
- **    DESCRIPTION     : Set OC Config Message.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : Success or Failure
- **
- *****************************************************************************/
-static bool _mac_set_config_parameters_data(void *driver,
-                                            unsigned int param,
-                                            const void *pOCConfigData)
-{
-    const eOCConfigParamId paramIndex = (eOCConfigParamId)param;
-    ReturnStatus status = RETURN_OK;
-    switch (paramIndex) {
-        case OC_SYS_CONF_MAC_ADDRESS:
-        {
-            LOGGER_DEBUG("SYS:INFO:: Set OC Connect1 MAC Address to: %s.\n",
-                         pOCConfigData);
-            bb_set_mac_address(pOCConfigData);
-            break;
-        }
-        default:
-        {
-            status = RETURN_NOTOK;
-        }
-    }
-    return (status == RETURN_OK);
-}
-
-/*****************************************************************************
- **    FUNCTION NAME   : bb_process_get_status_parameters_data
- **
- **    DESCRIPTION     : Get OC Status Message.
- **
- **    ARGUMENTS       : Pointer to OCMPMessageFrame structure
- **
- **    RETURN TYPE     : Success or Failure
- **
- *****************************************************************************/
-static bool _sid_get_status_parameters_data(void *drvier,
-                                            unsigned int param,
-                                            void *data)
-{
-    const eOCStatusParamId paramIndex = (eOCStatusParamId)param;
-    ReturnStatus status = RETURN_OK;
-    switch (paramIndex) {
-        case OC_STAT_SYS_SERIAL_ID:
-        {
-            memset(data, '\0', OC_CONNECT1_SERIAL_SIZE + 1);
-            status = eeprom_read_oc_info(data);
-            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 serial id %s.\n",
-                         data);
-            break;
-        }
-        case OC_STAT_SYS_GBC_BOARD_ID:
-        {
-            memset(data, '\0', OC_GBC_BOARD_INFO_SIZE + 1);
-            status = eeprom_read_board_info(OC_SS_SYS, data);
-            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 GBC board is  %s.\n",
-                         data);
-            break;
-        }
-        default:
-        {
-            status = RETURN_NOTOK;
-        }
-    }
-    return (status == RETURN_OK);
-}
 
 /* Resets the AP and then the EC */
 bool SYS_cmdReset(void *driver, void *params)
@@ -298,7 +33,7 @@ bool SYS_cmdReset(void *driver, void *params)
     /* TODO: we don't give any indication that the message was received, perhaps
      * a timed shutdown would be more appropriate */
 
-    const Gpp_Cfg *cfg = driver;
+    const Gpp_gpioCfg *cfg = (Gpp_gpioCfg *)driver;
 
     /* Reset AP */
     OcGpio_write(&cfg->pin_ec_reset_to_proc, false);
@@ -317,4 +52,88 @@ bool SYS_cmdReset(void *driver, void *params)
 bool SYS_cmdEcho(void *driver, void *params)
 {
     return true;
+}
+
+/*
+/*****************************************************************************
+ **    FUNCTION NAME   : SYS_post_enable
+ **
+ **    DESCRIPTION     : Start the executing for POST
+ **    ARGUMENTS       : None
+ **
+ **    RETURN TYPE     : bool
+ **
+ *****************************************************************************/
+bool SYS_post_enable(void **postActivate)
+{
+    ReturnStatus status = RETURN_NOTOK;
+    LOGGER("SYS:INFO:: Starting POST test for OpenCellular.\n");
+    //Permission granted from the System.
+    //Sending the activate POST message to POST subsystem.
+    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(OC_SS_SYS,
+                                                         OCMP_MSG_TYPE_POST,
+                                                         OCMP_AXN_TYPE_ACTIVE,
+                                                         0x00,
+                                                         0x00,
+                                                         1);
+    if (postExeMsg != NULL) {
+        status = RETURN_OK;
+        *postActivate = (OCMPMessageFrame *)postExeMsg;
+    }
+    return (status == RETURN_OK) ;
+}
+
+/*****************************************************************************
+ **    FUNCTION NAME   : SYS_post_get_results
+ **
+ **    DESCRIPTION     : Get POST results from EEPROM.
+ **
+ **    ARGUMENTS       : None
+ **
+ **    RETURN TYPE     : bool
+ **
+ *****************************************************************************/
+bool SYS_post_get_results(void **getpostResult)
+{
+    ReturnStatus status = RETURN_OK;
+    /* Return the POST results*/
+    uint8_t iter = 0x00;
+    uint8_t index = 0x00;
+    OCMPMessageFrame *getpostResultMsg = (OCMPMessageFrame *)getpostResult;
+    /* Get the subsystem info for which message is required */
+    OCMPMessageFrame *postResultMsg = create_ocmp_msg_frame(
+            getpostResultMsg->message.subsystem, OCMP_MSG_TYPE_POST,
+            OCMP_AXN_TYPE_REPLY,0x00,0x00,40);
+    if (postResultMsg) {
+        /* Getting data assigned*/
+        postResultMsg->header.ocmpSof = getpostResultMsg->header.ocmpSof;
+        postResultMsg->header.ocmpInterface = getpostResultMsg->header
+                                                .ocmpInterface;
+        postResultMsg->header.ocmpSeqNumber = getpostResultMsg->header
+                                                .ocmpSeqNumber;
+        for (iter = 0; iter < POST_RECORDS; iter++) {
+            if (PostResult[iter].subsystem
+                    == getpostResultMsg->message.ocmp_data[0]) {
+                postResultMsg->message.ocmp_data[(3 * index) + 0] =
+                                        PostResult[iter].subsystem;
+                postResultMsg->message.ocmp_data[(3 * index) + 1] =
+                        PostResult[iter].devSno;                //Device serial Number
+                postResultMsg->message.ocmp_data[(3 * index) + 2] =
+                        PostResult[iter].status;                //Status ok
+                index++;
+            }
+        }
+        LOGGER_DEBUG("BIGBROTHER:INFO::POST message sent for subsystem 0x%x.\n");
+        /*Size of payload*/
+        postResultMsg->header.ocmpFrameLen = index * 3;
+        /*Updating Subsystem*/
+        //postResultMsg->message.subsystem = (OCMPSubsystem)PostResult[iter].subsystem;
+        /* Number of devices found under subsystem*/
+        postResultMsg->message.parameters = index;
+        index = 0;
+    } else {
+        LOGGER("BIGBROTHER:ERROR:: Failed to allocate memory for POST results.\n");
+    }
+    memcpy(((OCMPMessageFrame*)getpostResult), postResultMsg, 64);
+    return status;
 }

@@ -1,9 +1,21 @@
-#include "src/registry/Framework.h"
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+#include "common/inc/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
 
+#include "common/inc/global/Framework.h"
 #include "drivers/PinGroup.h"
 #include "helpers/math.h"
+#include "inc/subsystem/rffe/rffe.h"
 #include "inc/common/global_header.h"
-#include "inc/devices/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
+#include "inc/devices/dat-xxr5a-pp.h"
+
+#include <ti/sysbios/knl/Task.h>
 
 typedef enum DatConfig {
     DAT_CONFIG_ATTENUATION = 0,
@@ -11,6 +23,7 @@ typedef enum DatConfig {
 
 static bool _get_config(void *driver, unsigned int param_id,
                         void *return_buf) {
+    bool ret = false;
     switch (param_id) {
         case DAT_CONFIG_ATTENUATION: {
             DATR5APP_Cfg *cfg = driver;
@@ -20,18 +33,21 @@ static bool _get_config(void *driver, unsigned int param_id,
                 .pins = cfg->pin_group
             };
             if (PinGroup_read(&pin_group, &atten) != RETURN_OK) {
-                return false;
+                ret = false;
+            } else {
+                LOGGER_DEBUG("DAT-XXR5A-PP+:DEBUG:: Attenuation is %.1f\n",
+                             (atten / 2.0));
+                *(int16_t *)return_buf = atten;
+                ret = true;
             }
-            LOGGER_DEBUG("DAT-XXR5A-PP+:DEBUG:: Attenuation is %.1f\n",
-                         (atten / 2.0));
-            *(int16_t *)return_buf = atten;
             break;
         }
-        default:
+        default: {
             LOGGER_ERROR("DAT-XXR5A-PP+::Unknown config param %d\n", param_id);
-            return false;
+            ret = false;
+        }
     }
-    return false;
+    return ret;
 }
 
 static bool _set_attenuation(void *driver, int16_t atten)
@@ -47,6 +63,8 @@ static bool _set_attenuation(void *driver, int16_t atten)
 
     /* Disable input latch */
     OcGpio_write(&cfg->pin_le, false);
+    /* Attenuation enable */
+   // OcGpio_write(&cfg->pin_tx_attn_enb, true);
 
     /* Set the attenuation value */
     /* TODO: value is provided as x2, so 0.5 value is bit 0, consider
@@ -67,7 +85,6 @@ static bool _set_attenuation(void *driver, int16_t atten)
     Task_sleep(1);
     OcGpio_write(&cfg->pin_le, false);
     Task_sleep(1);
-
     return true;
 }
 
@@ -103,7 +120,8 @@ static ePostCode _probe(void *driver)
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
-    DATR5APP_Cfg *cfg = driver;
+    DATR5APP_Cfg *cfg = (DATR5APP_Cfg *)driver;
+    DATR5APP_Config *cfg_atten = (DATR5APP_Config *)config;
     PinGroup pin_group = {
         .num_pin = DATR5APP_PIN_COUNT,
         .pins = cfg->pin_group
@@ -117,20 +135,11 @@ static ePostCode _init(void *driver, const void *config,
     }
 
     /* Set default attenuation */
-    _set_attenuation(driver, ((DATR5APP_Config *)config)->attenuation);
-
+    _set_attenuation(driver, cfg_atten->attenuation);
     return POST_DEV_CFG_DONE;
 }
 
-const Driver DATXXR5APP = {
-    .name = "DAT-XXR5A-PP+",
-    .status = NULL,
-    .config = (Parameter[]){
-        { .name = "atten", .type = TYPE_INT16 },
-        {}
-    },
-    .alerts = NULL,
-
+const Driver_fxnTable  DATXXR5APP_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

@@ -18,6 +18,10 @@
 
 static GateMutex_Handle s_cb_data_mutex;
 
+static int GpioNative_probe(void) {
+    //This probe function is just a dummy as we are all ready accessing EC.
+    return OCGPIO_SUCCESS;
+}
 void GpioNative_init(void) {
     s_cb_data_mutex = GateMutex_create(NULL, NULL);
 }
@@ -167,6 +171,7 @@ static int GpioNative_enableInt(const OcGpio_Pin *pin) {
 }
 
 const OcGpio_FnTable GpioNative_fnTable = {
+    .probe = GpioNative_probe,
     .write = GpioNative_write,
     .read = GpioNative_read,
     .configure = GpioNative_configure,

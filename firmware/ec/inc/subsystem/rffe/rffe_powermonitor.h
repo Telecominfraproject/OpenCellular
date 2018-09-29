@@ -12,8 +12,8 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/Framework.h"
 #include "rffe_ctrl.h" /* Temporary, for channel # enum */
-#include "src/registry/Framework.h"
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
@@ -62,11 +62,17 @@ typedef struct __attribute__((packed, aligned(1))) {
     rffeStatus rffeStatus;
 } rffeStatusData;
 
+typedef enum FePowerStatus {
+    FE_POWER_STATUS_FORWARD = 0,
+    FE_POWER_STATUS_REVERSE,
+} FePowerStatus;
+
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
+ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
+                                                 eRffeStatusParamId rfPowerSelect,
+                                                 uint16_t *rfpower);
 void rffe_powermonitor_createtask(void);
-
-extern Driver RFPowerMonitor;
 
 #endif /* RFFE_POWERMONITOR_H_ */

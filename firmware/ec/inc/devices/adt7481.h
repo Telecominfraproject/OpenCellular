@@ -12,9 +12,9 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/post_frame.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
-
 #include <stdint.h>
 
 /*****************************************************************************
@@ -164,4 +164,5 @@ ReturnStatus adt7481_get_therm_hysteresis(const I2C_Dev *i2c_dev,
                                           int8_t* tempHysteresisValue);
 ReturnStatus adt7481_set_therm_hysteresis(const I2C_Dev *i2c_dev,
                                           int8_t tempHysteresisValue);
+
 #endif /* ADT7481_H_ */

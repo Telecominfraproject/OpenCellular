@@ -39,13 +39,14 @@
 /*********************************************************************
  * INCLUDES
  */
-#include <stdbool.h>
+#include "inc/utils/util.h"
+
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/sysbios/knl/Semaphore.h>
 #include <ti/sysbios/knl/Queue.h>
-#include <stdlib.h>
-#include <inc/utils/util.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
 
 /*********************************************************************
  * TYPEDEFS

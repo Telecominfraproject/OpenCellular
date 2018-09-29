@@ -12,10 +12,10 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/Framework.h"
 #include "drivers/OcGpio.h"
 #include "helpers/attribute.h"
 
-#include "src/registry/Framework.h"
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS

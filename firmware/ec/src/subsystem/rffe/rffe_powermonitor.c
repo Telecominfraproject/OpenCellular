@@ -19,8 +19,8 @@
 #include <ti/sysbios/knl/Task.h>
 
 /* RFFE device config */
-extern void *sys_config[];
-#define RFFE ((Fe_Cfg *)sys_config[OC_SS_RF])
+extern void* fe_ch1_ads7830;
+extern void* fe_ch2_ads7830;
 
 /*****************************************************************************
  *                             HANDLES DEFINITION
@@ -28,22 +28,6 @@ extern void *sys_config[];
 /* Global Task Configuration Variables */
 static Task_Struct rffePowerMonitorTask;
 static Char rffePowerMonitorTaskStack[RFFEPOWERMONITOR_TASK_STACK_SIZE];
-
-typedef enum FePowerStatus {
-    FE_POWER_STATUS_FORWARD = 0,
-    FE_POWER_STATUS_REVERSE,
-} FePowerStatus;
-
-static bool _ocmp_get_status(void *driver, unsigned int param_id,
-                             void *return_buf);
-Driver RFPowerMonitor = {
-    .status = (Parameter[]){
-        { .name = "forward", .type = TYPE_UINT16 },
-        { .name = "reverse", .type = TYPE_UINT16 },
-        {}
-    },
-    .cb_get_status = _ocmp_get_status,
-};
 
 /*****************************************************************************
  **    FUNCTION NAME   : rffe_powermonitor_read_adcpower
@@ -100,7 +84,7 @@ static ReturnStatus rffe_powermonitor_read_adcpower(const I2C_Dev *i2c_dev,
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-static ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
+ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
                                                  eRffeStatusParamId rfPowerSelect,
                                                  uint16_t *rfpower)
 {
@@ -173,33 +157,6 @@ static ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
     return status;
 }
 
-/* OCMP message handler */
-static bool _ocmp_get_status(void *driver, unsigned int param_id,
-                             void *return_buf) {
-    switch (param_id) {
-        case FE_POWER_STATUS_FORWARD: {
-            if (rffe_powermonitor_read_power(driver,
-                                             RFFE_STAT_FW_POWER,
-                                             return_buf) == RETURN_OK) {
-                return true;
-            }
-            break;
-        }
-        case FE_POWER_STATUS_REVERSE: {
-            if (rffe_powermonitor_read_power(driver,
-                                             RFFE_STAT_REV_POWER,
-                                             return_buf) == RETURN_OK) {
-                return true;
-            }
-            break;
-        }
-        default:
-            LOGGER_ERROR("RFPOWERMONITOR::Unknown status param %d\n", param_id);
-            return false;
-    }
-    return false;
-}
-
 /*****************************************************************************
  **    FUNCTION NAME   : rffe_powermonitor_task_fxn
  **
@@ -220,7 +177,7 @@ static void rffe_powermonitor_task_fxn(UArg a0, UArg a1)
         ReturnStatus status;
 
         /* Read RF FE Forward Power on channel 1 */
-        status = rffe_powermonitor_read_power(&RFFE->ads7830_ch1,
+        status = rffe_powermonitor_read_power(fe_ch1_ads7830,
                                               RFFE_STAT_FW_POWER,
                                               &rfPower);
         if (status == RETURN_OK) {
@@ -229,7 +186,7 @@ static void rffe_powermonitor_task_fxn(UArg a0, UArg a1)
         }
 
         /* Read RF FE Forward Power on channel 2 */
-        status = rffe_powermonitor_read_power(&RFFE->ads7830_ch2,
+        status = rffe_powermonitor_read_power(fe_ch2_ads7830,
                                               RFFE_STAT_FW_POWER,
                                               &rfPower);
         if (status == RETURN_OK) {

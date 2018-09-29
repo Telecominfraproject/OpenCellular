@@ -6,16 +6,15 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef INA226_H_
 #define INA226_H_
 
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
-#include "inc/common/post_frame.h"
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
@@ -86,12 +85,9 @@ ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
                                      uint16_t* shuntVoltValue);
 ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t* currValue);
 ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t* powValue);
-
 ReturnStatus ina226_init(INA226_Dev *dev);
 void ina226_setAlertHandler(INA226_Dev *dev, INA226_CallbackFn alert_cb,
                             void *cb_context);
 ReturnStatus ina226_enableAlert(INA226_Dev *dev, INA226_Event evt);
-
-ePostCode ina226_probe(INA226_Dev *dev);
-
+ePostCode ina226_probe(INA226_Dev *dev, POSTData *postData);
 #endif /* INA226_H_ */

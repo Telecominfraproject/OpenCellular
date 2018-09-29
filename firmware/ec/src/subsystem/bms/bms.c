@@ -10,14 +10,3 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/subsystem/bms/bms.h"
-
-#include "registry/SSRegistry.h"
-
-/* Global Task Configuration Variables */
-static Char bmsTaskStack[BMS_TASK_STACK_SIZE];
-
-OCSubsystem ssBms = {
-    .taskStackSize = BMS_TASK_STACK_SIZE,
-    .taskPriority = BMS_TASK_PRIORITY,
-    .taskStack = bmsTaskStack,
-};

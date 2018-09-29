@@ -12,9 +12,9 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "drivers/OcGpio.h"
 #include "inc/devices/adt7481.h"
 #include "inc/devices/sx1509.h" /* Just for POST check - remove for 0.2 */
-#include "drivers/OcGpio.h"
 
 #include <stdbool.h>
 
@@ -28,19 +28,13 @@
 #define SYNC_GPS_TASK_PRIORITY              2
 #define SYNC_GPS_TASK_STACK_SIZE            1024
 
-#define SYNC_IO_DEVICE_ADDR                 0x71
 #define SYNC_TEMP_SENSOR_ADDR               0x4C
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
 /* Subsystem config */
-typedef struct Sync_Cfg {
-    const I2C_Dev temp_sens;
-    const I2C_Dev io_exp; /* Temporary - for POST */
-
-    /* TODO: this pins are just lumped together, they'll be broken into their
-     * respective drivers in time */
+typedef struct Sync_gpioCfg {
     OcGpio_Pin pin_spdt_cntrl_lvl;
     OcGpio_Pin pin_warmup_survey_init_sel;
     OcGpio_Pin pin_r_phase_lock_ioexp;
@@ -50,9 +44,8 @@ typedef struct Sync_Cfg {
     OcGpio_Pin pin_temp_alert;
     OcGpio_Pin pin_spdt_cntrl_lte_cpu_gps_lvl;
     OcGpio_Pin pin_init_survey_sel;
-
     OcGpio_Pin pin_ec_sync_reset;
-} Sync_Cfg;
+} Sync_gpioCfg;
 
 typedef enum gpsStatus {
     GPS_NOTLOCKED = 0,
@@ -63,7 +56,7 @@ typedef enum gpsStatus {
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
 /* Schema hooks */
-bool SYNC_Init(void *return_buf);
+bool SYNC_Init(void *driver, void *return_buf);
 bool SYNC_reset(void *driver, void *params);
 bool SYNC_GpsStatus(void *driver, unsigned int param_id, void *return_buf);
 

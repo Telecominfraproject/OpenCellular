@@ -10,13 +10,13 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/subsystem/rffe/rffe.h"
+
+#include "Board.h"
+#include "inc/common/system_states.h"
 #include "inc/subsystem/rffe/rffe_sensor.h"
 #include "inc/subsystem/rffe/rffe_ctrl.h"
 #include "inc/subsystem/rffe/rffe_powermonitor.h"
-
-#include "Board.h"
 #include "inc/subsystem/sdr/sdr.h"
-#include "inc/common/system_states.h"
 #include "inc/utils/util.h"
 #include "registry/SSRegistry.h"
 
@@ -27,17 +27,6 @@
 //                             HANDLES DEFINITION
 //*****************************************************************************
 /* Global Task Configuration Variables */
-static Char rffeTaskStack[RFFE_TASK_STACK_SIZE];
-
-OCSubsystem ssRf = {
-    .taskStackSize = RFFE_TASK_STACK_SIZE,
-    .taskPriority = RFFE_TASK_PRIORITY,
-    .taskStack = rffeTaskStack,
-};
-
-/* RFFE device config */
-extern void *sys_config[];
-#define RFFE ((Fe_Cfg *)sys_config[OC_SS_RF])
 
 /*****************************************************************************
  **    FUNCTION NAME   : rffe_pwr_control
@@ -49,12 +38,12 @@ extern void *sys_config[];
  **    RETURN TYPE     : ReturnStatus
  **
  *****************************************************************************/
-void rffe_pwr_control(uint8_t control)
+void rffe_pwr_control(Fe_gpioCfg* feCfg, uint8_t control)
 {
     if (control == OC_FE_ENABLE) {
-        OcGpio_write(&RFFE->pin_fe_12v_ctrl, true);
+        OcGpio_write(&feCfg->pin_fe_12v_ctrl, true);
     } else {
-        OcGpio_write(&RFFE->pin_fe_12v_ctrl, false);
+        OcGpio_write(&feCfg->pin_fe_12v_ctrl, false);
     }
 }
 
@@ -68,23 +57,21 @@ void rffe_pwr_control(uint8_t control)
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-bool rffe_pre_init(void *returnValue)
+bool rffe_pre_init(void *driver, void *returnValue)
 {
+    Fe_Cfg* feCfg = (Fe_Cfg*)driver;
     /* Initialize IO pins */
-    OcGpio_configure(&RFFE->pin_rf_pgood_ldo, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&RFFE->pin_fe_12v_ctrl, OCGPIO_CFG_OUTPUT |
+    OcGpio_configure(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo, OCGPIO_CFG_INPUT);
+    OcGpio_configure(&feCfg->fe_gpio_cfg->pin_fe_12v_ctrl, OCGPIO_CFG_OUTPUT |
                                              OCGPIO_CFG_OUT_LOW);
 
-    /* Read EEPROM */
-    eeprom_init(RFFE->eeprom_inventory);
-
     /* RF power on */
-    rffe_pwr_control(OC_FE_ENABLE);
+    rffe_pwr_control(feCfg->fe_gpio_cfg,OC_FE_ENABLE);
 
     NOP_DELAY();
 
     /* Check Powergood status(SDR_REG_LDO_PGOOD) */
-    if(OcGpio_read(&RFFE->pin_rf_pgood_ldo)) {
+    if(OcGpio_read(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo)) {
         LOGGER("RFFE:INFO:: PowerGood Status is OK.\n");
     }
     else {
@@ -93,32 +80,44 @@ bool rffe_pre_init(void *returnValue)
 
     /* Initilize FE IO Expander GPIO Controls (those not already controlled
      * by a driver) */
-    const Fe_Cfg *fe_cfg = sys_config[OC_SS_RF];
-
-    OcGpio_configure(&fe_cfg->fe_ch2_gain_cfg.pin_ch1_2g_lb_band_sel_l,
+    Fe_Ch2_Gain_Cfg* feCh2GainCfg = (Fe_Ch2_Gain_Cfg*)(feCfg->fe_ch2_gain_cfg);
+    Fe_Ch2_Lna_Cfg* feCh2LnaCfg = (Fe_Ch2_Lna_Cfg*)(feCfg->fe_ch2_lna_cfg);
+    Fe_Watchdog_Cfg* feWatchDogCfg = (Fe_Watchdog_Cfg*)(feCfg->fe_watchdog_cfg);
+    OcGpio_configure(&feCh2GainCfg->pin_ch1_2g_lb_band_sel_l,
                      OCGPIO_CFG_OUTPUT);
-    OcGpio_configure(&fe_cfg->fe_ch2_lna_cfg.pin_ch1_rf_pwr_off,
-                     OCGPIO_CFG_OUTPUT);
-    OcGpio_configure(&fe_cfg->fe_watchdog_cfg.pin_ch2_rf_pwr_off,
-                     OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&feCh2LnaCfg->pin_ch1_rf_pwr_off,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&feWatchDogCfg->pin_ch2_rf_pwr_off,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
 
     /* TODO: might be cleaner to move into watchdog driver (2x init is ok) */
-    OcGpio_configure(&fe_cfg->fe_watchdog_cfg.pin_aosel_fpga,
+    OcGpio_configure(&feWatchDogCfg->pin_aosel_fpga,
                      OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
-    OcGpio_configure(&fe_cfg->fe_watchdog_cfg.pin_copol_fpga,
+    OcGpio_configure(&feWatchDogCfg->pin_copol_fpga,
                      OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
 
     return true;
 }
 
-bool rffe_post_init(eSubSystemStates *ssState)
+bool rffe_post_init(void* driver, void *ssState)
 {
     ReturnStatus status = RETURN_OK;
+    eSubSystemStates *newState = (eSubSystemStates*)ssState;
 
-    status |= rffe_ctrl_configure_power_amplifier(RFFE_CHANNEL1,
+    Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = {
+        .channel = RFFE_CHANNEL1,
+        .fe_Rffecfg = (Fe_Cfg*)driver
+    };
+
+    Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = {
+        .channel = RFFE_CHANNEL2,
+        .fe_Rffecfg = (Fe_Cfg*)driver
+    };
+    
+    status |= rffe_ctrl_configure_power_amplifier(&fe_ch1_pwrcfg,
                                                   RFFE_ACTIVATE_PA);
 
-    status |= rffe_ctrl_configure_power_amplifier(RFFE_CHANNEL2,
+    status |= rffe_ctrl_configure_power_amplifier(&fe_ch2_pwrcfg,
                                                   RFFE_ACTIVATE_PA);
 
     //rffe_powermonitor_createtask();
@@ -128,12 +127,11 @@ bool rffe_post_init(eSubSystemStates *ssState)
             ((status == RETURN_OK) ? "successful" : "unsuccessful"));
 
     if (status == RETURN_OK) {
-        *ssState = SS_STATE_CFG;
+        *newState = SS_STATE_CFG;
     } else {
-        *ssState = SS_STATE_FAULTY;
+        *newState = SS_STATE_FAULTY;
         return false;
     }
-
     return true;
 }
 
@@ -141,7 +139,7 @@ bool RFFE_reset(void *driver, void *params)
 {
     /* TODO: this is the same line we use to reset the SDR - is this really
      * what we want to be doing here? */
-    const Sdr_Cfg *cfg = sys_config[OC_SS_SDR];
+    const Sdr_gpioCfg *cfg = (Sdr_gpioCfg *)driver;
     if (OcGpio_write(&cfg->pin_ec_trxfe_reset, false) < OCGPIO_SUCCESS) {
         return false;
     }
@@ -150,22 +148,4 @@ bool RFFE_reset(void *driver, void *params)
         return false;
     }
     return true;
-}
-
-bool RFFE_InventoryGetStatus(void *driver, unsigned int param_id,
-                             void *return_buf) {
-    switch (param_id) {
-        case 0: /* TODO: gross magic number */
-            memset(return_buf, '\0', OC_RFFE_BOARD_INFO_SIZE + 1);
-            if (eeprom_read_board_info((OCMPSubsystem)driver, return_buf)
-                    == RETURN_OK) {
-                return true;
-            }
-            LOGGER_DEBUG("RFFE:INFO:: Board id: %s\n", return_buf);
-            break;
-        default:
-            LOGGER_ERROR("RFFE:ERROR::Unknown param %u\n", param_id);
-            break;
-    }
-    return false;
 }

@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "unity.h"
 
 #include "inc/devices/sx1509.h"
@@ -13,11 +21,6 @@
 static const I2C_Dev s_sx1509_dev = {
     .bus = I2C_BUS,
     .slave_addr = I2C_ADDR,
-};
-
-static const I2C_Dev s_sx1509_no_dev = {
-    .bus = I2C_BUS,
-    .slave_addr = 0x01,
 };
 
 static uint8_t SX1509_regs[] = {
@@ -509,7 +512,8 @@ void test_ioexp_led_clear_interrupt_source(void)
 
 void test_ioexp_led_not_present(void)
 {
-    I2C_Dev invalid_dev = s_sx1509_no_dev;
+    I2C_Dev invalid_dev = s_sx1509_dev;
+    invalid_dev.slave_addr = 0x01;
 
     /* Ensure that we fail properly if the device isn't on the bus */
     uint8_t dummy_val;

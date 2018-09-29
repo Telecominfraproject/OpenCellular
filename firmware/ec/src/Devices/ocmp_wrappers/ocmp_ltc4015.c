@@ -1,7 +1,14 @@
-#include "src/registry/Framework.h"
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+#include "common/inc/ocmp_wrappers/ocmp_ltc4015.h"
 
 #include "inc/devices/ltc4015.h"
-#include "inc/devices/ocmp_wrappers/ocmp_ltc4015.h"
 
 typedef enum LTC4015Status {
     LTC4015_STATUS_BATTERY_VOLTAGE = 0,
@@ -45,7 +52,7 @@ static bool _choose_battery_charger(LTC4015_Dev *dev) {
 static bool _get_status(void *driver, unsigned int param_id,
                         void *return_buf) {
     if(!_choose_battery_charger(driver))
-        return;
+        return false;
 
     switch (param_id) {
         case LTC4015_STATUS_BATTERY_VOLTAGE: {
@@ -86,7 +93,7 @@ static bool _get_config(void *driver, unsigned int param_id,
                         void *return_buf) {
 
     if(!_choose_battery_charger(driver))
-        return;
+        return false;
 
     switch (param_id) {
         case LTC4015_CONFIG_BATTERY_VOLTAGE_LOW: {
@@ -141,7 +148,7 @@ static bool _get_config(void *driver, unsigned int param_id,
 static bool _set_config(void *driver, unsigned int param_id,
                         const void *data) {
     if(!_choose_battery_charger(driver))
-        return;
+        return false;
 
     switch (param_id) {
         case LTC4015_CONFIG_BATTERY_VOLTAGE_LOW: {
@@ -193,12 +200,13 @@ static bool _set_config(void *driver, unsigned int param_id,
     }
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
+    LTC4015_configure(driver);
     if(!_choose_battery_charger(driver))
-        return;
+        return false;
 
-    return LTC4015_probe(driver);
+    return LTC4015_probe(driver, postData);
 }
 
 static void _alert_handler(LTC4015_Event evt, int16_t value, void *alert_data)
@@ -235,7 +243,7 @@ static void _alert_handler(LTC4015_Event evt, int16_t value, void *alert_data)
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token) {
     if(!_choose_battery_charger(driver))
-        return;
+        return false;
 
     if (LTC4015_init(driver) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
@@ -303,40 +311,7 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver LTC4015 = {
-    .name = "LTC4015",
-    .status = (Parameter[]){
-        { .name = "batteryVoltage", .type = TYPE_INT16 },
-        { .name = "batteryCurrent", .type = TYPE_INT16 },
-        { .name = "systemVoltage", .type = TYPE_INT16 },
-        { .name = "inputVoltage", .type = TYPE_INT16 },
-        { .name = "inputCurrent", .type = TYPE_INT16 },
-        { .name = "dieTemperature", .type = TYPE_INT16 },
-        { .name = "ichargeDAC", .type = TYPE_INT16 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "batteryVoltageLow", .type = TYPE_INT16 },
-        { .name = "batteryVoltageHigh", .type = TYPE_INT16 },
-        { .name = "batteryCurrentLow", .type = TYPE_INT16 },
-        { .name = "inputVoltageLow", .type = TYPE_INT16 },
-        { .name = "inputCurrentHigh", .type = TYPE_INT16 },
-        { .name = "inputCurrentLimit", .type = TYPE_UINT16 },
-        { .name = "icharge", .type = TYPE_UINT16 },
-        { .name = "vcharge", .type = TYPE_UINT16 },
-        { .name = "dieTemperature", .type = TYPE_INT16 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BVL", .type = TYPE_INT16 },
-        { .name = "BVH", .type = TYPE_INT16 },
-        { .name = "BCL", .type = TYPE_INT16 },
-        { .name = "IVL", .type = TYPE_INT16 },
-        { .name = "ICH", .type = TYPE_INT16 },
-        { .name = "DTH", .type = TYPE_INT16 },
-        {}
-    },
-
+const Driver_fxnTable LTC4015_fxnTable = {
     /* Message handlers */
     .cb_probe = _probe,
     .cb_init = _init,

@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-
 #ifndef SYSTEM_STATES_H_
 #define SYSTEM_STATES_H_
 
