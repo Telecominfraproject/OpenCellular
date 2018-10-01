@@ -8,7 +8,7 @@
  */
 #include "fake_ThreadedISR.h"
 
-#include "Devices/i2c/threaded_int.h"
+#include "devices/i2c/threaded_int.h"
 #include "helpers/attribute.h"
 
 /* We'll statically allocate a circular queue so we can be lazy and not worry
