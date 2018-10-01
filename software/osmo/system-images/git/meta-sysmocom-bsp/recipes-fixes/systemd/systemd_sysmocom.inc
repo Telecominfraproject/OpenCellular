@@ -12,6 +12,7 @@ SRC_URI_append_sysmobts-v2 = " file://system.conf"
 SRC_URI_append_sysmocom-odu = " file://system.conf"
 SRC_URI_append_gsmk-owhw = " file://system.conf"
 SRC_URI_append_sysmobts2100 = " file://system.conf"
+SRC_URI_append_oc2g = " file://system.conf"
 
 # We want the journal on the ODU...
 SRC_URI_append_sysmocom-idu = " file://system.conf"
