@@ -11,7 +11,7 @@
 //*****************************************************************************
 #include "inc/subsystem/rffe/rffe_ctrl.h"
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "devices/i2c/threaded_int.h"
 #include "inc/devices/pca9557.h"
 #include "inc/subsystem/rffe/rffe.h"

@@ -9,7 +9,7 @@
 #ifndef OCMP_MDIO_H_
 #define OCMP_MDIO_H_
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 SCHEMA_IMPORT bool mdio_read(void *driver, void *data);
 SCHEMA_IMPORT bool mdio_write(void *driver, void *data);

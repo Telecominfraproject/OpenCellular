@@ -13,8 +13,8 @@
 #include "inc/common/post.h"
 
 #include "comm/gossiper.h"
-#include "inc/global/ocmp_frame.h"
-#include "inc/global/post_frame.h"
+#include "common/inc/global/ocmp_frame.h"
+#include "common/inc/global/post_frame.h"
 #include "inc/common/bigbrother.h"
 #include "inc/devices/eth_sw.h"
 #include "inc/subsystem/bms/bms.h"

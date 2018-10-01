@@ -6,28 +6,24 @@
 * LICENSE file in the root directory of this source tree. An additional grant
 * of patent rights can be found in the PATENTS file in the same directory.
 */
-#ifndef _OCMP_ADT7481_H
-#define _OCMP_ADT7481_H
+#ifndef _OCMP_SE98A_H
+#define _OCMP_SE98A_H
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
-typedef union ADT7481_Config {
+typedef union SE98A_Config {
     struct {
         int8_t lowlimit;
         int8_t highlimit;
         int8_t critlimit;
     };
     int8_t limits[3];
-} ADT7481_Config;
+} SE98A_Config;
 
-#ifdef UT_FRAMEWORK
-extern  const Driver_fxnTable ADT7481_fxnTable;
-#else
-SCHEMA_IMPORT  const Driver_fxnTable ADT7481_fxnTable;
-#endif
+SCHEMA_IMPORT  const Driver_fxnTable SE98_fxnTable;
 
-static const Driver ADT7481 = {
-    .name = "ADT7481",
+static const Driver SE98A = {
+    .name = "SE98A",
     .status = (Parameter[]){
         { .name = "temperature", .type = TYPE_UINT8 },
         {}
@@ -44,7 +40,7 @@ static const Driver ADT7481 = {
         { .name = "ACW", .type = TYPE_UINT8 },
         {}
     },
-    .fxnTable = &ADT7481_fxnTable,
+    .fxnTable = &SE98_fxnTable,
 };
 
-#endif /* _OCMP_ADT7481_H */
+#endif /* _OCMP_SE98A_H */

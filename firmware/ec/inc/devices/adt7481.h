@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/global/post_frame.h"
+#include "common/inc/global/post_frame.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
 #include <stdint.h>

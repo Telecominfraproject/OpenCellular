@@ -6,7 +6,7 @@
 * LICENSE file in the root directory of this source tree. An additional grant
 * of patent rights can be found in the PATENTS file in the same directory.
 */
-#include "inc/ocmp_wrappers/ocmp_adt7481.h"
+#include "common/inc/ocmp_wrappers/ocmp_adt7481.h"
 
 #include "helpers/array.h"
 #include "inc/devices/adt7481.h"

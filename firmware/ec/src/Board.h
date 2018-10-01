@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 
-#include "inc/global/OC_CONNECT1.h"
+#include "common/inc/global/OC_CONNECT1.h"
 
 #define Board_initEMAC              OC_CONNECT1_initEMAC
 #define Board_initGeneral           OC_CONNECT1_initGeneral

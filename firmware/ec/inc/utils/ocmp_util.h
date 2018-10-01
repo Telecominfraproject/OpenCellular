@@ -9,7 +9,7 @@
 #ifndef INC_UTILS_OCMP_UTIL_H_
 #define INC_UTILS_OCMP_UTIL_H_
 
-#include "inc/global/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 
 #include <stdio.h>
 #include <stdint.h>

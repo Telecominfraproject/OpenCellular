@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "devices/uart/sbd.h"
 #include "drivers/OcGpio.h"
 #include "helpers/attribute.h"

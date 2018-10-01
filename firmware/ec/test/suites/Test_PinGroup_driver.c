@@ -14,7 +14,7 @@
 #include "inc/subsystem/rffe/rffe_ctrl.h"
 #include "helpers/array.h"
 #include "helpers/attribute.h"
-#include "inc/global/OC_CONNECT1.h"
+#include "common/inc/global/OC_CONNECT1.h"
 #include <string.h>
 #include "unity.h"
 

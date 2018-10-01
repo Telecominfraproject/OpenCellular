@@ -12,8 +12,8 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/global/ocmp_frame.h"
-#include "inc/global/post_frame.h"
+#include "common/inc/global/ocmp_frame.h"
+#include "common/inc/global/post_frame.h"
 #include "inc/common/global_header.h"
 
 #include <ti/sysbios/knl/Semaphore.h>

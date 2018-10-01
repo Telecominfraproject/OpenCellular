@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_ina226.h"
+#include "common/inc/ocmp_wrappers/ocmp_ina226.h"
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "inc/devices/ina226.h"
 
 typedef enum INA226Status {

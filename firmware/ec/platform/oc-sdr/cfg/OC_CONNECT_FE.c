@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/global/OC_CONNECT1.h"
-#include "inc/ocmp_wrappers/ocmp_adt7481.h"
-#include "inc/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
-#include "inc/ocmp_wrappers/ocmp_ina226.h"
+#include "common/inc/global/OC_CONNECT1.h"
+#include "common/inc/ocmp_wrappers/ocmp_adt7481.h"
+#include "common/inc/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
+#include "common/inc/ocmp_wrappers/ocmp_ina226.h"
 #include "inc/subsystem/rffe/rffe_ctrl.h"
 #include "inc/subsystem/rffe/rffe_powermonitor.h"
 #include "inc/subsystem/rffe/rffe_sensor.h"

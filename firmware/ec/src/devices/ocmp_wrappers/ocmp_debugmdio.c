@@ -8,8 +8,8 @@
  */
 #include "inc/ocmp_wrappers/ocmp_debugmdio.h"
 
-#include "inc/global/ocmp_frame.h"
-#include "inc/global/Framework.h"
+#include "common/inc/global/ocmp_frame.h"
+#include "common/inc/global/Framework.h"
 #include "inc/common/global_header.h"
 #include "inc/devices/88E6071_registers.h"
 #include "inc/devices/debug_ocmdio.h"
