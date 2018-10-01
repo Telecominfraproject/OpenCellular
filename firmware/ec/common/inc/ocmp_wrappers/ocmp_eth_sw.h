@@ -8,7 +8,7 @@
 */
 #ifndef OCMP_ETH_SW_H_
 #define OCMP_ETH_SW_H_
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable eth_fxnTable;
 SCHEMA_IMPORT bool ETHERNET_reset(void *driver, void *params);

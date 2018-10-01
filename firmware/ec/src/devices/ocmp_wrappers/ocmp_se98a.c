@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_se98a.h"
+#include "common/inc/ocmp_wrappers/ocmp_se98a.h"
 
 #include "helpers/array.h"
 #include "helpers/math.h"

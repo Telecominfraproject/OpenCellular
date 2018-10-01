@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_led.h"
+#include "common/inc/ocmp_wrappers/ocmp_led.h"
 
 #include "inc/devices/led.h"
 

@@ -9,7 +9,7 @@
 #ifndef _OCMP_LED_H
 #define _OCMP_LED_H
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable LED_fxnTable;
 SCHEMA_IMPORT bool led_testpattern_control(void *driver, void *param);

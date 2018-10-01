@@ -8,7 +8,7 @@
  */
 #include "inc/subsystem/sys/sys.h"
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "inc/common/post.h"
 #include "inc/devices/eeprom.h"
 #include "inc/subsystem/gpp/gpp.h" /* For resetting AP */

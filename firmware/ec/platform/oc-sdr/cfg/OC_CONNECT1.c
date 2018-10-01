@@ -375,7 +375,7 @@ const GPIOTiva_Config GPIOTiva_config = {
  * subsystems. It will effectively replace board.h. I've kept the header
  * includes here since I'm thinking we'll want to move this out at some point
  */
-#include "inc/global/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/GpioSX1509.h"
 #include "drivers/GpioPCA9557.h"
 #include "drivers/GpioNative.h"

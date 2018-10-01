@@ -9,7 +9,7 @@
 #ifndef _GPIOSX1509_H_
 #define _GPIOSX1509_H_
 
-#include "inc/global/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/devices/sx1509.h"
 #include "OcGpio.h"
 

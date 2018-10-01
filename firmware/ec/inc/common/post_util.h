@@ -9,7 +9,7 @@
 #ifndef INC_COMMON_POST_UTIL_H_
 #define INC_COMMON_POST_UTIL_H_
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "inc/common/post.h"
 
 ReturnStatus _execPost(OCMPMessageFrame *pMsg,

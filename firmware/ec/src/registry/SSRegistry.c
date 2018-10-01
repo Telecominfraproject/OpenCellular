@@ -8,7 +8,7 @@
 */
 #include "SSRegistry.h"
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "helpers/array.h"
 #include "inc/common/bigbrother.h" /* For sending msg back via BB */
 #include "inc/common/post.h"

@@ -8,8 +8,8 @@
  */
 #include "unity.h"
 #include "inc/devices/ltc4274.h"
-#include "inc/ocmp_wrappers/ocmp_ltc4274.h"
-#include "inc/global/Framework.h"
+#include "common/inc/ocmp_wrappers/ocmp_ltc4274.h"
+#include "common/inc/global/Framework.h"
 #include "platform/oc-sdr/schema/schema.h"
 #include "fake/fake_GPIO.h"
 #include "fake/fake_I2C.h"

@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_eth_sw.h"
+#include "common/inc/ocmp_wrappers/ocmp_eth_sw.h"
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "inc/devices/eth_sw.h"
 
 bool ETHERNET_reset(void *driver, void *params)

@@ -9,7 +9,7 @@
 #ifndef _OCMP_LTC4015_H
 #define _OCMP_LTC4015_H
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 typedef struct LTC4015_Config {
     int16_t batteryVoltageLow;

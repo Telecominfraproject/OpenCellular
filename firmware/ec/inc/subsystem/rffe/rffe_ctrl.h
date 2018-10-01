@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 #include "inc/common/global_header.h"
 #include "inc/subsystem/rffe/rffe.h"
 

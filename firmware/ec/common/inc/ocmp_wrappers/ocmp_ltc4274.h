@@ -9,7 +9,7 @@
 #ifndef _OCMP_LTC4274_H_
 #define _OCMP_LTC4274_H_
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 typedef union LTC4274_Config {
     struct {

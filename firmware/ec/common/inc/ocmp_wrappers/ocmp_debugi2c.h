@@ -9,7 +9,7 @@
 #ifndef OCMP_I2C_H_
 #define OCMP_I2C_H_
 
-#include "inc/global/Framework.h"
+#include "common/inc/global/Framework.h"
 
 SCHEMA_IMPORT bool i2c_read(void *driver, void *data);
 SCHEMA_IMPORT bool i2c_write(void *driver, void *data);

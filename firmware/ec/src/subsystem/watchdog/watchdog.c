@@ -12,7 +12,7 @@
 //*****************************************************************************
 #include "inc/subsystem/watchdog/watchdog.h"
 
-#include "inc/global/ocmp_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
