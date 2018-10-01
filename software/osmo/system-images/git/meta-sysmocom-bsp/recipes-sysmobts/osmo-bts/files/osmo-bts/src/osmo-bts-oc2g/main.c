@@ -84,18 +84,16 @@ unsigned int dsp_trace = 0x00000000;
 int bts_model_init(struct gsm_bts *bts)
 {
 	struct gsm_bts_trx *trx;
-	struct gsm_bts_role_bts *btsb;
 	struct stat st;
 	static struct osmo_fd accept_fd, read_fd;
 	int rc;
 
 	bts->variant = BTS_OSMO_OC2G;
-	btsb = bts_role_bts(bts);
-	btsb->support.ciphers = CIPHER_A5(1) | CIPHER_A5(2) | CIPHER_A5(3);
+	bts->support.ciphers = CIPHER_A5(1) | CIPHER_A5(2) | CIPHER_A5(3);
 	/* specific default values for OC2G platform */
-	btsb->oc2g.led_ctrl_mode = OC2G_BTS_LED_CTRL_MODE_DEFAULT;
+	bts->oc2g.led_ctrl_mode = OC2G_BTS_LED_CTRL_MODE_DEFAULT;
 	/* RTP drift threshold default */
-	btsb->oc2g.rtp_drift_thres_ms = OC2G_BTS_RTP_DRIFT_THRES_DEFAULT;
+	bts->oc2g.rtp_drift_thres_ms = OC2G_BTS_RTP_DRIFT_THRES_DEFAULT;
 
 	rc = oml_router_init(bts, OML_ROUTER_PATH, &accept_fd, &read_fd);
 	if (rc < 0) {

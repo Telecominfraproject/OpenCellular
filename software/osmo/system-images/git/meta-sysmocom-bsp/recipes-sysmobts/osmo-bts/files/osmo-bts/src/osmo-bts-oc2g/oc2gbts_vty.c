@@ -384,7 +384,6 @@ DEFUN(cfg_bts_led_mode, cfg_bts_led_mode_cmd,
 		"LED can be controlled by (bts, external)\n")
 {
 	struct gsm_bts *bts = vty->index;
-	struct gsm_bts_role_bts *btsb = bts_role_bts(bts);
 	int val = get_string_value(oc2g_led_mode_strs, argv[0]);
 
 	if((val < OC2G_LED_CONTROL_BTS)  || (val > OC2G_LED_CONTROL_EXT)) {
@@ -392,7 +391,7 @@ DEFUN(cfg_bts_led_mode, cfg_bts_led_mode_cmd,
 			return CMD_WARNING;
 	}
 
-	btsb->oc2g.led_ctrl_mode = (uint8_t)val;
+	bts->oc2g.led_ctrl_mode = (uint8_t)val;
 	return CMD_SUCCESS;
 }
 
@@ -523,18 +522,19 @@ DEFUN(trigger_ho_cause, trigger_ho_cause_cmd, "HIDDEN", TRX_STR)
 		vty_out(vty, "%% HO cause is not provided %s", VTY_NEWLINE);
 		return CMD_WARNING;
 	}
-	/* store recorded HO causes */
+	/* TODO(oramadan) Fix HO
+	/* store recorded HO causes * /
 	old_ho_cause = lchan->meas_preproc.rec_ho_causes;
 
-	/* Apply new HO causes */
+	/* Apply new HO causes * /
 	lchan->meas_preproc.rec_ho_causes = 1 << (ho_cause - 1);
 
-	/* Send measuremnt report to BSC */
+	/* Send measuremnt report to BSC * /
 	rsl_tx_preproc_meas_res(lchan);
 
-	/* restore HO cause */
+	/* restore HO cause * /
 	lchan->meas_preproc.rec_ho_causes = old_ho_cause;
-
+	*/
 	return CMD_SUCCESS;
 }
 
@@ -544,23 +544,19 @@ DEFUN(cfg_bts_rtp_drift_threshold, cfg_bts_rtp_drift_threshold_cmd,
 	"RTP timestamp drift threshold in ms\n")
 {
 	struct gsm_bts *bts = vty->index;
-	struct gsm_bts_role_bts *btsb = bts_role_bts(bts);
 
-	btsb->oc2g.rtp_drift_thres_ms = (unsigned int) atoi(argv[0]);
+	bts->oc2g.rtp_drift_thres_ms = (unsigned int) atoi(argv[0]);
 
 	return CMD_SUCCESS;
 }
 
 void bts_model_config_write_bts(struct vty *vty, struct gsm_bts *bts)
 {
-	struct gsm_bts_role_bts *btsb = bts_role_bts(bts);
-
 	vty_out(vty, " led-control-mode %s%s",
-			get_value_string(oc2g_led_mode_strs, btsb->oc2g.led_ctrl_mode), VTY_NEWLINE);
+			get_value_string(oc2g_led_mode_strs, bts->oc2g.led_ctrl_mode), VTY_NEWLINE);
 
 	vty_out(vty, " rtp-drift-threshold %d%s",
-			btsb->oc2g.rtp_drift_thres_ms, VTY_NEWLINE);
-
+			bts->oc2g.rtp_drift_thres_ms, VTY_NEWLINE);
 }
 
 void bts_model_config_write_trx(struct vty *vty, struct gsm_bts_trx *trx)
@@ -682,7 +678,8 @@ int bts_model_vty_init(struct gsm_bts *bts)
 	return 0;
 }
 
-/* OC2G BTS control interface */
+/* TODO (oramadan): Fix OML alarms
+/* OC2G BTS control interface * /
 CTRL_CMD_DEFINE_WO_NOVRF(oc2g_oml_alert, "oc2g-oml-alert");
 static int set_oc2g_oml_alert(struct ctrl_cmd *cmd, void *data)
 {
@@ -697,10 +694,10 @@ static int set_oc2g_oml_alert(struct ctrl_cmd *cmd, void *data)
 	memcpy(alarm_sig_data.spare, &cause, sizeof(int));
 	LOGP(DLCTRL, LOGL_NOTICE, "BTS received MGR alarm cause=%d, text=%s\n", cause, alarm_sig_data.add_text);
 
-	/* dispatch OML alarm signal */
+	/* dispatch OML alarm signal * /
 	osmo_signal_dispatch(SS_NM, S_NM_OML_BTS_MGR_ALARM, &alarm_sig_data);
 
-	/* return with same alarm cause to MGR rather than OK string*/
+	/* return with same alarm cause to MGR rather than OK string* /
 	cmd->reply = talloc_asprintf(cmd, "%d", cause);
 	return CTRL_CMD_REPLY;
 }
@@ -718,20 +715,24 @@ static int set_oc2g_oml_ceased(struct ctrl_cmd *cmd, void *data)
 	memcpy(alarm_sig_data.spare, &cause, sizeof(int));
 	LOGP(DLCTRL, LOGL_NOTICE, "BTS received MGR ceased alarm cause=%d, text=%s\n", cause, alarm_sig_data.add_text);
 
-	/* dispatch OML alarm signal */
+	/* dispatch OML alarm signal * /
 	osmo_signal_dispatch(SS_NM, S_NM_OML_BTS_MGR_CEASED_ALARM, &alarm_sig_data);
+	*/
 
-	/* return with same alarm cause to MGR rather than OK string*/
+	/* return with same alarm cause to MGR rather than OK string* /
 	cmd->reply = talloc_asprintf(cmd, "%d", cause);
 	return CTRL_CMD_REPLY;
 }
+*/
 
 int bts_model_ctrl_cmds_install(struct gsm_bts *bts)
 {
 	int rc = 0;
 
+	/* TODO (oramadan): Fix OML alarms
 	rc |= ctrl_cmd_install(CTRL_NODE_ROOT, &cmd_oc2g_oml_alert);
 	rc |= ctrl_cmd_install(CTRL_NODE_ROOT, &cmd_oc2g_oml_ceased);
+	*/
 
 	return rc;
 }

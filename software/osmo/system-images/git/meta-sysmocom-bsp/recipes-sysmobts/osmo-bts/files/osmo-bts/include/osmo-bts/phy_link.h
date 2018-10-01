@@ -134,6 +134,20 @@ struct phy_instance {
 			uint8_t tx_pwr_adj_mode;	/* 0: no auto adjust power, 1: auto adjust power using RMS detector */
 			uint8_t tx_pwr_red_8psk;	/* 8-PSK maximum Tx power reduction level in dB */
 		} lc15;
+                struct {
+                        /* configuration */
+                        uint32_t dsp_trace_f;
+                        char *calib_path;
+                        int minTxPower;
+                        int maxTxPower;
+                        struct oc2gl1_hdl *hdl;
+                        uint8_t max_cell_size;          /* 0:166 qbits*/
+                        uint8_t pedestal_mode;          /* 0: unused TS is OFF, 1: unused TS is in minimum Tx power */
+                        uint8_t dsp_alive_period;       /* DSP alive timer period  */
+                        uint8_t tx_pwr_adj_mode;        /* 0: no auto adjust power, 1: auto adjust power using RMS detector */
+                        uint8_t tx_pwr_red_8psk;        /* 8-PSK maximum Tx power reduction level in dB */
+                        uint8_t tx_c0_idle_pwr_red;     /* C0 idle slot Tx power reduction level in dB */
+                } oc2g;
 	} u;
 };
 

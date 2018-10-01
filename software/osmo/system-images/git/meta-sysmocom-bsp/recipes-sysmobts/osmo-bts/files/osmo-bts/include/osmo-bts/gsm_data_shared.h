@@ -275,6 +275,8 @@ struct gsm_lchan {
 			/* indicates if DTXd was active during DL measurement
 			   period */
 			bool dl_active;
+                        /* last UL SPEECH resume flag */
+                        bool is_speech_resume;
 		} dtx;
 		uint8_t last_cmr;
 		uint32_t last_fn;
@@ -392,6 +394,9 @@ struct gsm_bts_trx {
 	uint16_t arfcn;
 	int nominal_power;		/* in dBm */
 	unsigned int max_power_red;	/* in actual dB */
+        uint8_t max_power_backoff_8psk; /* in actual dB */
+        uint8_t c0_idle_power_red;      /* in actual dB */
+
 
 	struct trx_power_params power_params;
 	int ms_power_control;
@@ -418,6 +423,7 @@ struct gsm_bts_trx {
 enum gsm_bts_type_variant {
 	BTS_UNKNOWN,
 	BTS_OSMO_LITECELL15,
+        BTS_OSMO_OC2G,
 	BTS_OSMO_OCTPHY,
 	BTS_OSMO_SYSMO,
 	BTS_OSMO_TRX,
@@ -717,7 +723,14 @@ struct gsm_bts {
 		struct timeval tv_clock;
 		struct osmo_timer_list fn_timer;
 	} vbts;
-
+#ifdef ENABLE_OC2GBTS
+        /* specific to Open Cellular 2G BTS */
+        struct {
+                uint8_t led_ctrl_mode;                                  /* 0: control by BTS, 1: not control by BTS */
+                struct llist_head ceased_alarm_list;    /* ceased alarm list*/
+                unsigned int rtp_drift_thres_ms;                /* RTP timestamp drift detection threshold */
+        } oc2g;
+#endif
 };
 
 

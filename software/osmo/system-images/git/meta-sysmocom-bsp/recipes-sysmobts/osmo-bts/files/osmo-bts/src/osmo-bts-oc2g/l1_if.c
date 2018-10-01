@@ -667,9 +667,11 @@ static int mph_info_req(struct gsm_bts_trx *trx, struct msgb *msg,
 	default:
 		LOGP(DL1C, LOGL_NOTICE, "unknown MPH-INFO.req %d\n",
 				l1sap->u.info.type);
+		/* TODO (oramadan): Fix OML alarms
 		alarm_sig_data.mo = &trx->mo;
 		memcpy(alarm_sig_data.spare, &l1sap->u.info.type, sizeof(unsigned int));
 		osmo_signal_dispatch(SS_NM, S_NM_OML_BTS_UNKN_MPH_INFO_REQ_ALARM, &alarm_sig_data);
+		*/
 		rc = -EINVAL;
 	}
 
@@ -698,9 +700,11 @@ int bts_model_l1sap_down(struct gsm_bts_trx *trx, struct osmo_phsap_prim *l1sap)
 		LOGP(DL1C, LOGL_NOTICE, "unknown prim %d op %d\n",
 			l1sap->oph.primitive, l1sap->oph.operation);
 
+		/* TODO (oramadan): Fix OML alarms
 		alarm_sig_data.mo = &trx->mo;
 		memcpy(alarm_sig_data.spare, &l1sap->oph.primitive, sizeof(unsigned int));
 		osmo_signal_dispatch(SS_NM, S_NM_OML_BTS_RX_UNKN_L1SAP_DOWN_MSG_ALARM, &alarm_sig_data);
+		*/
 		rc = -EINVAL;
 	}
 
@@ -1061,14 +1065,13 @@ static int handle_ph_ra_ind(struct oc2gl1_hdl *fl1, GsmL1_PhRaInd_t *ra_ind,
 {
 	struct gsm_bts_trx *trx = oc2gl1_hdl_trx(fl1);
 	struct gsm_bts *bts = trx->bts;
-	struct gsm_bts_role_bts *btsb = bts->role;
 	struct gsm_lchan *lchan;
 	struct osmo_phsap_prim *l1sap;
 	int rc;
 	struct ph_rach_ind_param rach_ind_param;
 
 	/* FIXME: this should be deprecated/obsoleted as it bypasses rach.busy counting */
-	if (ra_ind->measParam.fLinkQuality < btsb->min_qual_rach) {
+	if (ra_ind->measParam.fLinkQuality < bts->min_qual_rach) {
 		msgb_free(l1p_msg);
 		return 0;
 	}
@@ -1276,7 +1279,6 @@ static int activate_rf_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 	int on = 0;
 	unsigned int i;
 	struct gsm_bts *bts = trx->bts;
-	struct gsm_bts_role_bts *btsb = bts_role_bts(bts);
 
 	if (sysp->id == Oc2g_PrimId_ActivateRfCnf)
 		on = 1;
@@ -1296,7 +1298,7 @@ static int activate_rf_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 				get_value_string(oc2gbts_l1status_names, status));
 			bts_shutdown(trx->bts, "RF-ACT failure");
 		} else {
-			if(btsb->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
+			if(bts->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
 				bts_update_status(BTS_STATUS_RF_ACTIVE, 1);
 		}
 
@@ -1309,7 +1311,7 @@ static int activate_rf_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 		for (i = 0; i < ARRAY_SIZE(trx->ts); i++)
 			oml_mo_state_chg(&trx->ts[i].mo, NM_OPSTATE_DISABLED, NM_AVSTATE_DEPENDENCY);
 	} else {
-		if(btsb->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
+		if(bts->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
 			bts_update_status(BTS_STATUS_RF_ACTIVE, 0);
 		oml_mo_state_chg(&trx->mo, NM_OPSTATE_DISABLED, NM_AVSTATE_OFF_LINE);
 		oml_mo_state_chg(&trx->bb_transc.mo, NM_OPSTATE_DISABLED, NM_AVSTATE_OFF_LINE);
@@ -1390,11 +1392,9 @@ static int mute_rf_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 	} else {
 		int i;
 		struct gsm_bts *bts = trx->bts;
-		struct gsm_bts_role_bts *btsb = bts_role_bts(bts);
-
 		LOGP(DL1C, LOGL_INFO, "Rx RF-MUTE.conf with status=%s\n",
 		     get_value_string(oc2gbts_l1status_names, status));
-		if(btsb->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
+		if(bts->oc2g.led_ctrl_mode == OC2G_LED_CONTROL_BTS)
 			bts_update_status(BTS_STATUS_RF_MUTE, fl1h->last_rf_mute[0]);
 		oml_mo_rf_lock_chg(&trx->mo, fl1h->last_rf_mute, 1);
 
@@ -1447,10 +1447,11 @@ static int info_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 	fl1h->hw_info.fpga_version[1] = sic->fpgaVersion.minor;
 	fl1h->hw_info.fpga_version[2] = sic->fpgaVersion.build;
 
-	LOGP(DL1C, LOGL_INFO, "DSP v%u.%u.%u, FPGA v%u.%u.%u\n",
+	LOGP(DL1C, LOGL_INFO, "DSP v%u.%u.%u, FPGA v%u.%u.%u, Band support %s\n",
 		sic->dspVersion.major, sic->dspVersion.minor,
 		sic->dspVersion.build, sic->fpgaVersion.major,
-		sic->fpgaVersion.minor, sic->fpgaVersion.build);
+		sic->fpgaVersion.minor, sic->fpgaVersion.build,
+		gsm_band_name(fl1h->hw_info.band_support));
 
 	if (!(fl1h->hw_info.band_support & trx->bts->band))
 		LOGP(DL1C, LOGL_FATAL, "BTS band %s not supported by hw\n",
@@ -1624,6 +1625,7 @@ int l1if_close(struct oc2gl1_hdl *fl1h)
 	return 0;
 }
 
+/* TODO (oramadan): Fix OML alarms
 static void dsp_alive_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp, void *data)
 {
 	Oc2g_Prim_t *sysp = msgb_sysprim(resp);
@@ -1649,7 +1651,7 @@ static int dsp_alive_timer_cb(void *data)
 	sys_prim->id = Oc2g_PrimId_IsAliveReq;
 
 	if (fl1h->hw_alive.dsp_alive_cnt == 0) {
-		/* check for the alarm has already sent or not */
+		/* check for the alarm has already sent or not * /
 		llist_for_each_entry(alarm_sent, &fl1h->alarm_list, list) {
 			llist_del(&alarm_sent->list);
 			if (alarm_sent->alarm_signal != S_NM_OML_BTS_DSP_ALIVE_ALARM)
@@ -1669,13 +1671,13 @@ static int dsp_alive_timer_cb(void *data)
 			memcpy(alarm_sig_data.spare, &sys_prim->id, sizeof(unsigned int));
 			osmo_signal_dispatch(SS_NM, S_NM_OML_BTS_DSP_ALIVE_ALARM, &alarm_sig_data);
 			if (!alarm_sig_data.rc) {
-				/* allocate new list of sent alarms */
+				/* allocate new list of sent alarms * /
 				alarm_sent = talloc_zero(fl1h, struct oml_alarm_list);
 				if (!alarm_sent)
 					return -EIO;
 
 				alarm_sent->alarm_signal = S_NM_OML_BTS_DSP_ALIVE_ALARM;
-				/* add alarm to sent list */
+				/* add alarm to sent list * /
 				llist_add(&alarm_sent->list, &fl1h->alarm_list);
 				LOGP(DL1C, LOGL_ERROR, "Alarm %d has added to sent alarm list (%d)\n", alarm_sent->alarm_signal, trx->nr);
 			}
@@ -1691,12 +1693,13 @@ static int dsp_alive_timer_cb(void *data)
 		return -EIO;
 	}
 
-	/* restart timer */
+	/* restart timer * /
 	fl1h->hw_alive.dsp_alive_cnt = 0;
 	osmo_timer_schedule(&fl1h->hw_alive.dsp_alive_timer, fl1h->hw_alive.dsp_alive_period, 0);
 
 	return 0;
 }
+*/
 
 int bts_model_phy_link_open(struct phy_link *plink)
 {
@@ -1743,7 +1746,8 @@ int bts_model_phy_link_open(struct phy_link *plink)
 
 	phy_link_state_set(plink, PHY_LINK_CONNECTED);
 
-	/* Send first IS_ALIVE primitive */
+	/* TODO (oramadan): Fix OML alarms
+	/* Send first IS_ALIVE primitive * /
 	struct msgb *msg = sysp_msgb_alloc();
 	int rc;
 
@@ -1756,11 +1760,12 @@ int bts_model_phy_link_open(struct phy_link *plink)
 		return -EIO;
 	}
 
-	/* initialize DSP heart beat alive timer */
+	/* initialize DSP heart beat alive timer * /
 	fl1h->hw_alive.dsp_alive_timer.cb = dsp_alive_timer_cb;
 	fl1h->hw_alive.dsp_alive_timer.data = fl1h;
 	fl1h->hw_alive.dsp_alive_cnt = 0;
 	fl1h->hw_alive.dsp_alive_period = pinst->u.oc2g.dsp_alive_period;
 	osmo_timer_schedule(&fl1h->hw_alive.dsp_alive_timer, fl1h->hw_alive.dsp_alive_period, 0);
+	*/
 	return 0;
 }

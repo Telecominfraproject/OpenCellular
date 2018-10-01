@@ -71,6 +71,7 @@ const char *btsatttr2str(enum bts_attribute v)
 const struct value_string osmo_bts_variant_names[_NUM_BTS_VARIANT + 1] = {
 	{ BTS_UNKNOWN,		"unknown" },
 	{ BTS_OSMO_LITECELL15,	"osmo-bts-lc15" },
+	{ BTS_OSMO_OC2G,	"osmo-bts-oc2g" },
 	{ BTS_OSMO_OCTPHY,	"osmo-bts-octphy" },
 	{ BTS_OSMO_SYSMO,	"osmo-bts-sysmo" },
 	{ BTS_OSMO_TRX,		"omso-bts-trx" },

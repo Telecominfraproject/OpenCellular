@@ -395,7 +395,6 @@ static const uint8_t trx_rqd_attr[] = { NM_ATT_RF_MAXPOWR_R };
 static int trx_init(struct gsm_bts_trx *trx)
 {
 	struct oc2gl1_hdl *fl1h = trx_oc2gl1_hdl(trx);
-	struct gsm_bts_role_bts *btsb = bts_role_bts(trx->bts);
 	struct msgb *msg;
 	GsmL1_MphInitReq_t *mi_req;
 	GsmL1_DeviceParam_t *dev_par;
@@ -428,7 +427,7 @@ static int trx_init(struct gsm_bts_trx *trx)
 	dev_par->u16BcchArfcn = trx->bts->c0->arfcn;
 	dev_par->u8NbTsc = trx->bts->bsic & 7;
 	dev_par->fRxPowerLevel = trx_ms_pwr_ctrl_is_osmo(trx)
-					? 0.0 : btsb->ul_power_target;
+					? 0.0 : trx->bts->ul_power_target;
 
 	dev_par->fTxPowerLevel = 0.0;
 	LOGP(DL1C, LOGL_NOTICE, "Init TRX (Band %d, ARFCN %u, TSC %u, RxPower % 2f dBm, "
@@ -1824,9 +1823,8 @@ int bts_model_apply_oml(struct gsm_bts *bts, struct msgb *msg,
 	if (kind == NM_OC_RADIO_CARRIER) {
 		struct gsm_bts_trx *trx = obj;
 		struct oc2gl1_hdl *fl1h = trx_oc2gl1_hdl(trx);
-		struct gsm_bts_role_bts *btsb = bts_role_bts(trx->bts);
 		/* convert max TA to max cell size in qbits */
-		uint8_t cell_size = btsb->max_ta << 2;
+		uint8_t cell_size = bts->max_ta << 2;
 
 		/* We do not need to check for L1 handle
 		 * because the max cell size parameter can receive before MphInit */
