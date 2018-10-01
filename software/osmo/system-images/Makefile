@@ -24,13 +24,14 @@ endif
 # Variables
 SYSMOCOM_RELEASE=201705
 POKY_RELEASE=pyro
-REPOS=poky meta-telephony meta-sysmocom-bsp meta-qt5 meta-sysmocom-bsp meta-smalltalk
-MACHINES=sysmobts sysmobts2100 sysmocom-apu2 sysmocom-alix
+REPOS=poky meta-telephony meta-qt5 meta-smalltalk #TODO oramadan meta-sysmocom-bsp
+MACHINES=sysmobts sysmobts2100 sysmocom-apu2 sysmocom-alix oc2g
 FEED_NAME=$(SYSMOCOM_RELEASE)-testing
 
 # The default targets to pick depending on machine
 BUILD_TARGET_sysmobts = "meta-toolchain-osmo task-sysmocom-feed sysmocom-core-image sysmocom-nitb-rauc-image image-rauc-rescue-initramfs image-rauc-slot-initramfs image-rauc-ubi"
 BUILD_TARGET_sysmobts2100 = "meta-toolchain-osmo task-sysmocom-feed sysmocom-core-image"
+BUILD_TARGET_oc2g = "meta-toolchain-osmo task-sysmocom-feed sysmocom-core-image"
 BUILD_TARGET_sysmocom-apu2 = "core-image-minimal-initramfs meta-toolchain-osmo task-sysmocom-feed sysmocom-core-image core-image-minimal-initramfs"
 BUILD_TARGET_sysmocom-alix = "core-image-minimal-initramfs meta-toolchain-osmo task-sysmocom-feed sysmocom-core-image core-image-minimal-initramfs"
 
