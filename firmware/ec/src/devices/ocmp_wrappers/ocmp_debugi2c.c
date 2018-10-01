@@ -8,8 +8,8 @@
  */
 #include "inc/ocmp_wrappers/ocmp_debugi2c.h"
 
-#include "common/inc/global/ocmp_frame.h"
-#include "common/inc/global/Framework.h"
+#include "inc/global/ocmp_frame.h"
+#include "inc/global/Framework.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
 #include  "inc/devices/debug_oci2c.h"

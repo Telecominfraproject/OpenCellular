@@ -9,7 +9,7 @@
 #ifndef OCMP_SYNCIO_H_
 #define OCMP_SYNCIO_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT  const Driver_fxnTable SYNC_fxnTable;
 static const Driver Sync_IO = {

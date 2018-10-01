@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "common/inc/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
+#include "inc/ocmp_wrappers/ocmp_dat-xxr5a-pp.h"
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 #include "drivers/PinGroup.h"
 #include "helpers/math.h"
 #include "inc/subsystem/rffe/rffe.h"

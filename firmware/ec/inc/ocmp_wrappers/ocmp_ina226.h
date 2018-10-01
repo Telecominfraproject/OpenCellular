@@ -9,7 +9,7 @@
 #ifndef _OCMP_INA226_H
 #define _OCMP_INA226_H
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 typedef struct INA226_Config {
     uint16_t current_lim;

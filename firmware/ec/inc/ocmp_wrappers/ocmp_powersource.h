@@ -9,7 +9,7 @@
 #ifndef _OCMP_POWERSOURCE_H_
 #define _OCMP_POWERSOURCE_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable PWRSRC_fxnTable;
 

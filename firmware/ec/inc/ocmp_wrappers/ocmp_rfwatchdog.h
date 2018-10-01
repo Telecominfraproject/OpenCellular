@@ -9,7 +9,7 @@
 #ifndef OCMP_RFWATCHDOG_H_
 #define OCMP_RFWATCHDOG_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable RFFEWatchdogP_fxnTable;
 

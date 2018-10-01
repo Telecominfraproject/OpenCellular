@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "common/inc/global/post_frame.h"
+#include "inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
 

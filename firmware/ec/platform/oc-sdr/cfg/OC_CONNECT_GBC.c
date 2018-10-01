@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "common/inc/global/ocmp_frame.h"
-#include "common/inc/ocmp_wrappers/ocmp_ina226.h"
-#include "common/inc/ocmp_wrappers/ocmp_ltc4015.h"
-#include "common/inc/ocmp_wrappers/ocmp_ltc4274.h"
-#include "common/inc/ocmp_wrappers/ocmp_se98a.h"
-#include "common/inc/ocmp_wrappers/ocmp_debugi2c.h"
-#include "common/inc/global/OC_CONNECT1.h"
+#include "inc/global/ocmp_frame.h"
+#include "inc/ocmp_wrappers/ocmp_ina226.h"
+#include "inc/ocmp_wrappers/ocmp_ltc4015.h"
+#include "inc/ocmp_wrappers/ocmp_ltc4274.h"
+#include "inc/ocmp_wrappers/ocmp_se98a.h"
+#include "inc/ocmp_wrappers/ocmp_debugi2c.h"
+#include "inc/global/OC_CONNECT1.h"
 #include "drivers/GpioSX1509.h"
 #include "inc/devices/debug_ocgpio.h"
 #include "inc/devices/debug_oci2c.h"

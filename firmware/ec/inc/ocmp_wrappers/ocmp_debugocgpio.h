@@ -9,7 +9,7 @@
 #ifndef OCMP_OCGPIO_H_
 #define OCMP_OCGPIO_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT bool ocgpio_get(void *driver, void *data);
 SCHEMA_IMPORT bool ocgpio_set(void *driver, void *data);

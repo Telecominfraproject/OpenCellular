@@ -10,7 +10,7 @@
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "common/inc/ocmp_wrappers/ocmp_iridium.h"
+#include "inc/ocmp_wrappers/ocmp_iridium.h"
 
 #include <inc/devices/sbd.h>
 #include "inc/common/global_header.h"

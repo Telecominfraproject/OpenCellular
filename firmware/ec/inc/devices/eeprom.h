@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "common/inc/global/ocmp_frame.h" /* Temporary, just for OCMPSubsystem def */
+#include "inc/global/ocmp_frame.h" /* Temporary, just for OCMPSubsystem def */
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
 

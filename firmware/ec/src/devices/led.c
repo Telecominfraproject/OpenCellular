@@ -12,7 +12,7 @@
 //*****************************************************************************
 #include "inc/devices/led.h"
 
-#include "common/inc/global/post_frame.h"
+#include "inc/global/post_frame.h"
 #include "inc/common/global_header.h"
 #include "inc/subsystem/hci/hci.h"
 

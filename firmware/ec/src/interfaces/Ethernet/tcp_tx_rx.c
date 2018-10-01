@@ -9,7 +9,7 @@
 
 #include "Board.h"
 #include "comm/gossiper.h"
-#include "common/inc/global/ocmp_frame.h"
+#include "inc/global/ocmp_frame.h"
 #include "inc/utils/util.h"
 #include "inc/common/global_header.h"
 #include <src/interfaces/Ethernet/tcp_tx_rx.h>
