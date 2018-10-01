@@ -14,7 +14,7 @@
 
 #include "Board.h"
 #include "comm/gossiper.h"
-#include "common/inc/global/ocmp_frame.h"
+#include "inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/post.h"
 #include "inc/common/system_states.h"

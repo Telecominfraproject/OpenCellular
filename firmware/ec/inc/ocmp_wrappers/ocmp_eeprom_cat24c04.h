@@ -9,7 +9,7 @@
 #ifndef INC_DEVICES_OCMP_EEPROM_H_
 #define INC_DEVICES_OCMP_EEPROM_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT bool SYS_post_get_results(void **getpostResult);
 SCHEMA_IMPORT bool SYS_post_enable(void **postActivate);

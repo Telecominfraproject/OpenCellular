@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "common/inc/ocmp_wrappers/ocmp_adt7481.h"
-#include "common/inc/ocmp_wrappers/ocmp_ina226.h"
-#include "common/inc/global/OC_CONNECT1.h"
+#include "inc/ocmp_wrappers/ocmp_adt7481.h"
+#include "inc/ocmp_wrappers/ocmp_ina226.h"
+#include "inc/global/OC_CONNECT1.h"
 #include "inc/subsystem/sdr/sdr.h"
 #include "inc/devices/debug_ocgpio.h"
 

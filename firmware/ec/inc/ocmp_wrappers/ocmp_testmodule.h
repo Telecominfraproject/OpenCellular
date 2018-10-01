@@ -9,7 +9,7 @@
 #ifndef OCMP_TESTMODULE_H_
 #define OCMP_TESTMODULE_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable G510_fxnTable;
 SCHEMA_IMPORT bool TestMod_cmdEnable(void *driver, void *params);

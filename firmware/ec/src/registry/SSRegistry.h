@@ -10,7 +10,7 @@
 #ifndef _SSREGISTRY_H_
 #define _SSREGISTRY_H_
 
-#include "common/inc/global/ocmp_frame.h"
+#include "inc/global/ocmp_frame.h"
 #include "inc/common/system_states.h"
 
 #include <ti/sysbios/knl/Queue.h>

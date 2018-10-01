@@ -9,7 +9,7 @@
 #ifndef COMMON_INC_OCMP_WRAPPERS_OCMP_MAC_H_
 #define COMMON_INC_OCMP_WRAPPERS_OCMP_MAC_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 #define OC_MAC_ADDRESS_SIZE     13
 

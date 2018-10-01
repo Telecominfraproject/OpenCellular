@@ -8,7 +8,7 @@
 */
 #ifndef _SYS_H
 #define _SYS_H
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 #include <stdbool.h>
 #include <ti/sysbios/knl/Task.h>

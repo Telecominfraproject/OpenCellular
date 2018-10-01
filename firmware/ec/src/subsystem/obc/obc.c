@@ -11,7 +11,7 @@
 //*****************************************************************************
 #include "inc/subsystem/obc/obc.h"
 
-#include "common/inc/global/OC_CONNECT1.h"
+#include "inc/global/OC_CONNECT1.h"
 #include "inc/common/global_header.h"
 #include "inc/subsystem/sdr/sdr.h" /* temporary - Only required for 12v enable */
 

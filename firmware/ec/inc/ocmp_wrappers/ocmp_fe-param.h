@@ -9,7 +9,7 @@
 #ifndef OCMP_FE_PARAM_H_
 #define OCMP_FE_PARAM_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable FE_PARAM_fxnTable;
 

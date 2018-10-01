@@ -9,7 +9,7 @@
 #ifndef COMMON_INC_OCMP_WRAPPERS_OCMP_LTC4275_H_
 #define COMMON_INC_OCMP_WRAPPERS_OCMP_LTC4275_H_
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 
 SCHEMA_IMPORT const Driver_fxnTable LTC4275_fxnTable;
 

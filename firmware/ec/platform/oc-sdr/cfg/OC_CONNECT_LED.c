@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "common/inc/global/OC_CONNECT1.h"
-#include "common/inc/ocmp_wrappers/ocmp_se98a.h"
+#include "inc/global/OC_CONNECT1.h"
+#include "inc/ocmp_wrappers/ocmp_se98a.h"
 #include "inc/subsystem/hci/hci.h"
 
 SCHEMA_IMPORT OcGpio_Port ec_io;

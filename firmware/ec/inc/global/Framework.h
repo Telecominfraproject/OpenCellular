@@ -10,8 +10,8 @@
 #ifndef _SYS_CFG_FRAMEWORK_H
 #define _SYS_CFG_FRAMEWORK_H
 
-#include "common/inc/global/ocmp_frame.h"
-#include "common/inc/global/post_frame.h" /* Just for post code */
+#include "inc/global/ocmp_frame.h"
+#include "inc/global/post_frame.h" /* Just for post code */
 
 #include <stdbool.h>
 #include <stdlib.h>

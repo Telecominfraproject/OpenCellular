@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "common/inc/ocmp_wrappers/ocmp_syncio.h"
+#include "inc/ocmp_wrappers/ocmp_syncio.h"
 
-#include "common/inc/global/Framework.h"
+#include "inc/global/Framework.h"
 #include "inc/subsystem/sync/sync.h"
 
 const Driver_fxnTable SYNC_fxnTable = {

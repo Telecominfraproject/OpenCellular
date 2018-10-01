@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "common/inc/global/ocmp_frame.h"
+#include "inc/global/ocmp_frame.h"
 #include "inc/common/global_header.h"
 #include "inc/devices/se98a.h"
 #include "inc/devices/sx1509.h"
