@@ -1,0 +1,190 @@
+#!/bin/sh
+STAG=cbackup:
+# lock wait time max 15mn * 60 = 900 secs (sufficient time to update)
+LOCKWAIT=900
+# this is a protection to make sure a backup is not currently created while checking
+bname=mbackup
+BAKPATH=""
+_curr_dir=""
+BAKEXT=".tar.gz"
+BAKMD5EXT=".md5"
+mybasename=""
+
+readonly LOCKFILE_DIR=/var/lock
+readonly LOCK_FD=980
+
+lock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # still allow to run unlocked if the lock dir does not exist
+    if [ ! -d "${LOCKFILE_DIR}" ]; then
+        return 0
+    fi
+
+    # create lock file
+    eval "exec $fd>$lock_file"
+    # still allow to run unlocked if the lock file cannot be created
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+
+    # acquier the lock
+    flock -w ${LOCKWAIT} $fd \
+        && return 0 \
+        || return 1
+}
+
+unlock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # release the lock
+    flock -u $fd
+    sync
+}
+
+function my_exit()
+{
+    cd "$_curr_dir"
+    unlock $bname
+    exit $*
+}
+
+function __sig_int {
+    log_write " "
+    log_write "$STAG WARNING: SIGINT caught"
+    my_exit 110
+}
+
+function __sig_quit {
+    log_write " "
+    log_write "$STAG WARNING: SIGQUIT caught"
+    my_exit 111
+}
+
+function __sig_term {
+    log_write " "
+    log_write "$STAG WARNING: SIGTERM caught"
+    my_exit 112
+}
+
+function __sig_hup {
+    log_write " "
+    log_write "$STAG WARNING: SIGHUP caught"
+    my_exit 113
+}
+
+function log_write()
+{
+	echo "$*"
+}
+
+function log_write_nr()
+{
+	echo -n "$*"
+}
+
+function show_help {
+    log_write "cbackup help information:"
+    log_write "checks integrity of backup created with mbackup, exit with 0 when valid"
+    log_write "Usage: cbackup [ --help ] <bfile>"
+    log_write " where: <bfile>     # source backup base file name (without .tar.gz)"
+    log_write "                    #  same base file name as provided with mbackup -f option"
+    log_write "          --help    # displays this help information"
+    log_write "example: cbackup /mnt/storage/.sysbackup/bk-mnt-rom-user # checks backup"
+}
+
+function check_path()
+{
+	local retval=0
+    local slen=${#1}
+    local mystr
+    if ! [ -d $1 ] ; then
+        log_write "$STAG directory does not exist ($1)!"
+        retval=80
+    else
+        if [ "${1:$slen - 1:1}" == "/" ] ; then
+            mystr=${1:0:$slen - 1}
+            slen=$((slen-1))
+        else
+            mystr=$1
+        fi
+        BAKPATH=$mystr"/"
+    fi
+    return $retval
+}
+
+_curr_dir=`pwd`
+
+# Lock to test a single instance is running, and exit if wait timeout
+log_write "$STAG Checking if allowed to run..."
+lock $bname || ( log_write "$STAG Checking if allowed to run... failed"; exit 100 )
+log_write "$STAG Checking if allowed to run... done"
+
+# Set TRAPs to release lock if forced to exit
+trap __sig_int SIGINT
+trap __sig_quit SIGQUIT
+trap __sig_term SIGTERM
+trap __sig_hup SIGHUP
+
+TOTALARG=$#
+while getopts :- FLAG; do
+    case $FLAG in
+        '-')
+        show_help
+        my_exit 0;;
+        \?)
+        log_write "Invalid option: -$OPTARG" && my_exit 1;;
+        \:)
+        log_write "Required argument not found for option: -$OPTARG" && my_exit 2;;
+  esac
+done
+
+# removes processed option(s) from the cmd line args
+shift $((OPTIND-1))
+
+if [ "$#" -ne 1 ]; then
+    show_help
+    my_exit 3
+fi
+
+check_path `dirname "$1"`
+valret=$?
+if [ $valret -ne 0 ]; then
+    my_exit $valret
+fi
+mybasename=`basename "$1"`
+
+log_write "$STAG Checking backup: "$BAKPATH$mybasename
+if ! [ -f $BAKPATH$mybasename$BAKEXT ] ; then
+    log_write "$STAG Source backup does not exist ($BAKPATH$mybasename$BAKEXT)!"
+    my_exit 4
+fi
+if ! [ -f $BAKPATH$mybasename$BAKMD5EXT ] ; then
+    log_write "$STAG Source backup MD5 does not exist ($BAKPATH$mybasename$BAKMD5EXT)!"
+    my_exit 5
+fi
+# verify if backup is valid
+cd $BAKPATH
+if [ $? != 0 ]; then
+    log_write "$STAG change dir to ($BAKPATH) failed."
+    my_exit 6
+fi
+# verifies if md5 is for the expected backup file
+md5file=`cat $BAKPATH$mybasename$BAKMD5EXT | awk '{ print $2 }'`
+if ! [ "./"$mybasename$BAKEXT == "$md5file" ]; then
+    log_write "$STAG MD5 ref file is not backup file ($md5file)!"
+    my_exit 7
+fi
+# verifies if md5 is correct
+myresult=$(md5sum -c $BAKPATH$mybasename$BAKMD5EXT 2>&1)
+myres=$?
+if [ $myres != 0 ]; then
+    log_write "$STAG Checksum invalid"
+    my_exit 8
+fi
+log_write "$STAG Checksum Ok."
+my_exit 0

@@ -12,6 +12,7 @@ CALIB_sysmobts-v2 = "sysmobts-calib sysmobts-util"
 UTIL = ""
 UTIL_sysmobts-v2 = "sbts2050-util gpsd gps-utils gpsdate"
 UTIL_sysmobts2100 = "gpsd gps-utils gpsdate lc15-sysdev-remap"
+UTIL_oc2g = "gpsd gps-utils gpsdate oc2g-sysdev-remap"
 
 # TODO: re-add femtobts-calib after it went through the API migration
 RDEPENDS_${PN} = "\

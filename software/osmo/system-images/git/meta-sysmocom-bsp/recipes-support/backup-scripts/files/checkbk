@@ -1,0 +1,193 @@
+#!/bin/sh
+# checks all flash partition backup integrity when the expected flash partition is mounted correctly
+STAG=checkbk:
+PENDINGCHK=/tmp/.boot_pending
+# lock wait time max 15mn * 60 = 900 secs (sufficient time to update)
+LOCKWAIT=900
+bname=checkbk
+TMPBK=""
+DEFBAKPATH=/mnt/storage/.sysbackup
+_curr_dir=""
+configflashuser=/mnt/rom/user
+configflashuserbk=$DEFBAKPATH/bk-mnt-rom-user
+configflashfactory=/mnt/rom/factory
+configflashfactorybk=$DEFBAKPATH/bk-mnt-rom-factory
+__USESYSLOG=1
+VERBOSE=''
+__EXITCODE=0
+
+readonly LOCKFILE_DIR=/var/lock
+readonly LOCK_FD=978
+
+lock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # still allow to run unlocked if the lock dir does not exist
+    if [ ! -d "${LOCKFILE_DIR}" ]; then
+        return 0
+    fi
+
+    # create lock file
+    eval "exec $fd>$lock_file"
+    # still allow to run unlocked if the lock file cannot be created
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+
+    # acquier the lock
+    flock -w ${LOCKWAIT} $fd \
+        && return 0 \
+        || return 1
+}
+
+unlock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # release the lock
+    flock -u $fd
+    sync
+}
+
+function my_exit()
+{
+    cd "$_curr_dir"
+    unlock $bname
+    exit $*
+}
+
+function __sig_int {
+    log_write " "
+    log_write "$STAG WARNING: SIGINT caught"
+    my_exit 110
+}
+
+function __sig_quit {
+    log_write " "
+    log_write "$STAG WARNING: SIGQUIT caught"
+    my_exit 111
+}
+
+function __sig_term {
+    log_write " "
+    log_write "$STAG WARNING: SIGTERM caught"
+    my_exit 112
+}
+
+function __sig_hup {
+    log_write " "
+    log_write "$STAG WARNING: SIGHUP caught"
+    my_exit 113
+}
+
+checkflashpartro() {
+    if ! grep "$* jffs2 " /proc/mounts | grep -q " ro[,]"; then
+        return 13
+    fi
+    return 0
+}
+
+function log_write()
+{
+	if [ ! -z ${VERBOSE} ] || [ ${__USESYSLOG} -eq 0 ]; then
+	   echo "$*"
+	fi
+	if [ ${__USESYSLOG} -ne 0 ] ; then
+		logger -p local4.info  "$*"
+	fi
+}
+
+function show_help {
+    echo "checkbk help information:"
+    echo "Usage: checkbk [ [ [-f file] [-n] ] | [--help] ] <spath>"
+    echo "          -d           # print debug verbose info"
+    echo "          --help       # displays this help information"
+    echo "example: checkbk;      # checks and backup flash partitions silently"
+    echo "example: checkbk -d;   # checks and backup flash partitions with verbose"
+}
+
+if [ -e "${PENDINGCHK}" ]; then
+    echo "$STAG Pending reboot, could not run!"
+    exit 97
+fi
+
+_curr_dir=`pwd`
+
+# Lock to test a single instance is running, and exit if wait timeout
+echo "$STAG Checking if allowed to run..."
+lock $bname || ( echo "$STAG Checking if allowed to run... failed"; exit 100 )
+echo "$STAG Checking if allowed to run... done"
+
+# Set TRAPs to release lock if forced to exit
+trap __sig_int SIGINT
+trap __sig_quit SIGQUIT
+trap __sig_term SIGTERM
+trap __sig_hup SIGHUP
+
+if [ -e "${PENDINGCHK}" ]; then
+    echo "$TAG Pending reboot, could not run!"
+    my_exit 97
+fi
+
+#keeps log file from getting big if run through a cron job
+rm /var/log/$LOG_FILE >/dev/null 2>&1
+
+TOTALARG=$#
+while getopts :d- FLAG; do
+    case $FLAG in
+		d ) VERBOSE=1;;
+        '-')
+        show_help
+        my_exit 0;;
+        \?)
+        log_write "Invalid option: -$OPTARG" && my_exit 1;;
+        \:)
+        log_write "Required argument not found for option: -$OPTARG" && my_exit 2;;
+  esac
+done
+
+# removes processed option(s) from the cmd line args
+shift $((OPTIND-1))
+
+log_write "$STAG started"
+
+# checks if factory partition needs a backup
+if checkflashpartro $configflashfactory ; then
+    log_write "$STAG checking partition ($configflashfactory)"
+    __CBACKUP_RES=$(cbackup "$configflashfactorybk" 2>&1)
+    __CBACKUP_RET=$?
+    log_write "$__CBACKUP_RES"
+    if test ${__CBACKUP_RET} -ne 0; then
+        __MBACKUP_RES=$(mbackup "$configflashfactory" 2>&1)
+        __MBACKUP_RET=$?
+        log_write "$__MBACKUP_RES"
+        if test ${__MBACKUP_RET} -ne 0; then
+            __EXITCODE=$__MBACKUP_RET
+        fi
+    fi
+else
+    log_write "$STAG partition ($configflashfactory) is not ready for backup"
+    __EXITCODE=70
+fi
+if checkflashpartro $configflashuser ; then
+    log_write "$STAG checking partition ($configflashuser)"
+    __CBACKUP_RES=$(cbackup "$configflashuserbk" 2>&1)
+    __CBACKUP_RET=$?
+    log_write "$__CBACKUP_RES"
+    if test ${__CBACKUP_RET} -ne 0; then
+        __MBACKUP_RES=$(mbackup "$configflashuser" 2>&1)
+        __MBACKUP_RET=$?
+        log_write "$__MBACKUP_RES"
+        if test ${__MBACKUP_RET} -ne 0; then
+            __EXITCODE=$__MBACKUP_RET
+        fi
+    fi
+else
+    log_write "$STAG partition ($configflashuser) is not ready for backup"
+    __EXITCODE=71
+fi
+log_write "$STAG done!"
+my_exit $__EXITCODE

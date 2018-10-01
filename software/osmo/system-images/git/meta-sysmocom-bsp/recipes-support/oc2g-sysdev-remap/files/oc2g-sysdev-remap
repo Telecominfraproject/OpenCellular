@@ -1,0 +1,394 @@
+#!/bin/sh
+# This script performs symbolic linking all available system devices 
+# related to OC-2G platform to a easy to reach location in filesystem
+#
+# Author: Minh-Quang Nguyen <minh-quang.nguyen@nutaq.com>
+#
+# Licensed under terms of BSD
+
+VERSION="0.2"
+CWD=`pwd`
+VERBOSE=''
+__USESYSLOG=1
+
+# Temp sensors coming from hwmon
+declare -a TEMP_DEV_MAP=( 
+	'/var/oc2g/temp/main-supply/x'
+	'/var/oc2g/temp/pa0/x'
+	'/var/oc2g/temp/tx0/x'
+	'/var/oc2g/temp/rmsdet/x'
+	'/var/oc2g/temp/ocxo/x'
+	'/var/oc2g/temp/fpga/x'
+)
+
+# Temp sensors coming from thermal zones
+declare -a TEMPTH_DEV_MAP=(
+	'/var/oc2g/temp/dsp/x'
+	'/var/oc2g/temp/cpu/x'
+	'/var/oc2g/temp/core/x'
+	'/var/oc2g/temp/iva/x'
+	'/var/oc2g/temp/gpu/x'
+)
+
+declare -a OCXO_DAC_DEV_MAP=(
+    '/var/oc2g/ocxo/x'
+)
+
+declare -a PA_STATE_DEV_MAP=(
+    '/var/oc2g/pa-state/pa0/x'
+)
+
+declare -a ETH_DEV_MAP=(
+    '/var/oc2g/net/eth0/x'
+)
+
+declare -a PWR_SENSING_DEV_MAP=(
+    '/var/oc2g/pwr-sense/main-supply/x'
+    '/var/oc2g/pwr-sense/pa0/x'
+)
+
+declare -a FPGA_SENSING_DEV_MAP=(
+    '/var/oc2g/pwr-sense/fpga/x'
+)
+
+declare -a RF_SENSING_DEV_MAP=(
+    '/var/oc2g/rf-sense/fwd/x'
+    '/var/oc2g/rf-sense/refl/x'
+)
+
+declare -a LED_DEV_MAP=(
+    '/var/oc2g/leds/led0/x'
+    '/var/oc2g/leds/led1/x'
+)
+
+declare -a OPT_DEV_MAP=(
+    '/var/oc2g/platform/x'
+)
+
+declare -a CLKERR_DEV_MAP=(
+    '/var/oc2g/clkerr/x'
+)
+
+declare -a VSWR_DEV_MAP=(
+    '/var/oc2g/vswr/tx0/x'
+)
+
+function log_write()
+{
+	if [ ${__USESYSLOG} -eq 0 ]; then
+		echo "$*"
+	else
+		logger -p local4.info  "$*"
+	fi
+}
+
+function execute()
+{
+        $* > /dev/null
+        if [ $? -ne 0 ]; then
+                echo "ERROR: executing $*"
+                if [ ${__USESYSLOG} -ne 0 ]; then
+		        logger -p local4.info  "ERROR: $*"
+		fi
+        fi
+}
+
+function version()
+{
+        echo
+        echo "`basename $1` version ${VERSION}"
+        echo "Script to create symbolic links of available sensors for OC-2G platform"
+        echo
+        exit 0
+}
+
+function usage()
+{
+cat <<EOM
+Usage:
+    $0 [-d] [-v] [-h]
+
+Parameters:
+    -d: print debug
+    -v: Script version
+    -h: This message
+
+EOM
+exit 0
+}
+
+#############################################
+#
+# Main routine
+#
+#############################################
+
+# Parse the input options
+while getopts :dvh ARG
+do
+    case ${ARG} in
+	d ) VERBOSE=1;;
+        v ) version $0;;
+        h ) usage;;
+        \?) echo "Invalid option: -$OPTARG" && exit 1;;
+    esac
+done
+
+#get Kernel major and minor version
+KERNEL_MAJ=`uname -r | head -n1 | cut -d'.' -f1`
+KERNEL_MIN=`uname -r | head -n1 | cut -d'.' -f2`
+KERNEL_REL=`uname -r | head -n1 | cut -d'.' -f3`
+
+if [ ! -z ${VERBOSE} ]; then
+	echo 'Kernel version :' ${KERNEL_MAJ}.${KERNEL_MIN}.${KERNEL_REL}
+fi
+
+log_write "OC-2G system devices remapping script started" 
+
+#temperature sensor device name coming from hwmon
+declare -a TEMP_DEV_NAMES=( '2-0048' '4-0048' 'ncp15xh103_tx0' 'ncp15xh103_rmsdet' 'ncp15xh103_ocxo' 'iio_hwmon')
+for (( i=0; i<${#TEMP_DEV_NAMES[@]}; i++))
+do
+	TEMP_DEV_PATHS[${i}]=`find /sys/devices -name 'temp*_input' | grep ${TEMP_DEV_NAMES[${i}]} | head -n1`
+
+	if [ ! -z ${TEMP_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${TEMP_DEV_PATHS[${i}]}
+		fi
+		SRC_DIR=$(echo $(dirname ${TEMP_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${TEMP_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/temp1_input ${DST_DIR}/temp"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+	else
+		log_write "Can not find temperature sensor device" ${TEMP_DEV_NAMES[${i}]} 
+	fi
+done
+
+#temperature sensor device name coming from thermal zones
+declare -a TEMPTH_DEV_NAMES=( 'dspeve' 'cpu' 'core' 'iva' 'gpu')
+for (( i=0; i<${#TEMPTH_DEV_NAMES[@]}; i++))
+do
+	TEMPTH_DEV_IDS[${i}]=`grep ${TEMPTH_DEV_NAMES[${i}]} -r  /sys/class/thermal/thermal_zone*/type | head  -n1 | cut -d'/' -f5`
+	if [ ! -z ${TEMPTH_DEV_IDS[${i}]} ]; then
+		TEMPTH_DEV_PATHS[${i}]=`find /sys/devices -name 'temp' | grep ${TEMPTH_DEV_IDS[${i}]} | head -n1`
+		if [ ! -z ${TEMPTH_DEV_PATHS[${i}]} ]; then
+			if [ ! -z ${VERBOSE} ]; then
+				echo ${TEMPTH_DEV_PATHS[${i}]}
+			fi
+			SRC_DIR=$(echo $(dirname ${TEMPTH_DEV_PATHS[${i}]}))
+			DST_DIR=$(echo $(dirname ${TEMPTH_DEV_MAP[${i}]}))
+			[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+			execute "ln -sf ${SRC_DIR}/temp ${DST_DIR}/temp"
+			execute "ln -sf ${SRC_DIR} ${DST_DIR}/thermal"
+		else
+			log_write "Can not find temperature thermal device" ${TEMPTH_DEV_NAMES[${i}]}
+		fi
+	else
+		log_write "Can not find temperature thermal device id" ${TEMPTH_DEV_NAMES[${i}]}
+	fi
+done
+
+#OCXO control device name
+OCXO_DAC_DEV_NAME='iio:device'
+OCXO_DAC_DEV_PATH=`find /sys/devices/platform -name 'store_eeprom' | grep ${OCXO_DAC_DEV_NAME} | head -n1`
+if [ ! -z ${OCXO_DAC_DEV_PATH} ]; then
+	if [ ! -z ${VERBOSE} ]; then 
+		echo ${OCXO_DAC_DEV_PATH} 
+	fi
+	SRC_DIR=$(echo $(dirname ${OCXO_DAC_DEV_PATH}))
+	DST_DIR=$(echo $(dirname ${OCXO_DAC_DEV_MAP}))
+	[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/out_voltage0_raw ${DST_DIR}/voltage"
+	execute "ln -sf ${SRC_DIR}/store_eeprom ${DST_DIR}/eeprom"
+	execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+else
+	log_write "Can not find OCXO DAC device" ${OCXO_DAC_DEV_NAME}
+fi
+
+#PA state device
+declare -a PA_STATE_DEV_NAMES=( 'pa0' )
+for (( i=0; i<${#PA_STATE_DEV_NAMES[@]}; i++))
+do
+        PA_STATE_DEV_PATHS[${i}]=`find /sys/devices/platform -name 'state' | grep ${PA_STATE_DEV_NAMES[${i}]} | head -n1`
+
+        if [ ! -z ${PA_STATE_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${PA_STATE_DEV_PATHS[${i}]}
+		fi
+		SRC_DIR=$(echo $(dirname ${PA_STATE_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${PA_STATE_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/state ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+	else
+		log_write "Can not find PA state sensor device" ${PA_STATE_DEV_NAMES[${i}]}
+        fi
+done
+
+#Ethernet devices
+declare -a ETH_DEV_NAMES=( 'eth0' )
+for (( i=0; i<${#ETH_DEV_NAMES[@]}; i++))
+do
+        ETH_DEV_PATHS[${i}]=`find /sys/devices/platform -name 'address' | grep ${ETH_DEV_NAMES[${i}]} | head -n1`
+
+        if [ ! -z ${ETH_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${ETH_DEV_PATHS[${i}]}
+		fi
+		SRC_DIR=$(echo $(dirname ${ETH_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${ETH_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/address ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}  ${DST_DIR}/hwmon"
+	else
+		log_write "Can not find Ethernet device" ${ETH_DEV_NAMES[${i}]}
+        fi
+done
+
+#Voltage and current sensing devices
+declare -a PWR_SENSING_DEV_NAMES=( '0040' '0044' )
+for (( i=0; i<${#PWR_SENSING_DEV_NAMES[@]}; i++))
+do
+        PWR_SENSING_DEV_PATHS[${i}]=`find /sys/devices/platform -name '*_input' | grep ${PWR_SENSING_DEV_NAMES[${i}]} | head -n1`
+
+        if [ ! -z ${PWR_SENSING_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${PWR_SENSING_DEV_PATHS[${i}]}
+		fi
+		SRC_DIR=$(echo $(dirname ${PWR_SENSING_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${PWR_SENSING_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/power1_input ${DST_DIR}/power"
+		execute "ln -sf ${SRC_DIR}/in1_input ${DST_DIR}/voltage"
+		execute "ln -sf ${SRC_DIR}/curr1_input ${DST_DIR}/current"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+	else
+		log_write "Can not find voltage/current sensing device" ${PWR_SENSING_DEV_NAMES[${i}]}
+        fi
+done
+
+#FPGA voltage sensing devices
+FPGA_SENSING_DEV_NAME='iio_hwmon'
+FPGA_SENSING_DEV_PATH=`find /sys/devices/platform -name '*_input' | grep ${FPGA_SENSING_DEV_NAME} | head -n1`
+if [ ! -z ${FPGA_SENSING_DEV_PATH} ]; then
+	if [ ! -z ${VERBOSE} ]; then
+		echo ${FPGA_SENSING_DEV_PATH}
+	fi
+	SRC_DIR=$(echo $(dirname ${FPGA_SENSING_DEV_PATH}))
+	DST_DIR=$(echo $(dirname ${FPGA_SENSING_DEV_MAP}))
+	[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/in1_input ${DST_DIR}/vccint_voltage"
+	execute "ln -sf ${SRC_DIR}/in2_input ${DST_DIR}/vccaux_voltage"
+	execute "ln -sf ${FPGA_SENSING_DEV_PATH} ${DST_DIR}/hwmon"
+else
+	log_write "Can not find voltage/current sensing device" ${FPGA_SENSING_DEV_NAME}
+fi
+
+#RF sensing devices
+declare -a RF_SENSING_DEV_NAMES=( 'adl5501_rf' 'adl5501_refl')
+for (( i=0; i<${#RF_SENSING_DEV_NAMES[@]}; i++))
+do
+        RF_SENSING_DEV_PATHS[${i}]=`find /sys/devices/platform -name '*_input' | grep ${RF_SENSING_DEV_NAMES[${i}]} | head -n1`
+
+        if [ ! -z ${RF_SENSING_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${RF_SENSING_DEV_PATHS[${i}]}
+		fi
+		SRC_DIR=$(echo $(dirname ${RF_SENSING_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${RF_SENSING_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/power1_input ${DST_DIR}/voltage"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+	else
+		log_write "Can not find power sensing device" ${RF_SENSING_DEV_NAMES[${i}]}
+        fi
+done
+
+#User LEDs
+declare -a LED_DEV_NAMES=( 'usr0' 'usr1' )
+for (( i=0; i<${#LED_DEV_NAMES[@]}; i++))
+do
+        LED_DEV_PATHS[${i}]=`find /sys/devices/platform -name 'trigger' | grep ${LED_DEV_NAMES[${i}]} | head -n1`
+
+        if [ ! -z ${LED_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${LED_DEV_PATHS[${i}]}
+		fi
+
+		SRC_DIR=$(echo $(dirname ${LED_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${LED_DEV_MAP[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/brightness ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/class"
+	else
+		log_write "Can not find user LED device" ${LED_DEV_NAMES[${i}]}
+	fi
+done
+
+#Clock error measurement device
+CLKERR_DEV_NAME='clkerr'
+CLKERR_DEV_PATH=`find /sys/devices/platform -name 'clkerr1_*' | grep ${CLKERR_DEV_NAME} | head -n1`
+
+if [ ! -z ${CLKERR_DEV_PATH} ]; then
+	if [ ! -z ${VERBOSE} ]; then
+		echo ${CLKERR_DEV_PATH}
+	fi
+	SRC_DIR=$(echo $(dirname ${CLKERR_DEV_PATH}))
+	DST_DIR=$(echo $(dirname ${CLKERR_DEV_MAP}))
+	[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/clkerr1_average ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/clkerr1_average_accuracy ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/clkerr1_average_interval ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/clkerr1_fault ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/refresh ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/reset ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+else
+        log_write "Can not find user CLKERR device" ${CLKERR_DEV_NAME}
+fi
+
+#VSWR measurement device
+declare -a VSWR_DEV_NAMES=( 'tx0' )
+for (( i=0; i<${#VSWR_DEV_NAMES[@]}; i++))
+do
+	VSWR_DEV_PATHS[${i}]=`find /sys/devices/platform -name 'vswr_*' | grep ${VSWR_DEV_NAMES[${i}]} | head -n1`
+
+	if [ ! -z ${VSWR_DEV_PATHS[${i}]} ]; then
+		if [ ! -z ${VERBOSE} ]; then
+			echo ${VSWR_DEV_PATHS[${i}]}
+		fi
+
+		SRC_DIR=$(echo $(dirname ${VSWR_DEV_PATHS[${i}]}))
+		DST_DIR=$(echo $(dirname ${VSWR_DEV_MAP[${i}]}))
+		BASE_NAME=$(echo $(basename ${VSWR_DEV_PATHS[${i}]}))
+		[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+		execute "ln -sf ${SRC_DIR}/${BASE_NAME} ${DST_DIR}/vswr"
+		execute "ln -sf ${SRC_DIR} ${DST_DIR}/class"
+	else
+		log_write "Can not find user VSWR device" ${VSWR_DEV_NAMES[${i}]}
+	fi
+done
+
+#Platform options and revision device
+OPT_DEV_NAME='oc2g'
+OPT_DEV_PATH=`find /sys/devices/platform -name 'option' | grep ${OPT_DEV_NAME} | head -n1`
+
+if [ ! -z ${OPT_DEV_PATH} ]; then
+	if [ ! -z ${VERBOSE} ]; then
+		echo ${OPT_DEV_PATH}
+	fi
+	SRC_DIR=$(echo $(dirname ${OPT_DEV_PATH}))
+	DST_DIR=$(echo $(dirname ${OPT_DEV_MAP}))
+	[ ! -d ${DST_DIR} ] && execute "mkdir -p ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/revision ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR}/option ${DST_DIR}"
+        execute "ln -sf ${SRC_DIR}/rev ${DST_DIR}"
+        execute "ln -sf ${SRC_DIR}/opt ${DST_DIR}"
+	execute "ln -sf ${SRC_DIR} ${DST_DIR}/hwmon"
+else
+	log_write "Cannot find platform options device" ${MISC_DEV_NAME}
+fi
+
+log_write "OC-2G system devices remapping done!" 
+

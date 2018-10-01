@@ -1,0 +1,54 @@
+#!/bin/sh
+# Start/stop the system devices remapping for OC-2G daemon.
+#
+### BEGIN INIT INFO
+# Provides:          oc2g-sysdev-remap
+# Required-Start:    $syslog $time
+# Required-Stop:     $syslog $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Remapping all availble system devices of OC-2G platform in system to a easy to reach location
+# Description:       Accessible to all system devices related to OC-2G platform will be available at /var/oc2g
+#                     
+### END INIT INFO
+
+REMAP_DIR='/var/volatile/oc2g'
+ 
+test -f /usr/bin/oc2g-sysdev-remap|| exit 0
+
+. /etc/init.d/functions
+
+log_daemon_msg () {
+    echo $@
+}
+
+log_end_msg () {
+    if test "$1" != "0"; then
+      echo "Error with $DESCRIPTION: $NAME"
+    fi
+    return $1
+}
+
+
+case "$1" in
+start)  log_daemon_msg "Starting system devices remapping script:" "oc2g-sysdev-remap"
+        mkdir -p ${REMAP_DIR}
+	/usr/bin/oc2g-sysdev-remap
+        log_end_msg $?
+	;;
+stop)	log_daemon_msg "Stopping system devices remapping script:" "oc2g-sysdev-remap"
+        test -d ${REMAP_DIR} && rm -rf ${REMAP_DIR}
+        ;;
+restart) log_daemon_msg "Restarting system devices remapping script:" "oc2oc2gg-sysdev-remap"
+        test -d ${REMAP_DIR} && rm -rf ${REMAP_DIR}
+	mkdir -p ${REMAP_DIR}
+        /usr/bin/oc2g-sysdev-remap
+         log_end_msg $?
+         ;;
+*)	log_action_msg "Usage: /etc/init.d/oc2g-sysdev-remap {start|stop|restart}"
+        exit 2
+        ;;
+esac
+exit 0
+
+
