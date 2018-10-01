@@ -275,6 +275,8 @@ struct gsm_lchan {
 			/* indicates if DTXd was active during DL measurement
 			   period */
 			bool dl_active;
+                        /* last UL SPEECH resume flag */
+                        bool is_speech_resume;
 		} dtx;
 		uint8_t last_cmr;
 		uint32_t last_fn;
@@ -418,6 +420,7 @@ struct gsm_bts_trx {
 enum gsm_bts_type_variant {
 	BTS_UNKNOWN,
 	BTS_OSMO_LITECELL15,
+        BTS_OSMO_OC2G,
 	BTS_OSMO_OCTPHY,
 	BTS_OSMO_SYSMO,
 	BTS_OSMO_TRX,
