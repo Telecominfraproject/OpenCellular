@@ -1,0 +1,41 @@
+Source: osmo-bts
+Maintainer: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Section: net
+Priority: optional
+Build-Depends: debhelper (>= 9),
+               pkg-config,
+               dh-autoreconf,
+               dh-systemd (>= 1.5),
+               autotools-dev,
+               pkg-config,
+               libosmocore-dev,
+               libosmo-abis-dev,
+               libgps-dev,
+               libortp-dev,
+               txt2man
+Standards-Version: 3.9.8
+Vcs-Browser: http://git.osmocom.org/osmo-bts/
+Vcs-Git: git://git.osmocom.org/osmo-bts
+Homepage: https://projects.osmocom.org/projects/osmobts
+
+Package: osmo-bts-trx
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: osmo-bts-trx GSM BTS with osmo-trx
+ osmo-bts-trx to be used with the osmo-trx application
+
+Package: osmo-bts-trx-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: osmo-bts-trx (= ${binary:Version}), ${misc:Depends}
+Description: Debug symbols for the osmo-bts-trx
+ Make debugging possible
+
+Package: osmo-bts-virtual
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Virtual Osmocom GSM BTS (no RF hardware; GSMTAP/UDP)
+ This version of OsmoBTS doesn't use actual GSM PHY/Hardware/RF, but
+ utilizes GSMTAP-over-UDP frames for the Um interface.  This is useful
+ in fully virtualized setups e.g. in combination with OsmocomBB virt_phy.

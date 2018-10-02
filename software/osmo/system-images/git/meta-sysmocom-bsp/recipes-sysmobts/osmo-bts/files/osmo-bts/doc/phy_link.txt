@@ -1,0 +1,57 @@
+
+== OsmoBTS PHY interface abstraction
+
+The OsmoBTS PHY interface serves as an abstraction layer between given
+PHY hardware and the actual logical transceivers (TRXs) of a BTS inside
+the OsmoBTS code base.
+
+
+=== PHY link
+
+A PHY link is a physical connection / link towards a given PHY.  This
+might be, for example,
+
+* a set of file descriptors to device nodes in the /dev/ directory
+  (sysmobts, litecell15)
+* a packet socket for sending raw Ethernet frames to an OCTPHY
+* a set of UDP sockets for interacting with OsmoTRX
+
+Each PHY interface has a set of attribute/parameters and a list of 1 to
+n PHY instances.
+
+PHY links are numbered 0..n globally inside OsmoBTS.
+
+Each PHY link is configured via the VTY using its individual top-level
+vty node.  Given the different bts-model / phy specific properties, the
+VTY configuration options (if any) of the PHY instance differ between
+BTS models.
+
+The PHY links and instances must be configured above the BTS/TRX nodes
+in the configuration file.  If the file is saved via the VTY, the code
+automatically ensures this.
+
+
+=== PHY instance
+
+A PHY instance is an instance of a PHY, accessed via a PHY link.
+
+In the case of osmo-bts-sysmo and osmo-bts-trx, there is only one
+instance in every PHY link.  This is due to the fact that the API inside
+that PHY link does not permit for distinguishing multiple different
+logical TRXs.
+
+Other PHY implementations like the OCTPHY however do support addressing
+multiple PHY instances via a single PHY link.
+
+PHY instances are numbered 0..n inside each PHY link.
+
+Each PHY instance is configured via the VTY as a separate node beneath each
+PHY link.  Given the different bts-model / phy specific properties, the
+VTY configuration options (if any) of the PHY instance differ between
+BTS models.
+
+
+=== Mapping PHY instances to TRXs
+
+Each TRX node in the VTY must use the 'phy N instance M' command in
+order to specify which PHY instance is allocated to this specific TRX.

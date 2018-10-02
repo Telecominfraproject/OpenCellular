@@ -1,0 +1,15 @@
+[Unit]
+Description=Osmocom GSM BTS for virtual Um layer based on GSMTAP/UDP
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/osmo-bts-virtual -s -c /etc/osmocom/osmo-bts-virtual.cfg
+Restart=always
+RestartSec=2
+
+# Let it process messages quickly enough
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=1
+
+[Install]
+WantedBy=multi-user.target

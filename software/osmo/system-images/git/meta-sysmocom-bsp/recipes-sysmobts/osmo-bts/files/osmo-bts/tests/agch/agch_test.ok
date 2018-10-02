@@ -1,0 +1,23 @@
+Testing AGCH queue length computation.
+T		BCCH slots
+	1(NC)	1(C)	2(NC)	3(NC)	4(NC)
+3	20	9	20	20	20
+4	28	11	28	28	28
+5	40	13	40	40	40
+6	59	19	59	59	59
+7	79	25	79	79	79
+8	21	9	21	21	21
+9	28	12	28	28	28
+10	40	13	40	40	40
+11	60	20	60	60	60
+12	80	26	80	80	80
+14	22	10	22	22	22
+16	30	13	30	30	30
+20	42	14	42	42	42
+25	63	21	63	63	63
+32	83	28	83	83	83
+50	28	14	28	28	28
+Testing AGCH messages queue handling.
+AGCH filled: count 720, imm.ass 80, imm.ass.rej 640 (refs 640), queue limit 32, occupied 240, dropped 0, merged 480, rejected 0, ag-res 0, non-res 0
+AGCH drained: multiframes 32, imm.ass 80, imm.ass.rej 12 (refs 48), queue limit 32, occupied 0, dropped 148, merged 480, rejected 0, ag-res 31, non-res 61
+Success
