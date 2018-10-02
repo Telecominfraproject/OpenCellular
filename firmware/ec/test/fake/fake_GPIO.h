@@ -24,5 +24,6 @@ typedef struct FakeGpio_Obj {
 extern const OcGpio_FnTable FakeGpio_fnTable;
 
 void FakeGpio_triggerInterrupt(const OcGpio_Pin *pin);
+void FakeGpio_registerDevSimple(void *GpioPins, void *GpioConfig);
 
 #endif /* FAKE_GPIO_H_ */
