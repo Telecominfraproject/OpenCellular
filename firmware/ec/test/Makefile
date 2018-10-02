@@ -36,6 +36,8 @@ CFLAGS += -Wold-style-definition
 CFLAGS += -DTEST -DUT_POST -DUT_FRAMEWORK
 CFLAGS += -g
 CFLAGS += -Dxdc_target_types__="xdc_target_posix.h"
+# Short enums are assumed throughout the code, need the -fshort-enums flag
+CFLAGS += -fshort-enums
 
 INC_DIRS=-I. -Isrc -I$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -I$(DIR_SYSBIOS) -I$(DIR_TIDRIVERS) -I$(DIR_XDC)
 
