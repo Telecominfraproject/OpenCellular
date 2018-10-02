@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Show the files diff between PLACEHOLDER_SYSMOCOM_RELEASE-testing and PLACEHOLDER_SYSMOCOM_RELEASE</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>90</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>
+ssh -i ~/.ssh/id_rsa_downloads -p41 generic@downloads.sysmocom.de &quot;merge-testing sysmobts PLACEHOLDER_SYSMOCOM_RELEASE&quot;
+ssh -i ~/.ssh/id_rsa_downloads -p41 generic@downloads.sysmocom.de &quot;merge-testing sysmobts2100 PLACEHOLDER_SYSMOCOM_RELEASE&quot;
+ssh -i ~/.ssh/id_rsa_downloads -p41 generic@downloads.sysmocom.de &quot;merge-testing sysmocom-alix PLACEHOLDER_SYSMOCOM_RELEASE&quot;
+ssh -i ~/.ssh/id_rsa_downloads -p41 generic@downloads.sysmocom.de &quot;merge-testing sysmocom-apu2 PLACEHOLDER_SYSMOCOM_RELEASE&quot;
+      </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

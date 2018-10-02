@@ -1,0 +1,7 @@
+cfg/*/99_do_not_commit
+git/
+build.*
+*.sw?
+downloads/
+jenkins/*.xml
+jenkins-cli.jar

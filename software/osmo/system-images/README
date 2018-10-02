@@ -1,0 +1,66 @@
+Scripts and documentation for building system images for our target platforms. The
+goal is to help anyone checking out the right repositories, configuring a target
+and build the images that are built by CI (in fact CI will use these scripts).
+
+The central piece is a Makefile that helps to:
+
+	* Git clone the necessary layers
+	* Update/git pull --rebase all of them
+	* Set-up the build as used by sysmocom
+	* Configure .ssh/config for uploading to sysmocom
+	* Do the upload
+	* Clean after a build
+
+The bblayers.conf is created from a template located in cfg/ and the local.conf
+will be created by using Poky's oe-init-build-env and then files from cfg/common/*
+and cfg/BOARD/*. Files will be sorted in their alphabetically sort order and first
+come from the common directory and then the board specific one. At the end an include
+directive will be issued.
+
+
+Using the Makefile:
+
+	$ make help
+	...
+
+Example of building everything
+
+	# make install-ssh-config SSH_HOST=build-upload.foo.bar SSH_PORT=2342
+	$ make setup-all V=1
+	... git clone
+	... git pull --rebase
+	... creating build directories
+
+	For the sysmobts firmware needs to be copied to the downloads directory.
+	As a customer you should have received instructions for doing it and as
+	an employee it should be mentioned in the wiki
+
+	$ make build-all	# Build for all boards the default targets
+	...
+
+	$ make upload-all	# Make an upload to testing for all boards
+	...
+
+	$ make clean-all	# Clean the tmp directory for all boards
+	...
+
+
+Server side set-up:
+
+On the server we need scripts to copy from -testing to -stable. It is a simple
+script and it is the easiest if we bind it to ssh keys. It should be a self
+service for the developers.
+
+....
+command="/home/user/system-images/scripts/dispatch.sh" ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7ZJ339MQh1ctTP3UyRQSpdjcJmG8tafd+akq6cmplSuG6j8BZH38u38Zvf7+WLvMBsluujfj7lkuPA/vzP5c6YHBBWOoT+5moRxpEdLXzUPzxA2l+1Nfgd+pd4mvmV9WI22dY6mtDXtOZxXoG8sAXZe/RoUN9MTzayJVkUtp76SW5eiVT519kQGRRaHEFvEqis9t9K5wJN/CVD7uDudpel0ljtkRh4K0KFTUJLVG7bXu5CAOc61JGoeoAb0z/0DL5Nnlxe9P9eMHKqFSqC97xovtRGy1U+2EAVuWY2N32G0VuXpIisBrx/FGxChWp3V5q5KurlkrnV/Rq3dBmKwykAYTQRMrx6mMatiAxFnVnkXYnjFwGC5AdEO2iw865TJ1riv6uZsDviVxFK79BQnkLkFBNLWdfIiYP2j4mMSGsK4xpDXUFAP7xDoVzLO1ZyaJcqF/DCyS4sZ/cYcj0lW2pKxSkFE4Mv2zO4Zwgu7t1EmKjR6SDfzZ+wfSfcjAytwA9l6NfMlLvMy1bL+b5I4UHvZJD1nxpdzByKuTZ11/6o/BN+anrj+SqsXUrD7k9q3LhdMMAJf3lxG0ZVV81FZm6jh/XsO9FwoAzXwqezeJpnaNSqb4alYl/P/7xoFuNQjxZmomROIFMdOAOL8ius+Bz28k1va93tSgkPpr6YUJBaQ== .ssh/id_rsa-new
+....
+
+
+Jenkins:
+
+Use jenkins-cli.jar (which requires java) to create new jobs and views from
+the templates in jenkins/job_templates/*.xml.
+
+....
+make create-jenkins-jobs SYSMOCOM_RELEASE=XXXX JENKINS_HOST=8.8.8.8 JENKINS_USER=user JENKINS_PASS=pass V=1
+....
