@@ -1,0 +1,13 @@
+Index: iperf-2.0.9/include/util.h
+===================================================================
+--- iperf-2.0.9.orig/include/util.h
++++ iperf-2.0.9/include/util.h
+@@ -57,6 +57,8 @@
+     #include "config.h"
+ #endif
+ 
++#include <stdbool.h>
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif

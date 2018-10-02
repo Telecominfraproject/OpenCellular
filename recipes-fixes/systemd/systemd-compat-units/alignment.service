@@ -1,0 +1,17 @@
+[Unit]
+Description=Handle unaligned access in kernel
+DefaultDependencies=no
+After=systemd-remount-fs.service systemd-tmpfiles-setup.service tmp.mount
+Before=sysinit.target
+ConditionPathExists=|/proc/cpu/alignment
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/bin/sh -c 'echo 3 > /proc/cpu/alignment'
+StandardOutput=syslog
+TimeoutSec=0
+
+[Install]
+WantedBy=basic.target
+WantedBy=sysinit.target

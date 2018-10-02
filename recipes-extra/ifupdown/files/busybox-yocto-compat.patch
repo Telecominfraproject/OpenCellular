@@ -1,0 +1,83 @@
+Index: ifupdown-0.7.52/execute.c
+===================================================================
+--- ifupdown-0.7.52.orig/execute.c
++++ ifupdown-0.7.52/execute.c
+@@ -25,7 +25,7 @@ static void set_environ(interface_defn *
+ {
+     char **environend;
+     int i;
+-    const int n_env_entries = iface->n_options + 8;
++    const int n_env_entries = (iface ? iface->n_options : 0) + 8;
+ 
+     {
+         char **ppch;
+@@ -42,7 +42,7 @@ static void set_environ(interface_defn *
+     environend = environ;
+     *environend = NULL;
+ 
+-    for (i = 0; i < iface->n_options; i++) {
++    for (i = 0; iface && i < iface->n_options; i++) {
+         if (strcmp(iface->option[i].name, "pre-up") == 0 || strcmp(iface->option[i].name, "up") == 0 || strcmp(iface->option[i].name, "down") == 0 || strcmp(iface->option[i].name, "post-down") == 0) {
+             continue;
+         }
+@@ -52,6 +52,7 @@ static void set_environ(interface_defn *
+         *environend = NULL;
+     }
+ 
++  if (iface) {
+     *(environend++) = setlocalenv("%s=%s", "IFACE", iface->real_iface);
+     *environend = NULL;
+ 
+@@ -63,12 +64,17 @@ static void set_environ(interface_defn *
+ 
+     *(environend++) = setlocalenv("%s=%s", "METHOD", iface->method->name);
+     *environend = NULL;
++  }
+ 
++  if (mode) {
+     *(environend++) = setlocalenv("%s=%s", "MODE", mode);
+     *environend = NULL;
++  }
+ 
++  if (phase) {
+     *(environend++) = setlocalenv("%s=%s", "PHASE", phase);
+     *environend = NULL;
++  }
+ 
+     *(environend++) = setlocalenv("%s=%s", "VERBOSITY", verbose ? "1" : "0");
+     *environend = NULL;
+@@ -168,8 +174,7 @@ int execute_scripts(interface_defn * ifd
+         return 1;
+ 
+     char buf[100];
+-    snprintf(buf, sizeof(buf), "run-parts %s%s/etc/network/if-%s.d",
+-        ignore_failures ? "" : "--exit-on-error ",
++    snprintf(buf, sizeof(buf), "run-parts %s/etc/network/if-%s.d",
+         verbose ? "--verbose " : "", opt);
+ 
+     int result = (*exec)(buf);
+@@ -285,6 +290,11 @@ int execute(char *command, interface_def
+     char *out;
+     int ret;
+ 
++    if (!environ) {
++       /* initialize the environment to find /sbin/ip */
++       set_environ(NULL, NULL, NULL);
++    }
++
+     out = parse(command, ifd);
+     if (!out) {
+         return 0;
+Index: ifupdown-0.7.52/inet.defn
+===================================================================
+--- ifupdown-0.7.52.orig/inet.defn
++++ ifupdown-0.7.52/inet.defn
+@@ -89,7 +89,7 @@ method dhcp
+         elsif (execable("/sbin/dhclient3"))
+     pump -i %iface% [[-h %hostname%]] [[-l %leasehours%]] \
+         elsif (execable("/sbin/pump") && mylinuxver() >= mylinux(2,1,100))
+-    udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-x hostname:%hostname%]] \
++    udhcpc -R -b -p /run/udhcpc.%iface%.pid -i %iface% [[-x hostname:%hostname%]] \
+         elsif (execable("/sbin/udhcpc") && mylinuxver() >= mylinux(2,2,0))
+     dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
+            [[-l %leasetime%]] %iface% \

@@ -1,0 +1,140 @@
+From 19a55075d4e60e07d03d49937cd2a4d9239d00a4 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <hfreyther@sysmocom.de>
+Date: Fri, 22 Aug 2014 09:55:19 +0200
+Subject: [PATCH] gps2udp: Add a label, timestamp and mac address to each
+ report
+
+---
+ gps2udp.c |   62 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 60 insertions(+), 2 deletions(-)
+
+diff --git a/gps2udp.c b/gps2udp.c
+index 313ef36..e1bed05 100644
+--- a/gps2udp.c
++++ b/gps2udp.c
+@@ -38,6 +38,8 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <netdb.h>
++#include <net/if.h>
++#include <sys/ioctl.h>
+ #endif /* S_SPLINT_S */
+ 
+ #define MAX_TIME_LEN 80
+@@ -56,6 +58,9 @@ static struct fixsource_t gpsd_source;
+ static unsigned int flags;
+ static int debug = 0;
+ static bool aisonly = false;
++static const char *label;
++static const char *mac;
++static char *mac_string;
+ 
+ /*@-statictrans@*/
+ /*@observer@*/static char* time2string(void)  
+@@ -80,6 +85,7 @@ static bool aisonly = false;
+ 
+ static int send_udp (char *nmeastring, size_t ind)
+ {
++    char output[1024];
+     char message[255];
+     char *buffer;
+     int  channel;
+@@ -105,12 +111,23 @@ static int send_udp (char *nmeastring, size_t ind)
+     buffer[ind] = '\r'; ind++;
+     buffer[ind] = '\0';
+ 
++    /* copy once more for the label */
++    if (label)
++        snprintf(output, 1024, "%s,%llu,%s,%s",
++                label, (unsigned long long ) time(NULL), mac_string, buffer);
++    else
++        snprintf(output, 1024, "%s", buffer);
++
++    output[1023] = '\0';
++    ind = strlen(output);
++
++
+     /* send message on udp channel */
+     /*@-type@*/
+     for (channel=0; channel < udpchannel; channel ++) {
+ 	ssize_t status;
+ 	status = sendto(sock[channel],
+-			buffer,
++			output,
+ 			ind,
+ 			0,
+ 			&remote[channel],
+@@ -182,6 +199,8 @@ static void usage(void)
+ 		  "-c [count] exit after count packets.\n"
+ 		  "-b Run in background as a daemon.\n" 
+ 		  "-d [0-2] 1 display sent packets, 2 ignored packets.\n" 
++		  "-l [NAME] A label to be used for the output\n"
++		  "-m [IF_NAME] The interface to extract the mac from\n"
+ 		  "-v Print version and exit.\n\n"
+ 		  "You must specify one, or more, of -r, -R, or -w\n"
+ 		  );
+@@ -356,7 +375,7 @@ int main(int argc, char **argv)
+     char *udphostport[MAX_UDP_DEST];
+ 
+     flags = WATCH_ENABLE;
+-    while ((option = getopt(argc, argv, "?habnjcvl:u:d:")) != -1)
++    while ((option = getopt(argc, argv, "?habnjcvl:u:d:l:m:")) != -1)
+     {
+ 	switch (option) {
+ 	case 'd':
+@@ -390,6 +409,12 @@ int main(int argc, char **argv)
+ 		udphostport[udpchannel++] = optarg;
+             }
+             break;
++	case 'l':
++	    label = optarg;
++	    break;
++	case 'm':
++	    mac = optarg;
++	    break;
+ 	case 'v':
+ 	    (void)fprintf(stderr, "%s: %s (revision %s)\n",
+ 			  argv[0], VERSION, REVISION);
+@@ -402,6 +427,39 @@ int main(int argc, char **argv)
+ 	}
+     }
+ 
++    if (label && !mac) {
++        fprintf(stderr, "Need to specify the ethernet device to find the mac.\n");
++        exit(EXIT_FAILURE);
++    }
++    if (mac && strlen(mac) >= IFNAMSIZ) {
++        fprintf(stderr, "Interface name is too long.\n");
++        exit(EXIT_FAILURE);
++    } else if (mac) {
++        struct ifreq addr = { };
++        int fd, rc;
++        fd = socket(AF_INET, SOCK_DGRAM, 0);
++        if (fd < 0) {
++            fprintf(stderr, "Failed to open socket.\n");
++            exit(EXIT_FAILURE);
++        }
++        memcpy(&addr.ifr_name, mac, strlen(mac));
++        rc = ioctl(fd, SIOCGIFHWADDR, &addr);
++        close(fd);
++        if (rc < 0) {
++            fprintf(stderr, "Failed to query address.\n");
++            exit(EXIT_FAILURE);
++        }
++        mac_string = malloc(40 * sizeof(char));
++        snprintf(mac_string, 40,
++                    "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X",
++                    addr.ifr_hwaddr.sa_data[0] & 0xff,
++                    addr.ifr_hwaddr.sa_data[1] & 0xff,
++                    addr.ifr_hwaddr.sa_data[2] & 0xff,
++                    addr.ifr_hwaddr.sa_data[3] & 0xff,
++                    addr.ifr_hwaddr.sa_data[4] & 0xff,
++                    addr.ifr_hwaddr.sa_data[5] & 0xff);
++    }
++
+     /* Grok the server, port, and device. */
+     if (optind < argc)
+ 	gpsd_source_spec(argv[optind], &gpsd_source);
+-- 
+1.7.10.4
+

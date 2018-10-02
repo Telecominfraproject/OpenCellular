@@ -1,0 +1,80 @@
+#!/bin/sh
+
+
+# Make sure to look at sysmocom-restore to check if the file would
+# be restored right. Currently only some dirs get restored.
+FILES="etc/sysmocom/backup.d"
+
+# Pick some extra files
+if [ -e /etc/sysmocom/backup.d/ ]; then
+	for extra in `ls /etc/sysmocom/backup.d/*.files`;
+	do
+		echo "Add extras from $extra."
+		FILES="$FILES `cat $extra`"
+	done
+fi
+
+DATE=`date +%Y%m%d`
+
+# Called for a file. Compare with the content in /ro-root
+# if this file has been modified and only take it then. In
+# case the file is not present it in /ro-root it will be
+# added to the backup set
+backup_file() {
+	cmp -s /$2 /ro-root/$2
+	if [ $? -ne 0 ]; then
+		echo "Adding $2"
+		tar -rf $1 --transform='s,^,content/,' -C / $2
+	fi
+}
+
+# Check if this is a file, otherwise descend
+handle_file() {
+	if [ -f "/$2" -a -e "/$2" ]; then
+		backup_file $1 $2
+	fi
+	if [ -d "/$2" -a -e "/$2" ]; then
+		for file in /$2/*;
+		do
+			# Construct to have no leading /
+			handle_file $1 $2/`basename $file`
+		done
+	fi
+}
+
+do_backup_files() {
+	BACKUP_FILE="/data/sysmocom-backup_$DATE.tar"
+
+	# 0. Sanity checking
+	if [ -e $BACKUP_FILE ]; then
+		echo "The backup file '$BACKUP_FILE' already exists. Exiting!"
+		exit 1
+	fi
+
+	# 1. Create an empty archive..
+	tar -cf $BACKUP_FILE --files-from=/dev/null
+
+	# 2. Add all the files... we need
+	for file in $FILES;
+	do
+		handle_file $BACKUP_FILE $file
+	done
+
+	# 4. Generate more information
+	NAME="/tmp/backup.$$"
+	mkdir $NAME
+	opkg list_installed > $NAME/installed_packages
+	/sbin/ifconfig | grep HWaddr | cut -d ' ' -f 11 > $NAME/mac_addr
+
+	# 5. Add the more information
+	tar -rf $BACKUP_FILE --transform='s,^,info/,' -C $NAME installed_packages mac_addr
+
+	# 6. Create stable link
+	cd /data/
+	ln -sf `basename $BACKUP_FILE` sysmocom-backup.tar
+
+	# 76
+	echo "The backup was stored to $BACKUP_FILE"
+}
+
+do_backup_files

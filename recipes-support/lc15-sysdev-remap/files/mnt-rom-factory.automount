@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount ROM partition with factory defaults
+
+[Automount]
+Where=/mnt/rom/factory
+
+[Install]
+WantedBy=multi-user.target

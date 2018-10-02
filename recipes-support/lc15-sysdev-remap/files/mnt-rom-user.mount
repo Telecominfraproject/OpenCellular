@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount user partition with default settings
+
+[Mount]
+What=/dev/mtdblock9
+Where=/mnt/rom/user
+Type=jffs2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+From d6bd89581ac104a56441f63ca4a8f2139917f9f6 Mon Sep 17 00:00:00 2001
+From: Harald Welte <laforge@gnumonks.org>
+Date: Mon, 10 Jul 2017 13:58:58 +0200
+Subject: [PATCH] Makefile: Allow cross-compilation environment to specify CC
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index b670978..9af3c99 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,7 +4,7 @@ N2N_OSNAME=$(shell uname -p)
+ 
+ ########
+ 
+-CC=gcc
++CC?=gcc
+ DEBUG?=-g3
+ #OPTIMIZATION?=-O2
+ WARN?=-Wall -Wshadow -Wpointer-arith -Wmissing-declarations -Wnested-externs
+-- 
+2.11.0
+

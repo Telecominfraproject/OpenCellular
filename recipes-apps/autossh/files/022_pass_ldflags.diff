@@ -1,0 +1,17 @@
+Description: Properly pass LDFLAGS. Fixes lintian warning hardening-no-relro
+Author: Axel Beckert <abe@debian.org>
+
+Index: autossh/Makefile.in
+===================================================================
+--- autossh.orig/Makefile.in	2013-05-16 14:51:47.000000000 +0200
++++ autossh/Makefile.in	2013-05-16 14:53:19.000000000 +0200
+@@ -31,7 +31,7 @@
+ 
+ 
+ $(TARGET):	$(OFILES)
+-		$(CC) $(CPPFLAGS) -o $(TARGET) $(OFILES) $(LIBS)
++		$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(TARGET) $(OFILES) $(LIBS)
+ 
+ clean:
+ 		- /bin/rm -f *.o *.a *.core *~
+

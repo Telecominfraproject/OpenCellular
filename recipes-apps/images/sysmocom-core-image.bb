@@ -1,0 +1,1 @@
+require sysmocom-image.inc

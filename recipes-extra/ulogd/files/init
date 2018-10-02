@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# /etc/init.d/ulogd
+#
+
+NAME="ulogd"
+DAEMON="/usr/sbin/ulogd"
+CONFIG="/etc/ulogd.conf"
+PIDFILE="/var/run/${NAME}.pid"
+
+
+# Gracefully exit if there is no daemon (debian way of life)
+if [ ! -x "${DAEMON}" ]; then
+	exit 0
+fi
+
+# Check for config file
+if [ ! -f ${CONFIG} ]; then
+	echo "Error: There is no config file for $NAME" >&2
+	exit 1;
+fi
+
+case "$1" in
+  start)
+        echo -n "Starting $NAME: "
+	start-stop-daemon --start --quiet --make-pidfile --pidfile "${PIDFILE}" --background --exec ${DAEMON} -- -c ${CONFIG}
+	RET=$?
+	if [ "$?" = "0" ]; then
+		echo "done."
+	else
+		echo "FAILED!"
+	fi
+	exit $RET
+	;;
+  stop)
+        echo -n "Stopping $NAME:"
+	start-stop-daemon --stop --quiet --oknodo --pidfile "${PIDFILE}" && echo "done." || echo "FAILED!"
+	;;
+  status)
+	echo -n "ulogd "
+	start-stop-daemon -q -K -t -x $DAEMON
+	RET=$?
+	if [ "$RET" = "0" ]; then
+                PID=`cat $PIDFILE`
+		echo "($PID) is running"
+	else
+		echo "is not running"
+		exit $RET
+	fi
+	;;
+  restart)
+	$0 start
+	$0 stop
+	;;
+
+  *)
+	echo "Usage: /etc/init.d/ulogd {start|stop|status|restart}"
+	exit 1
+esac
+
+exit 0

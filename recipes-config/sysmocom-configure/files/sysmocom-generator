@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ ! -e /slot/system.conf ]; then
+	exit 0
+fi
+
+. /slot/system.conf
+
+for HANDLER in $(ls /etc/sysmocom/configure.d/*.sh); do
+	UNIT=$(basename "$HANDLER" .sh)
+	cat >$1/${UNIT//./-}-configure.service <<EOF
+[Unit]
+Description=Generate $UNIT Configuration
+After=sysmocom-restore.service
+Before=$UNIT
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=$HANDLER
+EOF
+	mkdir -p $1/$UNIT.wants
+	ln -s /lib/systemd/system/${UNIT//./-}-configure.service $1/$UNIT.wants/
+done
+
+if [ -n "$OSMOBSC_ENABLED" ]; then
+	ln -s /lib/systemd/system/osmo-bsc.service $1/multi-user.target.wants/
+fi
+
+if [ -n "$OSMONITB_ENABLED" ]; then
+	ln -s /lib/systemd/system/osmo-nitb.service $1/multi-user.target.wants/
+fi

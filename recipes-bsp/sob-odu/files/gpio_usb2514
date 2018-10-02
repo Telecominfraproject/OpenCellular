@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# in more recent kernels the kernel is itself taking care of exporting
+# the right GPIOs and setting their direction and level.  We can detect
+# this by checking for the below sysfs path
+if [ -d /sys/devices/platform/sob-odu.0 ]; then
+	exit 0
+fi
+
+cd /sys/class/gpio
+
+# !mdm1_pwr_ind
+echo 22 > export
+echo in > ./gpio22/direction
+
+# mdm1_rst=0
+echo 26 > export
+echo out > ./gpio26/direction
+echo 0 > ./gpio26/value
+
+# !mdm1_shdn=1
+echo 59 > export
+echo out > ./gpio59/direction
+echo 1 > ./gpio59/value
+
+# mdm_ldo_en=1
+echo 58 > export
+echo out > ./gpio58/direction
+echo 1 > ./gpio58/value
+
+# !mdm2_pwr_ind
+echo 57 > export
+echo in > ./gpio57/direction
+
+# mdm2_rst=0
+echo 55 > export
+echo out > ./gpio55/direction
+echo 0 > ./gpio55/value
+
+# mdm2_on=1
+echo 50 > export
+echo out > ./gpio50/direction
+echo 1 > ./gpio50/value
+
+# !gnss_rst=1
+echo 114 > export
+echo out > ./gpio114/direction
+echo 1 > ./gpio114/value
+
+# !adsb_rst=1
+echo 53 > export
+echo out > ./gpio53/direction
+echo 1 > ./gpio53/value
+
+# adsb_frame
+echo 54 > export
+echo in > ./gpio54/direction
+
+# !hub_reset
+echo 62 > export
+echo out > ./gpio62/direction
+echo 0 > ./gpio62/value
+sleep 1
+echo 1 > ./gpio62/value

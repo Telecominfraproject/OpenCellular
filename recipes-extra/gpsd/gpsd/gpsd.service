@@ -1,0 +1,12 @@
+[Unit]
+Description=GPS Service Daemon
+After=syslog.target network.target
+
+[Service]
+EnvironmentFile=-/etc/default/gpsd
+ExecStart=/usr/sbin/gpsd -N -F $GPSD_SOCKET $GPSD_OPTIONS $GPS_DEVICES
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

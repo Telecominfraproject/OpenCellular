@@ -1,0 +1,75 @@
+#!/bin/sh
+
+SYSGPIO=/sys/class/gpio
+DEVGPIO=/dev/gpio
+
+[ -d "$DEVGPIO " ] || mkdir "$DEVGPIO"
+
+export_gpio()
+{
+	NUM="$1"
+	DIR="$2"
+
+	GPIOPATH="$SYSGPIO/gpio$NUM"
+
+	[ -d "$GPIOPATH" ] || echo $1 > "$SYSGPIO/export"
+	echo $2 > "$GPIOPATH/direction"
+}
+
+export_gpio_out()
+{
+	NUM="$1"
+	NAME="$2"
+	VAL="$3"
+	INV="$4"
+
+	GPIOPATH="$SYSGPIO/gpio$NUM"
+
+	export_gpio $NUM out
+	ln -sfn "$GPIOPATH" "$DEVGPIO/$NAME"
+
+	if [ "x$INV" != "x" ]; then
+		echo 1 > "$GPIOPATH/active_low"
+	else
+		echo 0 > "$GPIOPATH/active_low"
+	fi
+
+	echo $VAL > "$GPIOPATH/value"
+}
+
+export_gpio_in()
+{
+	NUM="$1"
+	NAME="$2"
+	INV="$3"
+
+	GPIOPATH="$SYSGPIO/gpio$NUM"
+
+	export_gpio $NUM in
+	ln -sfn "$GPIOPATH" "$DEVGPIO/$NAME"
+
+	if [ "x$INV" != "x" ]; then
+		echo 1 > "$GPIOPATH/active_low"
+	else
+		echo 0 > "$GPIOPATH/active_low"
+	fi
+}
+
+
+export_gpio_out 48 pse_i2c_buf_en 0 active_low
+export_gpio_in 52 pse_int active_low
+export_gpio_out 23 connect_st_usim1 0
+export_gpio_out 27 connect_st_usim2 0
+export_gpio_out 26 mdm1_rst 0
+export_gpio_out 59 mdm1_on 1
+export_gpio_out 58 mdm_ldo_en 1
+#export_gpio_in 57 button active_low
+export_gpio_out 55 mdm2_rst 0
+#export_gpio_out 54 system_led 1 active_low
+export_gpio_out 51 eeprom_wp 0
+export_gpio_out 50 mdm2_on 1
+export_gpio_out 113 simtrace_erase 0
+export_gpio_out 115 simtrace_bootloader 0
+export_gpio_out 114 simtrace_reset 0
+export_gpio_in 104 acc_int active_low
+export_gpio_out 62 hub_reset 1 active_low

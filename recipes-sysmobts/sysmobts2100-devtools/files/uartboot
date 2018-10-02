@@ -1,0 +1,199 @@
+#!/bin/bash
+
+# This script allows litecell uart serial boot with specified MLO+u-boot files
+# Requirements: printf, wc, stty, sx, dd, microcom (tested on ubuntu 12.04LTS)
+
+MYVERSION=1.0.0
+TMPHEADER=""
+myDEV="/dev/ttyUSB0"
+CHECKMODE=0
+TERMMODE=0
+
+# maximum size in flash sectors allowed for MLO and u-boot components
+MAXMLOSIZE=131072
+MAXUBOOTSIZE=524288
+
+int2header() {
+  local i=4026728450
+  local f
+  printf -v f '\\x%02x\\x%02x\\x%02x\\x%02x' $((i&255)) $((i >> 8 & 255)) $((i >> 16 & 255)) $((i >> 24 & 255))
+  if test $? -ne 0 ; then my_exit 21; fi;
+  printf "$f" > $2
+  if test $? -ne 0 ; then my_exit 22; fi;
+  i=$1
+  printf -v f '\\x%02x\\x%02x\\x%02x\\x%02x' $((i&255)) $((i >> 8 & 255)) $((i >> 16 & 255)) $((i >> 24 & 255))
+  if test $? -ne 0 ; then my_exit 23; fi;
+  printf "$f" >> $2
+  if test $? -ne 0 ; then my_exit 24; fi;
+}
+
+function log_write()
+{
+	echo "$*"
+}
+
+function log_write_nr()
+{
+	echo -n "$*"
+}
+
+function __sig_int {
+    log_write "WARNING: SIGINT caught"
+    my_exit 110
+}
+
+function __sig_quit {
+    log_write "WARNING: SIGQUIT caught"
+    my_exit 111
+}
+
+function __sig_term {
+    log_write "WARNING: SIGTERM caught"
+    my_exit 112
+}
+
+function __sig_hup {
+    log_write "WARNING: SIGHUP caught"
+    my_exit 113
+}
+
+function my_exit()
+{
+	trap - SIGINT
+	trap - SIGQUIT
+	trap - SIGTERM
+	trap - SIGHUP
+	sync
+	if [ ! "$TMPHEADER" == "" ] ; then
+		rm -f "$TMPHEADER"
+	fi
+	if [ $* -eq 0 ] ; then
+		log_write "Success"
+	else
+		log_write "Exit error code: $*"
+	fi
+	exit $*
+}
+
+function show_help {
+    log_write "uartboot $MYVERSION help information:"
+    log_write "uartboot [ [ -c | -t ] | -p dev | --help ] [ mlofile ubootfile ]"
+    log_write "where mlofile            # mlo serial binary file location (u-boot-spl.bin)"
+    log_write "      ubootfile          # u-boot image file location (u-boot.img)"
+    log_write "      options: --help    # displays update help"
+    log_write "               -p dev    # serial device Port to use (default: $myDEV)"
+    log_write "               -c        # Checks for rom download 'VA' string"
+    log_write "               -t        # restarts Terminal (once booted)"
+}
+
+function start_term {
+    microcom -p $myDEV -s 115200
+    my_exit $?
+}
+
+function setup_term {
+    if [ "$*" == "1" ] ; then
+        stty -F $myDEV raw -echo -echoe -echok parenb -parodd -cstopb cs8 -ixon -ixoff -crtscts 115200
+    else
+        stty -F $myDEV raw -echo -echoe -echok -parenb -parodd -cstopb cs8 -ixon -ixoff -crtscts 115200
+    fi
+    if test $? -ne 0 ; then my_exit 30; fi;
+}
+
+# Set TRAPs to cleanup if forced to exit
+trap __sig_int SIGINT
+trap __sig_quit SIGQUIT
+trap __sig_term SIGTERM
+trap __sig_hup SIGHUP
+
+# default runmode is remote and no reboot at the end
+TOTALARG=$#
+while getopts :cp:t- FLAG; do
+    case $FLAG in
+        c)
+        CHECKMODE=1
+        ;;
+        t)
+        TERMMODE=1
+        ;;
+        p)
+        myDEV=$OPTARG
+        if ! test -c "$myDEV" ; then
+            log_write "Device $myDEV cannot be accessed!"
+            my_exit 14
+        fi;;
+        '-')
+        show_help
+        my_exit 0;;
+        \?)
+        log_write "Invalid option: -$OPTARG" && my_exit 1;;
+        \:)
+        log_write "Required argument not found for option: -$OPTARG" && my_exit 2;;
+  esac
+done
+
+# removes processed option(s) from the cmd line args
+shift $((OPTIND-1))
+
+# test if we entered any arguments (default get help)
+if [ $TOTALARG -eq 0 ] ; then
+    show_help
+    my_exit 0
+elif ( [ "$CHECKMODE" -eq "1" ] || [ "$TERMMODE" -eq "1" ] ) ; then
+        setup_term "$CHECKMODE"
+        start_term
+elif [ $# -eq 2 ] ; then
+    myMLO="$1"
+    myUBOOT="$2"
+    if ! test -f "$myMLO" ; then
+        log_write "MLO file $myMLO cannot be accessed!"
+        my_exit 4
+    fi
+    if ! test -f "$myUBOOT" ; then
+        log_write "U-boot file $myUBOOT cannot be accessed!"
+        my_exit 5
+    fi
+else
+    log_write "Missing or invalid combination of arguments!"
+    my_exit 3
+fi
+
+TMPHEADER=$(mktemp)
+if [ $? -ne 0 ]; then
+    log_write "mktemp fail!"
+    my_exit 6
+fi
+log_write "tmp file created: $TMPHEADER"
+
+mlofile_size=`wc -c < "$myMLO"`
+if [ $mlofile_size -gt $MAXMLOSIZE ] ; then
+    log_write "MLO file size bigger than expected: $mlofile_size max: $MAXMLOSIZE"
+    my_exit 7
+fi
+ubfile_size=`wc -c < "$myUBOOT"`
+if [ $ubfile_size -gt $MAXUBOOTSIZE ] ; then
+    log_write "U-boot file size bigger than expected: $ubfile_size max: $MAXUBOOTSIZE"
+    my_exit 8
+fi
+int2header $mlofile_size "$TMPHEADER"
+log_write "MLO: $myMLO, size: $mlofile_size"
+log_write "Setting port $myDEV for MLO download..."
+setup_term "1"
+if test $? -ne 0 ; then my_exit 9; fi;
+log_write "Sending header..."
+dd if="$TMPHEADER" of=$myDEV bs=1 count=8 obs=1 ibs=1
+if test $? -ne 0 ; then my_exit 10; fi;
+log_write "Sending MLO..."
+dd if="$myMLO" of=$myDEV bs=1 count=$mlofile_size obs=1 ibs=1
+if test $? -ne 0 ; then my_exit 11; fi;
+log_write "U-boot: $myUBOOT, size: $ubfile_size"
+log_write "Setting port $myDEV for u-boot download..."
+setup_term
+if test $? -ne 0 ; then my_exit 12; fi;
+log_write "Sending u-boot..."
+sx "$myUBOOT" > $myDEV < $myDEV
+if test $? -ne 0 ; then my_exit 13; fi;
+log_write "Starting microcom terminal..."
+start_term
+
+

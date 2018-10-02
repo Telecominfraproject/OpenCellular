@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# script installed as cronjob for handling
+# machines which have not ntp or systemd-timessyncd installed
+#
+# (C) 2015 by sysmocom - s.f.m.c. GmbH
+# Author: Henning Heinold
+
+RUN_NTPDATE=1
+
+# check for systemd otherwise assume sysvinit with ps
+
+systemctl > /dev/null 2>&1
+
+if [ $? -eq 0 ]; then
+    systemctl status ntpd > /dev/null 2>&1 || systemctl status systemd-timesyncd > /dev/null 2>&1
+else
+    PS="ps"
+    ps -ef > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+       PS="ps -ef"
+    fi
+
+    # poor man search for a running ntpd
+    # under sysvinit we have no systemd-timesyncd
+    $PS | grep -v grep | grep "ntpd " > /dev/null 2>&1
+fi
+
+RUN_NTPDATE=$?
+
+# the commands must fail to run ntpdate
+if [ ${RUN_NTPDATE} -ne 0 ]; then
+    __bindir__/ntpdate-sync silent
+fi

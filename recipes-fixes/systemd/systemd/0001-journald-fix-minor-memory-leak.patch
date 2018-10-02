@@ -1,0 +1,23 @@
+From 2ee0591d12b9e725c4585502285fd91cde682d9b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 9 Oct 2013 04:03:45 +0200
+Subject: [PATCH] journald: fix minor memory leak
+
+---
+ src/journal/journal-vacuum.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: systemd-206/src/journal/journal-vacuum.c
+===================================================================
+--- systemd-206.orig/src/journal/journal-vacuum.c
++++ systemd-206/src/journal/journal-vacuum.c
+@@ -273,6 +273,9 @@ int journal_directory_vacuum(
+                                 log_debug("Deleted empty journal %s/%s.", directory, p);
+                         else if (errno != ENOENT)
+                                 log_warning("Failed to delete %s/%s: %m", directory, p);
++
++			free(p);
++
+                         continue;
+                 }
+ 

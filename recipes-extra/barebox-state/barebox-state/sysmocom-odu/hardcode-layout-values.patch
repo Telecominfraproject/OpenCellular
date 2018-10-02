@@ -1,0 +1,41 @@
+From 4cc63588211df7bf328e55820cfe19b56ea776b6 Mon Sep 17 00:00:00 2001
+From: Jan Luebbe <jluebbe@debian.org>
+Date: Sat, 30 May 2015 20:00:10 +0200
+Subject: [PATCH 3/3] hardcode symocom-odu values
+
+Signed-off-by: Jan Luebbe <jluebbe@debian.org>
+---
+ src/barebox-state.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/barebox-state.c b/src/barebox-state.c
+index f56275f..002ee5c 100644
+--- a/src/barebox-state.c
++++ b/src/barebox-state.c
+@@ -1738,6 +1738,7 @@ static struct state *state_get(const char *name)
+ 		return ERR_CAST(state);
+ 	}
+ 
++#if 0
+ 	partition_node = of_parse_phandle(node, "backend", 0);
+ 	if (!partition_node) {
+ 		fprintf(stderr, "cannot find backend node in %s\n", node->full_name);
+@@ -1750,9 +1751,14 @@ static struct state *state_get(const char *name)
+ 		return ERR_PTR(ret);
+ 	}
+ 
++#endif
++	devpath = "/sys/bus/i2c/devices/1-0050/eeprom";
++	offset = 0xc0;
++	size = 0x40;
++
+ 	of_property_read_string(node, "backend-type", &backend_type);
+ 	if (!strcmp(backend_type, "raw"))
+-		ret = state_backend_raw_file(state, partition_node->full_name, devpath, offset, size);
++		ret = state_backend_raw_file(state, "/i2c/eeprom@50/partition@0", devpath, offset, size);
+ 	else
+                 fprintf(stderr, "invalid backend type: %s\n", backend_type);
+ 
+-- 
+2.1.4
+
