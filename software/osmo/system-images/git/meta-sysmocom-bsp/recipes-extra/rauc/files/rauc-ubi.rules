@@ -1,0 +1,1 @@
+SUBSYSTEM=="ubi", KERNEL=="ubi*_*", SYMLINK+="$parent_%s{name}"

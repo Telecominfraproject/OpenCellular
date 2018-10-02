@@ -1,0 +1,112 @@
+Backport to systemd 206 from dora
+
+From b6cfec4ac1b3dcfc7b996af3730457bff022b6de Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Thu, 15 May 2014 18:58:39 +0200
+Subject: [PATCH] RFC/fsck: Allow to specify the fsck repair option in the
+ cmdline
+
+Some unattended systems do not have a console attached and entering
+the default rescue mode will not be too helpful. Allow to specify
+the "-y" option to attempt to fix all filesystem errors.
+
+Manually verified by downloading an image.gz of e2fsprogs, using
+losetup and running systemd-fsck on the loop device and varying
+the fsck.repair=preen|yes|no option.
+---
+ man/kernel-command-line.xml   | 11 +++++++++++
+ man/systemd-fsck@.service.xml | 16 ++++++++++++++++
+ src/fsck/fsck.c               | 14 +++++++++++++-
+ 3 files changed, 40 insertions(+), 1 deletion(-)
+
+Index: systemd-206/man/kernel-command-line.xml
+===================================================================
+--- systemd-206.orig/man/kernel-command-line.xml	2014-07-22 18:29:48.569399001 +0200
++++ systemd-206/man/kernel-command-line.xml	2014-07-22 18:29:49.321399001 +0200
+@@ -177,6 +177,17 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><varname>fsck.repair=</varname></term>
++
++                                <listitem>
++                                        <para>Parameter understood by
++                                        the file system checker
++                                        services. For details, see
++                                        <citerefentry><refentrytitle>systemd-fsck@.service</refentrytitle><manvolnum>8</manvolnum></citerefentry>.</para>
++                                </listitem>
++                        </varlistentry>
++
++                        <varlistentry>
+                                 <term><varname>quotacheck.mode=</varname></term>
+ 
+                                 <listitem>
+Index: systemd-206/man/systemd-fsck@.service.xml
+===================================================================
+--- systemd-206.orig/man/systemd-fsck@.service.xml	2014-07-22 18:29:48.569399001 +0200
++++ systemd-206/man/systemd-fsck@.service.xml	2014-07-22 18:29:49.321399001 +0200
+@@ -95,6 +95,22 @@
+                                 skips any file system
+                                 checks.</para></listitem>
+                         </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>fsck.repair=</varname></term>
++
++                                <listitem><para>One of
++                                <literal>preen</literal>,
++                                <literal>yes</literal>,
++                                <literal>no</literal>. Controls the
++                                mode of operation. The default is <literal>
++                                preen</literal>, and will automatically repair
++                                problems that can be safely fixed. <literal>yes
++                                </literal> will answer yes to all questions by
++                                fsck and <literal>no</literal> will answer no to
++                                all questions.
++                                </para></listitem>
++                        </varlistentry>
+                 </variablelist>
+         </refsect1>
+ 
+Index: systemd-206/src/fsck/fsck.c
+===================================================================
+--- systemd-206.orig/src/fsck/fsck.c	2014-07-22 18:29:48.569399001 +0200
++++ systemd-206/src/fsck/fsck.c	2014-07-22 18:31:45.289410787 +0200
+@@ -4,6 +4,7 @@
+   This file is part of systemd.
+ 
+   Copyright 2010 Lennart Poettering
++  Copyright 2014 Holger Hans Peter Freyther
+ 
+   systemd is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Lesser General Public License as published by
+@@ -40,6 +41,7 @@
+ static bool arg_skip = false;
+ static bool arg_force = false;
+ static bool arg_show_progress = false;
++static const char *arg_repair = "-a";
+ 
+ static void start_target(const char *target) {
+         DBusMessage *m = NULL, *reply = NULL;
+@@ -122,6 +124,12 @@
+                         arg_force = true;
+                 else if (strneq(w, "fsck.mode=skip", l))
+                         arg_skip = true;
++                else if (strneq(w, "fsck.repair=preen", l))
++                        arg_repair = "-a";
++                else if (strneq(w, "fsck.repair=yes", l))
++                        arg_repair = "-y";
++                else if (strneq(w, "fsck.repair=no", l))
++                        arg_repair = "-n";
+                 else if (startswith(w, "fsck"))
+                         log_warning("Invalid fsck parameter. Ignoring.");
+ #ifdef HAVE_SYSV_COMPAT
+@@ -326,7 +334,7 @@
+                 }
+ 
+         cmdline[i++] = "/sbin/fsck";
+-        cmdline[i++] = "-a";
++        cmdline[i++] =  arg_repair;
+         cmdline[i++] = "-T";
+         cmdline[i++] = "-l";
+ 

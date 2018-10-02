@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mount_data_enabled() {
+	return 0
+}
+
+mount_data_run() {
+	info "Mounting data..."
+	mkdir -p /rootfs/data
+	mount -t ext4 /dev/sda4 /rootfs/data
+}

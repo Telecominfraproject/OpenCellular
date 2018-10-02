@@ -1,0 +1,14 @@
+[Unit]
+Description=Symlink some /sys/devices/.. into /var/lc15/.. to match lc15bts-mgr hardcoded paths
+After=local-fs.target
+Before=osmo-bts-lc15.service
+
+[Service]
+Type=oneshot
+RuntimeDirectory=lc15
+ExecStartPre=/bin/ln -f -s /run/lc15 /var/lc15
+ExecStart=/usr/bin/lc15-sysdev-remap
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target lc15bts-mgr.service

@@ -1,0 +1,7 @@
+[Unit]
+Description=/data
+
+[Mount]
+What=/dev/sda4
+Where=/data
+Type=ext4

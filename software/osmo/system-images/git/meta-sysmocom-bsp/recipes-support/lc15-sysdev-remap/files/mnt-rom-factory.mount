@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount ROM partition with factory defaults
+
+[Mount]
+What=/dev/mtdblock8
+Where=/mnt/rom/factory
+Type=jffs2
+Options=ro
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+do_extract() {
+	# List the files and check if grep hits something
+	SEARCH=`tar -tvf $1 | grep $2`
+	RES=$?
+	if [ $RES = 0 ]; then
+		tar --transform='s,^content/,,' -C / -xvf $1 $2
+	else
+		echo "Directory '$2' is not in backup '$1'."
+	fi
+}
+
+do_restore_files() {
+	BACKUP_FILE=$1
+	if [ ! -e "$BACKUP_FILE" ] ; then
+		echo "The backup file '$BACKUP_FILE' does not exist. Exiting!"
+		exit 1
+	fi
+
+	echo "Going to extract files from the backup '$BACKUP_FILE'"
+	do_extract $BACKUP_FILE content/
+}
+
+do_restore_files $1

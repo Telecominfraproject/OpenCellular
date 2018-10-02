@@ -1,0 +1,45 @@
+#!/bin/sh
+
+overlay_enabled() {
+	return 0
+}
+
+overlay_run() {
+	info "Mounting slot..."
+	mkdir /slot
+	if [ -z "$bootparam_root" ]; then
+		fatal "ERROR: No root device was provided."
+	fi
+	if [ -n "$bootparam_rootfstype" ]; then
+		mount_arg="-t $bootparam_rootfstype"
+	fi
+	mount $mount_arg -o ro $bootparam_root /slot || fatal "Failed!"
+	info "Mounting squashfs..."
+	mkdir /ro-root
+	mount -t squashfs -o loop=/dev/loop0,ro /slot/rootfs.squashfs /ro-root || fatal "Failed!"
+	info "Mounting tmpfs..."
+	mkdir /rw-root
+	mount -t tmpfs -o size=25%,mode=1777,uid=0,gid=0,rw tmpfs /rw-root || fatal "Failed!"
+	if grep -q aufs /proc/filesystems; then
+		info "Mounting aufs..."
+		mount -t aufs -o br=/rw-root:/ro-root aufs /rootfs || fatal "Failed!"
+	else
+		info "Mounting overlayfs..."
+		mkdir /rw-root/root
+		mkdir /rw-root/work
+		mount -t overlay -o lowerdir=/ro-root,upperdir=/rw-root/root,workdir=/rw-root/work overlayfs /rootfs || fatal "Failed!"
+	fi
+	if [ -e /slot/overlay.tar.bz2 ]; then
+		info "Extracting overlay..."
+		tar xf /slot/overlay.tar.bz2 -C /rootfs || fatal "Failed!"
+	fi
+	info "Moving overlay components..."
+	mkdir /rootfs/slot
+	mkdir /rootfs/ro-root
+	mkdir /rootfs/rw-root
+	mount --move /slot /rootfs/slot
+	mount --move /ro-root /rootfs/ro-root
+	mount --move /rw-root /rootfs/rw-root
+	# rootfs is already handled
+	bootparam_root=
+}

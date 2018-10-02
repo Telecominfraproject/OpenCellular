@@ -1,0 +1,28 @@
+From 3b23969111d548addd80710defc65b0430e697b1 Mon Sep 17 00:00:00 2001
+From: Henning Heinold <henning@itconsulting-heinold.de>
+Date: Tue, 7 Jan 2014 18:26:47 +0100
+Subject: [PATCH] [Feature]: switch ListenDatagram from
+ run/systemd/journal/syslog to /dev/log
+
+---
+ units/syslog.socket |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/units/syslog.socket b/units/syslog.socket
+index e6e9cf8..d233380 100644
+--- a/units/syslog.socket
++++ b/units/syslog.socket
+@@ -16,7 +16,9 @@ Before=sockets.target shutdown.target
+ Conflicts=shutdown.target
+ 
+ [Socket]
+-ListenDatagram=/run/systemd/journal/syslog
++# sysmocom: we disabled journald completely, but we need one socket-service to listen on /dev/log for
++# automatic restart of the busybox-syslogd in error case
++ListenDatagram=/dev/log
+ SocketMode=0666
+ PassCredentials=yes
+ PassSecurity=yes
+-- 
+1.7.10.4
+

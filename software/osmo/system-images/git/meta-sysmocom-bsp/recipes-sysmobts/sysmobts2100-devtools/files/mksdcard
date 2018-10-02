@@ -1,0 +1,105 @@
+#!/bin/sh
+
+PARTED=$(which parted)
+MKFSVFAT=$(which mkfs.vfat)
+MKFSEXT=$(which mkfs.ext4)
+PPROBE=$(which partprobe)
+
+if [ $# -ne 2 ] && [ $# -ne 3 ]; then
+    echo "Usage: sudo mksdcard <TARGET> <BUILDDIR> [CONFIG]"
+    echo ""
+    echo "Example: sudo mksdcard /dev/sdc ./build/tmp/deploy/images/litecell15 ./config_dir"
+    exit 1
+fi
+
+if [ ! -x "${PARTED}" ]; then
+    echo >&2 "parted not found"
+    exit 1
+fi
+
+if [ ! -x "${MKFSVFAT}" ]; then
+    echo >&2 "mkfs.vfat not found"
+    exit 1
+fi
+
+if [ ! -x "${MKFSEXT}" ]; then
+    echo >&2 "mkfs.ext4 not found"
+    exit 1
+fi
+
+if [ ! -x "${PPROBE}" ]; then
+    echo >&2 "partprobe not found"
+    exit 1
+fi
+
+if mount | grep -q ${1}; then
+    echo >&2 "${1} contains mounted partitions, unmount first"
+    exit 1
+fi
+
+PARTED="${PARTED} -s $1"
+SRC=$2
+IMAGE="litecell15-image-litecell15.tar.gz"
+CONFIG=""
+
+if [ $# -eq 3 ]; then
+    CONFIG=$3
+fi
+
+echo -n "Creating partition table..."
+${PARTED} mklabel gpt
+${PARTED} mkpart primary fat32 1 65MB
+${PARTED} mkpart primary ext4 65 2113
+${PARTED} mkpart primary ext4 2113 4161
+${PARTED} mkpart primary ext4 4161 100%
+${PARTED} set 1 boot on
+${PARTED} print
+
+partprobe ${1}
+sleep 3
+echo " Done"
+
+echo -n "Formating filesystems..."
+${MKFSVFAT} -F 32 -n "BOOT" ${1}1
+${MKFSEXT} -O ^64bit -q -F -L "master" ${1}2
+${MKFSEXT} -O ^64bit -q -F -L "alt" ${1}3
+${MKFSEXT} -q -F -L "storage" ${1}4
+echo " Done"
+
+TMP=$(mktemp -d)
+
+echo -n "Populating dev partition..."
+mount ${1}1 ${TMP}
+cp ${SRC}/MLO ${TMP}
+cp ${SRC}/u-boot.img ${TMP}
+sync
+sleep 2
+umount ${TMP}
+echo " Done"
+
+for p in 2 3
+do
+    echo -n "Populating rootfs on partition $p..."
+    mount ${1}${p} ${TMP}
+    tar -C ${TMP} -xf ${SRC}/${IMAGE}
+    sync
+    sleep 2
+    umount ${TMP}
+    echo " Done"
+done
+
+if [ ! -z $CONFIG ]; then
+    echo -n "Populating storage partition..."
+    mount ${1}4 ${TMP}
+    mkdir -p ${TMP}/config
+    cp -aR ${CONFIG}/* ${TMP}/config
+    sync
+    sleep 2
+    umount ${TMP}
+    echo " Done"
+fi
+
+sleep 2
+rmdir ${TMP}
+
+exit 0

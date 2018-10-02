@@ -1,0 +1,12 @@
+[Unit]
+Description=Rauc Boot Success Marker
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=@BINDIR@/rauc status mark-good
+
+[Install]
+WantedBy=multi-user.target
+

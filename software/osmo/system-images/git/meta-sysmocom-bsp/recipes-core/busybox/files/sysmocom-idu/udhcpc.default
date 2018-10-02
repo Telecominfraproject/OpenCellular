@@ -1,0 +1,5 @@
+# Uncomment the following line, if udhcpc should not touch /etc/resolv.conf
+STATIC_DNS="yes"
+
+# Uncomment the following line if udhcpc should not install a default route
+INSTALL_DEFAULT_ROUTE="no"

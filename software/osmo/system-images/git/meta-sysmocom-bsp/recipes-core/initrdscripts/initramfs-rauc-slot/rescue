@@ -1,0 +1,13 @@
+#!/bin/sh
+
+rescue_enabled() {
+	if [ ! -f "/sbin/init" ]; then
+		return 1
+	fi
+	return 0
+}
+
+rescue_run() {
+	info "Starting /sbin/init..."
+	exec /sbin/init
+}

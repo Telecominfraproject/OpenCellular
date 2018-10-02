@@ -1,0 +1,23 @@
+From f92ae4968f070ef0ada61ba7cd585794fac404dd Mon Sep 17 00:00:00 2001
+From: Dan McGee <dan@archlinux.org>
+Date: Sun, 8 Dec 2013 14:33:45 -0600
+Subject: [PATCH] Fix memory leak in stdout journal streams
+
+Just as 'identifier' is strdup-ed and freed, we need to do the same for
+unit_id.
+---
+ src/journal/journald-stream.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+Index: systemd-206/src/journal/journald-stream.c
+===================================================================
+--- systemd-206.orig/src/journal/journald-stream.c
++++ systemd-206/src/journal/journald-stream.c
+@@ -339,6 +339,7 @@ void stdout_stream_free(StdoutStream *s)
+ #endif
+ 
+         free(s->identifier);
++        free(s->unit_id);
+         free(s);
+ }
+ 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Power-on and configurate usb-hub and devices
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/gpio_usb2514 ; /usr/bin/usb2514 1
+
+[Install]
+WantedBy=multi-user.target

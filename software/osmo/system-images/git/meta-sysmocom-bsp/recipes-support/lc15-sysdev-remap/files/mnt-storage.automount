@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount storage partition
+
+[Automount]
+Where=/mnt/storage
+
+[Install]
+WantedBy=multi-user.target

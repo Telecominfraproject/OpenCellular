@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head>
+<title>meta-openembedded - Collection of OpenEmbedded layers</title>
+<meta name='generator' content='cgit v0.9.2-21-gd62e'/>
+<meta name='robots' content='index, nofollow'/>
+<link rel='stylesheet' type='text/css' href='/cgit.css'/>
+<link rel='shortcut icon' href='/favicon.ico'/>
+<link rel='alternate' title='Atom feed' href='http://cgit.openembedded.org/meta-openembedded/atom/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover?h=master' type='application/atom+xml'/>
+</head>
+<body>
+<div id='cgit'><table id='header'>
+<tr>
+<td class='logo' rowspan='2'><a href='/'><img src='/oe.png' alt='cgit logo'/></a></td>
+<td class='main'><a href='/'>index</a> : <a title='meta-openembedded' href='/meta-openembedded/'>meta-openembedded</a></td><td class='form'><form method='get' action=''>
+<select name='h' onchange='this.form.submit();'>
+<option value='daisy'>daisy</option>
+<option value='daisy-next'>daisy-next</option>
+<option value='danny'>danny</option>
+<option value='danny-next'>danny-next</option>
+<option value='denzil'>denzil</option>
+<option value='denzil-next'>denzil-next</option>
+<option value='dizzy'>dizzy</option>
+<option value='dizzy-next'>dizzy-next</option>
+<option value='dora'>dora</option>
+<option value='dora-next'>dora-next</option>
+<option value='dylan'>dylan</option>
+<option value='dylan-next'>dylan-next</option>
+<option value='fido'>fido</option>
+<option value='fido-next'>fido-next</option>
+<option value='jansa/dizzy'>jansa/dizzy</option>
+<option value='jansa/fido'>jansa/fido</option>
+<option value='jansa/master'>jansa/master</option>
+<option value='master' selected='selected'>master</option>
+<option value='master-next'>master-next</option>
+</select> <input type='submit' name='' value='switch'/></form></td></tr>
+<tr><td class='sub'>Collection of OpenEmbedded layers</td><td class='sub right'>OpenEmbedded</td></tr></table>
+<table class='tabs'><tr><td>
+<a href='/meta-openembedded/'>summary</a><a href='/meta-openembedded/refs/'>refs</a><a href='/meta-openembedded/log/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>log</a><a class='active' href='/meta-openembedded/tree/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>tree</a><a href='/meta-openembedded/commit/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>commit</a><a href='/meta-openembedded/diff/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>diff</a><a href='/meta-openembedded/about/'>about</a></td><td class='form'><form class='right' method='get' action='/meta-openembedded/log/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>
+<select name='qt'>
+<option value='grep'>log msg</option>
+<option value='author'>author</option>
+<option value='committer'>committer</option>
+<option value='range'>range</option>
+</select>
+<input class='txt' type='text' size='10' name='q' value=''/>
+<input type='submit' value='search'/>
+</form>
+</td></tr></table>
+<div class='path'>path: <a href='/meta-openembedded/tree/'>root</a>/<a href='/meta-openembedded/tree/meta-networking'>meta-networking</a>/<a href='/meta-openembedded/tree/meta-networking/recipes-filter'>recipes-filter</a>/<a href='/meta-openembedded/tree/meta-networking/recipes-filter/conntrack-tools'>conntrack-tools</a>/<a href='/meta-openembedded/tree/meta-networking/recipes-filter/conntrack-tools/files'>files</a>/<a href='/meta-openembedded/tree/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>conntrack-failover</a></div><div class='content'>blob: 6d92e637ffd2318eb1fc08b8d8b65447e9ef5875 (<a href='/meta-openembedded/plain/meta-networking/recipes-filter/conntrack-tools/files/conntrack-failover'>plain</a>)
+<table summary='blob content' class='blob'>
+<tr><td class='linenumbers'><pre><a class='no' id='n1' name='n1' href='#n1'>1</a>
+<a class='no' id='n2' name='n2' href='#n2'>2</a>
+<a class='no' id='n3' name='n3' href='#n3'>3</a>
+<a class='no' id='n4' name='n4' href='#n4'>4</a>
+<a class='no' id='n5' name='n5' href='#n5'>5</a>
+<a class='no' id='n6' name='n6' href='#n6'>6</a>
+<a class='no' id='n7' name='n7' href='#n7'>7</a>
+<a class='no' id='n8' name='n8' href='#n8'>8</a>
+<a class='no' id='n9' name='n9' href='#n9'>9</a>
+<a class='no' id='n10' name='n10' href='#n10'>10</a>
+<a class='no' id='n11' name='n11' href='#n11'>11</a>
+<a class='no' id='n12' name='n12' href='#n12'>12</a>
+<a class='no' id='n13' name='n13' href='#n13'>13</a>
+<a class='no' id='n14' name='n14' href='#n14'>14</a>
+<a class='no' id='n15' name='n15' href='#n15'>15</a>
+<a class='no' id='n16' name='n16' href='#n16'>16</a>
+<a class='no' id='n17' name='n17' href='#n17'>17</a>
+<a class='no' id='n18' name='n18' href='#n18'>18</a>
+<a class='no' id='n19' name='n19' href='#n19'>19</a>
+<a class='no' id='n20' name='n20' href='#n20'>20</a>
+<a class='no' id='n21' name='n21' href='#n21'>21</a>
+<a class='no' id='n22' name='n22' href='#n22'>22</a>
+<a class='no' id='n23' name='n23' href='#n23'>23</a>
+<a class='no' id='n24' name='n24' href='#n24'>24</a>
+<a class='no' id='n25' name='n25' href='#n25'>25</a>
+<a class='no' id='n26' name='n26' href='#n26'>26</a>
+<a class='no' id='n27' name='n27' href='#n27'>27</a>
+<a class='no' id='n28' name='n28' href='#n28'>28</a>
+<a class='no' id='n29' name='n29' href='#n29'>29</a>
+<a class='no' id='n30' name='n30' href='#n30'>30</a>
+<a class='no' id='n31' name='n31' href='#n31'>31</a>
+<a class='no' id='n32' name='n32' href='#n32'>32</a>
+<a class='no' id='n33' name='n33' href='#n33'>33</a>
+<a class='no' id='n34' name='n34' href='#n34'>34</a>
+<a class='no' id='n35' name='n35' href='#n35'>35</a>
+<a class='no' id='n36' name='n36' href='#n36'>36</a>
+<a class='no' id='n37' name='n37' href='#n37'>37</a>
+<a class='no' id='n38' name='n38' href='#n38'>38</a>
+<a class='no' id='n39' name='n39' href='#n39'>39</a>
+<a class='no' id='n40' name='n40' href='#n40'>40</a>
+<a class='no' id='n41' name='n41' href='#n41'>41</a>
+<a class='no' id='n42' name='n42' href='#n42'>42</a>
+<a class='no' id='n43' name='n43' href='#n43'>43</a>
+<a class='no' id='n44' name='n44' href='#n44'>44</a>
+<a class='no' id='n45' name='n45' href='#n45'>45</a>
+<a class='no' id='n46' name='n46' href='#n46'>46</a>
+<a class='no' id='n47' name='n47' href='#n47'>47</a>
+<a class='no' id='n48' name='n48' href='#n48'>48</a>
+<a class='no' id='n49' name='n49' href='#n49'>49</a>
+<a class='no' id='n50' name='n50' href='#n50'>50</a>
+<a class='no' id='n51' name='n51' href='#n51'>51</a>
+<a class='no' id='n52' name='n52' href='#n52'>52</a>
+<a class='no' id='n53' name='n53' href='#n53'>53</a>
+<a class='no' id='n54' name='n54' href='#n54'>54</a>
+<a class='no' id='n55' name='n55' href='#n55'>55</a>
+<a class='no' id='n56' name='n56' href='#n56'>56</a>
+<a class='no' id='n57' name='n57' href='#n57'>57</a>
+<a class='no' id='n58' name='n58' href='#n58'>58</a>
+<a class='no' id='n59' name='n59' href='#n59'>59</a>
+<a class='no' id='n60' name='n60' href='#n60'>60</a>
+<a class='no' id='n61' name='n61' href='#n61'>61</a>
+<a class='no' id='n62' name='n62' href='#n62'>62</a>
+<a class='no' id='n63' name='n63' href='#n63'>63</a>
+<a class='no' id='n64' name='n64' href='#n64'>64</a>
+<a class='no' id='n65' name='n65' href='#n65'>65</a>
+<a class='no' id='n66' name='n66' href='#n66'>66</a>
+<a class='no' id='n67' name='n67' href='#n67'>67</a>
+<a class='no' id='n68' name='n68' href='#n68'>68</a>
+<a class='no' id='n69' name='n69' href='#n69'>69</a>
+<a class='no' id='n70' name='n70' href='#n70'>70</a>
+<a class='no' id='n71' name='n71' href='#n71'>71</a>
+<a class='no' id='n72' name='n72' href='#n72'>72</a>
+<a class='no' id='n73' name='n73' href='#n73'>73</a>
+<a class='no' id='n74' name='n74' href='#n74'>74</a>
+<a class='no' id='n75' name='n75' href='#n75'>75</a>
+<a class='no' id='n76' name='n76' href='#n76'>76</a>
+<a class='no' id='n77' name='n77' href='#n77'>77</a>
+</pre></td>
+<td class='lines'><pre><code>#!/bin/sh
+# 
+# (C) 2008 by Pablo Neira Ayuso &lt;pablo&#64;netfilter.org&gt;
+# (C) 2009 Roman I Khimov &lt;khimov&#64;altell.ru&gt;
+#
+# This software may be used and distributed according to the terms
+# of the GNU General Public License, incorporated herein by reference.
+#
+# Description:
+#
+# This is the script for primary-backup setups for keepalived
+# (http://www.keepalived.org). You may adapt it to make it work with other
+# high-availability managers.
+#
+# Do not forget to include the required modifications to your keepalived.conf
+# file to invoke this script during keepalived's state transitions.
+#
+# Contributions to improve this script are welcome :).
+#
+## Modified to work as init.d script under pacemaker control
+
+CONNTRACKD_BIN=/usr/sbin/conntrackd
+CONNTRACKD_LOCK=/var/lock/conntrack.lock
+CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
+
+case &quot;$1&quot; in
+  start)
+    #
+    # commit the external cache into the kernel table
+    #
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -c
+    if [ $? -eq 1 ]
+    then
+        logger &quot;ERROR: failed to invoke conntrackd -c&quot;
+    fi
+
+    #
+    # flush the internal and the external caches
+    #
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -f
+    if [ $? -eq 1 ]
+    then
+    	logger &quot;ERROR: failed to invoke conntrackd -f&quot;
+    fi
+
+    #
+    # resynchronize my internal cache to the kernel table
+    #
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -R
+    if [ $? -eq 1 ]
+    then
+    	logger &quot;ERROR: failed to invoke conntrackd -R&quot;
+    fi
+
+    #
+    # send a bulk update to backups 
+    #
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -B
+    if [ $? -eq 1 ]
+    then
+        logger &quot;ERROR: failed to invoke conntrackd -B&quot;
+    fi
+    ;;
+  stop)
+	$CONNTRACKD_BIN -t
+	$CONNTRACKD_BIN -n
+	;;
+  status)
+	;;
+  *)
+    logger &quot;ERROR: unknown command&quot;
+    echo &quot;Usage: conntrack-failover {start|stop|status}&quot;
+    exit 1
+    ;;
+esac
+
+exit 0
+</code></pre></td></tr></table>
+</div> <!-- class=content -->
+<div class='footer'>generated  by cgit v0.9.2-21-gd62e at 2015-05-01 16:43:45 (GMT)</div>
+</div> <!-- id=cgit -->
+</body>
+</html>

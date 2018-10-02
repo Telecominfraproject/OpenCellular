@@ -1,0 +1,183 @@
+From b33c1d7ab8881cf9e68ef9692a8c5079f1b53db7 Mon Sep 17 00:00:00 2001
+From: Pau Espin Pedrol <pespin@sysmocom.de>
+Date: Fri, 28 Jul 2017 12:12:05 +0200
+Subject: [PATCH] Add sysmocom specific tweaks
+
+---
+ common/autoboot.c                 |  2 +-
+ include/configs/litecell15.h      | 91 +++++++++++++++++++++++++++++++++------
+ include/configs/ti_armv7_common.h |  2 +-
+ 3 files changed, 80 insertions(+), 15 deletions(-)
+
+diff --git a/common/autoboot.c b/common/autoboot.c
+index c4e21452df..369f2c55a1 100644
+--- a/common/autoboot.c
++++ b/common/autoboot.c
+@@ -352,7 +352,7 @@ const char *bootdelay_process(void)
+ 		s = getenv("bootcmd");
+ 
+ 	process_fdt_options(gd->fdt_blob);
+-	stored_bootdelay = bootdelay;
++	stored_bootdelay = CONFIG_BOOTDELAY;
+ 
+ 	return s;
+ }
+diff --git a/include/configs/litecell15.h b/include/configs/litecell15.h
+index bb6629a3ce..6d030bedcb 100644
+--- a/include/configs/litecell15.h
++++ b/include/configs/litecell15.h
+@@ -81,13 +81,19 @@
+ #define CONFIG_SYS_NS16550_COM9		UART9_BASE	/* GPS Port B */
+ #define CONFIG_BAUDRATE			115200
+ 
+-/* These 3 lines keep from inadvertly stopping u-boot by any serial glitch, at least a specific character must be pressed */
++#define CONFIG_SYS_AUTOLOAD     "n"             /* No autoload */
++/* These lines keep from inadvertly stopping u-boot by any serial glitch, at least a specific character must be pressed */
+ #define CONFIG_AUTOBOOT_KEYED
+-#define CONFIG_AUTOBOOT_DELAY_STR "c"
+-#define CONFIG_AUTOBOOT_PROMPT "Autoboot in %d seconds, press <" CONFIG_AUTOBOOT_DELAY_STR "> to abort...\n",bootdelay
++#define CONFIG_AUTOBOOT_DELAY_STR "bts-delay"
++#define CONFIG_AUTOBOOT_STOP_STR "bts-stop"
++#define CONFIG_BOOTDELAY 	8	/* -1 disables auto-boot */
++#define CONFIG_AUTOBOOT_PROMPT "Autoboot in %d seconds, press <" CONFIG_AUTOBOOT_STOP_STR "> to abort...\n"
+ 
+ #define CONFIG_SYS_OMAP_ABE_SYSCK
+ 
++/* Write to ext4 partitions */
++#define CONFIG_CMD_EXT4_WRITE
++
+ /* CONFIG_HW_WATCHDOG when activated implies a lot of boot mechanisms to allow wdt reboot, boot counting, reset event detection (available for kernel info also), */
+ /* multiple u-boot qspi images alternance, hardware watchdog ticking,  failsafe boot alternative after a specific boot count limit exausted, */
+ /* autoboot failing protection, etc. */
+@@ -99,9 +105,9 @@
+ /*#define CONFIG_WDT_LOCK*/
+ 
+ /* Comment the following 3 definitions to allow to stay at u-boot command prompt forever when autoboot was manually stopped (defeat WDT safe boot protection in that case) */
+-#define CONFIG_BOOT_RETRY_TIME 600
+-#define CONFIG_BOOT_RETRY_MIN 60
+-#define CONFIG_RESET_TO_RETRY
++/* #define CONFIG_BOOT_RETRY_TIME 600 */
++/* #define CONFIG_BOOT_RETRY_MIN 60 */
++/* #define CONFIG_RESET_TO_RETRY */
+ 
+ /* WDT by default 128 secs (2<<CONFIG_WDT_INIT, max 128secs), theorically do not use lower than 1 (2 secs) to match CONFIG_MIN_WDT_TICK_TIME */
+ /* WARNING: actual wdt expiration min value is (2<<CONFIG_WDT_INIT) secs, but it could be as long as 2 * (2<<CONFIG_WDT_INIT) secs */
+@@ -204,21 +210,75 @@
+ 		"sf erase 0x120000 0x80000 && " \
+ 		"sf write 0x83000000 0x120000 0x80000 \0"
+ 
++#define ERASE_UBOOT_ENV \
++	"erase_uboot_env=echo Erasing saved u-boot env...; " \
++		"sf probe 0 && " \
++		"sf erase 0x100000 0x10000 && " \
++		"sf erase 0x110000 0x10000;\0"
++
++#define TFTP_FLASH_MLO \
++	"tftp_flash_mlo=echo Loading MLO from network and flashing it....; " \
++		"setenv prev_bootfile ${bootfile}; " \
++		"setenv autoload no; " \
++		"dhcp && " \
++		"setenv filesize 0 && " \
++		"if tftp ${loadaddr} MLO; then " \
++			"sf probe 0 && " \
++			"sf erase 0x00000 0x20000 && " \
++			"sf write ${loadaddr} 0x00000 0x20000 && " \
++			"sf erase 0x20000 0x20000 && " \
++			"sf write ${loadaddr} 0x20000 0x20000 && " \
++			"sf erase 0x40000 0x20000 && " \
++			"sf write ${loadaddr} 0x40000 0x20000 && " \
++			"sf erase 0x60000 0x20000 && " \
++			"sf write ${loadaddr} 0x60000 0x20000; " \
++		"fi; " \
++		"setenv bootfile ${prev_bootfile};\0"
++
++#define TFTP_FLASH_UBOOT \
++	"tftp_flash_uboot=echo Loading u-boot.img from network and flashing it....; " \
++		"setenv prev_bootfile ${bootfile}; " \
++		"setenv autoload no; " \
++		"dhcp && " \
++		"setenv filesize 0 && " \
++		"if tftp ${loadaddr} u-boot.img; then " \
++			"sf probe 0 && " \
++			"sf erase 0x80000 0x80000 && " \
++			"sf write ${loadaddr} 0x80000 0x80000 && " \
++			"sf erase 0x120000 0x80000 && " \
++			"sf write ${loadaddr} 0x120000 0x80000; " \
++		"fi; " \
++		"setenv bootfile ${prev_bootfile};\0"
++
++#define TFTP_FLASH_ROOTFS \
++	"tftp_flash_rootfs=echo Loading rootfs from network and flashing to mmc...; " \
++		"setenv prev_bootfile ${bootfile}; " \
++		"setenv autoload no; " \
++		"dhcp && " \
++		"setenv filesize 0 && " \
++		"if tftp ${loadaddr} rootfs-sysmobts2100.img; then " \
++			"setexpr fs ${filesize} + 0x1ff; " \
++			"setexpr fs ${fs} / 0x200; " \
++			"mmc write ${fileaddr} 0x0001f000 ${fs} && " \
++			"mmc write ${fileaddr} 0x003ef800 ${fs}; " \
++		"fi; " \
++		"setenv bootfile ${prev_bootfile};\0"
++
+ #include <configs/ti_omap5_common.h>
+ 
+ /* Internal memory boot */
+ #ifdef CONFIG_SPL_INTMEM_BOOT
+-#undef CONFIG_SPL_STACK 
++#undef CONFIG_SPL_STACK
+ #undef CONFIG_SPL_BSS_START_ADDR
+ #undef CONFIG_SPL_BSS_MAX_SIZE
+ #undef CONFIG_SYS_SPL_MALLOC_START
+ #undef CONFIG_SYS_SPL_MALLOC_SIZE
+ 
+-#define CONFIG_SPL_STACK		0x40400000 
+-#define CONFIG_SPL_BSS_START_ADDR	0x40500000 
+-#define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 
+-#define CONFIG_SYS_SPL_MALLOC_START	0x40580000 
+-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000 
++#define CONFIG_SPL_STACK		0x40400000
++#define CONFIG_SPL_BSS_START_ADDR	0x40500000
++#define CONFIG_SPL_BSS_MAX_SIZE		0x00080000
++#define CONFIG_SYS_SPL_MALLOC_START	0x40580000
++#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000
+ #endif
+ 
+ /* Overwrite extra settings */
+@@ -226,6 +286,7 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	DEFAULT_LINUX_BOOT_ENV \
+ 	"console=" CONSOLEDEV ",115200n8\0" \
++	"bootdelay=" __stringify(CONFIG_BOOTDELAY) "\0" \
+ 	"fdtfile=litecell15.dtb\0" \
+ 	"bootdir=/boot\0" \
+ 	"bootfile=zImage\0" \
+@@ -292,7 +353,11 @@
+         MYBOOT_LIMIT \
+         NANDARGS \
+         FLASH_UBOOT_LINUXFS \
+-        FLASH_UBOOT2
++        FLASH_UBOOT2 \
++        ERASE_UBOOT_ENV \
++        TFTP_FLASH_MLO \
++        TFTP_FLASH_UBOOT \
++        TFTP_FLASH_ROOTFS
+ 
+ #undef CONFIG_BOOTCOMMAND
+ #define CONFIG_BOOTCOMMAND \
+diff --git a/include/configs/ti_armv7_common.h b/include/configs/ti_armv7_common.h
+index 6011cf8c65..9680246feb 100644
+--- a/include/configs/ti_armv7_common.h
++++ b/include/configs/ti_armv7_common.h
+@@ -93,7 +93,7 @@
+ /*
+  * Default to a quick boot delay.
+  */
+-#define CONFIG_BOOTDELAY		1
++/* #define CONFIG_BOOTDELAY		1 */
+ 
+ /*
+  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
+-- 
+2.13.3
+

@@ -1,0 +1,15 @@
+--- /home/alphaone/sysmocom/scm/backports-3.17.1-1/compat/compat-3.6.c	2014-10-25 15:39:13.000000000 +0200
++++ ./compat/compat-3.6.c	2015-01-29 00:42:11.611124528 +0100
+@@ -148,6 +148,7 @@
+ }
+ EXPORT_SYMBOL_GPL(sg_alloc_table_from_pages);
+ 
++#if 0
+ /* whoopsie ! */
+ #ifndef CONFIG_COMMON_CLK
+ int clk_enable(struct clk *clk)
+@@ -161,3 +162,4 @@
+ }
+ EXPORT_SYMBOL_GPL(clk_disable);
+ #endif
++#endif

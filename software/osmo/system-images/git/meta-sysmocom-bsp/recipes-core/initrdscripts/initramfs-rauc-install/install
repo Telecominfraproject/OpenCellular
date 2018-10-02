@@ -1,0 +1,184 @@
+INSTALL_TGT=/dev/sda
+INSTALL_SRC=/dev/disk/by-label/installer
+
+install_enabled() {
+	if [ -z "$bootparam_install" ]; then
+		return 1
+	fi
+	return 0
+}
+
+install_probe_target() {
+	until [ -e $INSTALL_TGT ]; do
+		info "Waiting for target block device '$INSTALL_TGT' to appear ..."
+		sleep 5
+	done
+	info "Found target block device 'sda'"
+	return 0
+}
+
+install_probe_source() {
+	until [ -e $INSTALL_SRC ]; do
+		info "Waiting for filesystem with label "installer" to appear ..."
+		sleep 5
+	done
+	info "Found update filesystem: $INSTALL_SRC"
+
+	mkdir -p /mnt/install || exit 1
+	if ! mount -o ro $INSTALL_SRC /mnt/install; then
+		fatal "Unable to mount $INSTALL_SRC"
+	fi
+	return 0
+}
+
+install_confirm() {
+	info "Current partitions on $INSTALL_TGT:"
+	parted $INSTALL_TGT print || true
+	sleep 1
+	until read -p "Enter 'INSTALL' to begin installation to /dev/sda: " RESULT && [ "$RESULT" = "INSTALL" ]; do
+		sleep 1
+	done
+	return 0
+}
+
+install_partitions() {
+	info "Clearing beginning of $INSTALL_TGT"
+	dd if=/dev/zero bs=512 count=64 of=$INSTALL_TGT || exit 1
+	info "Creating partitions on $INSTALL_TGT"
+	parted $INSTALL_TGT mklabel msdos || exit 1
+	parted $INSTALL_TGT -- \
+		mkpart primary 4MiB 512MiB \
+		mkpart primary 512MiB 1536MiB \
+		mkpart primary 1536MiB 2560MiB \
+		mkpart primary 2560MiB 100% \
+		print|| exit 1
+	return 0
+}
+
+install_format() {
+	info "Creating filesystems on $INSTALL_TGT"
+	mkfs.ext4 ${INSTALL_TGT}1 || exit 1
+	mkfs.ext4 ${INSTALL_TGT}2 || exit 1
+	mkfs.ext4 ${INSTALL_TGT}3 || exit 1
+	mkfs.ext4 ${INSTALL_TGT}4 || exit 1
+	return 0
+}
+
+install_boot() {
+	mkdir -p /mnt/boot || exit 1
+	if ! mount -o rw -t ext4 ${INSTALL_TGT}1 /mnt/boot; then
+		fatal "Unable to mount ${INSTALL_TGT}1"
+	fi
+
+	info "Installing grub configuration to ${INSTALL_TGT}1"
+	mkdir /mnt/boot/grub || exit 1
+	GRUBCFG=/mnt/boot/grub/grub.cfg
+
+	cat > $GRUBCFG << EOF || exit 1
+default=0
+timeout=3
+
+serial --unit=0 --speed=115200
+
+terminal_input serial
+terminal_output serial
+EOF
+
+	BOOTPASSWD=
+	BOOTUSER=
+	if [ -n "${BOOTPASSWD}" ] && [ -n "${BOOTUSER}" ]; then
+	cat >> $GRUBCFG << EOF || exit 1
+set superusers="$BOOTUSER"
+password $BOOTUSER $BOOTPASSWD
+EOF
+	fi
+
+	if [ -n "${BOOTPASSWD}" ] && [ -n "${BOOTUSER}" ]; then
+		ENTRY_ARGS="--unrestricted "
+	fi
+
+	CMDLINE="console=$bootparam_console net.ifnames=0 panic=60 ro quiet"
+
+	cat >> $GRUBCFG << EOF
+set ORDER="A B"
+set A_OK=0
+set B_OK=0
+set A_TRY=0
+set B_TRY=0
+load_env
+
+# select bootable slot
+for SLOT in \$ORDER; do
+	if [ "\$SLOT" == "A" ]; then
+		INDEX=1
+		OK=\$A_OK
+		TRY=\$A_TRY
+		A_TRY=1
+	fi
+	if [ "\$SLOT" == "B" ]; then
+		INDEX=2
+		OK=\$B_OK
+		TRY=\$B_TRY
+		B_TRY=1
+	fi
+	if [ "\$OK" -eq 1 -a "\$TRY" -eq 0 ]; then
+		default=\$INDEX
+		break
+	fi
+done
+
+# reset booted flags
+if [ "\$default" -eq 0 ]; then
+	if [ "\$A_OK" -eq 1 -a "\$A_TRY" -eq 1 ]; then
+		A_TRY=0
+	fi
+	if [ "\$B_OK" -eq 1 -a "\$B_TRY" -eq 1 ]; then
+		B_TRY=0
+	fi
+fi
+
+save_env A_TRY B_TRY
+
+CMDLINE="$CMDLINE"
+
+menuentry "Rescue" $ENTRY_ARGS{
+	linux (hd0,1)/kernel root=${INSTALL_TGT}1 \$CMDLINE rauc.slot=R
+	initrd (hd0,1)/initramfs
+}
+
+menuentry "Slot A (OK=\$A_OK TRY=\$A_TRY)" ${ENTRY_ARGS}{
+	linux (hd0,2)/kernel root=${INSTALL_TGT}2 \$CMDLINE rauc.slot=A
+	initrd (hd0,2)/initramfs
+}
+
+menuentry "Slot B (OK=\$B_OK TRY=\$B_TRY)" ${ENTRY_ARGS}{
+	linux (hd0,3)/kernel root=${INSTALL_TGT}3 \$CMDLINE rauc.slot=B
+	initrd (hd0,3)/initramfs
+}
+EOF
+	chmod 0444 $GRUBCFG || exit 1
+
+	info "Installing grub bootloader to ${INSTALL_TGT}1"
+	grub-install --boot-directory=/mnt/boot ${INSTALL_TGT} || exit 1
+	echo "(hd0) ${INSTALL_TGT}" > /mnt/boot/grub/device.map || exit 1
+
+	info "Installing 'kernel' to ${INSTALL_TGT}1"
+	cp /mnt/install/kernel /mnt/boot/kernel || exit 1
+
+	info "Installing 'initramfs' to ${INSTALL_TGT}1"
+	cp /mnt/install/rescue-initramfs /mnt/boot/initramfs || exit 1
+	umount /mnt/boot || exit 1
+}
+
+install_run() {
+    install_probe_target || fatal "Failed to find installer target disk"
+    install_probe_source || fatal "Failed to find installer source filesystem"
+    install_confirm || fatal "Failed to get confirmation from user"
+    install_partitions || fatal "Failed to partition disk"
+    install_format || fatal "Failed to format disk"
+    install_boot || fatal "Failed to create boot filesystem"
+    info "Installation complete, rebooting"
+    sync
+    sleep 5
+    reboot -f
+}

@@ -1,0 +1,8 @@
+# source the sysvinit configuration file
+. /etc/syslog-startup.conf
+
+# check if we want permanent log files and prepare /var/log
+if [ "${DESTINATION}" = "file" -a -h "/var/log" ]; then
+    rm -rf /var/log
+    mkdir /var/log
+fi

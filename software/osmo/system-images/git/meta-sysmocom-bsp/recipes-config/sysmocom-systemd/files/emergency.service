@@ -1,0 +1,9 @@
+[Unit]
+Description=Emergency Reboot
+DefaultDependencies=no
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+ExecStart=/bin/systemctl --force reboot
+Type=oneshot

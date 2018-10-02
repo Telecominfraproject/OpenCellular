@@ -1,0 +1,17 @@
+--- /home/alphaone/sysmocom/scm/backports-3.17.1-1/compat/crypto-ccm.c	2014-10-25 15:39:13.000000000 +0200
++++ ./compat/crypto-ccm.c	2015-01-29 00:34:06.584003696 +0100
+@@ -247,12 +247,12 @@
+ 			scatterwalk_start(&walk, sg_next(walk.sg));
+ 			n = scatterwalk_clamp(&walk, len);
+ 		}
+-		data_src = scatterwalk_map(&walk);
++		data_src = scatterwalk_map(&walk, 0);
+ 
+ 		compute_mac(tfm, data_src, n, pctx);
+ 		len -= n;
+ 
+-		scatterwalk_unmap(data_src);
++		scatterwalk_unmap(data_src, 0);
+ 		scatterwalk_advance(&walk, n);
+ 		scatterwalk_done(&walk, 0, len);
+ 		if (len)

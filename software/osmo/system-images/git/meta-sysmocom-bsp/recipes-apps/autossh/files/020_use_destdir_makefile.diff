@@ -1,0 +1,25 @@
+Support for $DESTDIR in the Makefile.
+
+From debian
+
+Index: autossh-1.4e/Makefile.in
+===================================================================
+--- autossh-1.4e.orig/Makefile.in	2015-02-10 05:41:58.000000000 +0100
++++ autossh-1.4e/Makefile.in	2015-07-12 11:44:41.979659656 +0200
+@@ -6,11 +6,11 @@
+ 
+ SSH=		@path_ssh@
+ 
+-prefix=		@prefix@
+-exec_prefix=	@exec_prefix@
+-bindir=		@bindir@
+-datadir=	@datadir@
+-mandir=		@mandir@
++prefix=		${DESTDIR}@prefix@
++exec_prefix=	${DESTDIR}@exec_prefix@
++bindir=		${DESTDIR}@bindir@
++datadir=	${DESTDIR}@datadir@
++mandir=		${DESTDIR}@mandir@
+ 
+ SRCDIR=		@srcdir@
+ VPATH=		@srcdir@

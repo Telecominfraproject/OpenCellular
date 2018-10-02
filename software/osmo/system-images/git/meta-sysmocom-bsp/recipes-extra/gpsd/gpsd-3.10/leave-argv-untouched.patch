@@ -1,0 +1,31 @@
+Index: gpsd-3.10/gps2udp.c
+===================================================================
+--- gpsd-3.10.orig/gps2udp.c
++++ gpsd-3.10/gps2udp.c
+@@ -353,6 +353,7 @@ int main(int argc, char **argv)
+     bool daemonize = false;
+     long count = -1;
+     int option;
++    int i;
+     char *udphostport[MAX_UDP_DEST];
+ 
+     flags = WATCH_ENABLE;
+@@ -387,7 +388,7 @@ int main(int argc, char **argv)
+ 			      "gps2udp: too many UDP destinations (max=%d)\n",
+ 			      MAX_UDP_DEST);
+             } else {
+-		udphostport[udpchannel++] = optarg;
++		udphostport[udpchannel++] = strdup(optarg);
+             }
+             break;
+ 	case 'v':
+@@ -490,6 +491,9 @@ int main(int argc, char **argv)
+ 	    }  // end count  
+         } // end len > 3
+     } // end for (;;)
++
++    for (i = 0; i < udpchannel; ++i)
++	free(udphostport[i]);
+  
+     // This is an infinite loop, should never be here
+     /*@-unreachable@*/
