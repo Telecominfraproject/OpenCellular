@@ -1,0 +1,6 @@
+MACHINE = "sysmocom-alix"
+PACKAGE_FEED_URIS="https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmocom-alix/201705/ipk/"
+
+MACHINE_FEATURES_BACKFILL_CONSIDERED = "rtc"
+
+BBMASK="recipes-bsp/linux/linux_2.6.39.bb recipes-bsp/linux/linux-sysmocom_3.10.bb"

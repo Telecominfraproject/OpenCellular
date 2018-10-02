@@ -1,0 +1,8 @@
+MACHINE = "sysmobts2100"
+
+# feed
+PACKAGE_FEED_URIS = "https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmobts2100/201705/ipk/"
+
+# HW doesn't have rtc
+MACHINE_FEATURES_BACKFILL_CONSIDERED = "rtc"
+

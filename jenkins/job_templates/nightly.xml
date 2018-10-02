@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project plugin="matrix-project@1.2">
+  <actions/>
+  <description>&lt;div&gt;&lt;b&gt;Creates official PLACEHOLDER_SYSMOCOM_RELEASE-nightly packages/images on downlaods.sysmocom.de&lt;/b&gt;&lt;/div&gt;&#xd;
+&lt;div&gt;&#xd;
+  Does this by using&#xd;
+  &lt;ul&gt;&#xd;
+    &lt;li&gt;latest &lt;a href=&quot;http://git.yoctoproject.org/cgit/cgit.cgi/poky/log/?h=PLACEHOLDER_POKY_RELEASE&quot;&gt;&lt;i&gt;PLACEHOLDER_POKY_RELEASE&lt;/i&gt; of upstream poky (2.3)&lt;/a&gt;&lt;/li&gt;&#xd;
+    &lt;li&gt;latest &lt;a href=&quot;http://git.sysmocom.de/poky/meta-sysmocom-bsp/log/?h=laforge/nightly&quot;&gt;&lt;i&gt;laforge/nightly&lt;/i&gt; of meta-sysmocom-bsp&lt;/a&gt;&lt;/li&gt;&#xd;
+    &lt;li&gt;latest &lt;a href=&quot;https://github.com/sysmocom/meta-telephony/tree/laforge/nightly&quot;&gt;&lt;i&gt;laforge/nightly&lt;/i&gt; of meta-telephony&lt;/a&gt;&lt;/li&gt;&#xd;
+    &lt;li&gt;latest &lt;a href=&quot;https://github.com/sysmocom/meta-smalltalk&quot;&gt;&lt;i&gt;master&lt;/i&gt; of meta-smalltalk&lt;/a&gt;&lt;/li&gt;&#xd;
+  &lt;/ul&gt;&#xd;
+&lt;/div&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>90</daysToKeep>
+    <numToKeep>90</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.3">
+    <scms>
+      <hudson.plugins.git.GitSCM plugin="git@1.5.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name></name>
+            <refspec></refspec>
+            <url>git://git.yoctoproject.org/poky.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>*/PLACEHOLDER_POKY_RELEASE</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <remotePoll>false</remotePoll>
+        <ignoreNotifyCommit>false</ignoreNotifyCommit>
+        <useShallowClone>false</useShallowClone>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>poky</relativeTargetDir>
+        <reference></reference>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <includedRegions></includedRegions>
+        <scmName>poky</scmName>
+      </hudson.plugins.git.GitSCM>
+      <hudson.plugins.git.GitSCM plugin="git@1.5.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name></name>
+            <refspec></refspec>
+            <url>git://git.sysmocom.de/poky/meta-sysmocom-bsp</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>*/laforge/nightly</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <remotePoll>false</remotePoll>
+        <ignoreNotifyCommit>false</ignoreNotifyCommit>
+        <useShallowClone>false</useShallowClone>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>meta-sysmocom-bsp</relativeTargetDir>
+        <reference></reference>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <includedRegions></includedRegions>
+        <scmName>meta-sysmocom-bsp</scmName>
+      </hudson.plugins.git.GitSCM>
+      <hudson.plugins.git.GitSCM plugin="git@1.5.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name></name>
+            <refspec></refspec>
+            <url>git://git.osmocom.org/meta-telephony.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>*/laforge/nightly</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <remotePoll>false</remotePoll>
+        <ignoreNotifyCommit>false</ignoreNotifyCommit>
+        <useShallowClone>false</useShallowClone>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>meta-telephony</relativeTargetDir>
+        <reference></reference>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <includedRegions></includedRegions>
+        <scmName>meta-telephony</scmName>
+      </hudson.plugins.git.GitSCM>
+      <hudson.plugins.git.GitSCM plugin="git@1.5.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <name></name>
+            <refspec></refspec>
+            <url>git://github.com/sysmocom/meta-smalltalk.git</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>*/master</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <remotePoll>false</remotePoll>
+        <ignoreNotifyCommit>false</ignoreNotifyCommit>
+        <useShallowClone>false</useShallowClone>
+        <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+        <gitTool>Default</gitTool>
+        <submoduleCfg class="list"/>
+        <relativeTargetDir>meta-smalltalk</relativeTargetDir>
+        <reference></reference>
+        <excludedRegions></excludedRegions>
+        <excludedUsers></excludedUsers>
+        <gitConfigName></gitConfigName>
+        <gitConfigEmail></gitConfigEmail>
+        <skipTag>false</skipTag>
+        <includedRegions></includedRegions>
+        <scmName>meta-smalltalk</scmName>
+      </hudson.plugins.git.GitSCM>
+    </scms>
+  </scm>
+  <assignedNode>OE-Slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>0 3 * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <axes>
+    <hudson.matrix.LabelAxis>
+      <name>label</name>
+      <values>
+        <string>Debian8-AMD64</string>
+      </values>
+    </hudson.matrix.LabelAxis>
+    <hudson.matrix.TextAxis>
+      <name>machine</name>
+      <values>
+        <string>sysmobts-v2</string>
+        <string>sysmobts2100</string>
+      </values>
+    </hudson.matrix.TextAxis>
+  </axes>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [ $machine == &quot;sysmobts-v2&quot; ]; then
+   CONF_PACKAGE_FEED_URIS=&quot;https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmobts/PLACEHOLDER_SYSMOCOM_RELEASE-nightly/ipk/&quot;
+else
+   CONF_PACKAGE_FEED_URIS=&quot;https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/${machine}/PLACEHOLDER_SYSMOCOM_RELEASE-nightly/ipk/&quot;
+fi
+
+
+CREATE=0
+if [ ! -e build ]; then
+   mkdir -p build/conf
+   CREATE=1
+   cat &gt; build/conf/bblayers.conf &lt;&lt;EOF
+LCONF_VERSION = &quot;6&quot;
+
+BBPATH = &quot;\${TOPDIR}&quot;
+BBFILES ?= &quot;&quot;
+
+BBLAYERS ?= &quot; \
+  $PWD/poky/meta \
+  $PWD/poky/meta-poky \
+  $PWD/poky/meta-yocto-bsp \
+  $PWD/meta-telephony \
+  $PWD/meta-sysmocom-bsp \
+  $PWD/meta-smalltalk \
+  &quot;
+BBLAYERS_NON_REMOVABLE ?= &quot; \
+  $PWD/poky/meta \
+  $PWD/poky/meta-poky \
+  &quot;
+EOF
+   
+fi
+
+# Switch to poky and prepare things
+cd poky
+
+
+# apply some hacks... due us supporting older versions
+sed -i s,&apos;bb.error(&quot;Use of PRINC %s was d&apos;,&apos;bb.warn(&quot;Use of PRINC %s was d&apos;, meta/classes/base.bbclass
+
+
+. ./oe-init-build-env ../build
+
+if [ $CREATE -eq 1 ]; then
+   cat &gt;&gt; conf/local.conf &lt;&lt;EOF
+PATCHRESOLVE = &quot;noop&quot;
+PACKAGE_CLASSES = &quot;package_ipk&quot;
+DISTRO_FEATURES_append = &quot; systemd &quot;
+VIRTUAL-RUNTIME_init_manager = &quot;systemd&quot;
+MACHINE_FEATURES_BACKFILL_CONSIDERED = &quot;rtc&quot;
+DEBUGFILEDIRECTORY-dbg = &quot;/usr/lib/debug&quot;
+PACKAGE_DEBUG_SPLIT_STYLE = &quot;debug-without-src&quot;
+PRSERV_HOST = &quot;localhost:0&quot;
+BBMASK=&quot;recipes-bsp/linux/linux-sysmocom_3.10.bb&quot;
+INHERIT += &quot; rm_work &quot;
+ROOTFS_PKGMANAGE_BOOTSTRAP = &quot;&quot;
+PACKAGE_FEED_URIS = &quot;${CONF_PACKAGE_FEED_URIS}&quot;
+require conf/distro/include/sysmocom-defaults.conf
+EOF
+
+    if [ $machine == &quot;sysmobts-v2&quot; ]; then
+       cat &gt;&gt; conf/local.conf &lt;&lt;EOF
+SRC_URI_pn-sysmobts-firmware = &quot;https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmobts/firmware/sysmobts-firmware-superfemto_v\${PV}.tar.bz2&quot;
+SRC_URI_pn-sbts2050-util = &quot;https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmobts/firmware/sbts2050-util-\${PV}.tar.bz2&quot;
+EOF
+    fi
+fi
+
+rm -f bitbake.lock
+rm -rf tmp
+rm -rf downloads
+
+if [ $machine == &quot;sysmobts2100&quot; ]; then
+    MACHINE=$machine bitbake u-boot-litecell15
+fi
+
+# first build the non-rauc targets common to all machines
+MACHINE=$machine bitbake sysmocom-core-image smalltalk meta-toolchain-osmo task-sysmocom-feed
+
+# then build RAUC only for sysmobts-v2
+if [ $machine == &quot;sysmobts-v2&quot; ]; then
+    MACHINE=$machine bitbake image-rauc-slot-initramfs image-rauc-ubi rauc-native sysmocom-nitb-rauc-image
+fi
+
+
+../meta-sysmocom-bsp/upload_nightly.sh $machine
+../poky/scripts/sstate-cache-management.sh -d -y --cache-dir=./sstate-cache/
+rm -rf tmp downloads</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.8">
+      <recipients>intern@lists.sysmocom.de</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+</matrix-project>
