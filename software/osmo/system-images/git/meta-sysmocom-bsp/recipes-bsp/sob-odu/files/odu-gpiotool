@@ -1,0 +1,113 @@
+#!/bin/sh
+
+USB2514=/usr/bin/usb2514
+GPIODIR=/sys/devices/platform/sob-odu.0
+
+DEBUG=0
+DRYRUN=0
+
+test -x ${USB2514}
+if [ $? -ne 0 ];
+then
+	echo "ERROR - ${USB2514} does not exist or is not exeutable"
+	echo
+fi
+
+if [ $DRYRUN -ne 0 ] || [ $DEBUG -ne 0 ]; then
+	echo "DEBUG=$DEBUG\nDRYRUN=$DRYRUN\n"
+fi;
+
+### helper
+echodeb() {
+	if [ $DEBUG -ne 0 ]; then
+		echo "DEBUG - $*"
+	fi;
+}
+
+gpioecho() {
+	echodeb "echo ${1} > ${2}"
+	if [ $DRYRUN -eq 0 ]; then
+		echo ${1} > ${2}
+	fi;
+}
+
+# $1 gpio $2 direction
+init_pin() {
+	echodeb init_pin $1 $2
+	gpioecho ${1} "${GPIODIR}/export"
+	gpioecho ${2} "${GPIODIR}/gpio$_{1}/direction"
+}
+
+# $1 gpio $2 value
+set_pin() {
+	echodeb set_pin $1 $2
+	gpioecho ${2} "${GPIODIR}/gpio_${1}/value"
+}
+
+# $1 pin $2 tempvalue $3 endvalue
+toggle_pin() {
+	set_pin ${1} ${2}
+	sleep 1
+	set_pin ${1} ${3}
+}
+
+###
+reset_modem1() {
+	toggle_pin mdm1_rst 1 0
+}
+
+reset_modem2() {
+	toggle_pin mdm2_rst 1 0
+}
+
+reset_gnss() {
+	toggle_pin gnss_rst 1 0
+}
+
+reset_adsb() {
+	toggle_pin adsb_rst 1 0
+}
+
+reset_ais() {
+	toggle_pin ais_off 1 0
+}
+
+reset_usb() {
+	# usb2514 now has internal code to assert/de-assert !hub_reset
+	${USB2514} 1
+}
+
+reset_all() {
+	reset_modem1
+	reset_modem2
+	reset_gnss
+	reset_adsb
+	reset_ais
+	reset_usb
+}
+
+print_help() {
+	echo $0 v0.2
+	echo
+	echo "help           - this text"
+	echo "reset [device] - reset all/one device(s)"
+	echo
+}
+case "$1" in
+start)
+	;;
+reset)
+	if [ -n "$2" ]; then
+		reset_${2}
+	else
+		reset_all
+	fi
+	;;
+restart)
+	${0} reset
+	;;
+*)
+	print_help
+	;;
+esac
+

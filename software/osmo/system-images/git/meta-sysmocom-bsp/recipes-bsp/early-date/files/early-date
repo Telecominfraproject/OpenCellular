@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Check if the year is lower than the lowest configured and then
+# set a default date
+YEAR=`date +%Y`
+
+if [ $YEAR -lt 2014 ]; then
+	date -s 2014.07.18-10:00:00
+	hwclock -w
+fi

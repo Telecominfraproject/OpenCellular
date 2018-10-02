@@ -1,0 +1,25 @@
+[Unit]
+Description=Check config flash state.
+Before=multi-user.target
+Before=shutdown.target
+Before=watchdog.service
+After=time-sync.target
+After=checkbk.service
+Wants=checkbk.service
+Conflicts=shutdown.target
+RequiresMountsFor=/mnt/rom/user
+RequiresMountsFor=/tmp
+RequiresMountsFor=/run
+RequiresMountsFor=/var/volatile
+
+[Service]
+Type=oneshot
+Restart=no
+RemainAfterExit=yes
+TimeoutStartSec=infinity
+ExecStart=/usr/bin/checkflashcfg -d
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=multi-user.target

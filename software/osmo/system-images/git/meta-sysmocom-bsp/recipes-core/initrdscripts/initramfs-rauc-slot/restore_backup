@@ -1,0 +1,31 @@
+#!/bin/sh
+
+BACKUP_FILE=/rootfs/data/sysmocom-backup.tar
+
+restore_backup_enabled() {
+	if [ ! -e "$BACKUP_FILE" ] ; then
+		info "The backup file '$BACKUP_FILE' does not exist, skipping restore..."
+		return 1
+	fi
+
+	return 0
+}
+
+restore_backup_extract() {
+	# List the files and check if grep hits something
+	SEARCH=`tar -tvf $1 | grep $2`
+	RES=$?
+	if [ $RES = 0 ]; then
+		tar -C /rootfs/tmp/ -xvf $1 $2
+		cp -a /rootfs/tmp/content/* /rootfs/
+		rm -rf /rootfs/tmp/content
+	else
+		echo "Directory '$2' is not in backup '$1'."
+	fi
+}
+
+restore_backup_run() {
+	info "Extracting files from the backup '$BACKUP_FILE'"
+	restore_backup_extract $BACKUP_FILE content/etc || fatal "Failed!"
+	restore_backup_extract $BACKUP_FILE content/var/lib/osmocom || fatal "Failed!"
+}

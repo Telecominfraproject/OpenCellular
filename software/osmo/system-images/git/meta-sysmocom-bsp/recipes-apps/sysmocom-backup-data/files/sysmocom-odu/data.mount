@@ -1,0 +1,7 @@
+[Unit]
+Description=/data
+
+[Mount]
+What=ubi0:data
+Where=/data
+Type=ubifs

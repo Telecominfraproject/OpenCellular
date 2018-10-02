@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hudson.model.ListView>
+  <name>System Images PLACEHOLDER_SYSMOCOM_RELEASE</name>
+  <filterExecutors>false</filterExecutors>
+  <filterQueue>false</filterQueue>
+  <properties class="hudson.model.View$PropertyList"/>
+  <jobNames>
+    <comparator class="hudson.util.CaseInsensitiveComparator"/>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-merge-diff</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-nightly</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-show-diff</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-test-upgrade-alix</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-test-upgrade-apu2</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-testbranch</string>
+    <string>PLACEHOLDER_SYSMOCOM_RELEASE-testing</string>
+    <string>Yocto-Master</string>
+  </jobNames>
+  <jobFilters/>
+  <columns>
+    <hudson.views.StatusColumn/>
+    <hudson.views.WeatherColumn/>
+    <hudson.views.JobColumn/>
+    <hudson.views.LastSuccessColumn/>
+    <hudson.views.LastFailureColumn/>
+    <hudson.views.LastDurationColumn/>
+    <hudson.views.BuildButtonColumn/>
+  </columns>
+  <recurse>false</recurse>
+</hudson.model.ListView>

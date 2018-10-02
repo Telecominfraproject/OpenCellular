@@ -1,0 +1,19 @@
+Testing sysmobts routines
+Testing the no auto-band mapping.
+No auto-band band(1) arfcn(128) want(0) got(0)
+No auto-band band(2) arfcn(1) want(1) got(1)
+No auto-band band(4) arfcn(600) want(2) got(2)
+No auto-band band(8) arfcn(600) want(3) got(3)
+Checking the mapping with auto-band.
+Auto-band band(1) arfcn(128) want(0) got(0)
+Auto-band band(2) arfcn(1) want(1) got(1)
+Auto-band band(4) arfcn(600) want(2) got(2)
+Auto-band band(8) arfcn(600) want(3) got(3)
+Checking DCS to DCS
+DCS to DCS band(2) arfcn(600) want(2) got(2)
+DCS to DCS band(4) arfcn(1) want(1) got(1)
+DCS to DCS band(2) arfcn(438) want(-1) got(-1)
+Checking PCS to PCS
+PCS to PCS band(1) arfcn(512) want(3) got(3)
+PCS to PCS band(8) arfcn(128) want(0) got(0)
+PCS to PCS band(2) arfcn(438) want(-1) got(-1)

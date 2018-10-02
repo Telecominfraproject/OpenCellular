@@ -1,0 +1,21 @@
+[Unit]
+Description=osmo-bts for LC15 / sysmoBTS 2100
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sh -c 'echo 1 > /sys/class/leds/usr0/brightness'
+ExecStartPre=/bin/sh -c 'echo 1 > /sys/class/leds/usr1/brightness'
+ExecStart=/usr/bin/osmo-bts-lc15 -t 2 -s -c /etc/osmocom/osmo-bts.cfg -M
+ExecStopPost=/bin/sh -c 'echo 1 > /sys/class/leds/usr0/brightness'
+ExecStopPost=/bin/sh -c 'echo 0 > /sys/class/leds/usr1/brightness'
+Restart=always
+RestartSec=2
+RestartPreventExitStatus=1
+
+# The msg queues must be read fast enough
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=1
+
+[Install]
+WantedBy=multi-user.target
+Alias=osmo-bts.service

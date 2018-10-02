@@ -1,0 +1,21 @@
+[Unit]
+SourcePath=/etc/init.d/oc2g-sysdev-remap
+Description=Remapping all available system devices of platform to a easy to reach location
+Before=multi-user.target
+Before=shutdown.target
+Before=watchdog.service
+After=checkflash.service
+Wants=checkflash.service
+After=time-sync.target
+Conflicts=shutdown.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart=/etc/init.d/oc2g-sysdev-remap start
+ExecStop=/etc/init.d/oc2g-sysdev-remap stop

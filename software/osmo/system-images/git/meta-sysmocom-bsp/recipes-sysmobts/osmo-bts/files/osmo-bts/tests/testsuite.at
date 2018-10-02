@@ -1,0 +1,51 @@
+AT_INIT
+AT_BANNER([Regression tests.])
+
+AT_SETUP([paging])
+AT_KEYWORDS([paging])
+cat $abs_srcdir/paging/paging_test.ok > expout
+AT_CHECK([$OSMO_QEMU $abs_top_builddir/tests/paging/paging_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([agch])
+AT_KEYWORDS([agch])
+cat $abs_srcdir/agch/agch_test.ok > expout
+AT_CHECK([$OSMO_QEMU $abs_top_builddir/tests/agch/agch_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([cipher])
+AT_KEYWORDS([cipher])
+cat $abs_srcdir/cipher/cipher_test.ok > expout
+AT_CHECK([$OSMO_QEMU $abs_top_builddir/tests/cipher/cipher_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([misc])
+AT_KEYWORDS([misc])
+cat $abs_srcdir/misc/misc_test.ok > expout
+AT_CHECK([$OSMO_QEMU $abs_top_builddir/tests/misc/misc_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([handover])
+AT_KEYWORDS([handover])
+cat $abs_srcdir/handover/handover_test.ok > expout
+AT_CHECK([$abs_top_builddir/tests/handover/handover_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([power])
+AT_KEYWORDS([power])
+cat $abs_srcdir/power/power_test.ok > expout
+AT_CHECK([$abs_top_builddir/tests/power/power_test], [], [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP([tx_power])
+AT_KEYWORDS([tx_power])
+cat $abs_srcdir/tx_power/tx_power_test.ok > expout
+cat $abs_srcdir/tx_power/tx_power_test.err > experr
+AT_CHECK([$abs_top_builddir/tests/tx_power/tx_power_test], [], [expout], [experr])
+AT_CLEANUP
+
+AT_SETUP([meas])
+AT_KEYWORDS([meas])
+cat $abs_srcdir/meas/meas_test.ok > expout
+AT_CHECK([$abs_top_builddir/tests/meas/meas_test], [], [expout], [ignore])
+AT_CLEANUP

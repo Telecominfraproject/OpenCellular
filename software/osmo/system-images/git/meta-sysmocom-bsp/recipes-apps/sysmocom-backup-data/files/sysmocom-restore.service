@@ -1,0 +1,12 @@
+[Unit]
+Description=Restore Configuration Backup
+Requires=data.mount
+After=data.mount
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/sysmocom-restore-data /data/sysmocom-backup.tar
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+NAME=gprs_routing
+
+set -e
+
+case "$1" in
+  start)
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+    iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+    echo "Enabled masquerading"
+    ;;
+  stop)
+    echo 0 > /proc/sys/net/ipv4/ip_forward
+    iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+    ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|force-reload}" >&2
+    exit 1
+esac
+
+exit 0

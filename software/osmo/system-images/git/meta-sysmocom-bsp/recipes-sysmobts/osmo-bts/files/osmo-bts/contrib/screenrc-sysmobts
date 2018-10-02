@@ -1,0 +1,5 @@
+chdir /tmp
+screen -t BTS 0 /etc/osmocom/respawn.sh /usr/bin/osmo-bts-sysmo -c /etc/osmocom/osmo-bts.cfg -r 1 -M
+screen -t PCU 1 /etc/osmocom/respawn-only.sh /usr/bin/osmo-pcu -c /etc/osmocom/osmo-pcu.cfg -e
+screen -t MGR 2 /etc/osmocom/respawn-only.sh /usr/bin/sysmobts-mgr -n -c /etc/osmocom/sysmobts-mgr.cfg
+detach

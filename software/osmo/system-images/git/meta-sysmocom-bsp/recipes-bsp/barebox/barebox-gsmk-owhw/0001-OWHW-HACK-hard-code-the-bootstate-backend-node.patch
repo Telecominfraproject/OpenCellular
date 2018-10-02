@@ -1,0 +1,29 @@
+From 5661d2be63f55e5cbaa72e1da1dae32e7a5c3071 Mon Sep 17 00:00:00 2001
+From: Harald Welte <laforge@gnumonks.org>
+Date: Mon, 22 Feb 2016 23:42:44 +0100
+Subject: [PATCH] OWHW HACK: hard-code the bootstate backend-node
+
+this is required as the spi controller used in barebox is spi-gpio,
+while on Linux we use the hardware spi controller of the am335x,
+resulting in different devicetree paths.
+---
+ common/state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/common/state.c b/common/state.c
+index 9c0b218..1571b53 100644
+--- a/common/state.c
++++ b/common/state.c
+@@ -758,7 +758,8 @@ static int of_state_fixup(struct device_node *root, void *ctx)
+ 	}
+ 
+ 	/* backend phandle */
+-	backend_node = of_find_node_by_path_from(root, state->backend->of_path);
++	//backend_node = of_find_node_by_path_from(root, state->backend->of_path);
++	backend_node = of_find_node_by_path_from(root, "/ocp/spi@481a0000/m95m02@0");
+ 	if (!backend_node) {
+ 		ret = -ENODEV;
+ 		goto out;
+-- 
+2.7.0
+

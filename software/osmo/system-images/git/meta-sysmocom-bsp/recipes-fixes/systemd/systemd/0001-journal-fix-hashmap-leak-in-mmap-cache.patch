@@ -1,0 +1,37 @@
+From 8e6d9397b550f5617fc9231e3a275348cda23c89 Mon Sep 17 00:00:00 2001
+From: George McCollister <george.mccollister@gmail.com>
+Date: Thu, 1 Aug 2013 12:40:01 -0500
+Subject: [PATCH] journal: fix hashmap leak in mmap-cache
+
+hashmap_free() wasn't being called on m->contexts and m->fds resulting
+in a leak.
+
+To reproduce do:
+	while(1) {
+		sd_journal_open(&j, SD_JOURNAL_LOCAL_ONLY);
+		sd_journal_close(j);
+	}
+
+Memory usage will increase until OOM.
+---
+ src/journal/mmap-cache.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+Index: systemd-206/src/journal/mmap-cache.c
+===================================================================
+--- systemd-206.orig/src/journal/mmap-cache.c
++++ systemd-206/src/journal/mmap-cache.c
+@@ -307,9 +307,13 @@ static void mmap_cache_free(MMapCache *m
+         while ((c = hashmap_first(m->contexts)))
+                 context_free(c);
+ 
++        hashmap_free(m->contexts);
++
+         while ((f = hashmap_first(m->fds)))
+                 fd_free(f);
+ 
++        hashmap_free(m->fds);
++
+         while (m->unused)
+                 window_free(m->unused);
+ 

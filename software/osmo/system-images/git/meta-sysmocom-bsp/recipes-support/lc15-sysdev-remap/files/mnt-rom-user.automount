@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount user partition with default settings
+
+[Automount]
+Where=/mnt/rom/user
+
+[Install]
+WantedBy=multi-user.target

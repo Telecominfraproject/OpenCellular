@@ -1,0 +1,11 @@
+[Unit]
+Description=UDHCPD
+Requires=sys-subsystem-net-devices-eth1.device
+After=sys-subsystem-net-devices-eth1.device
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/udhcpd -fS /etc/udhcpd.conf
+
+[Install]
+WantedBy=multi-user.target

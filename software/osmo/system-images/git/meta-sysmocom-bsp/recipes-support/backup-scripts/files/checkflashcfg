@@ -1,0 +1,269 @@
+#!/bin/sh
+# checks boot options to see what to do when the system has a flash configuration corruption
+STAG=checkflashcfg:
+PENDINGCHK=/tmp/.boot_pending
+# lock wait time max 15mn * 60 = 900 secs (sufficient time to check it)
+LOCKWAIT=900
+bname=checkflashcfg
+_curr_dir=""
+__USESYSLOG=1
+VERBOSE=''
+__EXITCODE=0
+CONFIGMOUNT=/mnt/rom/user
+CONFIGMOUNTTYPE=jffs2
+DEVCONFIG=/dev/mtdblock9
+tempdir=""
+TMPMOUNT=/tmp/.mnt_config
+__NOHANG=0
+_RECOVERY=1
+
+readonly LOCKFILE_DIR=/var/lock
+readonly LOCK_FD=977
+
+# Get boot options configuration file
+if [ -f "/etc/bootoptions.conf" ]; then
+    source "/etc/bootoptions.conf"
+fi
+
+lock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # still allow to run unlocked if the lock dir does not exist
+    if [ ! -d "${LOCKFILE_DIR}" ]; then
+        return 0
+    fi
+
+    # create lock file
+    eval "exec $fd>$lock_file"
+    # still allow to run unlocked if the lock file cannot be created
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+
+    # acquier the lock
+    flock -w ${LOCKWAIT} $fd \
+        && return 0 \
+        || return 1
+}
+
+unlock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # release the lock
+    flock -u $fd
+    sync
+}
+
+function my_exit()
+{
+    trap - SIGINT
+    trap - SIGQUIT
+    trap - SIGTERM
+    trap - SIGHUP
+    sync
+    if [ -d "${tempdir}" ]; then
+        if mount | grep -q "${tempdir}"; then
+            umount "$tempdir"
+        fi
+        rmdir "$tempdir"
+    fi
+    cd "$_curr_dir"
+    unlock $bname
+    exit $*
+}
+
+checkrecovery() {
+    if mount | grep -q "on / type nfs" ; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function __sig_int {
+    log_write " "
+    log_write "$STAG WARNING: SIGINT caught"
+    my_exit 110
+}
+
+function __sig_quit {
+    log_write " "
+    log_write "$STAG WARNING: SIGQUIT caught"
+    my_exit 111
+}
+
+function __sig_term {
+    log_write " "
+    log_write "$STAG WARNING: SIGTERM caught"
+    my_exit 112
+}
+
+function __sig_hup {
+    log_write " "
+    log_write "$STAG WARNING: SIGHUP caught"
+    my_exit 113
+}
+
+checkflashconfig() {
+    if ! grep -q "$* " /proc/mounts; then
+        return 14
+    fi
+    return 0
+}
+
+function log_write()
+{
+	if [ ! -z ${VERBOSE} ] || [ ${__USESYSLOG} -eq 0 ]; then
+		echo "$*"
+	fi
+	if [ ${__USESYSLOG} -ne 0 ] ; then
+		logger -p local4.info  "$*"
+	fi
+}
+
+function show_help {
+    echo "checkflashcfg help information:"
+    echo "Usage: checkflashcfg [ [ [-d] [-n] ] | [--help] ]"
+    echo "Verify boot options and flash config state to learn what to do when corrupted"
+    echo "WARNING: this script may intentionnaly hang if -n is not provided and flash is corrupted"
+    echo "         if not hanging, it may attempt to recreate an unmountable corrupted flash"
+    echo "          config partition"
+    echo "          -d           # print debug verbose info"
+    echo "          -n           # no hang even if boot option specifies blocking in corruption"
+    echo "          --help       # displays this help information"
+    echo "example: checkflashcfg;      # checks flash corruption and boot options silently"
+    echo "example: checkflashcfg -d -n;# checks flash corruption and boot options verbose, no hang"
+}
+
+if [ -e "${PENDINGCHK}" ]; then
+    echo "$STAG Pending reboot, could not run!"
+    exit 97
+fi
+
+_curr_dir=`pwd`
+
+# Lock to test a single instance is running, and exit if wait timeout
+echo "$STAG Checking if allowed to run..."
+lock $bname || ( echo "$STAG Checking if allowed to run... failed"; exit 100 )
+echo "$STAG Checking if allowed to run... done"
+
+# Set TRAPs to release lock if forced to exit
+trap __sig_int SIGINT
+trap __sig_quit SIGQUIT
+trap __sig_term SIGTERM
+trap __sig_hup SIGHUP
+
+if [ -e "${PENDINGCHK}" ]; then
+    echo "$STAG Pending reboot, could not run!"
+    my_exit 97
+fi
+
+#keeps log file from getting big
+rm /var/log/$LOG_FILE >/dev/null 2>&1
+
+TOTALARG=$#
+while getopts :dn- FLAG; do
+    case $FLAG in
+		d ) VERBOSE=1;;
+		n ) __NOHANG=1;;
+        '-')
+        show_help
+        my_exit 0;;
+        \?)
+        log_write "Invalid option: -$OPTARG" && my_exit 1;;
+        \:)
+        log_write "Required argument not found for option: -$OPTARG" && my_exit 2;;
+  esac
+done
+
+# removes processed option(s) from the cmd line args
+shift $((OPTIND-1))
+
+log_write "$STAG checking..."
+
+# checks if user flash is mounted correctly
+if ! checkflashconfig "$CONFIGMOUNT" "$CONFIGMOUNTTYPE" ; then
+    # verifies if in recovery mode
+    checkrecovery
+    _RECOVERY=$?
+    # checks if the block boot option is active from bootoptions.conf
+    if [ ${BLOCKOPTION} -eq 1 ]; then
+        if [ ${__NOHANG} -ne 1 ]; then
+            if [ $_RECOVERY -eq 0 ]; then
+                log_write "$STAG script process is blocked as flash config is in recovery mode!"
+            else
+                log_write "$STAG script process is blocked as flash config needs to be repaired!"
+            fi
+            _MYCOUNTER=0
+            # makes sure the watchdog is manually started as systemd booting seq would be stuck to our process
+            /etc/init.d/watchdog.sh start
+            #loops forever to make sure any dependant service won't start when booting
+            while [ $_MYCOUNTER -eq 0 ]; do
+                sleep 1s
+            done
+        else
+            if [ $_RECOVERY -ne 0 ]; then
+                log_write "$STAG flash config needs to be repaired!"
+                __EXITCODE=3
+            fi
+        fi
+    else
+        if [ $_RECOVERY -ne 0 ]; then
+            # checks if flash could be mounted correctly
+            tempdir=`mktemp -d`
+            if [ $? -ne 0 ]; then
+                log_write "$STAG could not create tmp directory!"
+                my_exit 4
+            fi
+            if ! mount -t ${CONFIGMOUNTTYPE} -o ro,noatime,sync ${DEVCONFIG} ${tempdir}; then
+                # we need to recreate flash content cause the system could not self warns the problem
+                # and the flash is not mountable
+                log_write "$STAG recreating configuration flash partition..."
+                _C_RES=$(flash_erase -j /dev/mtd9 0 0 2>&1)
+                _C_RET=$?
+                if [ $_C_RET -ne 0 ]; then
+                    log_write "Warning: cannot recreate flash partition!"
+                    __EXITCODE=5
+                else
+                    log_write "$STAG recreating configuration flash partition... Done"
+                    # attempt to use mountuser tool to get flash access
+                    _C_RES=$(/usr/bin/mountuser rw 2>&1)
+                    _C_RET=$?
+                    if [ $_C_RET -eq 0 ]; then
+                        log_write "$STAG recreating config flash partition content..."
+                        cp -rf $CONFIGMOUNT/* $TMPMOUNT
+                        if [ $? -ne 0 ]; then
+                            log_write "Warning: cannot copy current config to flash mount!"
+                            __EXITCODE=6
+                        else
+                            echo "---------------------------" >> $TMPMOUNT/config/motd
+                            echo "Attempted to recreate Flash" >> $TMPMOUNT/config/motd
+                            echo "---------------------------" >> $TMPMOUNT/config/motd
+                            _C_RES=$(/usr/bin/mountuser ro 2>&1)
+                            _C_RET=$?
+                            if [ $_C_RET -ne 0 ]; then
+                                log_write "Warning: cannot remount flash mount to read only!"
+                                __EXITCODE=7
+                            else
+                                log_write "$STAG recreating config flash partition content... Done"
+                            fi
+                        fi
+                    else
+                        log_write "$STAG cannot access flash for rw access!"
+                        __EXITCODE=8
+                    fi
+                fi
+            else
+                log_write "$STAG flash is mountable, won't be automatically repaired!"
+                __EXITCODE=9
+            fi
+        fi
+    fi
+fi
+
+log_write "$STAG checking... Done"
+my_exit $__EXITCODE

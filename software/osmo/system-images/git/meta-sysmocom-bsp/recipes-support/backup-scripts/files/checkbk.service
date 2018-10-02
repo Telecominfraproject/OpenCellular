@@ -1,0 +1,22 @@
+[Unit]
+Description=Check flash backups.
+DefaultDependencies=no
+Before=sysinit.target
+After=mountuser.service checkroot.service checkstoragefs.service checkmonolithicupdate.service
+Wants=mountuser.service checkroot.service checkstoragefs.service checkmonolithicupdate.service
+RequiresMountsFor=/mnt/rom/user
+RequiresMountsFor=/mnt/rom/factory
+RequiresMountsFor=/tmp
+RequiresMountsFor=/run
+RequiresMountsFor=/mnt/storage
+
+[Service]
+Type=oneshot
+Restart=no
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'export _NOSPINDLE=1 ; /usr/bin/checkbk -d ; export _NOSPINDLE= ; '
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+[Install]
+WantedBy=multi-user.target

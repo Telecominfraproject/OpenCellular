@@ -1,0 +1,2 @@
+# Do not put the sourcecode into the debug packages
+PACKAGE_DEBUG_SPLIT_STYLE = "debug-without-src"

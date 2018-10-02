@@ -1,0 +1,444 @@
+#!/bin/sh
+# Define this variable _NOSPINDLE before calling this script if this script run through a systemd service
+# if this variable _SAFESYNC is also defined, it will do a wd safe sync instead (when watchdog daemon is not used)
+
+STAG=mbackup:
+ENDSIG=/tmp/mbackup_sig
+ERRSIG=/tmp/mbackup_err
+PENDINGCHK=/tmp/.boot_pending
+# lock wait time max 15mn * 60 = 900 secs (sufficient time to update)
+LOCKWAIT=900
+bname=mbackup
+TMPBK=""
+DEFBAKPATH=/mnt/storage/.sysbackup/
+BAKPATH=$DEFBAKPATH
+_curr_dir=""
+BAKEXT=".tar.gz"
+PREVEXT=".tar.gz.bk1"
+TMPEXT=".tar.gz.tmp"
+BAKMD5EXT=".md5"
+PREVMD5EXT=".md5.bk1"
+TMPMD5EXT=".md5.tmp"
+mybasename=""
+CREATEPBACK=1
+
+sp="/-\|"
+sc=0
+spin() {
+    if [ -z "$_NOSPINDLE" ]; then
+        printf "\r${STAG} ${sp:sc++:1}"
+        ((sc==${#sp})) && sc=0
+    else
+        printf "${STAG} ${sp:sc++:1} \n"
+        ((sc==${#sp})) && sc=0
+        if [ ! -z "$_SAFESYNC" ]; then
+            dmesg -D
+            echo 1 > /dev/watchdog
+            dmesg -E
+        fi
+    fi
+}
+endspin() {
+    if [ -z "$_NOSPINDLE" ]; then
+        printf "\r"
+    else
+        if [ ! -z "$_SAFESYNC" ]; then
+	    dmesg -E
+	fi
+    fi
+}
+
+readonly LOCKFILE_DIR=/var/lock
+readonly LOCK_FD=980
+
+lock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # still allow to run unlocked if the lock dir does not exist
+    if [ ! -d "${LOCKFILE_DIR}" ]; then
+        return 0
+    fi
+
+    # create lock file
+    eval "exec $fd>$lock_file"
+    # still allow to run unlocked if the lock file cannot be created
+    if [ $? -ne 0 ]; then
+        return 0
+    fi
+
+    # acquier the lock
+    flock -w ${LOCKWAIT} $fd \
+        && return 0 \
+        || return 1
+}
+
+unlock() {
+    local prefix=$1
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # release the lock
+    flock -u $fd
+    sync
+}
+
+function my_exit()
+{
+    sync
+    if [ -f "$BAKPATH$mybasename$TMPEXT" ]; then
+        rm -f $BAKPATH$mybasename$TMPEXT
+    fi
+    if [ -f "$BAKPATH$mybasename$TMPMD5EXT" ]; then
+        rm -f $BAKPATH$mybasename$TMPMD5EXT
+    fi
+    if [ -d "${TMPBK}" ]; then
+        TMPBKMNT_RES=$(mount | grep "${TMPBK}")
+        TMPBKMNT_RET=$?
+        if [ $TMPBKMNT_RET -eq 0 ]; then
+            umount ${TMPBK}
+        fi
+        rmdir "${TMPBK}"
+    fi
+    sync
+    cd "$_curr_dir"
+    unlock $bname
+    exit $*
+}
+
+function __sig_int {
+    endspin
+    log_write " "
+    log_write "$STAG WARNING: SIGINT caught"
+    my_exit 110
+}
+
+function __sig_quit {
+    endspin
+    log_write " "
+    log_write "$STAG WARNING: SIGQUIT caught"
+    my_exit 111
+}
+
+function __sig_term {
+    endspin
+    log_write " "
+    log_write "$STAG WARNING: SIGTERM caught"
+    my_exit 112
+}
+
+function __sig_hup {
+    endspin
+    log_write " "
+    log_write "$STAG WARNING: SIGHUP caught"
+    my_exit 113
+}
+
+function log_write()
+{
+	echo "$*"
+}
+
+function log_write_nr()
+{
+	echo -n "$*"
+}
+
+function show_help {
+    log_write "mbackup help information:"
+    log_write "Usage: mbackup [ [ [-f file] [-n] ] | [--help] ] <spath>"
+    log_write " where: <spath>     # source directory path to backup recursively"
+    log_write " options: -f file   # force output file name (will be appended with .tar.gz/.md5)"
+    log_write "                    # specified file destination directory must exist!"
+    log_write "                    # if -f not used, default dest. dir. is created: $BAKPATH"
+    log_write "                    #    with auto generated filename according to <spath>"
+    log_write "          -n        # do not create a previous backup (*.bk1) if one already exist"
+    log_write "                    #    default is to create one"
+    log_write "          --help    # displays this help information"
+    log_write "example: mbackup /mnt/rom/user;            # backup user flash configuration to default dir"
+    log_write "example: mbackup -f /tmp/qq /mnt/rom/user; # backup user flash configuration to /tmp/qq"
+}
+
+function create_basename()
+{
+    local retval
+    local retval2
+    local repchr=-
+    local srcchr=/
+    local slen=${#1}
+    local mystr
+    local mystr2
+    if [ "${1:$slen - 1:1}" == "/" ] ; then
+        mystr=${1:0:$slen - 1}
+        slen=$((slen-1))
+    else
+        mystr=$1
+    fi
+    if [ ${1:0:1} == "/" ] ; then
+        mystr2=${mystr:1:$slen - 1}
+        slen=$((slen-1))
+    else
+        mystr2=$mystr
+    fi
+    retval="bk-"${mystr2//$srcchr/$repchr}
+    retval2=${retval// /$repchr}
+    echo $retval2
+}
+
+# returns the file basename without directory and extension
+function get_basename()
+{
+	echo ${1//+(*\/|.*)}
+    return 0
+}
+
+function check_destpath()
+{
+	local retval=0
+    local slen=${#1}
+    local mystr
+    if ! [ -d $1 ] ; then
+        log_write "$STAG Destination directory does not exist ($1)!"
+        retval=80
+    else
+        if [ "${1:$slen - 1:1}" == "/" ] ; then
+            mystr=${1:0:$slen - 1}
+            slen=$((slen-1))
+        else
+            mystr=$1
+        fi
+        BAKPATH=$mystr"/"
+    fi
+    return $retval
+}
+
+# corrects md5 associated source file
+# param1=originalfilename
+# param2=newfilename
+# param3=md5 file to correct
+function correct_md5_file()
+{
+    local name1
+    local name2
+    name1=`basename $1`
+	if [ $? -ne 0 ]; then
+		log_write "$STAG Getting basename of ($1) fail!"
+		return 81
+	fi
+    name2=`basename $2`
+	if [ $? -ne 0 ]; then
+		log_write "$STAG Getting basename of ($2) fail!"
+		return 82
+	fi
+    sed -i "s/$name1/$name2/g" $3
+	if [ $? -ne 0 ]; then
+		log_write "$STAG Sed md5 file ($3) fail!"
+		return 83
+	fi
+    return 0
+}
+
+if [ -e "${PENDINGCHK}" ]; then
+    log_write "$STAG Pending reboot, could not run!"
+    exit 97
+fi
+
+_curr_dir=`pwd`
+
+# Lock to test a single instance is running, and exit if wait timeout
+log_write "$STAG Checking if allowed to run..."
+lock $bname || ( log_write "$STAG Checking if allowed to run... failed"; exit 100 )
+log_write "$STAG Checking if allowed to run... done"
+
+# Set TRAPs to release lock if forced to exit
+trap __sig_int SIGINT
+trap __sig_quit SIGQUIT
+trap __sig_term SIGTERM
+trap __sig_hup SIGHUP
+
+if [ -e "${PENDINGCHK}" ]; then
+    log_write "$TAG Pending reboot, could not run!"
+    my_exit 97
+fi
+
+TOTALARG=$#
+while getopts :f:n- FLAG; do
+    case $FLAG in
+        f)
+        #log_write "#Filename (-f)"
+        check_destpath `dirname "$OPTARG"`
+        valret=$?
+        if [ $valret -ne 0 ]; then
+            my_exit $valret
+        fi
+        mybasename=`basename "$OPTARG"`;;
+        n)
+        log_write "$STAG No previous backup option specified (-n)"
+        CREATEPBACK=0;;
+        '-')
+        show_help
+        my_exit 0;;
+        \?)
+        log_write "Invalid option: -$OPTARG" && my_exit 1;;
+        \:)
+        log_write "Required argument not found for option: -$OPTARG" && my_exit 2;;
+  esac
+done
+
+# removes processed option(s) from the cmd line args
+shift $((OPTIND-1))
+
+if [ "$#" -ne 1 ]; then
+    show_help
+    my_exit 3
+fi
+
+if ! [ -d $1 ] ; then
+    log_write "$STAG Source directory does not exist ($1)!"
+    my_exit 4
+fi
+if [ "x$mybasename" == "x" ] ; then
+    mybasename=$(create_basename $1)
+    if ! [ -d "$BAKPATH" ]; then
+        mkdir -p $BAKPATH
+        if [ $? -ne 0 ]; then
+            log_write "$STAG create dir ($BAKPATH) fail!"
+            my_exit 5
+        fi
+    fi
+fi
+
+log_write "$STAG Creating backup to: "$BAKPATH$mybasename
+TMPBK=$(mktemp -d)
+if [ $? -ne 0 ]; then
+	log_write "$STAG mktemp fail!"
+	my_exit 6
+fi
+
+# temporarily bind mount dir to backup to TMPBK
+mount --bind -o ro $1 ${TMPBK}
+if [ $? -ne 0 ]; then
+    log_write "$STAG mount $1 to temp folder fail!"
+    my_exit 7
+fi
+
+rm -f $BAKPATH$mybasename$TMPEXT
+if [ $? -ne 0 ]; then
+	log_write "$STAG cannot remove ($BAKPATH$mybasename$TMPEXT)!"
+	my_exit 8
+fi
+rm -f $BAKPATH$mybasename$TMPMD5EXT
+if [ $? -ne 0 ]; then
+	log_write "$STAG cannot remove ($BAKPATH$mybasename$TMPMD5EXT)!"
+	my_exit 9
+fi
+rm -f ${ENDSIG}
+rm -f ${ERRSIG}
+log_write "$STAG Creating files backup..."
+(
+tar -zcf $BAKPATH$mybasename$TMPEXT -C ${TMPBK} .
+if [ $? -ne 0 ]; then
+    log_write " $STAG tar ($BAKPATH$mybasename$TMPEXT) fail!"
+    touch ${ERRSIG}
+    exit 10
+fi
+touch ${ENDSIG}
+) &
+until [ -f ${ENDSIG} ]; do
+    spin
+    if [ -f ${ERRSIG} ]; then
+        my_exit 11
+    fi
+    if [ ! -f ${ENDSIG} ]; then
+        sleep 1s
+    fi
+done
+endspin
+log_write "$STAG Creating files backup... done"
+
+# create md5
+cd $BAKPATH
+if [ $? -ne 0 ]; then
+    log_write "$STAG cannot change dir to ($BAKPATH)!"
+    my_exit 12
+fi
+md5sum ./$mybasename$TMPEXT > ./$mybasename$TMPMD5EXT
+if [ $? -ne 0 ]; then
+    log_write "$STAG cannot create md5 for ($BAKPATH$mybasename$TMPEXT)!"
+    my_exit 13
+fi
+
+# create a previous backup if one already exit
+if [ $CREATEPBACK -eq 1 ]; then
+    if [ -f "$BAKPATH$mybasename$BAKEXT" ] && [ -f "$BAKPATH$mybasename$BAKMD5EXT" ]; then
+        log_write "$STAG Copy prev. backup to: "$BAKPATH$mybasename$PREVEXT
+        cp -f $BAKPATH$mybasename$BAKEXT $BAKPATH$mybasename$PREVEXT
+        if [ $? -ne 0 ]; then
+            log_write "$STAG Creating previous backup ($BAKPATH$mybasename$PREVEXT) fail!"
+            my_exit 14
+        fi
+        log_write "$STAG Copy prev. MD5 to: "$BAKPATH$mybasename$PREVMD5EXT
+        cp -f $BAKPATH$mybasename$BAKMD5EXT $BAKPATH$mybasename$PREVMD5EXT
+        if [ $? -ne 0 ]; then
+            log_write "$STAG Creating previous backup ($BAKPATH$mybasename$PREVMD5EXT) fail!"
+            my_exit 15
+        fi
+        correct_md5_file $BAKPATH$mybasename$BAKEXT $BAKPATH$mybasename$PREVEXT $BAKPATH$mybasename$PREVMD5EXT
+        if [ $? -ne 0 ]; then
+            my_exit $?
+        fi
+    fi
+fi
+
+# create current backup from temporary files
+rm -f $BAKPATH$mybasename$BAKEXT
+if [ $? -ne 0 ]; then
+    log_write " $STAG cannot remove ($BAKPATH$mybasename$BAKEXT) fail!"
+    my_exit 16
+fi
+rm -f $BAKPATH$mybasename$BAKMD5EXT
+if [ $? -ne 0 ]; then
+    log_write " $STAG cannot remove ($BAKPATH$mybasename$BAKMD5EXT) fail!"
+    my_exit 17
+fi
+log_write "$STAG Move backup to: "$BAKPATH$mybasename$BAKEXT
+mv $BAKPATH$mybasename$TMPEXT $BAKPATH$mybasename$BAKEXT
+if [ $? -ne 0 ]; then
+    log_write " $STAG cannot move to ($BAKPATH$mybasename$BAKEXT) fail!"
+    my_exit 18
+fi
+log_write "$STAG Move MD5 to: "$BAKPATH$mybasename$BAKMD5EXT
+mv $BAKPATH$mybasename$TMPMD5EXT $BAKPATH$mybasename$BAKMD5EXT
+if [ $? -ne 0 ]; then
+    log_write " $STAG cannot move to ($BAKPATH$mybasename$BAKMD5EXT) fail!"
+    my_exit 19
+fi
+correct_md5_file $BAKPATH$mybasename$TMPEXT $BAKPATH$mybasename$BAKEXT $BAKPATH$mybasename$BAKMD5EXT
+if [ $? -ne 0 ]; then
+	my_exit $?
+fi
+rm -f ${ENDSIG}
+rm -f ${ERRSIG}
+log_write "$STAG System sync..."
+(
+sync
+if [ $? -ne 0 ]; then
+    log_write " $STAG sync fail!"
+    touch ${ERRSIG}
+    exit 20
+fi
+touch ${ENDSIG}
+) &
+until [ -f ${ENDSIG} ]; do
+    spin
+    if [ -f ${ERRSIG} ]; then
+        my_exit 21
+    fi
+    if [ ! -f ${ENDSIG} ]; then
+        sleep 1s
+    fi
+done
+endspin
+log_write "$STAG System sync... done"
+my_exit 0

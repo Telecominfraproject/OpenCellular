@@ -1,0 +1,17 @@
+https://bugs.gentoo.org/391299
+
+split up linking flags into multiple arguments
+
+Index: gpsd-3.10/SConstruct
+===================================================================
+--- gpsd-3.10.orig/SConstruct	2017-03-28 23:47:02.815665786 +0200
++++ gpsd-3.10/SConstruct	2017-03-28 23:47:40.463666285 +0200
+@@ -250,7 +250,7 @@
+             env.Replace(**{j: os.getenv(i)})
+ for flag in ["LDFLAGS", "LINKFLAGS", "SHLINKFLAGS", "CPPFLAGS"]:
+     if os.environ.has_key(flag):
+-        env.MergeFlags({flag : [os.getenv(flag)]})
++        env.MergeFlags({flag : Split(os.getenv(flag))})
+ 
+ 
+ # Keep scan-build options in the environment

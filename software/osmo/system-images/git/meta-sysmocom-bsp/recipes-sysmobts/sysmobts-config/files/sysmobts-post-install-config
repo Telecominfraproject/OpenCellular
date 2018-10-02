@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+prepare_sysmobts_2050() {
+	# Disable getty and mangle the config
+	/bin/systemctl mask serial-getty@ttyS0.service
+
+	# We need to mange the systemd config file
+	sed -i s,#LogTarget=journal-or-kmsg,LogTarget=null, /etc/systemd/system.conf
+	sed -i s,#ShowStatus=yes,ShowStatus=no, /etc/systemd/system.conf
+	sed -i s,#DefaultStandardOutput=journal,DefaultStandardOutput=syslog, /etc/systemd/system.conf
+	sed -i s,#DefaultStandardError=inherit,DefaultStandardError=syslog, /etc/systemd/system.conf
+	sync
+}
+
+
+#
+MODEL=`/usr/bin/sysmobts-util -r model-nr`
+
+if [ $MODEL -eq "2050" ];
+then
+	echo "Going to fix the configuration for sysmobts-2050"
+	prepare_sysmobts_2050
+fi

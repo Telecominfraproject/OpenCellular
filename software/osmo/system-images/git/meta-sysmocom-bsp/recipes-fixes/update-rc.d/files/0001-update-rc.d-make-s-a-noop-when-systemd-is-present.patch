@@ -1,0 +1,27 @@
+From e7aa29008b55962fbfcf374391fa8bb5f8737c11 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 18 Oct 2011 13:44:56 +0200
+Subject: [PATCH] update-rc.d: make -s a noop when systemd is present
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ update-rc.d |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/update-rc.d b/update-rc.d
+index 5e32902..d646abc 100644
+--- a/update-rc.d
++++ b/update-rc.d
+@@ -115,7 +115,9 @@ while [ $# -gt 0 ]; do
+			shift
+			continue
+			;;
+-		-s)	dostart=1
++		-s)	if [ ! -e /lib/systemd/systemd ] ; then
++				dostart=1
++			fi
+			shift
+			continue
+			;;
+--
+1.6.6.1

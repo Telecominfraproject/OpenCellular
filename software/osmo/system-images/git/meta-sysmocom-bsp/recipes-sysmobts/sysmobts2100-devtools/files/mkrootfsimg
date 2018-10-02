@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -xe
+
+IMGTAR=${1:-sysmocom-core-image-sysmobts2100.tar.gz}
+
+if [ ! -f "${IMGTAR}" ]; then
+        echo "file ${IMGTAR} not found, exit"
+        exit 1
+fi
+
+IMGFILE=${IMGTAR}.img
+MOUNTDIR="$(mktemp -d)"
+
+mv $IMGFILE $IMGFILE-old || true
+dd if=/dev/zero of=${IMGFILE} bs=128M count=1
+/sbin/mkfs -t ext4 -O ^64bit ${IMGFILE}
+sudo mount -t ext4 -o loop ${IMGFILE} ${MOUNTDIR}/
+sudo tar -zxf ${IMGTAR} -C ${MOUNTDIR}/
+sync
+sudo umount ${MOUNTDIR}
+rmdir ${MOUNTDIR}

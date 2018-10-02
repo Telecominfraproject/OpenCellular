@@ -1,0 +1,2 @@
+SOURCE_ARCHIVE_PACKAGE_TYPE = "tar"
+INHERIT += "sysmocom-archive-patched-source"

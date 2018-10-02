@@ -1,0 +1,22 @@
+# /etc/network/interfaces -- configuration file for ifup(8), ifdown(8)
+
+# The loopback interface
+auto lo
+iface lo inet loopback
+
+#eth0 is our gateway to the network. ifplugd will run ifup/ifdown for us
+iface eth0 inet dhcp
+
+#eth1 will provide dhcp to clients
+auto eth1
+iface eth1 inet static
+	address 10.23.24.1
+	netmask 255.255.255.0
+	network 10.23.24.0
+
+auto eth1:1
+iface eth1:1 inet static
+        address 10.23.123.1
+        netmask 255.255.255.0
+        network 10.23.123.0
+

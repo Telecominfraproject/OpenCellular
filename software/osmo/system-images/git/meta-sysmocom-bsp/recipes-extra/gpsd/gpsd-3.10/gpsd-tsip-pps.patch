@@ -1,0 +1,28 @@
+Index: gpsd-3.10/driver_tsip.c
+===================================================================
+--- gpsd-3.10.orig/driver_tsip.c
++++ gpsd-3.10/driver_tsip.c
+@@ -1201,6 +1201,23 @@ void configuration_packets_generic(struc
+ 	/* Request Navigation Configuration */
+ 	putbyte(buf, 0, 0x03);
+ 	(void)tsip_write(session, 0xbb, buf, 1);
++
++	gpsd_report(session->context->debug,
++			LOG_PROG, "Configuring + Enabling 1PPS\n");
++	/* enable 1pps */
++	putbyte(buf, 0, 0x4a);
++	putbyte(buf, 1, 0x01);
++	(void)tsip_write(session, 0x8e, buf, 2);
++
++	/* request PPS only if at least one sat is visible */
++	putbyte(buf, 0, 0x4e);
++	putbyte(buf, 1, 0x03);
++	(void)tsip_write(session, 0x8e, buf, 2);
++
++	/* request PPS and TSIP to use UTC time, not GPS */
++	putbyte(buf, 0, 0xa2);
++	putbyte(buf, 1, 0x03);
++	(void)tsip_write(session, 0x8e, buf, 2);
+ }
+ 
+ void configuration_packets_accutime_gold(struct gps_device_t *session)

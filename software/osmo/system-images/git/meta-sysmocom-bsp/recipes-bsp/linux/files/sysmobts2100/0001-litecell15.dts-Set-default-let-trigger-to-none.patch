@@ -1,0 +1,33 @@
+From 83bf55510af35cc9e0872bc25ad5628dfae2f4a8 Mon Sep 17 00:00:00 2001
+From: Pau Espin Pedrol <pespin@sysmocom.de>
+Date: Mon, 7 Aug 2017 10:27:36 +0200
+Subject: [PATCH] litecell15.dts: Set default let trigger to none
+
+---
+ arch/arm/boot/dts/litecell15.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/litecell15.dts b/arch/arm/boot/dts/litecell15.dts
+index a0c9db31eaf4..a2a08d64f313 100644
+--- a/arch/arm/boot/dts/litecell15.dts
++++ b/arch/arm/boot/dts/litecell15.dts
+@@ -318,14 +318,14 @@
+ 		led@0 {
+ 			label = "usr0";
+ 			gpios = <&gpio7 31 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "heartbeat";
++			linux,default-trigger = "none";
+ 			default-state = "on";
+ 		};
+ 
+ 		led@1 {
+ 			label = "usr1";
+ 			gpios = <&gpio7 30 GPIO_ACTIVE_HIGH>;
+-			linux,default-trigger = "cpu0";
++			linux,default-trigger = "none";
+ 			default-state = "off";
+ 		};
+ 
+-- 
+2.13.4
+

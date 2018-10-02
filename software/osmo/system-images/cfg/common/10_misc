@@ -1,0 +1,5 @@
+# Enable the prserver host
+PRSERV_HOST = "localhost:0"
+
+# legacy and remove it in the future
+ROOTFS_PKGMANAGE_BOOTSTRAP = ""

@@ -1,0 +1,11 @@
+MACHINE = "sysmobts-v2"
+
+# feed
+PACKAGE_FEED_URIS="https://autoupdate:eechiesuboot@downloads.sysmocom.de/generic/sysmobts/201705/ipk/"
+
+# HW doesn't have rtc
+MACHINE_FEATURES_BACKFILL_CONSIDERED = "rtc"
+
+# Ignore old kernels
+BBMASK="recipes-bsp/linux/linux_2.6.39.bb recipes-bsp/linux/linux-sysmocom_3.10.bb"
+PREFERRED_VERSION_linux-sysmocom = "4.9.14+git%"

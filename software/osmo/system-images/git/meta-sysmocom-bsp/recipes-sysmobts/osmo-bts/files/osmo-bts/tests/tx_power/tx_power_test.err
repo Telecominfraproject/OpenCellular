@@ -1,0 +1,38 @@
+power_ramp_start(cur=0, tgt=40000)
+[0;mAsked to ramp power up to 40000 mdBm, which exceeds P_max_out (33000)
+[0;mpower_ramp_start(cur=0, tgt=33000)
+[0;mramp_timer_cb(cur_pout=2000, tgt_pout=33000, ramp_att=31000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to -8000 mdBm.
+[0;mramp_timer_cb(cur_pout=4000, tgt_pout=33000, ramp_att=29000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to -6000 mdBm.
+[0;mramp_timer_cb(cur_pout=6000, tgt_pout=33000, ramp_att=27000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to -4000 mdBm.
+[0;mramp_timer_cb(cur_pout=8000, tgt_pout=33000, ramp_att=25000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to -2000 mdBm.
+[0;mramp_timer_cb(cur_pout=10000, tgt_pout=33000, ramp_att=23000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 0 mdBm.
+[0;mramp_timer_cb(cur_pout=12000, tgt_pout=33000, ramp_att=21000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 2000 mdBm.
+[0;mramp_timer_cb(cur_pout=14000, tgt_pout=33000, ramp_att=19000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 4000 mdBm.
+[0;mramp_timer_cb(cur_pout=16000, tgt_pout=33000, ramp_att=17000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 6000 mdBm.
+[0;mramp_timer_cb(cur_pout=18000, tgt_pout=33000, ramp_att=15000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 8000 mdBm.
+[0;mramp_timer_cb(cur_pout=20000, tgt_pout=33000, ramp_att=13000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 10000 mdBm.
+[0;mramp_timer_cb(cur_pout=22000, tgt_pout=33000, ramp_att=11000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 12000 mdBm.
+[0;mramp_timer_cb(cur_pout=24000, tgt_pout=33000, ramp_att=9000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 14000 mdBm.
+[0;mramp_timer_cb(cur_pout=26000, tgt_pout=33000, ramp_att=7000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 16000 mdBm.
+[0;mramp_timer_cb(cur_pout=28000, tgt_pout=33000, ramp_att=5000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 18000 mdBm.
+[0;mramp_timer_cb(cur_pout=30000, tgt_pout=33000, ramp_att=3000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 20000 mdBm.
+[0;mramp_timer_cb(cur_pout=32000, tgt_pout=33000, ramp_att=1000, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 22000 mdBm.
+[0;mramp_timer_cb(cur_pout=33000, tgt_pout=33000, ramp_att=0, therm_att=0, user_gain=0)
+[0;mramping TRX board output power to 23000 mdBm.
+[0;m

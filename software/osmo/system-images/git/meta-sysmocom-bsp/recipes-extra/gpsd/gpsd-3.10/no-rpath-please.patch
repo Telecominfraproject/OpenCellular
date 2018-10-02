@@ -1,0 +1,12 @@
+Index: gpsd-3.9/SConstruct
+===================================================================
+--- gpsd-3.9.orig/SConstruct
++++ gpsd-3.9/SConstruct
+@@ -223,6 +223,7 @@ env['PYTHON'] = sys.executable
+ env['STRIP'] = "strip"
+ env['PKG_CONFIG'] = "pkg-config"
+ env['CHRPATH'] = 'chrpath'
++env['_RPATH'] = ''
+ for i in ["AR", "ARFLAGS", "CCFLAGS", "CFLAGS", "CC", "CXX", "CXXFLAGS", "STRIP", "PKG_CONFIG", "CHRPATH", "LD", "TAR"]:
+     if os.environ.has_key(i):
+         j = i
