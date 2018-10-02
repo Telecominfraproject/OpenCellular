@@ -1,0 +1,6 @@
+Testing lchan_sacch_get
+Testing IPA structure
+Testing OML structure
+ Testing IPA messages.
+ Testing Osmo messages.
+ Testing ETSI messages.
