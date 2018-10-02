@@ -147,15 +147,6 @@ static const OcGpio_Port s_sx1509_ioexp = {
     .object_data = &(SX1509_Obj){},
 };
 
-static const OcGpio_Port s_invalid_ioexp = {
-    .fn_table = &GpioSX1509_fnTable,
-    .cfg = &(SX1509_Cfg) {
-        .i2c_dev = { I2C_BUS, 0x01 },
-    },
-    .object_data = &(SX1509_Obj){},
-};
-
-static const OcGpio_Pin s_invalid_pin = { &s_invalid_ioexp, 0 };
 static OcGpio_Pin s_test_pins[16];
 
 /* ============================= Boilerplate ================================ */
