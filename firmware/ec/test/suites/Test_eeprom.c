@@ -51,13 +51,6 @@ static Eeprom_Cfg s_dev = {
     },
 };
 
-static Eeprom_Cfg s_invalid_dev = {
-    .i2c_dev = {
-        .bus = 6,
-        .slave_addr = 0xFF,
-    },
-};
-
 static uint16_t EEPROM_regs[] = {
     [0x00] = 0x00, /* Init */
     [0xC601] = 0x00, /* SERIAL INFO */
@@ -206,37 +199,32 @@ OcGpio_Pin pin_inven_eeprom_wp      = { &s_fake_io_exp, 2, 32 };
 Eeprom_Cfg eeprom_gbc_sid = {
     .i2c_dev = { 6, 0x51 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = NULL,
+    .type = {0, 0},
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_gbc_inv = {
     .i2c_dev = { 6, 0x50 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = NULL,
+    .type = {0, 0},
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_sdr_inv = {
     .i2c_dev = { 3, 0x50 },
     .pin_wp = NULL,
-    .type = NULL,
+    .type = {0, 0},
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_fe_inv = {
     .i2c_dev = { 4, 0x50 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = NULL,
+    .type = {0, 0},
     .ss = 8,
 };
 
 /* ============================= Boilerplate ================================ */
-void EEPROM_init(Eeprom_Cfg *s_dev)
-{
-    int8_t ret = 0;
-}
-
 void suite_setUp(void)
 {
     fake_I2C_init();
@@ -261,8 +249,6 @@ void setUp(void)
     OcGpio_init(&s_fake_io_port);
 
     OcGpio_init(&s_fake_io_exp);
-
-    EEPROM_init(&s_dev);
 }
 
 void tearDown(void)
@@ -324,7 +310,7 @@ void test_eeprom_disable_write(void)
     Eeprom_Cfg i_dev = {
         .i2c_dev = { 6, 0x45 },
         .pin_wp = &pin_inven_eeprom_wp,
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
 
@@ -340,7 +326,7 @@ void test_eeprom_enable_write(void)
     Eeprom_Cfg i_dev = {
         .i2c_dev = { 6, 0x45 },
         .pin_wp = &pin_inven_eeprom_wp,
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_enable_write(&i_dev));
@@ -354,7 +340,7 @@ void test_eeprom_read_board_info(void)
     Eeprom_Cfg b1_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_board_info(&b1_dev, &rominfo));
@@ -363,7 +349,7 @@ void test_eeprom_read_board_info(void)
     Eeprom_Cfg b2_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 7,
     };
     EEPROM_regs[0xAC01] = 0x06;
@@ -373,7 +359,7 @@ void test_eeprom_read_board_info(void)
     Eeprom_Cfg b3_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 8,
     };
     EEPROM_regs[0xAC01] = 0x07;
@@ -401,7 +387,7 @@ void test_eeprom_read_device_info_record(void)
     Eeprom_Cfg c1_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
     memset(deviceinfo,0,10);
@@ -415,7 +401,7 @@ void test_eeprom_read_device_info_record(void)
     Eeprom_Cfg c2_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 7,
     };
     memset(deviceinfo1,0,10);
@@ -429,7 +415,7 @@ void test_eeprom_read_device_info_record(void)
     Eeprom_Cfg c3_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 8,
     };
     memset(deviceinfo2,0,10);
@@ -448,7 +434,7 @@ void test_eeprom_write_device_info_record(void)
     Eeprom_Cfg d1_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
 
@@ -459,7 +445,7 @@ void test_eeprom_write_device_info_record(void)
     Eeprom_Cfg d2_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
 
@@ -470,7 +456,7 @@ void test_eeprom_write_device_info_record(void)
     Eeprom_Cfg d3_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = NULL,
+        .type = {0, 0},
         .ss = 0,
     };
 
