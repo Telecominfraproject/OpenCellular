@@ -206,7 +206,7 @@ static PWRSRC_Dev p_dev = {
 };
 /* ================================ Tests =================================== */
 
-void test_pwr_process_get_status_parameters_data_poeavailable()
+void test_pwr_process_get_status_parameters_data_poeavailable(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x00;          //PoE Availability    
@@ -222,7 +222,7 @@ void test_pwr_process_get_status_parameters_data_poeavailable()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_poeaccessible()
+void test_pwr_process_get_status_parameters_data_poeaccessible(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x01;          //PoE Accessibility    
@@ -238,7 +238,7 @@ void test_pwr_process_get_status_parameters_data_poeaccessible()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_solaravailable()
+void test_pwr_process_get_status_parameters_data_solaravailable(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x02;          //SOLAR Availability
@@ -254,7 +254,7 @@ void test_pwr_process_get_status_parameters_data_solaravailable()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_solaraccessible()
+void test_pwr_process_get_status_parameters_data_solaraccessible(void)
 {
     uint8_t powerStatus = 0;         
     uint8_t index = 0x03;          //SOLAR Accessibility
@@ -270,7 +270,7 @@ void test_pwr_process_get_status_parameters_data_solaraccessible()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_extavailable()
+void test_pwr_process_get_status_parameters_data_extavailable(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x04;           //Ext Batt availability
@@ -286,7 +286,7 @@ void test_pwr_process_get_status_parameters_data_extavailable()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_extaccessible()
+void test_pwr_process_get_status_parameters_data_extaccessible(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x05;          //Ext Batt accessibility
@@ -302,7 +302,7 @@ void test_pwr_process_get_status_parameters_data_extaccessible()
     TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_intavailable()
+void test_pwr_process_get_status_parameters_data_intavailable(void)
 {
    uint8_t powerStatus = 0;
    uint8_t index = 0x06;           //Int Batt Availability   
@@ -318,7 +318,7 @@ void test_pwr_process_get_status_parameters_data_intavailable()
    TEST_ASSERT_EQUAL(1, powerStatus);
 }
 
-void test_pwr_process_get_status_parameters_data_intaccessible()
+void test_pwr_process_get_status_parameters_data_intaccessible(void)
 {
     uint8_t powerStatus = 0;
     uint8_t index = 0x07;          //Int Batt Accessibility
