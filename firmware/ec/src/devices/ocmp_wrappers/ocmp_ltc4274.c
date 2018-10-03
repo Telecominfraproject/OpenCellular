@@ -41,7 +41,7 @@ typedef enum LTC7274Alert {
 bool LTC4274_reset(void *driver, void *params)
 {
 	ReturnStatus status = RETURN_OK;
-	status = ltc4274_reset();
+	status = ltc4274_reset(driver);
 	return status;
 }
 
