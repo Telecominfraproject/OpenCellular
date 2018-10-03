@@ -506,6 +506,7 @@ static void _get_pse_detect_enum(uint8_t val , ePSEDetection *pseDetect)
     {
         *pseDetect = LTC4274_RSIG_TOO_HIGH;
     }
+    break;
     case LTC4274_OPEN_CIRCUIT:
     {
         *pseDetect = LTC4274_OPEN_CIRCUIT;
