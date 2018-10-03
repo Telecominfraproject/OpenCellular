@@ -16,6 +16,7 @@
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
 #include "inc/subsystem/power/power.h"
+#include "devices/i2c/threaded_int.h"
 
 #include <stdlib.h>
 #include <ti/sysbios/knl/Task.h>
@@ -1018,7 +1019,7 @@ void  ltc4274_init(LTC4274_Dev *dev)
  **    RETURN TYPE     : ReturnStatus
  **
  *****************************************************************************/
-void  ltc4274_initPSEStateInfo()
+void  ltc4274_initPSEStateInfo(void)
 {
     PSEStatus_Info.pseStatus.detectStatus = LTC4274_DETECT_UNKOWN;
     PSEStatus_Info.pseStatus.classStatus = LTC4274_CLASSTYPE_UNKOWN;
