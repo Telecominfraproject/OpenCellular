@@ -14,9 +14,6 @@
 #include <string.h>
 
 /* ======================== Constants & variables =========================== */
-static const unsigned int I2C_BUS = 2;
-static const uint8_t I2C_ADDR = 0x00;
-
 static uint8_t PCA9557_regs[] = {
     [0x00] = 0x00, /* Input values */
     [0x01] = 0x00, /* Output values */
