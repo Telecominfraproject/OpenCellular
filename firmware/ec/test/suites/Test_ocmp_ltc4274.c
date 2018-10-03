@@ -25,17 +25,17 @@ static OcGpio_Port s_fake_io_port = {
     .object_data = &(FakeGpio_Obj){},
 };
 
-static const I2C_Dev I2C_DEV = {
+static I2C_Dev I2C_DEV = {
     .bus = 7,
     .slave_addr = 0x2F,
 };
 
-static const I2C_Dev I2C_INVALID_DEV = {
+static I2C_Dev I2C_INVALID_DEV = {
     .bus = 7,
     .slave_addr = 0x52,
 };
 
-static const I2C_Dev I2C_INVALID_BUS = {
+static I2C_Dev I2C_INVALID_BUS = {
     .bus = 3,
     .slave_addr = 0x2F,
 };
@@ -171,14 +171,19 @@ void suite_tearDown(void)
 }
 
 /* ================================ Tests =================================== */
+// Parameters are not used as this is just used to test assigning the 
+//   alert_handler right now.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void OCMP_GenerateAlert(const AlertData *alert_data,
                         unsigned int alert_id,
                         const void *data)
 {
     return;
 }
+#pragma GCC diagnostic pop
 
-void test_probe()
+void test_probe(void)
 {
     POSTData postData;
 
@@ -201,7 +206,7 @@ void test_probe()
             LTC4274_fxnTable.cb_probe(&s_dev, &postData));
 }
 
-void test_get_status()
+void test_get_status(void)
 {
     uint8_t value = 0xFF;
 
@@ -247,7 +252,7 @@ void test_get_status()
 
 }
 
-void test_set_config()
+void test_set_config(void)
 {
     uint8_t value = 0x00;
     
@@ -309,7 +314,7 @@ void test_set_config()
                 LTC4274_CONFIG_HP_ENABLE, &value));
 }
 
-void test_get_config()
+void test_get_config(void)
 {
     uint8_t value = 0x00;
     
@@ -365,8 +370,10 @@ void test_get_config()
                 LTC4274_CONFIG_HP_ENABLE, &value));
 }
 
-void test_init()
+void test_init(void)
 {
+    
+    const int alert_token;
 
     const LTC4274_Config fact_ltc4274_cfg = {
         .operatingMode = LTC4274_AUTO_MODE,
@@ -377,7 +384,7 @@ void test_init()
     };
     
     TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4274_fxnTable.cb_init(&s_dev,
-            &fact_ltc4274_cfg, 1));
+            &fact_ltc4274_cfg, &alert_token));
 
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x12], LTC4274_AUTO_MODE);
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x14], LTC4274_DETECT_ENABLE);
@@ -388,7 +395,7 @@ void test_init()
                             LTC7274_GpioConfig[27]);
                             
     TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, LTC4274_fxnTable.cb_init(&s_invalid_dev,
-            &fact_ltc4274_cfg, 1));
+            &fact_ltc4274_cfg, &alert_token));
     TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4274_fxnTable.cb_init(&s_dev,
-            NULL, 1));
+            NULL, &alert_token));
 }
