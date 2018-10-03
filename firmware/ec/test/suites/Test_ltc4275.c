@@ -39,10 +39,15 @@ void test_alert(void)
 {
 }
 
+// Parameters are not used as this is just used to test assigning the 
+//   alert_handler right now.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static void alert_handler(LTC4275_Event evt, void *context)
 {
 
 }
+#pragma GCC diagnostic pop
 
 void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, uint16_t manId, uint16_t devId)
 {
@@ -85,7 +90,7 @@ LTC4275_Dev l_dev = {
 
 
 /* ================================ Tests =================================== */
-void test_ltc4275_init()
+void test_ltc4275_init(void)
 {
     LTC4275_GpioPins[0x60] = 0;
     LTC4275_GpioPins[0x40] = 1;
@@ -96,7 +101,7 @@ void test_ltc4275_init()
     TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES, LTC4275_GpioConfig[0x60]);
 }
 
-void test_ltc4275_get_power_good()
+void test_ltc4275_get_power_good(void)
 {
     ePDPowerState val;
 
@@ -110,7 +115,7 @@ void test_ltc4275_get_power_good()
 
 }
 
-void test_ltc4275_probe()
+void test_ltc4275_probe(void)
 {
     LTC4275_GpioPins[0x60] = 1;
     POSTData postData;
@@ -126,7 +131,7 @@ void test_ltc4275_probe()
     TEST_ASSERT_EQUAL(2, PDStatus_Info.pdalert);
 }
 
-void test_ltc4275_get_class()
+void test_ltc4275_get_class(void)
 {
     LTC4275_GpioPins[0x40] = 1;
     ePDClassType val;
@@ -139,14 +144,15 @@ void test_ltc4275_get_class()
     TEST_ASSERT_EQUAL(LTC4275_CLASSTYPE_1, val);
 }
 
-void test_ltc4275_set_alert_handler()
+void test_ltc4275_set_alert_handler(void)
 {
-    ltc4275_set_alert_handler(&l_dev, alert_handler, 1);
-    TEST_ASSERT_EQUAL(1, (int *)l_dev.obj.cb_context);
+    int context;
+    ltc4275_set_alert_handler(&l_dev, alert_handler, &context);
+    TEST_ASSERT_EQUAL(&context, (int *)l_dev.obj.cb_context);
     TEST_ASSERT_EQUAL(alert_handler, (int *)l_dev.obj.alert_cb);
 }
 
-void test_ltc4275_update_status()
+void test_ltc4275_update_status(void)
 {
     LTC4275_GpioPins[0x60] = 1;
     LTC4275_GpioPins[0x40] = 1;
