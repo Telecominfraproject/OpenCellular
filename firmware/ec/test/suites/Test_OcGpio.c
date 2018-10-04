@@ -51,25 +51,25 @@ void suite_tearDown(void)
 {
 }
 
-void test_ocgpio_init()
+void test_ocgpio_init(void)
 {
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_init(&s_fake_io_port));
 }
 
-void test_ocgpio_read()
+void test_ocgpio_read(void)
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(1, OcGpio_read(&s_fake_pin));
 }
 
-void test_ocgpio_write()
+void test_ocgpio_write(void)
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_write(&s_fake_pin, 0));
     TEST_ASSERT_EQUAL(0, OcGpio_GpioPins[1]);
 }
 
-void test_ocgpio_configure()
+void test_ocgpio_configure(void)
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_configure(&s_fake_pin, 8));

@@ -27,10 +27,6 @@ static uint8_t PCA9557_regs[] = {
     [0x02] = 0x00, /* Polarity */
     [0x03] = 0x00, /* Dir Config */
 };
-static const I2C_Dev pca9557_dev = {
-    .bus = 2,
-    .slave_addr = 0x24,
-};
 OcGpio_Port fe_ch1_gain_io = {
     .fn_table = &GpioPCA9557_fnTable,
     .cfg = &(PCA9557_Cfg) {
