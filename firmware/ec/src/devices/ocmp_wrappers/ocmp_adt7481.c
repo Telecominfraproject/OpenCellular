@@ -89,6 +89,10 @@ static ePostCode _probe(void *driver, POSTData *postData)
     return adt7481_probe(driver,postData);
 }
 
+// alert_token currently intentionally unused, so disabling unused-parameter
+// check
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
@@ -96,7 +100,7 @@ static ePostCode _init(void *driver, const void *config,
     if (adt7481_config == NULL) {
         return POST_DEV_CFG_FAIL;
     }
-    for (int i = 0; i < ARRAY_SIZE(adt7481_config->limits); ++i) {
+    for (size_t i = 0; i < ARRAY_SIZE(adt7481_config->limits); ++i) {
         if (adt7481_set_local_temp_limit(
                 driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
             adt7481_set_remote1_temp_limit(
@@ -119,6 +123,7 @@ static ePostCode _init(void *driver, const void *config,
 
     return POST_DEV_CFG_DONE;
 }
+#pragma GCC diagnostic pop
 
 /* TODO: dedup with SE98A driver */
 /* TODO: enable alerts (requires major ADT driver changes) */

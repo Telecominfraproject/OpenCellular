@@ -16,7 +16,6 @@
 extern const Component sys_schema[OC_SS_MAX_LIMIT];
 extern OCSubsystem *ss_reg[SUBSYSTEM_COUNT];
 POSTData PostResult[POST_RECORDS] = { { 0 } };
-static uint8_t deviceCount = 0;
 
 #ifdef UT_POST
 /*
@@ -50,6 +49,8 @@ void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, u
     pData->devId = devId;
 }
 #else
+static uint8_t deviceCount = 0;
+
 /* Execute POST for a given device driver (performs deep copy of alert_data) */
 static ePostCode _postDriver(const Component *subsystem,
                                 const Component *dev,

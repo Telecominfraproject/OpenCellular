@@ -263,6 +263,6 @@ void ltc4275_update_status(const LTC4275_Dev *dev)
     } else {
         PDStatus_Info.state = LTC4275_STATE_NOTOK;
         PDStatus_Info.pdalert = LTC4275_DISCONNECT_ALERT;
-        PDStatus_Info.pdStatus.classStatus == LTC4275_CLASSTYPE_UNKOWN;
+        PDStatus_Info.pdStatus.classStatus = LTC4275_CLASSTYPE_UNKOWN;
     }
 }

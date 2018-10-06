@@ -94,7 +94,7 @@ void pwr_source_config(PWRSRC_Dev* driver)
  **     RETURN TYPE    : None
  **
  *****************************************************************************/
-void pwr_source_init()
+void pwr_source_init(void)
 {
     ePowerSource itr = PWR_SRC_AUX_OR_SOLAR ;
     for (; itr < PWR_SRC_MAX; itr++) {

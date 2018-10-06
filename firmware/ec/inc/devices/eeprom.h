@@ -62,7 +62,7 @@ typedef enum {
  *****************************************************************************/
 bool eeprom_init(Eeprom_Cfg *cfg);
 
-ReturnStatus eeprom_read(Eeprom_Cfg *cfg,
+ReturnStatus eeprom_read(const Eeprom_Cfg *cfg,
                          uint16_t address,
                          void *buffer,
                          size_t size);
