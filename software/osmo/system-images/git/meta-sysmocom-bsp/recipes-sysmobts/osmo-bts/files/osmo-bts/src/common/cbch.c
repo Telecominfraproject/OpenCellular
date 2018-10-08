@@ -20,6 +20,7 @@
 
 #include <errno.h>
 
+#include <osmocom/core/utils.h>
 #include <osmocom/core/linuxlist.h>
 #include <osmocom/gsm/protocol/gsm_04_12.h>
 
@@ -59,6 +60,7 @@ static int get_smscb_block(struct gsm_bts *bts, uint8_t *out)
 		/* No message: Send NULL mesage */
 		return get_smscb_null_block(out);
 	}
+	OSMO_ASSERT(msg->next_seg < 4);
 
 	block_type = (struct gsm412_block_type *) out++;
 
@@ -70,6 +72,7 @@ static int get_smscb_block(struct gsm_bts *bts, uint8_t *out)
 	to_copy = GSM412_MSG_LEN - (msg->next_seg * GSM412_BLOCK_LEN);
 	if (to_copy > GSM412_BLOCK_LEN)
 		to_copy = GSM412_BLOCK_LEN;
+	OSMO_ASSERT(to_copy >= 0);
 
 	/* copy data and increment index */
 	memcpy(out, &msg->msg[msg->next_seg * GSM412_BLOCK_LEN], to_copy);
@@ -115,6 +118,8 @@ int bts_process_smscb_cmd(struct gsm_bts *bts,
 	}
 
 	scm = talloc_zero_size(bts, sizeof(*scm));
+	if (!scm)
+		return -1;
 
 	/* initialize entire message with default padding */
 	memset(scm->msg, GSM_MACBLOCK_PADDING, sizeof(scm->msg));
@@ -136,6 +141,7 @@ int bts_process_smscb_cmd(struct gsm_bts *bts,
 	}
 
 	llist_add_tail(&scm->list, &bts->smscb_state.queue);
+	/* FIXME: limit queue size and optionally send CBCH LOAD Information (overflow) via RSL */
 
 	return 0;
 }
@@ -144,11 +150,11 @@ static struct smscb_msg *select_next_smscb(struct gsm_bts *bts)
 {
 	struct smscb_msg *msg;
 
-	if (llist_empty(&bts->smscb_state.queue))
+	msg = llist_first_entry_or_null(&bts->smscb_state.queue, struct smscb_msg, list);
+	if (!msg) {
+		/* FIXME: send CBCH LOAD Information (underflow) via RSL */
 		return NULL;
-
-	msg = llist_entry(bts->smscb_state.queue.next,
-			  struct smscb_msg, list);
+	}
 
 	llist_del(&msg->list);
 

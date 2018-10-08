@@ -47,5 +47,6 @@ enum lc15bts_gsm_band {
 int lc15bts_rev_get(void);
 int lc15bts_model_get(void);
 int lc15bts_option_get(enum lc15bts_option_type type);
+const char* get_hwversion_desc();
 
 #endif

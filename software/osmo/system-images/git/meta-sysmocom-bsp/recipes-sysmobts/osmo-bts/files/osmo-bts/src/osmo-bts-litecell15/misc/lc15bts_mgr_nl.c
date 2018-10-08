@@ -104,8 +104,6 @@ static void respond_to(struct sockaddr_in *src, struct osmo_fd *fd,
 	if (!fetched_info) {
 		int fd_eth;
 		int serno;
-		int model;
-		int rev;
 
 		/* fetch the MAC */
 		fd_eth = open(ETH0_ADDR_SYSFS, O_RDONLY);
@@ -119,20 +117,7 @@ static void respond_to(struct sockaddr_in *src, struct osmo_fd *fd,
 		lc15bts_par_get_int(tall_mgr_ctx, LC15BTS_PAR_SERNR, &serno);
 		snprintf(ser_str, sizeof(ser_str), "%d", serno);
 
-		/* fetch the model and trx number */
-		snprintf(model_name, sizeof(model_name), "Litecell 1.5 BTS");
-
-		rev = lc15bts_rev_get();
-		if (rev >= 0) {
-			snprintf(model_name, sizeof(model_name), "%s Rev %c", 
-				model_name, rev);
-		} 
-
-		model = lc15bts_model_get();
-		if (model >= 0) {
-			snprintf(model_name, sizeof(model_name), "%s (%05X)", 
-				model_name, model);
-		}
+		strncpy(model_name, get_hwversion_desc(), sizeof(model_name)-1);
 		fetched_info = 1;
 	}
 

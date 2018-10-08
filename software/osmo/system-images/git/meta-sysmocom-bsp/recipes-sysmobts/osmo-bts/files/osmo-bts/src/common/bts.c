@@ -35,6 +35,7 @@
 #include <osmocom/core/stats.h>
 #include <osmocom/core/rate_ctr.h>
 #include <osmocom/gsm/protocol/gsm_12_21.h>
+#include <osmocom/gsm/gsm48.h>
 #include <osmocom/gsm/lapdm.h>
 #include <osmocom/trau/osmo_ortp.h>
 
@@ -135,6 +136,9 @@ int bts_init(struct gsm_bts *bts)
 	bts->paging_state = paging_init(bts, 200, 0);
 	bts->ul_power_target = -75;	/* dBm default */
 	bts->rtp_jitter_adaptive = false;
+	bts->rtp_port_range_start = 16384;
+	bts->rtp_port_range_end = 17407;
+	bts->rtp_port_range_next = bts->rtp_port_range_start;
 
 	/* configurable via OML */
 	bts->load.ccch.load_ind_period = 112;
@@ -529,14 +533,14 @@ static int try_merge_imm_ass_rej(struct gsm48_imm_ass_rej *old_rej,
 
 int bts_agch_enqueue(struct gsm_bts *bts, struct msgb *msg)
 {
-	int hard_limit = 1000;
+	int hard_limit = 100;
 	struct gsm48_imm_ass_rej *imm_ass_cmd = msgb_l3(msg);
 
 	if (bts->agch_queue.length > hard_limit) {
 		LOGP(DSUM, LOGL_ERROR,
 		     "AGCH: too many messages in queue, "
-		     "refusing message type 0x%02x, length = %d/%d\n",
-		     ((struct gsm48_imm_ass *)msgb_l3(msg))->msg_type,
+		     "refusing message type %s, length = %d/%d\n",
+		     gsm48_rr_msg_name(((struct gsm48_imm_ass *)msgb_l3(msg))->msg_type),
 		     bts->agch_queue.length, bts->agch_queue.max_length);
 
 		bts->agch_queue.rejected_msgs++;
@@ -611,11 +615,6 @@ static void compact_agch_queue(struct gsm_bts *bts)
 		struct gsm48_imm_ass *imm_ass_cmd = msgb_l3(msg);
 		int p_drop;
 
-		if (imm_ass_cmd->msg_type != GSM48_MT_RR_IMM_ASS_REJ)
-			return;
-
-		/* IMMEDIATE ASSIGN REJECT */
-
 		p_drop = (bts->agch_queue.length - offs) * slope / max_len;
 
 		if ((random() & 0xffff) >= p_drop)
@@ -623,6 +622,8 @@ static void compact_agch_queue(struct gsm_bts *bts)
 
 		llist_del(&msg->list);
 		bts->agch_queue.length--;
+		rsl_tx_delete_ind(bts, (uint8_t *)imm_ass_cmd, msgb_l3len(msg));
+		rate_ctr_inc2(bts->ctrs, BTS_CTR_AGCH_DELETED);
 		msgb_free(msg);
 
 		bts->agch_queue.dropped_msgs++;
@@ -703,7 +704,8 @@ int bts_supports_cm(struct gsm_bts *bts, enum gsm_phys_chan_config pchan,
 
 	/* Before the requested pchan/cm combination can be checked, we need to
 	 * convert it to a feature identifier we can check */
-	if (pchan == GSM_PCHAN_TCH_F) {
+	switch (pchan) {
+	case GSM_PCHAN_TCH_F:
 		switch(cm) {
 		case GSM48_CMODE_SPEECH_V1:
 			feature	= BTS_FEAT_SPEECH_F_V1;
@@ -718,7 +720,9 @@ int bts_supports_cm(struct gsm_bts *bts, enum gsm_phys_chan_config pchan,
 			/* Invalid speech codec type => Not supported! */
 			return 0;
 		}
-	} else if (pchan == GSM_PCHAN_TCH_H) {
+		break;
+
+	case GSM_PCHAN_TCH_H:
 		switch(cm) {
 		case GSM48_CMODE_SPEECH_V1:
 			feature	= BTS_FEAT_SPEECH_H_V1;
@@ -730,6 +734,12 @@ int bts_supports_cm(struct gsm_bts *bts, enum gsm_phys_chan_config pchan,
 			/* Invalid speech codec type => Not supported! */
 			return 0;
 		}
+		break;
+
+	default:
+		LOGP(DRSL, LOGL_ERROR, "BTS %u: unhandled pchan %s when checking mode %s\n",
+		     bts->nr, gsm_pchan_name(pchan), gsm48_chan_mode_name(cm));
+		return 0;
 	}
 
 	/* Check if the feature is supported by this BTS */

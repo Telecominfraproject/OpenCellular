@@ -44,6 +44,7 @@
 #include <osmo-bts/logging.h>
 #include <osmo-bts/bts_model.h>
 #include <osmo-bts/vty.h>
+#include <osmo-bts/rsl.h>
 
 #include "femtobts.h"
 #include "l1_if.h"

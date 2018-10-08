@@ -1,10 +1,10 @@
 [Unit]
-Description=sysmocom sysmoBTS
+Description=osmo-bts for sysmocom sysmoBTS
 
 [Service]
 Type=simple
 ExecStartPre=/bin/sh -c 'echo 0 > /sys/class/leds/activity_led/brightness'
-ExecStart=/usr/bin/osmo-bts-sysmo -s -c /etc/osmocom/osmo-bts.cfg -M
+ExecStart=/usr/bin/osmo-bts-sysmo -s -c /etc/osmocom/osmo-bts-sysmo.cfg -M
 ExecStopPost=/bin/sh -c 'echo 0 > /sys/class/leds/activity_led/brightness'
 ExecStopPost=/bin/sh -c 'cat /lib/firmware/sysmobts-v?.bit > /dev/fpgadl_par0 ; sleep 3s; cat /lib/firmware/sysmobts-v?.out > /dev/dspdl_dm644x_0; sleep 1s'
 Restart=always
@@ -17,4 +17,5 @@ CPUSchedulingPriority=1
 
 [Install]
 WantedBy=multi-user.target
-Alias=osmo-bts-sysmo.service
+Alias=sysmobts.service
+Alias=osmo-bts.service

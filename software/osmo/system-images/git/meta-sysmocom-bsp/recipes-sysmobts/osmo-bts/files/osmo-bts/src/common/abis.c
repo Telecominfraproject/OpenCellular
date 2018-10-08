@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include <osmocom/core/select.h>
 #include <osmocom/core/timer.h>
@@ -108,6 +109,9 @@ static struct e1inp_sign_link *sign_link_up(void *unit, struct e1inp_line *line,
 		sign_link = g_bts->oml_link =
 			e1inp_sign_link_create(&line->ts[E1INP_SIGN_OML-1],
 						E1INP_SIGN_OML, NULL, 255, 0);
+		if (clock_gettime(CLOCK_MONOTONIC, &g_bts->oml_conn_established_timestamp) != 0)
+			memset(&g_bts->oml_conn_established_timestamp, 0,
+			       sizeof(g_bts->oml_conn_established_timestamp));
 		drain_oml_queue(g_bts);
 		sign_link->trx = g_bts->c0;
 		bts_link_estab(g_bts);
@@ -118,7 +122,7 @@ static struct e1inp_sign_link *sign_link_up(void *unit, struct e1inp_line *line,
 			trx_nr);
 		trx = gsm_bts_trx_num(g_bts, trx_nr);
 		if (!trx) {
-			LOGP(DABIS, LOGL_ERROR, "TRX%d does not exixt!\n",
+			LOGP(DABIS, LOGL_ERROR, "TRX%d does not exist!\n",
 				trx_nr);
 			break;
 		}
@@ -140,9 +144,22 @@ static void sign_link_down(struct e1inp_line *line)
 	LOGP(DABIS, LOGL_ERROR, "Signalling link down\n");
 
 	/* First remove the OML signalling link */
-	if (g_bts->oml_link)
+	if (g_bts->oml_link) {
+		struct timespec now;
+
 		e1inp_sign_link_destroy(g_bts->oml_link);
+
+		/* Log a special notice if the OML connection was dropped relatively quickly. */
+		if (g_bts->oml_conn_established_timestamp.tv_sec != 0 && clock_gettime(CLOCK_MONOTONIC, &now) == 0 &&
+		    g_bts->oml_conn_established_timestamp.tv_sec + OSMO_BTS_OML_CONN_EARLY_DISCONNECT >= now.tv_sec) {
+			LOGP(DABIS, LOGL_FATAL, "OML link was closed early within %" PRIu64 " seconds. "
+			"If this situation persists, please check your BTS and BSC configuration files for errors. "
+			"A common error is a mismatch between unit_id configuration parameters of BTS and BSC.\n",
+			(uint64_t)(now.tv_sec - g_bts->oml_conn_established_timestamp.tv_sec));
+		}
+	}
 	g_bts->oml_link = NULL;
+	memset(&g_bts->oml_conn_established_timestamp, 0, sizeof(g_bts->oml_conn_established_timestamp));
 
 	/* Then iterate over the RSL signalling links */
 	llist_for_each_entry(trx, &g_bts->trx_list, list) {
@@ -209,7 +226,9 @@ static int inp_s_cbfn(unsigned int subsys, unsigned int signal,
 	if (subsys != SS_L_INPUT)
 		return 0;
 
-	DEBUGP(DABIS, "Input Signal %u received\n", signal);
+	struct input_signal_data *isd = signal_data;
+	DEBUGP(DABIS, "Input Signal %s received for link_type=%s\n",
+	       get_value_string(e1inp_signal_names, signal), e1inp_signtype_name(isd->link_type));
 
 	return 0;
 }

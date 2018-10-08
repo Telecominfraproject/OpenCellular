@@ -111,27 +111,13 @@ static const struct calib_file_desc calib_files[] = {
 	},
 };
 
+#if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,4,0)
 static const unsigned int arrsize_by_band[] = {
 	[GsmL1_FreqBand_850] = 124,
 	[GsmL1_FreqBand_900] = 194,
 	[GsmL1_FreqBand_1800] = 374,
 	[GsmL1_FreqBand_1900] = 299
 };
-
-/* determine next calibration file index based on supported bands */
-static int next_calib_file_idx(uint32_t band_mask, int last_idx)
-{
-	int i;
-
-	for (i = last_idx+1; i < ARRAY_SIZE(calib_files); i++) {
-		int band = band_femto2osmo(calib_files[i].band);
-		if (band < 0)
-			continue;
-		if (band_mask & band)
-			return i;
-	}
-	return -1;
-}
 
 static float read_float(FILE *in)
 {
@@ -167,7 +153,6 @@ static const float delta_by_band[Num_GsmL1_FreqBand] = {
 };
 
 extern const uint8_t fixup_macs[95][6];
-
 
 static void determine_fixup(struct femtol1_hdl *fl1h)
 {
@@ -212,6 +197,7 @@ static int fixup_needed(struct femtol1_hdl *fl1h)
 
 	return fl1h->fixup_needed == FIXUP_NEEDED;
 }
+#endif /* API 2.4.0 */
 
 static void calib_fixup_rx(struct femtol1_hdl *fl1h, SuperFemto_Prim_t *prim)
 {
@@ -228,7 +214,6 @@ static int calib_file_read(const char *path, const struct calib_file_desc *desc,
 {
 	FILE *in;
 	char fname[PATH_MAX];
-	int i;
 
 	fname[0] = '\0';
 	snprintf(fname, sizeof(fname)-1, "%s/%s", path, desc->fname);
@@ -242,6 +227,7 @@ static int calib_file_read(const char *path, const struct calib_file_desc *desc,
 	}
 
 #if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,4,0)
+	int i;
 	if (desc->rx) {
 		SuperFemto_SetRxCalibTblReq_t *rx = &prim->u.setRxCalibTblReq;
 		memset(rx, 0, sizeof(*rx));
@@ -296,10 +282,9 @@ static int calib_file_read(const char *path, const struct calib_file_desc *desc,
 
 static int calib_eeprom_read(const struct calib_file_desc *desc, SuperFemto_Prim_t *prim)
 {
+#if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,4,0)
 	eeprom_Error_t eerr;
 	int i;
-
-#if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,4,0)
 	if (desc->rx) {
 		SuperFemto_SetRxCalibTblReq_t *rx = &prim->u.setRxCalibTblReq;
 		eeprom_RxCal_t rx_cal;
@@ -377,6 +362,21 @@ static int calib_eeprom_read(const struct calib_file_desc *desc, SuperFemto_Prim
 #endif
 
 	return 0;
+}
+
+/* determine next calibration file index based on supported bands */
+static int next_calib_file_idx(uint32_t band_mask, int last_idx)
+{
+	int i;
+
+	for (i = last_idx+1; i < ARRAY_SIZE(calib_files); i++) {
+		int band = band_femto2osmo(calib_files[i].band);
+		if (band < 0)
+			continue;
+		if (band_mask & band)
+			return i;
+	}
+	return -1;
 }
 
 /* iteratively download the calibration data into the L1 */

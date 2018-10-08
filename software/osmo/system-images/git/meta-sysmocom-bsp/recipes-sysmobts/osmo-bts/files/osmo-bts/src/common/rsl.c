@@ -427,7 +427,7 @@ int rsl_tx_ccch_load_ind_rach(struct gsm_bts *bts, uint16_t total,
 }
 
 /* 8.5.4 DELETE INDICATION */
-static int rsl_tx_delete_ind(struct gsm_bts *bts, const uint8_t *ia, uint8_t ia_len)
+int rsl_tx_delete_ind(struct gsm_bts *bts, const uint8_t *ia, uint8_t ia_len)
 {
 	struct msgb *msg;
 
@@ -563,12 +563,44 @@ static int rsl_rx_sacch_fill(struct gsm_bts_trx *trx, struct msgb *msg)
 	}
 	if (TLVP_PRESENT(&tp, RSL_IE_L3_INFO)) {
 		uint16_t len = TLVP_LEN(&tp, RSL_IE_L3_INFO);
+		struct gsm_bts_trx *t;
+
 		lapdm_ui_prefix_bts(bts, TLVP_VAL(&tp, RSL_IE_L3_INFO), osmo_si, len);
+
+		/* Propagate SI change to all lchans which adhere to BTS-global default. */
+		llist_for_each_entry(t, &bts->trx_list, list) {
+			int i, j;
+			for (i = 0; i < ARRAY_SIZE(t->ts); i++) {
+				struct gsm_bts_trx_ts *ts = &t->ts[i];
+				for (j = 0; j < ARRAY_SIZE(ts->lchan); j++) {
+					struct gsm_lchan *lchan = &ts->lchan[j];
+					if (lchan->state == LCHAN_S_NONE || (lchan->si.overridden & (1 << osmo_si)))
+						continue;
+					lapdm_ui_prefix_lchan(lchan, TLVP_VAL(&tp, RSL_IE_L3_INFO), osmo_si, len);
+				}
+			}
+		}
 
 		LOGP(DRSL, LOGL_INFO, " Rx RSL SACCH FILLING (SI%s, %u bytes)\n",
 		     get_value_string(osmo_sitype_strs, osmo_si), len);
 	} else {
+		struct gsm_bts_trx *t;
+
 		bts->si_valid &= ~(1 << osmo_si);
+
+		/* Propagate SI change to all lchans which adhere to BTS-global default. */
+		llist_for_each_entry(t, &bts->trx_list, list) {
+			int i, j;
+			for (i = 0; i < ARRAY_SIZE(t->ts); i++) {
+				struct gsm_bts_trx_ts *ts = &t->ts[i];
+				for (j = 0; j < ARRAY_SIZE(ts->lchan); j++) {
+					struct gsm_lchan *lchan = &ts->lchan[j];
+					if (lchan->state == LCHAN_S_NONE || (lchan->si.overridden & (1 << osmo_si)))
+						continue;
+					lchan->si.valid &= ~(1 << osmo_si);
+				}
+			}
+		}
 		LOGP(DRSL, LOGL_INFO, " Rx RSL Disabling SACCH FILLING (SI%s)\n",
 			get_value_string(osmo_sitype_strs, osmo_si));
 	}
@@ -718,7 +750,7 @@ static int rsl_tx_chan_act_ack(struct gsm_lchan *lchan)
 	msg->trx = lchan->ts->trx;
 
 	/* since activation was successful, do some lchan initialization */
-	lchan->meas.res_nr = 0;
+	lchan_meas_reset(lchan);
 
 	return abis_bts_rsl_sendmsg(msg);
 }
@@ -865,12 +897,13 @@ static int encr_info2lchan(struct gsm_lchan *lchan,
 {
 	int rc;
 	struct gsm_bts *bts = lchan->ts->trx->bts;
+	const char *ciph_name = get_value_string(gsm0808_chosen_enc_alg_names, *val);
 
 	/* check if the encryption algorithm sent by BSC is supported! */
 	rc = bts_supports_cipher(bts, *val);
 	if (rc != 1) {
-		LOGP(DRSL, LOGL_ERROR, "%s: BTS doesn't support cipher 0x%02x\n",
-			gsm_lchan_name(lchan), *val);
+		LOGP(DRSL, LOGL_ERROR, "%s: BTS doesn't support cipher %s\n",
+			gsm_lchan_name(lchan), ciph_name);
 		return -EINVAL;
 	}
 
@@ -886,8 +919,8 @@ static int encr_info2lchan(struct gsm_lchan *lchan,
 	if (lchan->encr.key_len > sizeof(lchan->encr.key))
 		lchan->encr.key_len = sizeof(lchan->encr.key);
 	memcpy(lchan->encr.key, val, lchan->encr.key_len);
-	DEBUGP(DRSL, "%s: Setting lchan cipher algorithm 0x%02x\n",
-		gsm_lchan_name(lchan), lchan->encr.alg_id);
+	DEBUGP(DRSL, "%s: Setting lchan cipher algorithm %s\n",
+		gsm_lchan_name(lchan), ciph_name);
 
 	return 0;
 }
@@ -1465,8 +1498,11 @@ static int rsl_rx_mode_modif(struct msgb *msg)
 	cm = (struct rsl_ie_chan_mode *) TLVP_VAL(&tp, RSL_IE_CHAN_MODE);
 	lchan_tchmode_from_cmode(lchan, cm);
 
-	if (bts_supports_cm(lchan->ts->trx->bts, lchan->ts->pchan, lchan->tch_mode) != 1) {
-		LOGP(DRSL, LOGL_ERROR, "invalid mode/codec instructed by BSC, check BSC configuration.\n");
+	if (bts_supports_cm(lchan->ts->trx->bts, ts_pchan(lchan->ts), lchan->tch_mode) != 1) {
+		LOGP(DRSL, LOGL_ERROR,
+		     "%s %s: invalid mode: %s (wrong BSC configuration?)\n",
+		     gsm_ts_and_pchan_name(lchan->ts), gsm_lchan_name(lchan),
+		     gsm48_chan_mode_name(lchan->tch_mode));
 		return rsl_tx_mode_modif_nack(lchan, RSL_ERR_SERV_OPT_UNAVAIL);
 	}
 
@@ -1534,6 +1570,7 @@ static int rsl_rx_sacch_inf_mod(struct msgb *msg)
 {
 	struct abis_rsl_dchan_hdr *dch = msgb_l2(msg);
 	struct gsm_lchan *lchan = msg->lchan;
+	struct gsm_bts *bts = lchan->ts->trx->bts;
 	struct tlv_parsed tp;
 	uint8_t rsl_si, osmo_si;
 
@@ -1560,7 +1597,12 @@ static int rsl_rx_sacch_inf_mod(struct msgb *msg)
 	}
 	if (TLVP_PRESENT(&tp, RSL_IE_L3_INFO)) {
 		uint16_t len = TLVP_LEN(&tp, RSL_IE_L3_INFO);
+
 		lapdm_ui_prefix_lchan(lchan, TLVP_VAL(&tp, RSL_IE_L3_INFO), osmo_si, len);
+		if (memcmp(GSM_BTS_SI(bts, osmo_si), TLVP_VAL(&tp, RSL_IE_L3_INFO), sizeof(sysinfo_buf_t) != 0))
+			lchan->si.overridden |= (1 << osmo_si);
+		else
+			lchan->si.overridden &= ~(1 << osmo_si);
 
 		LOGP(DRSL, LOGL_INFO, "%s Rx RSL SACCH FILLING (SI%s)\n",
 			gsm_lchan_name(lchan),
@@ -1787,6 +1829,29 @@ static char *get_rsl_local_ip(struct gsm_bts_trx *trx)
 	return hostbuf;
 }
 
+static int bind_rtp(struct gsm_bts *bts, struct osmo_rtp_socket *rs, const char *ip)
+{
+	int rc;
+	unsigned int i;
+	unsigned int tries;
+
+	tries = (bts->rtp_port_range_end - bts->rtp_port_range_start) / 2;
+	for (i = 0; i < tries; i++) {
+
+		if (bts->rtp_port_range_next >= bts->rtp_port_range_end)
+			bts->rtp_port_range_next = bts->rtp_port_range_start;
+
+		rc = osmo_rtp_socket_bind(rs, ip, bts->rtp_port_range_next);
+
+		bts->rtp_port_range_next += 2;
+
+		if (rc == 0)
+			return 0;
+	}
+
+	return -1;
+}
+
 static int rsl_rx_ipac_XXcx(struct msgb *msg)
 {
 	struct abis_rsl_dchan_hdr *dch = msgb_l2(msg);
@@ -1907,8 +1972,7 @@ static int rsl_rx_ipac_XXcx(struct msgb *msg)
 			 * back to the BSC in the CRCX_ACK */
 			ipstr = get_rsl_local_ip(lchan->ts->trx);
 		}
-		rc = osmo_rtp_socket_bind(lchan->abis_ip.rtp_socket,
-					  ipstr, -1);
+		rc = bind_rtp(bts, lchan->abis_ip.rtp_socket, ipstr);
 		if (rc < 0) {
 			LOGP(DRTP, LOGL_ERROR,
 			     "%s IPAC Failed to bind RTP/RTCP sockets\n",
@@ -2514,6 +2578,13 @@ static inline bool ms_to_valid(const struct gsm_lchan *lchan)
 	return (lchan->ms_t_offs >= 0) || (lchan->p_offs >= 0);
 }
 
+struct osmo_bts_supp_meas_info {
+	int16_t toa256_mean;
+	int16_t toa256_min;
+	int16_t toa256_max;
+	uint16_t toa256_std_dev;
+} __attribute__((packed));
+
 /* 8.4.8 MEASUREMENT RESult */
 static int rsl_tx_meas_res(struct gsm_lchan *lchan, uint8_t *l3, int l3_len, const struct lapdm_entity *le)
 {
@@ -2551,16 +2622,23 @@ static int rsl_tx_meas_res(struct gsm_lchan *lchan, uint8_t *l3, int l3_len, con
 						meas_res);
 	lchan->tch.dtx.dl_active = false;
 	if (ie_len >= 3) {
-		if (bts->supp_meas_toa256) {
+		if (bts->supp_meas_toa256 && lchan->meas.flags & LC_UL_M_F_OSMO_EXT_VALID) {
+			struct osmo_bts_supp_meas_info *smi;
+			smi = (struct osmo_bts_supp_meas_info *) &meas_res[ie_len];
+			ie_len += sizeof(struct osmo_bts_supp_meas_info);
 			/* append signed 16bit value containing MS timing offset in 1/256th symbols
 			 * in the vendor-specific "Supplementary Measurement Information" part of
-			 * the uplink measurements IE.  This is the current offset *relative* to the
-			 * TA which the MS has already applied.  So if you want to know the total
-			 * propagation time between MS and BTS, you need to add the actual TA value
-			 * used (from L1_INFO below, in full symbols) plus the ms_toa256 value
-			 * in 1/256 symbol periods. */
-			meas_res[ie_len++] = lchan->meas.ms_toa256 >> 8;
-			meas_res[ie_len++] = lchan->meas.ms_toa256 & 0xff;
+			 * the uplink measurements IE.  The lchan->meas.ext members are the current
+			 * offset *relative* to the TA which the MS has already applied.  As we want
+			 * to know the total propagation time between MS and BTS, we need to add
+			 * the actual TA value applied by the MS plus the respective toa256 value in
+			 * 1/256 symbol periods. */
+			int16_t ta256 = lchan_get_ta(lchan) * 256;
+			smi->toa256_mean = htons(ta256 + lchan->meas.ms_toa256);
+			smi->toa256_min = htons(ta256 + lchan->meas.ext.toa256_min);
+			smi->toa256_max = htons(ta256 + lchan->meas.ext.toa256_max);
+			smi->toa256_std_dev = htons(lchan->meas.ext.toa256_std_dev);
+			lchan->meas.flags &= ~LC_UL_M_F_OSMO_EXT_VALID;
 		}
 		msgb_tlv_put(msg, RSL_IE_UPLINK_MEAS, ie_len, meas_res);
 		lchan->meas.flags &= ~LC_UL_M_F_RES_VALID;
@@ -2593,8 +2671,9 @@ int lapdm_rll_tx_cb(struct msgb *msg, struct lapdm_entity *le, void *ctx)
 	rh = msgb_l2(msg);
 
 	if (lchan->state != LCHAN_S_ACTIVE) {
-		LOGP(DRSL, LOGL_INFO, "%s(%s) is not active . Dropping message.\n",
-			gsm_lchan_name(lchan), gsm_lchans_name(lchan->state));
+		LOGP(DRSL, LOGL_ERROR, "%s(%s) is not active. Dropping message (len=%u): %s\n",
+			gsm_lchan_name(lchan), gsm_lchans_name(lchan->state),
+			msgb_l2len(msg), msgb_hexdump_l2(msg));
 		msgb_free(msg);
 		return 0;
 	}
@@ -2650,8 +2729,12 @@ static int rsl_rx_cchan(struct gsm_bts_trx *trx, struct msgb *msg)
 	}
 	msg->l3h = (unsigned char *)cch + sizeof(*cch);
 
-	if (chan_nr_is_dchan(cch->chan_nr))
-		return rsl_reject_unknown_lchan(msg);
+	/* normally we don't permit dedicated channels here ... */
+	if (chan_nr_is_dchan(cch->chan_nr)) {
+		/* ... however, CBCH is on a SDCCH, so we must permit it */
+		if (cch->c.msg_type != RSL_MT_SMS_BC_CMD && cch->c.msg_type != RSL_MT_SMS_BC_REQ)
+			return rsl_reject_unknown_lchan(msg);
+	}
 
 	msg->lchan = lchan_lookup(trx, cch->chan_nr, "RSL rx CCHAN: ");
 	if (!msg->lchan) {

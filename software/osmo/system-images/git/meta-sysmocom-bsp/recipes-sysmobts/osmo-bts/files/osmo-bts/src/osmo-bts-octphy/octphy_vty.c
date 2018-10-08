@@ -195,6 +195,29 @@ DEFUN(cfg_phy_tx_atten_db, cfg_phy_tx_atten_db_cmd,
 	return CMD_SUCCESS;
 }
 
+#if OCTPHY_USE_16X_OVERSAMPLING == 1
+DEFUN(cfg_phy_over_sample_16x, cfg_phy_over_sample_16x_cmd,
+      "octphy over-sample-16x <0-1>",
+      OCT_STR "Configure 16x over sampling rate for this TRX (restart required)\n"
+      "Over Sampling Rate\n")
+{
+	struct phy_link *plink = vty->index;
+
+	if (plink->state != PHY_LINK_SHUTDOWN) {
+		vty_out(vty, "Can only reconfigure a PHY link that is down%s",
+			VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+
+	if(atoi(argv[0]))
+		plink->u.octphy.over_sample_16x = true;
+	else
+		plink->u.octphy.over_sample_16x = false;
+
+	return CMD_SUCCESS;
+}
+#endif
+
 void show_rf_port_stats_cb(struct msgb *resp, void *data)
 {
 	struct vty *vty = (struct vty*) data;
@@ -370,6 +393,10 @@ void bts_model_config_write_phy(struct vty *vty, struct phy_link *plink)
 	vty_out(vty, " octphy rx-ant-id %u%s", plink->u.octphy.rx_ant_id,
 		VTY_NEWLINE);
 #endif
+#if OCTPHY_USE_16X_OVERSAMPLING == 1
+	vty_out(vty, " octphy over-sample-16x %u%s", plink->u.octphy.over_sample_16x,
+		VTY_NEWLINE);
+#endif
 }
 
 void bts_model_config_write_phy_inst(struct vty *vty, struct phy_instance *pinst)
@@ -423,7 +450,9 @@ int bts_model_vty_init(struct gsm_bts *bts)
 #endif
 	install_element(PHY_NODE, &cfg_phy_rx_gain_db_cmd);
 	install_element(PHY_NODE, &cfg_phy_tx_atten_db_cmd);
-
+#if OCTPHY_USE_16X_OVERSAMPLING == 1
+	install_element(PHY_NODE, &cfg_phy_over_sample_16x_cmd);
+#endif
 	install_element_ve(&show_rf_port_stats_cmd);
 	install_element_ve(&show_clk_sync_stats_cmd);
 	install_element_ve(&show_sys_info_cmd);

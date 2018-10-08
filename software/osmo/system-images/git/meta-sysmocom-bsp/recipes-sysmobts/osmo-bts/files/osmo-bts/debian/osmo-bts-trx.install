@@ -1,1 +1,5 @@
+etc/osmocom/osmo-bts-trx.cfg
+lib/systemd/system/osmo-bts-trx.service
 usr/bin/osmo-bts-trx
+usr/share/doc/osmo-bts/examples/osmo-bts-trx/osmo-bts-trx.cfg
+usr/share/doc/osmo-bts/examples/osmo-bts-trx/osmo-bts-trx-calypso.cfg

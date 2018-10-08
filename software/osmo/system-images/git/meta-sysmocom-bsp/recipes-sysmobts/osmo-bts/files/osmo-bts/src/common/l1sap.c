@@ -53,11 +53,58 @@
 #include <osmo-bts/power_control.h>
 #include <osmo-bts/msg_utils.h>
 #include <osmo-bts/pcuif_proto.h>
+#include <osmo-bts/cbch.h>
+
+
+#define CB_FCCH		-1
+#define CB_SCH		-2
+#define CB_BCCH		-3
+#define CB_IDLE		-4
+
+/* according to TS 05.02 Clause 7 Table 3 of 9 an Figure 8a */
+static const int ccch_block_table[51] = {
+	CB_FCCH, CB_SCH,/* 0..1 */
+	CB_BCCH, CB_BCCH, CB_BCCH, CB_BCCH,	/* 2..5: BCCH */
+	0, 0, 0, 0,	/* 6..9: B0 */
+	CB_FCCH, CB_SCH,/* 10..11 */
+	1, 1, 1, 1,	/* 12..15: B1 */
+	2, 2, 2, 2,	/* 16..19: B2 */
+	CB_FCCH, CB_SCH,/* 20..21 */
+	3, 3, 3, 3,	/* 22..25: B3 */
+	4, 4, 4, 4,	/* 26..29: B4 */
+	CB_FCCH, CB_SCH,/* 30..31 */
+	5, 5, 5, 5,	/* 32..35: B5 */
+	6, 6, 6, 6,	/* 36..39: B6 */
+	CB_FCCH, CB_SCH,/* 40..41 */
+	7, 7, 7, 7, 	/* 42..45: B7 */
+	8, 8, 8, 8, 	/* 46..49: B8 */
+	-4		/* 50: Idle */
+};
+
+/* determine the CCCH block number based on the frame number */
+unsigned int l1sap_fn2ccch_block(uint32_t fn)
+{
+	int rc = ccch_block_table[fn%51];
+	/* if FN is negative, we were called for something that's not CCCH! */
+	OSMO_ASSERT(rc >= 0);
+	return rc;
+}
 
 struct gsm_lchan *get_lchan_by_chan_nr(struct gsm_bts_trx *trx,
 				       unsigned int chan_nr)
 {
-	return &trx->ts[L1SAP_CHAN2TS(chan_nr)].lchan[l1sap_chan2ss(chan_nr)];
+	unsigned int tn, ss;
+
+	tn = L1SAP_CHAN2TS(chan_nr);
+	OSMO_ASSERT(tn < ARRAY_SIZE(trx->ts));
+
+	if (L1SAP_IS_CHAN_CBCH(chan_nr))
+		ss = 2; /* CBCH is always on sub-slot 2 */
+	else
+		ss = l1sap_chan2ss(chan_nr);
+	OSMO_ASSERT(ss < ARRAY_SIZE(trx->ts[tn].lchan));
+
+	return &trx->ts[tn].lchan[ss];
 }
 
 static struct gsm_lchan *
@@ -139,8 +186,7 @@ int add_l1sap_header(struct gsm_bts_trx *trx, struct msgb *rmsg,
 	     gsm_lchan_name(lchan), osmo_hexdump(rmsg->data, rmsg->len));
 
 	rmsg->l2h = rmsg->data;
-	msgb_push(rmsg, sizeof(*l1sap));
-	rmsg->l1h = rmsg->data;
+	rmsg->l1h = msgb_push(rmsg, sizeof(*l1sap));
 	l1sap = msgb_l1sap_prim(rmsg);
 	osmo_prim_init(&l1sap->oph, SAP_GSM_PH, PRIM_TCH, PRIM_OP_INDICATION,
 		       rmsg);
@@ -262,10 +308,12 @@ static int gsmtap_ph_data(struct osmo_phsap_prim *l1sap, uint8_t *chan_type,
 	} else if (L1SAP_IS_CHAN_AGCH_PCH(chan_nr)) {
 		/* The sapi depends on DSP configuration, not
 		 * on the actual SYSTEM INFORMATION 3. */
-		if (L1SAP_FN2CCCHBLOCK(fn) >= num_agch)
+		if (l1sap_fn2ccch_block(fn) >= num_agch)
 			*chan_type = GSMTAP_CHANNEL_PCH;
 		else
 			*chan_type = GSMTAP_CHANNEL_AGCH;
+	} else if (L1SAP_IS_CHAN_CBCH(chan_nr)) {
+		*chan_type = GSMTAP_CHANNEL_CBCH51;
 	} else if (L1SAP_IS_CHAN_PDCH(chan_nr)) {
 		*chan_type = GSMTAP_CHANNEL_PDTCH;
 	}
@@ -506,7 +554,7 @@ static int l1sap_info_meas_ind(struct gsm_bts_trx *trx,
 	lchan = get_active_lchan_by_chan_nr(trx, info_meas_ind->chan_nr);
 	if (!lchan) {
 		LOGPFN(DL1P, LOGL_ERROR, info_meas_ind->fn,
-			"No lchan for MPH INFO MEAS IND (chan_nr=%u)\n", info_meas_ind->chan_nr);
+			"No lchan for MPH INFO MEAS IND (chan_nr=0x%02x)\n", info_meas_ind->chan_nr);
 		return 0;
 	}
 
@@ -529,11 +577,7 @@ static int l1sap_info_meas_ind(struct gsm_bts_trx *trx,
 	/* we assume that symbol period is 1 bit: */
 	set_ms_to_data(lchan, info_meas_ind->ta_offs_256bits / 256, true);
 
-	lchan_new_ul_meas(lchan, &ulm, info_meas_ind->fn);
-
-	/* Check measurement period end and prepare the UL measurment
-	 * report at Meas period End*/
-	lchan_meas_check_compute(lchan, info_meas_ind->fn);
+	lchan_meas_process_measurement(lchan, &ulm, info_meas_ind->fn);
 
 	return 0;
 }
@@ -671,6 +715,15 @@ static int lchan_pdtch_ph_rts_ind_loop(struct gsm_lchan *lchan,
 	return 0;
 }
 
+/* Check if given CCCH frame number is for a PCH or for an AGCH (this function is
+ * only used internally, it is public to call it from unit-tests) */
+int is_ccch_for_agch(struct gsm_bts_trx *trx, uint32_t fn) {
+	/* Note: The number of available access grant channels is set by the
+	 * parameter BS_AG_BLKS_RES via system information type 3. This SI is
+	 * transfered to osmo-bts via RSL */
+        return l1sap_fn2ccch_block(fn) < num_agch(trx, "PH-RTS-IND");
+}
+
 /* PH-RTS-IND prim received from bts model */
 static int l1sap_ph_rts_ind(struct gsm_bts_trx *trx,
 	struct osmo_phsap_prim *l1sap, struct ph_data_param *rts_ind)
@@ -686,6 +739,7 @@ static int l1sap_ph_rts_ind(struct gsm_bts_trx *trx,
 	struct osmo_phsap_prim pp;
 	bool dtxd_facch = false;
 	int rc;
+	int is_ag_res;
 
 	chan_nr = rts_ind->chan_nr;
 	link_id = rts_ind->link_id;
@@ -732,10 +786,13 @@ static int l1sap_ph_rts_ind(struct gsm_bts_trx *trx,
 			memcpy(p, si, GSM_MACBLOCK_LEN);
 		else
 			memcpy(p, fill_frame, GSM_MACBLOCK_LEN);
+	} else if (L1SAP_IS_CHAN_CBCH(chan_nr)) {
+		p = msgb_put(msg, GSM_MACBLOCK_LEN);
+		bts_cbch_get(trx->bts, p, &g_time);
 	} else if (!(chan_nr & 0x80)) { /* only TCH/F, TCH/H, SDCCH/4 and SDCCH/8 have C5 bit cleared */
 		lchan = get_active_lchan_by_chan_nr(trx, chan_nr);
 		if (!lchan) {
-			LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for PH-RTS.ind (chan_nr=%u)\n", chan_nr);
+			LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for PH-RTS.ind (chan_nr=0x%02x)\n", chan_nr);
 			return 0;
 		}
 		if (L1SAP_IS_LINK_SACCH(link_id)) {
@@ -759,9 +816,16 @@ static int l1sap_ph_rts_ind(struct gsm_bts_trx *trx,
 					memcpy(p + 2, si, GSM_MACBLOCK_LEN - 2);
 				} else
 					memcpy(p + 2, fill_frame, GSM_MACBLOCK_LEN - 2);
-			} else if ((!L1SAP_IS_CHAN_TCHF(chan_nr) && !L1SAP_IS_CHAN_TCHH(chan_nr))
-				|| lchan->rsl_cmode == RSL_CMOD_SPD_SIGN) {
-				/* send fill frame only, if not TCH/x != Signalling, otherwise send empty frame */
+			} else if (L1SAP_IS_CHAN_SDCCH4(chan_nr) || L1SAP_IS_CHAN_SDCCH8(chan_nr) ||
+				   (lchan->rsl_cmode == RSL_CMOD_SPD_SIGN && !lchan->ts->trx->bts->dtxd)) {
+				/*
+				 * SDCCH or TCH in signalling mode without DTX.
+				 *
+				 * Send fill frame according to GSM 05.08, section 8.3: "On the SDCCH and on the
+				 * half rate speech traffic channel in signalling only mode DTX is not allowed.
+				 * In these cases and during signalling on the TCH when DTX is not used, the same
+				 * L2 fill frame shall be transmitted in case there is nothing else to transmit."
+				 */
 				p = msgb_put(msg, GSM_MACBLOCK_LEN);
 				memcpy(p, fill_frame, GSM_MACBLOCK_LEN);
 			} /* else the message remains empty, so TCH frames are sent */
@@ -781,9 +845,8 @@ static int l1sap_ph_rts_ind(struct gsm_bts_trx *trx,
 		}
 	} else if (L1SAP_IS_CHAN_AGCH_PCH(chan_nr)) {
 		p = msgb_put(msg, GSM_MACBLOCK_LEN);
-		rc = bts_ccch_copy_msg(trx->bts, p, &g_time,
-				       (L1SAP_FN2CCCHBLOCK(fn) <
-					num_agch(trx, "PH-RTS-IND")));
+		is_ag_res = is_ccch_for_agch(trx, fn);
+		rc = bts_ccch_copy_msg(trx->bts, p, &g_time, is_ag_res);
 		if (rc <= 0)
 			memcpy(p, fill_frame, GSM_MACBLOCK_LEN);
 	}
@@ -858,7 +921,7 @@ static int l1sap_tch_rts_ind(struct gsm_bts_trx *trx,
 
 	lchan = get_active_lchan_by_chan_nr(trx, chan_nr);
 	if (!lchan) {
-		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for PH-RTS.ind (chan_nr=%u)\n", chan_nr);
+		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for PH-RTS.ind (chan_nr=0x%02x)\n", chan_nr);
 		return 0;
 	}
 
@@ -956,7 +1019,7 @@ static void radio_link_timeout(struct gsm_lchan *lchan, int bad_frame)
 static inline int check_for_first_ciphrd(struct gsm_lchan *lchan,
 					  uint8_t *data, int len)
 {
-	uint8_t n_s;
+	uint8_t n_r;
 
 	/* if this is the first valid message after enabling Rx
 	 * decryption, we have to enable Tx encryption */
@@ -972,8 +1035,8 @@ static inline int check_for_first_ciphrd(struct gsm_lchan *lchan,
 	if ((data[1] & 0x01) != 0)
 		return 0;
 
-	n_s = data[1] >> 5;
-	if (lchan->ciph_ns != n_s)
+	n_r = data[1] >> 5;
+	if (lchan->ciph_ns != n_r)
 		return 0;
 
 	return 1;
@@ -1052,7 +1115,7 @@ static int l1sap_ph_data_ind(struct gsm_bts_trx *trx,
 
 	lchan = get_active_lchan_by_chan_nr(trx, chan_nr);
 	if (!lchan) {
-		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for chan_nr=%d\n", chan_nr);
+		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for chan_nr=0x%02x\n", chan_nr);
 		return 0;
 	}
 
@@ -1120,7 +1183,7 @@ static int l1sap_tch_ind(struct gsm_bts_trx *trx, struct osmo_phsap_prim *l1sap,
 
 	lchan = get_active_lchan_by_chan_nr(trx, chan_nr);
 	if (!lchan) {
-		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for TCH.ind (chan_nr=%u)\n", chan_nr);
+		LOGPGT(DL1P, LOGL_ERROR, &g_time, "No lchan for TCH.ind (chan_nr=0x%02x)\n", chan_nr);
 		return 0;
 	}
 

@@ -48,9 +48,11 @@ static const uint8_t transceiver_chan_types[_GSM_PCHAN_MAX] = {
 	[GSM_PCHAN_NONE]                = 8,
 	[GSM_PCHAN_CCCH]                = 4,
 	[GSM_PCHAN_CCCH_SDCCH4]         = 5,
+	[GSM_PCHAN_CCCH_SDCCH4_CBCH]    = 5,
 	[GSM_PCHAN_TCH_F]               = 1,
 	[GSM_PCHAN_TCH_H]               = 3,
 	[GSM_PCHAN_SDCCH8_SACCH8C]      = 7,
+	[GSM_PCHAN_SDCCH8_SACCH8C_CBCH] = 7,
 	[GSM_PCHAN_PDCH]                = 13,
 	/* [GSM_PCHAN_TCH_F_PDCH] not needed here, see trx_set_ts_as_pchan() */
 	[GSM_PCHAN_UNKNOWN]             = 0,
@@ -268,7 +270,8 @@ int bts_model_trx_close(struct gsm_bts_trx *trx)
 	trx_sched_reset(&l1h->l1s);
 
 	/* deactivate lchan for CCCH */
-	if (pchan == GSM_PCHAN_CCCH || pchan == GSM_PCHAN_CCCH_SDCCH4) {
+	if (pchan == GSM_PCHAN_CCCH || pchan == GSM_PCHAN_CCCH_SDCCH4 ||
+	    pchan == GSM_PCHAN_CCCH_SDCCH4_CBCH) {
 		lchan_set_state(&trx->ts[0].lchan[CCCH_LCHAN], LCHAN_S_INACTIVE);
 	}
 
@@ -378,7 +381,8 @@ static uint8_t trx_set_ts_as_pchan(struct gsm_bts_trx_ts *ts,
 		return NM_NACK_RES_NOTAVAIL;
 
 	/* activate lchan for CCCH */
-	if (pchan == GSM_PCHAN_CCCH || pchan == GSM_PCHAN_CCCH_SDCCH4) {
+	if (pchan == GSM_PCHAN_CCCH || pchan == GSM_PCHAN_CCCH_SDCCH4 ||
+	    pchan == GSM_PCHAN_CCCH_SDCCH4_CBCH) {
 		ts->lchan[CCCH_LCHAN].rel_act_kind = LCHAN_REL_ACT_OML;
 		lchan_set_state(&ts->lchan[CCCH_LCHAN], LCHAN_S_ACTIVE);
 	}
@@ -509,7 +513,7 @@ int l1if_process_meas_res(struct gsm_bts_trx *trx, uint8_t tn, uint32_t fn, uint
 	/* 100% BER is n_bits_total is 0 */
 	float ber = n_bits_total==0 ? 1.0 : (float)n_errors / (float)n_bits_total;
 
-	LOGPFN(DMEAS, LOGL_DEBUG, fn, "RX L1 frame %s fn=%u chan_nr=0x%02x MS pwr=%ddBm rssi=%.1f dBFS "
+	LOGPFN(DMEAS, LOGL_DEBUG, fn, "RX UL measurement for %s fn=%u chan_nr=0x%02x MS pwr=%ddBm rssi=%.1f dBFS "
 		"ber=%.2f%% (%d/%d bits) L1_ta=%d rqd_ta=%d toa256=%d\n",
 		gsm_lchan_name(lchan), fn, chan_nr, ms_pwr_dbm(lchan->ts->trx->bts->band, lchan->ms_power_ctrl.current),
 		rssi, ber*100, n_errors, n_bits_total, lchan->meas.l1_info[1], lchan->rqd_ta, toa256);
@@ -562,6 +566,20 @@ int bts_model_l1sap_down(struct gsm_bts_trx *trx, struct osmo_phsap_prim *l1sap)
 						" chan_nr 0x%02x\n", chan_nr);
 					break;
 				}
+
+				/* trx_chan_desc[] in scheduler.c uses the RSL_CHAN_OSMO_PDCH cbits
+				 * (0xc0) to indicate the need for PDTCH and PTCCH SAPI activation.
+				 * However, 0xc0 is a cbits pattern exclusively used for Osmocom style
+				 * dyn TS (a non-standard RSL Chan Activ mod); hence, for IPA style dyn
+				 * TS, the chan_nr will never reflect 0xc0 and we would omit the
+				 * PDTCH,PTTCH SAPIs. To properly de-/activate the PDTCH SAPIs in
+				 * scheduler.c, make sure the 0xc0 cbits are set for de-/activating PDTCH
+				 * lchans, i.e. both Osmocom and IPA style dyn TS. (For Osmocom style dyn
+				 * TS, the chan_nr typically already reflects 0xc0, while it doesn't for
+				 * IPA style.) */
+				if (lchan->type == GSM_LCHAN_PDTCH)
+					chan_nr = RSL_CHAN_OSMO_PDCH | (chan_nr & ~RSL_CHAN_NR_MASK);
+
 				/* activate dedicated channel */
 				trx_sched_set_lchan(&l1h->l1s, chan_nr, LID_DEDIC, 1);
 				/* activate associated channel */

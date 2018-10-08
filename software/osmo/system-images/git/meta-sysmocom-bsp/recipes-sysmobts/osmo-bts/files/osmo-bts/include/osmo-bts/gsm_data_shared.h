@@ -127,6 +127,7 @@ enum gsm_lchan_state {
 #define MAX_NUM_UL_MEAS	104
 #define LC_UL_M_F_L1_VALID	(1 << 0)
 #define LC_UL_M_F_RES_VALID	(1 << 1)
+#define LC_UL_M_F_OSMO_EXT_VALID (1 << 2)
 
 struct bts_ul_meas {
 	/* BER in units of 0.01%: 10.000 == 100% ber, 0 == 0% ber */
@@ -239,6 +240,8 @@ struct gsm_lchan {
 	struct {
 		/* bitmask of all SI that are present/valid in si_buf */
 		uint32_t valid;
+		/* bitmask of all SI that do not mirror the BTS-global SI values */
+		uint32_t overridden;
 		uint32_t last;
 		/* buffers where we put the pre-computed SI:
 		   SI2Q_MAX_NUM is the max number of SI2quater messages (see 3GPP TS 44.018) */
@@ -257,6 +260,17 @@ struct gsm_lchan {
 		uint8_t l1_info[2];
 		struct gsm_meas_rep_unidir ul_res;
 		int16_t ms_toa256;
+		/* Frame number of the last measurement indication receceived */
+		uint32_t last_fn;
+		/* Osmocom extended measurement results, see LC_UL_M_F_EXTD_VALID */
+		struct {
+			/* minimum value of toa256 during measurement period */
+			int16_t toa256_min;
+			/* maximum value of toa256 during measurement period */
+			int16_t toa256_max;
+			/* standard deviation of toa256 value during measurement period */
+			uint16_t toa256_std_dev;
+		} ext;
 	} meas;
 	struct {
 		struct amr_multirate_conf amr_mr;
@@ -318,6 +332,11 @@ struct gsm_lchan {
 		struct osmo_ecu_fr_state fr;
 	} ecu_state;
 };
+
+static inline uint8_t lchan_get_ta(const struct gsm_lchan *lchan)
+{
+	return lchan->meas.l1_info[1];
+}
 
 extern const struct value_string lchan_ciph_state_names[];
 static inline const char *lchan_ciph_state_name(uint8_t state) {
@@ -520,6 +539,10 @@ struct gprs_rlc_cfg {
 	uint8_t initial_mcs;
 };
 
+/* The amount of time within which a sudden disconnect of a newly established
+ * OML connection will cause a special warning to be logged. */
+#define OSMO_BTS_OML_CONN_EARLY_DISCONNECT 10	 /* in seconds */
+
 /* One BTS */
 struct gsm_bts {
 	/* list header in net->bts_list */
@@ -558,6 +581,7 @@ struct gsm_bts {
 	/* how do we talk OML with this TRX? */
 	uint8_t oml_tei;
 	struct e1inp_sign_link *oml_link;
+	struct timespec oml_conn_established_timestamp;
 
 	/* Abis network management O&M handle */
 	struct abis_nm_h *nmh;
@@ -689,6 +713,11 @@ struct gsm_bts {
 	struct llist_head oml_queue;
 	unsigned int rtp_jitter_buf_ms;
 	bool rtp_jitter_adaptive;
+
+	uint16_t rtp_port_range_start;
+	uint16_t rtp_port_range_end;
+	uint16_t rtp_port_range_next;
+
 	struct {
 		uint8_t ciphers;	/* flags A5/1==0x1, A5/2==0x2, A5/3==0x4 */
 	} support;

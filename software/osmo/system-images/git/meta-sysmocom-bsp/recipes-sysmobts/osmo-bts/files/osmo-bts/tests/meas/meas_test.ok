@@ -539,4 +539,315 @@ Testing: ts[7]->lchan[0], fn=15066=>015066/11/12/21/10, fn%104=90, rc=1, delta=9
 Testing: ts[7]->lchan[1], fn=15079=>015079/11/25/34/23, fn%104=103, rc=1, delta=13
 Testing: ts[7]->lchan[0], fn=15170=>015170/11/12/23/14, fn%104=90, rc=1, delta=91
 Testing: ts[7]->lchan[1], fn=15183=>015183/11/25/36/27, fn%104=103, rc=1, delta=13
+
+
+===========================================================
+Measurement Compute Test: TOA256 Min-Max negative/positive
+number of measurements: 3
+parameter                | actual | expected
+meas.ext.toa256_min      |   -256 |   -256
+meas.ext.toa256_max      |    256 |    256
+meas.ms_toa256           |      0 |      0
+meas.ext.toa256_std_dev  |    209 |    209
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      0
+
+
+===========================================================
+Measurement Compute Test: TOA256 small jitter around 256
+number of measurements: 25
+parameter                | actual | expected
+meas.ext.toa256_min      |    254 |    254
+meas.ext.toa256_max      |    258 |    258
+meas.ms_toa256           |    256 |    256
+meas.ext.toa256_std_dev  |      1 |      1
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      7
+
+
+===========================================================
+Measurement Compute Test: RxLEv averaging
+number of measurements: 5
+parameter                | actual | expected
+meas.ext.toa256_min      |      0 |      0
+meas.ext.toa256_max      |      0 |      0
+meas.ms_toa256           |      0 |      0
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      0
+
+
+===========================================================
+Measurement Compute Test: Empty measurements
+number of measurements: 0
+parameter                | actual | expected
+meas.ext.toa256_min      |      0 |      0
+meas.ext.toa256_max      |      0 |      0
+meas.ms_toa256           |      0 |      0
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     63 |     63
+meas.ul_res.full.rx_qual |      3 |      3
+
+
+===========================================================
+Measurement Compute Test: TOA256 26 blocks with max TOA256
+number of measurements: 26
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+
+===========================================================
+Measurement Compute Test: Complete TCH/F measurement period (26 measurements, 3 sub-frames)
+number of measurements: 25
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+
+===========================================================
+Measurement Compute Test: Incomplete TCH/F measurement period (16 measurements, 1 sub-frame)
+number of measurements: 16
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      7
+
+
+===========================================================
+Measurement Compute Test: Incomplete but normal TCH/F measurement period (16 measurements, 3 sub-frames)
+number of measurements: 16
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      7
+
+
+===========================================================
+Measurement Compute Test: Complete TCH/H measurement period (26 measurements, 5 sub-frames)
+number of measurements: 25
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+
+===========================================================
+Measurement Compute Test: Incomplete TCH/H measurement period (14 measurements, 3 sub-frames)
+number of measurements: 14
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      7
+
+
+===========================================================
+Measurement Compute Test: Incomplete but normal TCH/F measurement period (16 measurements, 5 sub-frames)
+number of measurements: 16
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      7 |      7
+
+
+===========================================================
+Measurement Compute Test: TCH/F measurement period with too much measurement values (overrun)
+number of measurements: 59
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+
+===========================================================
+Measurement Compute Test: Complete SDCCH4 measurement period (3 measurements)
+number of measurements: 3
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+
+===========================================================
+Measurement Compute Test: Complete SDCCH8 measurement period (3 measurements)
+number of measurements: 3
+parameter                | actual | expected
+meas.ext.toa256_min      |  16384 |  16384
+meas.ext.toa256_max      |  16384 |  16384
+meas.ms_toa256           |  16384 |  16384
+meas.ext.toa256_std_dev  |      0 |      0
+meas.ul_res.full.rx_lev  |     20 |     20
+meas.ul_res.full.rx_qual |      0 |      0
+
+***************************************************
+*** MEASUREMENT INTERVAL ENDING DETECTION TESTS ***
+***************************************************
+
+
+===========================================================
+Testing is_meas_complete()
+
+
+===========================================================
+Testing lchan_meas_process_measurement()
+(now adding SUB measurement sample for SACCH block at frame number 39)
+(now adding SUB measurement sample 52)
+(now adding SUB measurement sample 56)
+(now adding SUB measurement sample for SACCH block at frame number 143)
+(now adding SUB measurement sample 156)
+(now adding SUB measurement sample 160)
+(now adding SUB measurement sample for SACCH block at frame number 247)
+(now adding SUB measurement sample 260)
+(now adding SUB measurement sample 264)
+(now adding SUB measurement sample for SACCH block at frame number 351)
+(now adding SUB measurement sample 364)
+(now adding SUB measurement sample 368)
+
+
+===========================================================
+Testing lchan_meas_process_measurement()
+ * SACCH blocks not generated.
+(leaving out SUB measurement sample for SACCH block at frame number 39)
+(now adding SUB measurement sample 52)
+(now adding SUB measurement sample 56)
+(leaving out SUB measurement sample for SACCH block at frame number 143)
+(now adding SUB measurement sample 156)
+(now adding SUB measurement sample 160)
+(leaving out SUB measurement sample for SACCH block at frame number 247)
+(now adding SUB measurement sample 260)
+(now adding SUB measurement sample 264)
+(leaving out SUB measurement sample for SACCH block at frame number 351)
+(now adding SUB measurement sample 364)
+(now adding SUB measurement sample 368)
+
+
+===========================================================
+Testing lchan_meas_process_measurement()
+ * Simulate dropouts by leaving out every 4th measurement
+(leaving out measurement sample for frame number 0)
+(leaving out measurement sample for frame number 17)
+(leaving out measurement sample for frame number 34)
+(now adding SUB measurement sample for SACCH block at frame number 39)
+(leaving out SUB measurement sample for frame number 52)
+(now adding SUB measurement sample 56)
+(leaving out measurement sample for frame number 69)
+(leaving out measurement sample for frame number 86)
+(leaving out measurement sample for frame number 104)
+(leaving out measurement sample for frame number 121)
+(leaving out measurement sample for frame number 138)
+(now adding SUB measurement sample for SACCH block at frame number 143)
+(leaving out SUB measurement sample for frame number 156)
+(now adding SUB measurement sample 160)
+(leaving out measurement sample for frame number 173)
+(leaving out measurement sample for frame number 190)
+(leaving out measurement sample for frame number 208)
+(leaving out measurement sample for frame number 225)
+(leaving out measurement sample for frame number 242)
+(now adding SUB measurement sample for SACCH block at frame number 247)
+(leaving out SUB measurement sample for frame number 260)
+(now adding SUB measurement sample 264)
+(leaving out measurement sample for frame number 277)
+(leaving out measurement sample for frame number 294)
+(leaving out measurement sample for frame number 312)
+(leaving out measurement sample for frame number 329)
+(leaving out measurement sample for frame number 346)
+(now adding SUB measurement sample for SACCH block at frame number 351)
+(leaving out SUB measurement sample for frame number 364)
+(now adding SUB measurement sample 368)
+(leaving out measurement sample for frame number 381)
+(leaving out measurement sample for frame number 398)
+(leaving out measurement sample for frame number 416)
+
+
+===========================================================
+Testing lchan_meas_process_measurement()
+ * SACCH blocks not generated.
+ * Simulate dropouts by leaving out every 4th measurement
+(leaving out measurement sample for frame number 0)
+(leaving out measurement sample for frame number 17)
+(leaving out measurement sample for frame number 34)
+(leaving out SUB measurement sample for SACCH block at frame number 39)
+(leaving out SUB measurement sample for frame number 52)
+(now adding SUB measurement sample 56)
+(leaving out measurement sample for frame number 69)
+(leaving out measurement sample for frame number 86)
+(leaving out measurement sample for frame number 104)
+(leaving out measurement sample for frame number 121)
+(leaving out measurement sample for frame number 138)
+(leaving out SUB measurement sample for SACCH block at frame number 143)
+(leaving out SUB measurement sample for frame number 156)
+(now adding SUB measurement sample 160)
+(leaving out measurement sample for frame number 173)
+(leaving out measurement sample for frame number 190)
+(leaving out measurement sample for frame number 208)
+(leaving out measurement sample for frame number 225)
+(leaving out measurement sample for frame number 242)
+(leaving out SUB measurement sample for SACCH block at frame number 247)
+(leaving out SUB measurement sample for frame number 260)
+(now adding SUB measurement sample 264)
+(leaving out measurement sample for frame number 277)
+(leaving out measurement sample for frame number 294)
+(leaving out measurement sample for frame number 312)
+(leaving out measurement sample for frame number 329)
+(leaving out measurement sample for frame number 346)
+(leaving out SUB measurement sample for SACCH block at frame number 351)
+(leaving out SUB measurement sample for frame number 364)
+(now adding SUB measurement sample 368)
+(leaving out measurement sample for frame number 381)
+(leaving out measurement sample for frame number 398)
+(leaving out measurement sample for frame number 416)
+
+
+===========================================================
+Testing ts45008_83_is_sub()
+Checking: TCH/F TS=0 SS=0
+Checking: TCH/F TS=1 SS=0
+Checking: TCH/F TS=2 SS=0
+Checking: TCH/F TS=3 SS=0
+Checking: TCH/F TS=4 SS=0
+Checking: TCH/F TS=5 SS=0
+Checking: TCH/F TS=6 SS=0
+Checking: TCH/H TS=0 SS=0
+Checking: TCH/H TS=1 SS=0
+Checking: TCH/H TS=2 SS=0
+Checking: TCH/H TS=3 SS=0
+Checking: TCH/H TS=4 SS=0
+Checking: TCH/H TS=5 SS=0
+Checking: TCH/H TS=6 SS=0
+Checking: TCH/H TS=0 SS=1
+Checking: TCH/H TS=1 SS=1
+Checking: TCH/H TS=2 SS=1
+Checking: TCH/H TS=3 SS=1
+Checking: TCH/H TS=4 SS=1
+Checking: TCH/H TS=5 SS=1
+Checking: TCH/H TS=6 SS=1
 Success

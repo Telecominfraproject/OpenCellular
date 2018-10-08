@@ -262,6 +262,8 @@ static void config_write_bts_single(struct vty *vty, struct gsm_bts *bts)
 	if (bts->rtp_jitter_adaptive)
 		vty_out(vty, " adaptive");
 	vty_out(vty, "%s", VTY_NEWLINE);
+	vty_out(vty, " rtp port-range %u %u%s", bts->rtp_port_range_start,
+		bts->rtp_port_range_end, VTY_NEWLINE);
 	vty_out(vty, " paging queue-size %u%s", paging_get_queue_max(bts->paging_state),
 		VTY_NEWLINE);
 	vty_out(vty, " paging lifetime %u%s", paging_get_lifetime(bts->paging_state),
@@ -462,7 +464,7 @@ DEFUN(cfg_bts_oml_ip,
 
 #define RTP_STR "RTP parameters\n"
 
-DEFUN_HIDDEN(cfg_bts_rtp_bind_ip,
+DEFUN_DEPRECATED(cfg_bts_rtp_bind_ip,
       cfg_bts_rtp_bind_ip_cmd,
       "rtp bind-ip A.B.C.D",
       RTP_STR "RTP local bind IP Address\n" "RTP local bind IP Address\n")
@@ -482,6 +484,43 @@ DEFUN(cfg_bts_rtp_jitbuf,
 	bts->rtp_jitter_buf_ms = atoi(argv[0]);
 	if (argc > 1)
 		bts->rtp_jitter_adaptive = true;
+
+	return CMD_SUCCESS;
+}
+
+DEFUN(cfg_bts_rtp_port_range,
+	cfg_bts_rtp_port_range_cmd,
+	"rtp port-range <1-65534> <1-65534>",
+      RTP_STR "Range of local ports to use for RTP/RTCP traffic\n")
+{
+	struct gsm_bts *bts = vty->index;
+	unsigned int start;
+	unsigned int end;
+
+	start = atoi(argv[0]);
+	end = atoi(argv[1]);
+
+	if (end < start) {
+		vty_out(vty, "range end port (%u) must be greater than the range start port (%u)!%s",
+			end, start, VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+
+	if (start & 1) {
+		vty_out(vty, "range must begin at an even port number! (%u not even)%s",
+			start, VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+
+	if ((end & 1) == 0) {
+		vty_out(vty, "range must end at an odd port number! (%u not odd)%s",
+			end, VTY_NEWLINE);
+		return CMD_WARNING;
+	}
+
+	bts->rtp_port_range_start = start;
+	bts->rtp_port_range_end = end;
+	bts->rtp_port_range_next = bts->rtp_port_range_start;
 
 	return CMD_SUCCESS;
 }
@@ -1554,6 +1593,7 @@ int bts_vty_init(struct gsm_bts *bts, const struct log_info *cat)
 	install_element(BTS_NODE, &cfg_bts_oml_ip_cmd);
 	install_element(BTS_NODE, &cfg_bts_rtp_bind_ip_cmd);
 	install_element(BTS_NODE, &cfg_bts_rtp_jitbuf_cmd);
+	install_element(BTS_NODE, &cfg_bts_rtp_port_range_cmd);
 	install_element(BTS_NODE, &cfg_bts_band_cmd);
 	install_element(BTS_NODE, &cfg_description_cmd);
 	install_element(BTS_NODE, &cfg_no_description_cmd);

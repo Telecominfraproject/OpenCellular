@@ -1,2 +1,6 @@
+etc/osmocom/osmo-bts-virtual.cfg
+lib/systemd/system/osmo-bts-virtual.service
 usr/bin/osmo-bts-virtual
 usr/bin/osmo-bts-omldummy
+usr/share/doc/osmo-bts/examples/osmo-bts-virtual/osmo-bts-virtual.cfg
+usr/share/doc/osmo-bts/examples/osmo-bts-virtual/openbsc-virtual.cfg

@@ -151,25 +151,8 @@ void bts_model_print_help()
 
 static void print_hwversion()
 {
-	int rev;
-	int model;
-	static char model_name[64] = {0, };
-
-	snprintf(model_name, sizeof(model_name), "NuRAN Litecell 1.5 BTS");
-
-	rev = lc15bts_rev_get();
-	if (rev >= 0) {
-		snprintf(model_name, sizeof(model_name), "%s Rev %c", 
-			model_name, (char)rev);
-	} 
-
-	model = lc15bts_model_get();
-	if (model >= 0) {
-		snprintf(model_name, sizeof(model_name), "%s (%05X)", 
-			model_name, model);
-	}
-
-	printf(model_name);
+	printf(get_hwversion_desc());
+	printf("\n");
 }
 
 int bts_model_handle_options(int argc, char **argv)
