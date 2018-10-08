@@ -15,25 +15,18 @@ typedef struct INA226_Config {
     uint16_t current_lim;
 } INA226_Config;
 
-SCHEMA_IMPORT  const Driver_fxnTable INA226_fxnTable;
+SCHEMA_IMPORT const Driver_fxnTable INA226_fxnTable;
 
 static const Driver INA226 = {
     .name = "INA226",
-    .status = (Parameter[]){
-        { .name = "busvoltage", .type = TYPE_UINT16 },
-        { .name = "shuntvoltage", .type = TYPE_UINT16 },
-        { .name = "current", .type = TYPE_UINT16 },
-        { .name = "power", .type = TYPE_UINT16 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "currlimit", .type = TYPE_UINT16 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "Overcurrent", .type = TYPE_UINT16 },
-        {}
-    },
+    .status = (Parameter[]){ { .name = "busvoltage", .type = TYPE_UINT16 },
+                             { .name = "shuntvoltage", .type = TYPE_UINT16 },
+                             { .name = "current", .type = TYPE_UINT16 },
+                             { .name = "power", .type = TYPE_UINT16 },
+                             {} },
+    .config = (Parameter[]){ { .name = "currlimit", .type = TYPE_UINT16 }, {} },
+    .alerts =
+            (Parameter[]){ { .name = "Overcurrent", .type = TYPE_UINT16 }, {} },
     .fxnTable = &INA226_fxnTable,
 };
 

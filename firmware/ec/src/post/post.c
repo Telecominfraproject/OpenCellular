@@ -66,7 +66,7 @@ extern POSTData PostResult[POST_RECORDS];
 static void post_taskfxn(UArg a0, UArg a1);
 static void post_task_init(void);
 static ReturnStatus post_process_msg(OCMPSubsystem OC_subSystem);
-static OCMPMessageFrame* post_create_execute_msg(OCMPSubsystem OC_subSystem);
+static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem);
 static void post_activate(OCMPMessageFrame *pPOSTMsg);
 static void post_process_rx_msg(OCMPMessageFrame *pPOSTMsg);
 static void post_move_to_next_subsystem();
@@ -86,20 +86,24 @@ void _post_complete()
 {
     uint8_t iter = 0;
     LOGGER_DEBUG("POST:INFO::POST test is completed.\n");
-    LOGGER_DEBUG("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
-    LOGGER_DEBUG("|||||||||||||||||||||||||||||||||||||||||||||||||||||||POST TABLE|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+    LOGGER_DEBUG(
+            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+    LOGGER_DEBUG(
+            "|||||||||||||||||||||||||||||||||||||||||||||||||||||||POST TABLE|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     /* POST results */
     for (iter = 0; iter < POST_RECORDS; iter++) {
-        LOGGER_DEBUG("\t POST:INFO:: POSTRESULT SS: 0x%x Device S.No: 0x%x I2C Bus: 0x%x Device Addr: 0x%x Device Id: 0x%x Manufacture Id: 0x%x Status: 0x%x.\n",
-                     PostResult[iter].subsystem, PostResult[iter].devSno,
-                     PostResult[iter].i2cBus, PostResult[iter].devAddr,
-                     PostResult[iter].devId, PostResult[iter].manId,
-                     PostResult[iter].status);
+        LOGGER_DEBUG(
+                "\t POST:INFO:: POSTRESULT SS: 0x%x Device S.No: 0x%x I2C Bus: 0x%x Device Addr: 0x%x Device Id: 0x%x Manufacture Id: 0x%x Status: 0x%x.\n",
+                PostResult[iter].subsystem, PostResult[iter].devSno,
+                PostResult[iter].i2cBus, PostResult[iter].devAddr,
+                PostResult[iter].devId, PostResult[iter].manId,
+                PostResult[iter].status);
     }
-    LOGGER_DEBUG("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
-    LOGGER_DEBUG("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+    LOGGER_DEBUG(
+            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+    LOGGER_DEBUG(
+            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 }
-
 
 /*****************************************************************************
  **    FUNCTION NAME   : post_data_init
@@ -111,7 +115,8 @@ void _post_complete()
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
-void post_init_POSTData(POSTData *pData,OCMPSubsystem subsystem, uint8_t devSno)
+void post_init_POSTData(POSTData *pData, OCMPSubsystem subsystem,
+                        uint8_t devSno)
 {
     pData->subsystem = subsystem;
     pData->devSno = devSno;
@@ -133,7 +138,8 @@ void post_init_POSTData(POSTData *pData,OCMPSubsystem subsystem, uint8_t devSno)
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
-void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, uint16_t manId, uint16_t devId)
+void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress,
+                          uint16_t manId, uint16_t devId)
 {
     pData->i2cBus = I2CBus;
     pData->devAddr = devAddress;
@@ -168,7 +174,7 @@ void post_update_POSTStatus(POSTData *pData, ePostCode status)
  *****************************************************************************/
 static void post_move_to_next_subsystem()
 {
-    POST_subSystem = (OCMPSubsystem) (POST_subSystem + (OCMPSubsystem) 1);
+    POST_subSystem = (OCMPSubsystem)(POST_subSystem + (OCMPSubsystem)1);
     if (POST_subSystem > OC_SS_MAX_LIMIT) {
         POST_subSystem = OC_SS_SYS;
     }
@@ -186,10 +192,11 @@ static void post_move_to_next_subsystem()
  *****************************************************************************/
 static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg)
 {
-    pPOSTMsg->message.subsystem = OC_SS_SYS; //OC_SUBSYSTEM_MAX_LIMIT subsystem number taken for bigbrother
+    pPOSTMsg->message.subsystem =
+            OC_SS_SYS; //OC_SUBSYSTEM_MAX_LIMIT subsystem number taken for bigbrother
     memcpy((pPOSTMsg->message.ocmp_data), &postState, 1);
     Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
-                    (uint8_t*) pPOSTMsg);
+                    (uint8_t *)pPOSTMsg);
 }
 
 /*****************************************************************************
@@ -233,13 +240,12 @@ static ReturnStatus post_process_msg(OCMPSubsystem OC_subSystem)
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
-static OCMPMessageFrame* post_create_execute_msg(OCMPSubsystem OC_subSystem)
+static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem)
 {
-    LOGGER_DEBUG("POST:INFO::Activation POST for SS %d.",OC_subSystem);
-    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(OC_subSystem,
-                                                        OCMP_MSG_TYPE_POST,
-                                                        OCMP_AXN_TYPE_ACTIVE,
-                                                        0x00,0x00,1);
+    LOGGER_DEBUG("POST:INFO::Activation POST for SS %d.", OC_subSystem);
+    OCMPMessageFrame *postExeMsg =
+            create_ocmp_msg_frame(OC_subSystem, OCMP_MSG_TYPE_POST,
+                                  OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     return postExeMsg;
 }
 
@@ -253,23 +259,21 @@ static OCMPMessageFrame* post_create_execute_msg(OCMPSubsystem OC_subSystem)
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
-static OCMPMessageFrame* post_create_enable_msg(OCMPSubsystem OC_subSystem)
+static OCMPMessageFrame *post_create_enable_msg(OCMPSubsystem OC_subSystem)
 {
     uint8_t dummyByte = 0xff;
     OCMPActionType actionType = OCMP_AXN_TYPE_ENABLE;
     LOGGER_DEBUG("POST:INFO::Enabling system for POST.");
-    if(OC_subSystem == OC_SS_MAX_LIMIT) {
+    if (OC_subSystem == OC_SS_MAX_LIMIT) {
         OC_subSystem = OC_SS_SYS;
         actionType = OCMP_AXN_TYPE_REPLY;
     } else {
         actionType = OCMP_AXN_TYPE_ENABLE;
     }
-    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(OC_subSystem,
-                                                       OCMP_MSG_TYPE_POST,
-                                                       actionType,0x00,0x00,1);
+    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
+            OC_subSystem, OCMP_MSG_TYPE_POST, actionType, 0x00, 0x00, 1);
     return postExeMsg;
 }
-
 
 /*****************************************************************************
  **    FUNCTION NAME   : post_activate
@@ -285,20 +289,21 @@ static void post_activate(OCMPMessageFrame *pPOSTMsg)
 {
     ReturnStatus POSTAckstatus = RETURN_NOTOK;
     LOGGER_DEBUG("POST:INFO:: Processing POST Ack received from the "
-                 "Subsystem %d.\n",POST_subSystem);
+                 "Subsystem %d.\n",
+                 POST_subSystem);
     System_flush();
     //Do the casting for the pMsg
     //POSTAckstatus = (ReturnStatus) (pPOSTMsg->message.ocmp_data);
     memcpy(&POSTAckstatus, pPOSTMsg->message.ocmp_data, 1);
-    if ( (pPOSTMsg->message.subsystem == OC_SS_SYS)
-            && (pPOSTMsg->message.action == OCMP_AXN_TYPE_ACTIVE) ){
+    if ((pPOSTMsg->message.subsystem == OC_SS_SYS) &&
+        (pPOSTMsg->message.action == OCMP_AXN_TYPE_ACTIVE)) {
         post_process_msg(POST_subSystem);
     } else {
         if (pPOSTMsg->message.subsystem == POST_subSystem) {
             postState = (!POSTAckstatus) & postState;
             LOGGER_DEBUG("POST:INFO:: POST status for 0x%x Subsystem is 0x%x"
-                    " and OC POST status is 0x%x.\n",
-                    POST_subSystem, POSTAckstatus, postState);
+                         " and OC POST status is 0x%x.\n",
+                         POST_subSystem, POSTAckstatus, postState);
             if (pPOSTMsg) {
                 free(pPOSTMsg);
             }
@@ -324,12 +329,12 @@ static void post_process_rx_msg(OCMPMessageFrame *pPOSTMsg)
     switch (pPOSTMsg->message.action) {
         case OCMP_AXN_TYPE_ACTIVE:
         case OCMP_AXN_TYPE_REPLY:
-             post_activate(pPOSTMsg);
-             break;
-        default:
-        {
+            post_activate(pPOSTMsg);
+            break;
+        default: {
             LOGGER_ERROR("POST::ERROR::Unkown action type 0x%x for POST"
-                    " message.\n", pPOSTMsg->message.action);
+                         " message.\n",
+                         pPOSTMsg->message.action);
             /*TODO: Return POST fail to BB*/
         }
     }
@@ -354,22 +359,19 @@ static void post_task_init(void)
     }
     /*Creating RX Message Queue*/
     postRxMsgQueue = Util_constructQueue(&postRxMsg);
-    LOGGER_DEBUG("POST:INFO::Constructing message Queue for 0x%x POST RX Messages.\n",
-                     postRxMsgQueue);
+    LOGGER_DEBUG(
+            "POST:INFO::Constructing message Queue for 0x%x POST RX Messages.\n",
+            postRxMsgQueue);
 
     /* Reset POST state to fail */
     postState = 0;
     POST_subSystem = OC_SS_SYS;
-    OCMPMessageFrame *postEnableMsg = create_ocmp_msg_frame(OC_SS_SYS,
-                                                           OCMP_MSG_TYPE_POST,
-                                                           OCMP_AXN_TYPE_ACTIVE,
-                                                           0x00,
-                                                           0x00,
-                                                           1);
+    OCMPMessageFrame *postEnableMsg = create_ocmp_msg_frame(
+            OC_SS_SYS, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     /*Ask for activate permission from BB system*/
     if (postEnableMsg) {
         Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
-                        (uint8_t*) postEnableMsg);
+                        (uint8_t *)postEnableMsg);
     }
 }
 
@@ -389,8 +391,8 @@ static void post_taskfxn(UArg a0, UArg a1)
     while (true) {
         if (Semaphore_pend(semPOSTMsg, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(postRxMsgQueue)) {
-                OCMPMessageFrame *pWrite = (OCMPMessageFrame *) Util_dequeueMsg(
-                        postRxMsgQueue);
+                OCMPMessageFrame *pWrite =
+                        (OCMPMessageFrame *)Util_dequeueMsg(postRxMsgQueue);
                 if (pWrite) {
                     post_process_rx_msg(pWrite);
                 }

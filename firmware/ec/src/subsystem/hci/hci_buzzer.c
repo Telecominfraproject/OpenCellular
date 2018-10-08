@@ -13,9 +13,9 @@
 extern HciBuzzer_Cfg gbc_hci_buzzer;
 #define HCI gbc_hci_buzzer
 
-ReturnStatus HciBuzzer_init(void) {
-    if (OcGpio_configure(&HCI.pin_en, OCGPIO_CFG_OUTPUT) <
-            OCGPIO_SUCCESS) {
+ReturnStatus HciBuzzer_init(void)
+{
+    if (OcGpio_configure(&HCI.pin_en, OCGPIO_CFG_OUTPUT) < OCGPIO_SUCCESS) {
         return RETURN_NOTOK;
     }
     return RETURN_OK;

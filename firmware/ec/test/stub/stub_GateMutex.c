@@ -21,15 +21,16 @@ ti_sysbios_gates_GateMutex_Handle ti_sysbios_gates_GateMutex_create(
     /* Doesn't matter, as long as it's not NULL */
     return (ti_sysbios_gates_GateMutex_Handle)1;
 }
-xdc_IArg ti_sysbios_gates_GateMutex_enter__E(
-        ti_sysbios_gates_GateMutex_Handle __inst)
+xdc_IArg
+ti_sysbios_gates_GateMutex_enter__E(ti_sysbios_gates_GateMutex_Handle __inst)
 {
     UNUSED(__inst);
     return 0;
 }
 
-xdc_Void ti_sysbios_gates_GateMutex_leave__E(
-        ti_sysbios_gates_GateMutex_Handle __inst, xdc_IArg key)
+xdc_Void
+ti_sysbios_gates_GateMutex_leave__E(ti_sysbios_gates_GateMutex_Handle __inst,
+                                    xdc_IArg key)
 {
     UNUSED(__inst);
     UNUSED(key);

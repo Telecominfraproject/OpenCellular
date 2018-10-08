@@ -12,20 +12,20 @@
 #include <stdint.h>
 
 typedef enum {
-    IRIDIUM_IMEI            = 0,
-    IRIDIUM_MFG             = 1,
-    IRIDIUM_MODEL           = 2,
-    IRIDIUM_SIG_QUALITY     = 3,
-    IRIDIUM_REGSTATUS       = 4,
-    IRIDIUM_NO_OUT_MSG      = 5,
-    IRIDIUM_LASTERR         = 6,
-    IRIDIUM_PARAM_MAX       /* Limiter */
+    IRIDIUM_IMEI = 0,
+    IRIDIUM_MFG = 1,
+    IRIDIUM_MODEL = 2,
+    IRIDIUM_SIG_QUALITY = 3,
+    IRIDIUM_REGSTATUS = 4,
+    IRIDIUM_NO_OUT_MSG = 5,
+    IRIDIUM_LASTERR = 6,
+    IRIDIUM_PARAM_MAX /* Limiter */
 } eOBC_StatusParam;
 
 typedef enum {
-    ERR_RC_INTERNAL         = 0,
-    ERR_SRC_CMS             = 1,
-    ERR_SRC_CME             = 2
+    ERR_RC_INTERNAL = 0,
+    ERR_SRC_CMS = 1,
+    ERR_SRC_CME = 2
 } eOBC_ErrorSource;
 
 typedef struct OBC_lastError {

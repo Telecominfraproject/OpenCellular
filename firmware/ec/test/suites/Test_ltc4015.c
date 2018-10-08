@@ -27,21 +27,25 @@ static const I2C_Dev I2C_DEV = {
 };
 
 static LTC4015_Dev s_dev = {
-    .cfg = {
-        .i2c_dev = {
-            .bus = 0,
-            .slave_addr = 0x68,
-        },
-    },
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = 0,
+                                    .slave_addr = 0x68,
+                            },
+            },
 };
 
 static LTC4015_Dev s_invalid_dev = {
-    .cfg = {
-        .i2c_dev = {
-            .bus = 2,
-            .slave_addr = 0x52,
-        },
-    },
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = 2,
+                                    .slave_addr = 0x52,
+                            },
+            },
 };
 
 static uint16_t LTC4015_regs[] = {
@@ -73,8 +77,10 @@ static uint16_t LTC4015_regs[] = {
     [0x1A] = 0x00, /* Charge current target */
     [0x1B] = 0x00, /* Charge voltage target */
     [0x1C] = 0x00, /* Low IBAT Threshold for C/x termination */
-    [0x1D] = 0x00, /* Time in seconds with battery charger in the CV state before timer termination */
-    [0x1E] = 0x00, /* Time in seconds before a max_charge_time fault is declared */
+    [0x1D] =
+            0x00, /* Time in seconds with battery charger in the CV state before timer termination */
+    [0x1E] =
+            0x00, /* Time in seconds before a max_charge_time fault is declared */
     [0x1F] = 0x00, /* JEITA_T1 */
     [0x20] = 0x00, /* JEITA_T2 */
     [0x21] = 0x00, /* JEITA_T3 */
@@ -110,7 +116,8 @@ static uint16_t LTC4015_regs[] = {
     [0x3F] = 0x00, /* Die temperature */
     [0x40] = 0x00, /* NTC thermistor ratio */
     [0x41] = 0x00, /* Battery series resistance */
-    [0x42] = 0x00, /* JEITA temperature region of the NTC thermistor (Li Only) */
+    [0x42] =
+            0x00, /* JEITA temperature region of the NTC thermistor (Li Only) */
     [0x43] = 0x00, /* CHEM and CELLS pin settings */
     [0x44] = 0x00, /* Charge current control DAC control bits */
     [0x45] = 0x00, /* Charge voltage control DAC control bits */
@@ -165,10 +172,11 @@ void test_ltc4015_init(void)
 
     /* Now try to init with a pin associated */
     LTC4015_Dev alerted_dev = {
-        .cfg = {
-            .i2c_dev = s_dev.cfg.i2c_dev,
-            .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        },
+        .cfg =
+                {
+                        .i2c_dev = s_dev.cfg.i2c_dev,
+                        .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+                },
     };
     TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_init(&alerted_dev));
 }
@@ -210,7 +218,7 @@ static void _test_alert(LTC4015_Dev *dev, LTC4015_Event evt,
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
     TEST_ASSERT_EQUAL(0, s_alert_data.triggered);
 
-    LTC4015_regs[0x36] |= alert_mask;  /* Fault caused alert */
+    LTC4015_regs[0x36] |= alert_mask; /* Fault caused alert */
 
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
     TEST_ASSERT_EQUAL(1, s_alert_data.triggered);
@@ -224,14 +232,15 @@ void test_LTC4015_alerts(void)
 
     /* Now try to init with a pin associated */
     LTC4015_Dev alerted_dev = {
-        .cfg = {
-            .i2c_dev = s_dev.cfg.i2c_dev,
-            .chem = LTC4015_CHEM_LEAD_ACID,
-            .r_snsb = 3,
-            .r_snsi = 7,
-            .cellcount = 6,
-            .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        },
+        .cfg =
+                {
+                        .i2c_dev = s_dev.cfg.i2c_dev,
+                        .chem = LTC4015_CHEM_LEAD_ACID,
+                        .r_snsb = 3,
+                        .r_snsi = 7,
+                        .cellcount = 6,
+                        .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+                },
     };
 
     TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_init(&alerted_dev));
@@ -251,11 +260,11 @@ void test_LTC4015_alerts(void)
 
     LTC4015_setAlertHandler(&alerted_dev, _alert_handler, NULL);
 
-    LTC4015_regs[0x3A] = 0x3040;  /* VBAT 9500mV */
-    LTC4015_regs[0x3B] = 0x2666;  /* VIN  16200mV */
-    LTC4015_regs[0x3D] = 0x0FFF;  /* IBAT 2000mA */
-    LTC4015_regs[0x3E] = 0x5D54;  /* IIN  5000mA */
-    LTC4015_regs[0x3F] = 0x3D2A;  /* T    80C */
+    LTC4015_regs[0x3A] = 0x3040; /* VBAT 9500mV */
+    LTC4015_regs[0x3B] = 0x2666; /* VIN  16200mV */
+    LTC4015_regs[0x3D] = 0x0FFF; /* IBAT 2000mA */
+    LTC4015_regs[0x3E] = 0x5D54; /* IIN  5000mA */
+    LTC4015_regs[0x3F] = 0x3D2A; /* T    80C */
 
     _test_alert(&alerted_dev, LTC4015_EVT_BVL, 0x0800, 9499);
     _test_alert(&alerted_dev, LTC4015_EVT_BVH, 0x0400, 9499);
@@ -268,8 +277,8 @@ void test_LTC4015_alerts(void)
 void test_LTC4015_enableLimitAlerts(void)
 {
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      LTC4015_enableLimitAlerts(&s_dev,
-                                           LTC4015_EVT_BVL | LTC4015_EVT_ICH));
+                      LTC4015_enableLimitAlerts(
+                              &s_dev, LTC4015_EVT_BVL | LTC4015_EVT_ICH));
     TEST_ASSERT_EQUAL_HEX16(0x0820, LTC4015_regs[0x0D]);
 }
 
@@ -278,14 +287,15 @@ void test_LTC4015_probe(void)
     POSTData postData;
     /* Test with the actual value */
     LTC4015_regs[0x39] = LTC4015_CHARGER_ENABLED;
-    TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4015_probe(&s_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4015_probe(&s_dev, &postData));
 
     /* Test with an incorrect value */
     LTC4015_regs[0x39] = ~LTC4015_CHARGER_ENABLED;
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_dev, &postData));
 
     /* Test with a missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_probe(&s_invalid_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING,
+                      LTC4015_probe(&s_invalid_dev, &postData));
 }
 
 void test_LTC4015_cfg_icharge(void)
@@ -293,10 +303,11 @@ void test_LTC4015_cfg_icharge(void)
     /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
     /* The only thing that matters for this calc is Rsnsb */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 3,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 3,
+                },
     };
 
     TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_cfg_icharge(&charger, 3000));
@@ -327,10 +338,11 @@ void test_LTC4015_get_cfg_icharge(void)
     /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
     /* The only thing that matters for this calc is Rsnsb */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 3,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 3,
+                },
     };
     uint16_t max_chargeCurrent;
 
@@ -361,9 +373,10 @@ void test_LTC4015_cfg_vcharge(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
 
     /* TODO: check if we're using temperature comp. / if the driver should
@@ -419,9 +432,10 @@ void test_LTC4015_get_cfg_vcharge(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     uint16_t vcharge;
 
@@ -469,9 +483,10 @@ void test_LTC4015_cfg_battery_voltage_low(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
 
     /* Test lithium ion chemistry */
@@ -513,9 +528,10 @@ void test_LTC4015_get_cfg_battery_voltage_low(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t underVoltage;
 
@@ -524,15 +540,13 @@ void test_LTC4015_get_cfg_battery_voltage_low(void)
     charger.cfg.chem = LTC4015_CHEM_LI_ION;
     charger.cfg.cellcount = 3;
     LTC4015_regs[0x01] = 15603;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_low(&charger, &underVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_low(
+                                         &charger, &underVoltage));
     TEST_ASSERT_EQUAL(8999, underVoltage);
 
     LTC4015_regs[0x01] = 31208;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_low(&charger, &underVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_low(
+                                         &charger, &underVoltage));
     TEST_ASSERT_EQUAL(18000, underVoltage);
 
     /* Test lead acid chemistry */
@@ -540,15 +554,13 @@ void test_LTC4015_get_cfg_battery_voltage_low(void)
     charger.cfg.chem = LTC4015_CHEM_LEAD_ACID;
     charger.cfg.cellcount = 6;
     LTC4015_regs[0x01] = 13458;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_low(&charger, &underVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_low(
+                                         &charger, &underVoltage));
     TEST_ASSERT_EQUAL(10349, underVoltage);
 
     LTC4015_regs[0x01] = 12353;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_low(&charger, &underVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_low(
+                                         &charger, &underVoltage));
     TEST_ASSERT_EQUAL(9500, underVoltage);
 }
 
@@ -556,9 +568,10 @@ void test_LTC4015_cfg_battery_voltage_high(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
 
     /* Test lithium ion chemistry */
@@ -600,9 +613,10 @@ void test_LTC4015_get_cfg_battery_voltage_high(void)
 {
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t overVoltage;
 
@@ -611,15 +625,13 @@ void test_LTC4015_get_cfg_battery_voltage_high(void)
     charger.cfg.chem = LTC4015_CHEM_LI_ION;
     charger.cfg.cellcount = 3;
     LTC4015_regs[0x02] = 21845;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_high(&charger, &overVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_high(
+                                         &charger, &overVoltage));
     TEST_ASSERT_EQUAL(12600, overVoltage);
 
     LTC4015_regs[0x02] = 15603;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_high(&charger, &overVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_high(
+                                         &charger, &overVoltage));
     TEST_ASSERT_EQUAL(8999, overVoltage);
 
     /* Test lead acid chemistry */
@@ -627,24 +639,23 @@ void test_LTC4015_get_cfg_battery_voltage_high(void)
     charger.cfg.chem = LTC4015_CHEM_LEAD_ACID;
     charger.cfg.cellcount = 6;
     LTC4015_regs[0x02] = 17945;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_high(&charger, &overVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_high(
+                                         &charger, &overVoltage));
     TEST_ASSERT_EQUAL(13800, overVoltage);
 
     LTC4015_regs[0x02] = 390;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_voltage_high(&charger, &overVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_voltage_high(
+                                         &charger, &overVoltage));
     TEST_ASSERT_EQUAL(299, overVoltage);
 }
 
 void test_LTC4015_cfg_input_voltage_low(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
 
     /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
@@ -663,23 +674,22 @@ void test_LTC4015_cfg_input_voltage_low(void)
 void test_LTC4015_get_cfg_input_voltage_low(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t inputVoltage;
 
     /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
     LTC4015_regs[0x03] = 3034;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_input_voltage_low(&charger, &inputVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_voltage_low(
+                                         &charger, &inputVoltage));
     TEST_ASSERT_EQUAL(5000, inputVoltage);
 
     LTC4015_regs[0x03] = 60;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_input_voltage_low(&charger, &inputVoltage));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_voltage_low(
+                                         &charger, &inputVoltage));
     TEST_ASSERT_EQUAL(98, inputVoltage);
 }
 
@@ -687,10 +697,11 @@ void test_LTC4015_cfg_input_current_high(void)
 {
     /* Rsnsi value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsi = 7,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsi = 7,
+                },
     };
 
     /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
@@ -713,24 +724,25 @@ void test_LTC4015_get_cfg_input_current_high(void)
 {
     /* Rsnsi value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsi = 7,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsi = 7,
+                },
     };
     int16_t inputCurrent;
 
     /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
     LTC4015_regs[0x07] = 23892;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-            LTC4015_get_cfg_input_current_high(&charger, &inputCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_current_high(
+                                         &charger, &inputCurrent));
     TEST_ASSERT_EQUAL(4999, inputCurrent);
 
     charger.cfg.r_snsi = 2;
 
     LTC4015_regs[0x07] = 23211;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      LTC4015_get_cfg_input_current_high(&charger, &inputCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_current_high(
+                                         &charger, &inputCurrent));
     TEST_ASSERT_EQUAL(17000, inputCurrent);
 }
 
@@ -738,10 +750,11 @@ void test_LTC4015_cfg_battery_current_low(void)
 {
     /* Rsnsb value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 30,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 30,
+                },
     };
 
     /* IBAT_LO_ALERT_LIMIT = (limit*RSNSB)/1.46487uV */
@@ -764,35 +777,35 @@ void test_LTC4015_get_cfg_battery_current_low(void)
 {
     /* Rsnsb value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 30,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 30,
+                },
     };
     int16_t batteryCurrent;
 
     /* IBAT_LO_ALERT_LIMIT = (limit*RSNSB)/1.46487uV */
     LTC4015_regs[0x08] = 2048;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_current_low(&charger, &batteryCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_current_low(
+                                         &charger, &batteryCurrent));
     TEST_ASSERT_EQUAL(100, batteryCurrent);
 
     charger.cfg.r_snsb = 4;
 
     LTC4015_regs[0x08] = 8276;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_battery_current_low(&charger, &batteryCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_battery_current_low(
+                                         &charger, &batteryCurrent));
     TEST_ASSERT_EQUAL(3030, batteryCurrent);
 }
 
 void test_LTC4015_cfg_die_temperature_high(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
 
     /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
@@ -809,31 +822,29 @@ void test_LTC4015_cfg_die_temperature_high(void)
     TEST_ASSERT_EQUAL(15658, LTC4015_regs[0x09]);
 
     /* Make sure too-low values don't do anything bad */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      LTC4015_cfg_die_temperature_high(&charger, 0));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_cfg_die_temperature_high(&charger, 0));
     TEST_ASSERT_EQUAL(12010, LTC4015_regs[0x09]);
 }
 
 void test_LTC4015_get_die_temperature_high(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t dieTemperature;
 
     /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
     LTC4015_regs[0x09] = 15658;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_die_temperature_high(&charger, &dieTemperature));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_die_temperature_high(
+                                         &charger, &dieTemperature));
     TEST_ASSERT_EQUAL(80, dieTemperature);
 
     LTC4015_regs[0x09] = 11554;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_die_temperature_high(&charger, &dieTemperature));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_die_temperature_high(
+                                         &charger, &dieTemperature));
     TEST_ASSERT_EQUAL(-10, dieTemperature);
 }
 
@@ -841,10 +852,11 @@ void test_LTC4015_cfg_input_current_limit(void)
 {
     /* Rsnsi value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsi = 7,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsi = 7,
+                },
     };
 
     /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
@@ -868,35 +880,35 @@ void test_LTC4015_get_cfg_input_current_limit(void)
 {
     /* Rsnsi value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsi = 7,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsi = 7,
+                },
     };
     uint16_t inputCurrent;
 
     /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
     LTC4015_regs[0x15] = 76;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_input_current_limit(&charger, &inputCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_current_limit(
+                                         &charger, &inputCurrent));
     TEST_ASSERT_EQUAL(5500, inputCurrent);
 
     charger.cfg.r_snsi = 2;
 
     LTC4015_regs[0x15] = 200;
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            LTC4015_get_cfg_input_current_limit(&charger, &inputCurrent));
+    TEST_ASSERT_EQUAL(RETURN_OK, LTC4015_get_cfg_input_current_limit(
+                                         &charger, &inputCurrent));
     TEST_ASSERT_EQUAL(50250, inputCurrent);
 }
 
 void test_LTC4015_get_die_temp(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t dieTemperature;
 
@@ -916,10 +928,11 @@ void test_LTC4015_get_battery_current(void)
 {
     /* Rsnsb value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 30,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 30,
+                },
     };
     int16_t batteryCurrent;
 
@@ -941,10 +954,11 @@ void test_LTC4015_get_input_current(void)
 {
     /* Rsnsi value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsi = 7,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsi = 7,
+                },
     };
     int16_t inputCurrent;
 
@@ -962,15 +976,14 @@ void test_LTC4015_get_input_current(void)
     TEST_ASSERT_EQUAL(17000, inputCurrent);
 }
 
-
 void test_LTC4015_get_battery_voltage(void)
 {
-
     /* Chemistry and #cells affect this calc */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t batteryVoltage;
 
@@ -996,9 +1009,10 @@ void test_LTC4015_get_battery_voltage(void)
 void test_LTC4015_get_input_voltage(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t inputVoltage;
 
@@ -1017,9 +1031,10 @@ void test_LTC4015_get_input_voltage(void)
 void test_LTC4015_get_system_voltage(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     int16_t systemVoltage;
 
@@ -1039,10 +1054,11 @@ void test_LTC4015_get_icharge_dac(void)
 {
     /* Rsnsb value affects this calculation */
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-            .r_snsb = 30,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                        .r_snsb = 30,
+                },
     };
     int16_t iCharge;
 
@@ -1061,9 +1077,10 @@ void test_LTC4015_get_icharge_dac(void)
 void test_LTC4015_get_bat_presence(void)
 {
     LTC4015_Dev charger = {
-        .cfg = {
-            .i2c_dev = I2C_DEV,
-        },
+        .cfg =
+                {
+                        .i2c_dev = I2C_DEV,
+                },
     };
     bool present;
 

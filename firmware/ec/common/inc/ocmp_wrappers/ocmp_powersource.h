@@ -15,17 +15,17 @@ SCHEMA_IMPORT const Driver_fxnTable PWRSRC_fxnTable;
 
 static const Driver PWRSRC = {
     .name = "powerSource",
-    .status = (Parameter[]){
-        { .name = "poeAvailability", .type = TYPE_UINT8 },
-        { .name = "poeAccessebility", .type = TYPE_UINT8 },
-        { .name = "solarAvailability", .type = TYPE_UINT8 },
-        { .name = "solarAccessebility", .type = TYPE_UINT8 },
-        { .name = "extBattAvailability", .type = TYPE_UINT8 },
-        { .name = "extBattAccessebility", .type = TYPE_UINT8 },
-        { .name = "intBattAvailability", .type = TYPE_UINT8 },
-        { .name = "intBattAccessebility", .type = TYPE_UINT8 },
-        {}
-    },
+    .status =
+            (Parameter[]){
+                    { .name = "poeAvailability", .type = TYPE_UINT8 },
+                    { .name = "poeAccessebility", .type = TYPE_UINT8 },
+                    { .name = "solarAvailability", .type = TYPE_UINT8 },
+                    { .name = "solarAccessebility", .type = TYPE_UINT8 },
+                    { .name = "extBattAvailability", .type = TYPE_UINT8 },
+                    { .name = "extBattAccessebility", .type = TYPE_UINT8 },
+                    { .name = "intBattAvailability", .type = TYPE_UINT8 },
+                    { .name = "intBattAccessebility", .type = TYPE_UINT8 },
+                    {} },
     .fxnTable = &PWRSRC_fxnTable,
 };
 #endif /* _OCMP_POWERSOURCE_H_ */

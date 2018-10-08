@@ -21,17 +21,15 @@ typedef enum DatConfig {
     DAT_CONFIG_ATTENUATION = 0,
 } DatConfig;
 
-static bool _get_config(void *driver, unsigned int param_id,
-                        void *return_buf) {
+static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
+{
     bool ret = false;
     switch (param_id) {
         case DAT_CONFIG_ATTENUATION: {
             DATR5APP_Cfg *cfg = driver;
             uint8_t atten;
-            const PinGroup pin_group = {
-                .num_pin = DATR5APP_PIN_COUNT,
-                .pins = cfg->pin_group
-            };
+            const PinGroup pin_group = { .num_pin = DATR5APP_PIN_COUNT,
+                                         .pins = cfg->pin_group };
             if (PinGroup_read(&pin_group, &atten) != RETURN_OK) {
                 ret = false;
             } else {
@@ -64,17 +62,15 @@ static bool _set_attenuation(void *driver, int16_t atten)
     /* Disable input latch */
     OcGpio_write(&cfg->pin_le, false);
     /* Attenuation enable */
-   // OcGpio_write(&cfg->pin_tx_attn_enb, true);
+    // OcGpio_write(&cfg->pin_tx_attn_enb, true);
 
     /* Set the attenuation value */
     /* TODO: value is provided as x2, so 0.5 value is bit 0, consider
      * changing, at least on CLI to more intuitive interface */
-    const PinGroup pin_group = {
-        .num_pin = DATR5APP_PIN_COUNT,
-        .pins = cfg->pin_group
-    };
+    const PinGroup pin_group = { .num_pin = DATR5APP_PIN_COUNT,
+                                 .pins = cfg->pin_group };
 
-      if (PinGroup_write(&pin_group, atten) != RETURN_OK) {
+    if (PinGroup_write(&pin_group, atten) != RETURN_OK) {
         return false;
     }
 
@@ -88,8 +84,8 @@ static bool _set_attenuation(void *driver, int16_t atten)
     return true;
 }
 
-static bool _set_config(void *driver, unsigned int param_id,
-                        const void *data) {
+static bool _set_config(void *driver, unsigned int param_id, const void *data)
+{
     switch (param_id) {
         case DAT_CONFIG_ATTENUATION: {
             return _set_attenuation(driver, *(int16_t *)data);
@@ -106,10 +102,8 @@ static ePostCode _probe(void *driver)
      * assume that reading from the pin will tell us if the pin is working */
     DATR5APP_Cfg *cfg = driver;
     uint8_t atten;
-    const PinGroup pin_group = {
-        .num_pin = DATR5APP_PIN_COUNT,
-        .pins = cfg->pin_group
-    };
+    const PinGroup pin_group = { .num_pin = DATR5APP_PIN_COUNT,
+                                 .pins = cfg->pin_group };
     if (PinGroup_read(&pin_group, &atten) != RETURN_OK) {
         return POST_DEV_MISSING;
     }
@@ -122,15 +116,14 @@ static ePostCode _init(void *driver, const void *config,
 {
     DATR5APP_Cfg *cfg = (DATR5APP_Cfg *)driver;
     DATR5APP_Config *cfg_atten = (DATR5APP_Config *)config;
-    PinGroup pin_group = {
-        .num_pin = DATR5APP_PIN_COUNT,
-        .pins = cfg->pin_group
-    };
+    PinGroup pin_group = { .num_pin = DATR5APP_PIN_COUNT,
+                           .pins = cfg->pin_group };
     if (OcGpio_configure(&cfg->pin_le, OCGPIO_CFG_OUTPUT) < OCGPIO_SUCCESS) {
         return POST_DEV_CFG_FAIL;
     }
-    if (PinGroup_configure(&pin_group, OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH)
-            != RETURN_OK) {
+    if (PinGroup_configure(&pin_group,
+                           OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH) !=
+        RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
 
@@ -139,11 +132,9 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-const Driver_fxnTable  DATXXR5APP_fxnTable = {
+const Driver_fxnTable DATXXR5APP_fxnTable = {
     /* Message handlers */
-    .cb_probe = _probe,
-    .cb_init = _init,
-    .cb_get_status = NULL,
-    .cb_get_config = _get_config,
+    .cb_probe = _probe,           .cb_init = _init,
+    .cb_get_status = NULL,        .cb_get_config = _get_config,
     .cb_set_config = _set_config,
 };

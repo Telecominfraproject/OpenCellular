@@ -19,8 +19,8 @@
 #include "OcGpio.h"
 
 typedef struct PinGroup {
-      int num_pin;
-      const OcGpio_Pin *pins;
+    int num_pin;
+    const OcGpio_Pin *pins;
 } PinGroup;
 
 /*! Configure a group of OC-GPIO Pins

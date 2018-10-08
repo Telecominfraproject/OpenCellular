@@ -24,7 +24,6 @@
  *****************************************************************************/
 static tPowerSource Power_SourceInfo[PWR_SRC_MAX];
 
-
 /*****************************************************************************
  **    FUNCTION NAME   : pwr_update_source_info
  **
@@ -35,20 +34,19 @@ static tPowerSource Power_SourceInfo[PWR_SRC_MAX];
  **     RETURN TYPE     : None
  **
  *****************************************************************************/
-static void pwr_update_source_info(ePowerSource powerSrc, ePowerSourceState pwrState)
+static void pwr_update_source_info(ePowerSource powerSrc,
+                                   ePowerSourceState pwrState)
 {
-
-    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR ;
+    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR;
     for (; itr < PWR_SRC_MAX; itr++) {
         if (Power_SourceInfo[itr].powerSource == powerSrc) {
             Power_SourceInfo[itr].state = pwrState;
             LOGGER("POWER:INFO:: Power State updated for Power Source %d with %d.\n",
-                    Power_SourceInfo[itr].powerSource,
-                    Power_SourceInfo[itr].state);
+                   Power_SourceInfo[itr].powerSource,
+                   Power_SourceInfo[itr].state);
         }
     }
 }
-
 
 /******************************************************************************
  **    FUNCTION NAME   : pwr_source_inuse
@@ -63,19 +61,18 @@ static void pwr_update_source_info(ePowerSource powerSrc, ePowerSourceState pwrS
 static ReturnStatus pwr_source_inuse(ePowerSource *inUse)
 {
     ReturnStatus ret = RETURN_NOTOK;
-    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR ;
-    for ( ; itr < PWR_SRC_MAX; itr++) {
+    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR;
+    for (; itr < PWR_SRC_MAX; itr++) {
         if (Power_SourceInfo[itr].state == PWR_SRC_AVAILABLE) {
             *inUse = itr;
             ret = RETURN_OK;
             break;
         }
-
     }
     return ret;
 }
 
-void pwr_source_config(PWRSRC_Dev* driver)
+void pwr_source_config(PWRSRC_Dev *driver)
 {
     //Configuring GPIOS
     OcGpio_configure(&driver->cfg.pin_solar_aux_prsnt_n, OCGPIO_CFG_INPUT);
@@ -96,13 +93,12 @@ void pwr_source_config(PWRSRC_Dev* driver)
  *****************************************************************************/
 void pwr_source_init(void)
 {
-    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR ;
+    ePowerSource itr = PWR_SRC_AUX_OR_SOLAR;
     for (; itr < PWR_SRC_MAX; itr++) {
         Power_SourceInfo[itr].powerSource = itr;
         Power_SourceInfo[itr].state = PWR_SRC_NON_AVAILABLE;
     }
 }
-
 
 /******************************************************************************
  * @fn          pwr_check_aux_or_solar
@@ -115,15 +111,13 @@ void pwr_source_init(void)
  */
 static ReturnStatus pwr_check_aux_or_solar(PWRSRC_Dev *pwrSrcDev)
 {
-
-
     ReturnStatus ret = RETURN_NOTOK;
-    ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
+    ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
     //For Checking SOLAR POWER SOURCE
     uint8_t value = 0;
     value = OcGpio_read(&pwrSrcDev->cfg.pin_solar_aux_prsnt_n);
     if (value == 0) {
-        status=PWR_SRC_AVAILABLE;
+        status = PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
     }
     pwr_update_source_info(PWR_SRC_AUX_OR_SOLAR, status);
@@ -143,11 +137,11 @@ static ReturnStatus pwr_check_poe(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
-    ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
+    ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
     //For Checking POE POWER SOURCE
     value = OcGpio_read(&pwrSrcDev->cfg.pin_poe_prsnt_n);
-    if ( value == 0) {
-        status=PWR_SRC_AVAILABLE;
+    if (value == 0) {
+        status = PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
     }
     pwr_update_source_info(PWR_SRC_POE, status);
@@ -167,7 +161,7 @@ static ReturnStatus pwr_check_int_batt(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
-    ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
+    ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
 
     //For Checking INTERNAL BATTERY SOURCE
     value = OcGpio_read(&pwrSrcDev->cfg.pin_int_bat_prsnt);
@@ -193,11 +187,11 @@ static ReturnStatus pwr_check_ext_batt(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
-    ePowerSourceState status=PWR_SRC_NON_AVAILABLE;
+    ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
 
     value = OcGpio_read(&pwrSrcDev->cfg.pin_ext_bat_prsnt);
     if (value == 0) { /* If read fails, we'll get a negative value */
-        status=PWR_SRC_AVAILABLE;
+        status = PWR_SRC_AVAILABLE;
         ret = RETURN_OK;
     }
 
@@ -217,23 +211,23 @@ static ReturnStatus pwr_check_ext_batt(PWRSRC_Dev *pwrSrcDev)
 static void pwr_check_presence_of_source(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
-    ret =  pwr_check_aux_or_solar(pwrSrcDev);
-        LOGGER("POWER:INFO:: Power Source Aux/Solar %s.\n",
-                    ((ret == RETURN_OK) ? "available" : "not available"));
+    ret = pwr_check_aux_or_solar(pwrSrcDev);
+    LOGGER("POWER:INFO:: Power Source Aux/Solar %s.\n",
+           ((ret == RETURN_OK) ? "available" : "not available"));
 
     ret = pwr_check_poe(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source POE %s.\n",
-                ((ret == RETURN_OK) ? "available" : "not available"));
+           ((ret == RETURN_OK) ? "available" : "not available"));
 
     ret = pwr_check_int_batt(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source INTERNAL BATTERY %s.\n",
-                ((ret == RETURN_OK) ? "available" : "not available"));
+           ((ret == RETURN_OK) ? "available" : "not available"));
 
     ret = pwr_check_ext_batt(pwrSrcDev);
     LOGGER("POWER:INFO:: Power Source EXTERNAL BATTERY %s.\n",
-                ((ret == RETURN_OK) ? "available" : "not available"));
+           ((ret == RETURN_OK) ? "available" : "not available"));
 
-    return ;
+    return;
 }
 
 /*****************************************************************************
@@ -273,70 +267,64 @@ void pwr_get_source_info(PWRSRC_Dev *pwrSrcDev)
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-ReturnStatus pwr_process_get_status_parameters_data(
-        ePower_StatusParamId paramIndex, uint8_t *pPowerStatusData)
+ReturnStatus
+pwr_process_get_status_parameters_data(ePower_StatusParamId paramIndex,
+                                       uint8_t *pPowerStatusData)
 {
     ReturnStatus status = RETURN_OK;
     switch (paramIndex) {
-        case PWR_STAT_POE_AVAILABILITY:
-        {
-            if ((Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_ACTIVE)
-                    || (Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_AVAILABLE))
+        case PWR_STAT_POE_AVAILABILITY: {
+            if ((Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_ACTIVE) ||
+                (Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_AVAILABLE))
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_POE_ACCESSIBILITY:
-        {
+        case PWR_STAT_POE_ACCESSIBILITY: {
             if (Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_ACTIVE)
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_SOLAR_AVAILABILITY:
-        {
-            if ((Power_SourceInfo[PWR_SRC_AUX_OR_SOLAR].state == PWR_SRC_ACTIVE)
-                    || (Power_SourceInfo[PWR_SRC_AUX_OR_SOLAR].state
-                            == PWR_SRC_AVAILABLE))
+        case PWR_STAT_SOLAR_AVAILABILITY: {
+            if ((Power_SourceInfo[PWR_SRC_AUX_OR_SOLAR].state ==
+                 PWR_SRC_ACTIVE) ||
+                (Power_SourceInfo[PWR_SRC_AUX_OR_SOLAR].state ==
+                 PWR_SRC_AVAILABLE))
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_SOLAR_ACCESSIBILITY:
-        {
+        case PWR_STAT_SOLAR_ACCESSIBILITY: {
             if (Power_SourceInfo[PWR_SRC_AUX_OR_SOLAR].state == PWR_SRC_ACTIVE)
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_EXTBATT_AVAILABILITY:
-        {
-            if ((Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state
-                    == PWR_SRC_ACTIVE)
-                    || (Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state
-                            == PWR_SRC_AVAILABLE))
+        case PWR_STAT_EXTBATT_AVAILABILITY: {
+            if ((Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state ==
+                 PWR_SRC_ACTIVE) ||
+                (Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state ==
+                 PWR_SRC_AVAILABLE))
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_EXTBATT_ACCESSIBILITY:
-        {
-            if (Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state
-                    == PWR_SRC_ACTIVE)
+        case PWR_STAT_EXTBATT_ACCESSIBILITY: {
+            if (Power_SourceInfo[PWR_SRC_LEAD_ACID_BATT].state ==
+                PWR_SRC_ACTIVE)
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_INTBATT_AVAILABILITY:
-        {
-            if ((Power_SourceInfo[PWR_SRC_LIION_BATT].state == PWR_SRC_ACTIVE)
-                    || (Power_SourceInfo[PWR_SRC_LIION_BATT].state
-                            == PWR_SRC_AVAILABLE))
+        case PWR_STAT_INTBATT_AVAILABILITY: {
+            if ((Power_SourceInfo[PWR_SRC_LIION_BATT].state ==
+                 PWR_SRC_ACTIVE) ||
+                (Power_SourceInfo[PWR_SRC_LIION_BATT].state ==
+                 PWR_SRC_AVAILABLE))
                 *pPowerStatusData = 1;
             break;
         }
-        case PWR_STAT_INTBATT_ACCESSIBILITY:
-        {
+        case PWR_STAT_INTBATT_ACCESSIBILITY: {
             if (Power_SourceInfo[PWR_SRC_LIION_BATT].state == PWR_SRC_ACTIVE)
                 *pPowerStatusData = 1;
             break;
         }
-        default:
-        {
+        default: {
             LOGGER("POWER::ERROR: Invalid Power param status.\n");
         }
     }

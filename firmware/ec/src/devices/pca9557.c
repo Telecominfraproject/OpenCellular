@@ -15,10 +15,10 @@
 #include "inc/common/global_header.h"
 
 /* Register Addresses */
-#define PCA9557_INPUT_PORT_REG                0x00
-#define PCA9557_OUTPUT_PORT_REG               0x01
-#define PCA9557_POL_INV_REG                   0x02
-#define PCA9557_CONFIG_REG                    0x03
+#define PCA9557_INPUT_PORT_REG 0x00
+#define PCA9557_OUTPUT_PORT_REG 0x01
+#define PCA9557_POL_INV_REG 0x02
+#define PCA9557_CONFIG_REG 0x03
 
 /*****************************************************************************
  **    FUNCTION NAME   : PCA9557_regRead
@@ -31,15 +31,16 @@
  **
  *****************************************************************************/
 static ReturnStatus PCA9557_regRead(const I2C_Dev *i2c_dev, uint8_t regAddress,
-                                   uint8_t *regValue)
+                                    uint8_t *regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle pca9557_handle = i2c_get_handle(i2c_dev->bus);
     if (!pca9557_handle) {
         LOGGER_ERROR("IOEXP:ERROR:: Failed to get I2C Bus for IO Expander "
-                     "0x%x on bus 0x%x.\n", i2c_dev->slave_addr, i2c_dev->bus);
+                     "0x%x on bus 0x%x.\n",
+                     i2c_dev->slave_addr, i2c_dev->bus);
     } else {
-         uint16_t tmpValue = 0x0000;
+        uint16_t tmpValue = 0x0000;
         status = i2c_reg_read(pca9557_handle, i2c_dev->slave_addr, regAddress,
                               &tmpValue, 1);
         *regValue = (uint8_t)tmpValue;
@@ -58,13 +59,14 @@ static ReturnStatus PCA9557_regRead(const I2C_Dev *i2c_dev, uint8_t regAddress,
  **
  *****************************************************************************/
 static ReturnStatus PCA9557_regWrite(const I2C_Dev *i2c_dev, uint8_t regAddress,
-                                    uint8_t regValue)
+                                     uint8_t regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle pca9557_handle = i2c_get_handle(i2c_dev->bus);
     if (!pca9557_handle) {
         LOGGER_ERROR("IOEXP:ERROR:: Failed to get I2C Bus for IO Expander "
-                     "0x%x on bus 0x%x.\n", i2c_dev->slave_addr, i2c_dev->bus);
+                     "0x%x on bus 0x%x.\n",
+                     i2c_dev->slave_addr, i2c_dev->bus);
     } else {
         status = i2c_reg_write(pca9557_handle, i2c_dev->slave_addr, regAddress,
                                regValue, 1);
@@ -83,8 +85,8 @@ static ReturnStatus PCA9557_regWrite(const I2C_Dev *i2c_dev, uint8_t regAddress,
  *****************************************************************************/
 ReturnStatus PCA9557_getInput(const I2C_Dev *i2c_dev, uint8_t *inputRegValue)
 {
-    ReturnStatus status = PCA9557_regRead(i2c_dev, PCA9557_INPUT_PORT_REG,
-                                          inputRegValue);
+    ReturnStatus status =
+            PCA9557_regRead(i2c_dev, PCA9557_INPUT_PORT_REG, inputRegValue);
     if (status == RETURN_OK) {
         LOGGER_DEBUG("IOEXP:INFO:: IO Expander 0x%x on bus 0x%x is "
                      "reporting Input Port Reg value of 0x%x.\n",
@@ -104,8 +106,8 @@ ReturnStatus PCA9557_getInput(const I2C_Dev *i2c_dev, uint8_t *inputRegValue)
  *****************************************************************************/
 ReturnStatus PCA9557_getOutput(const I2C_Dev *i2c_dev, uint8_t *outputRegValue)
 {
-    ReturnStatus status = PCA9557_regRead(i2c_dev, PCA9557_OUTPUT_PORT_REG,
-                                          outputRegValue);
+    ReturnStatus status =
+            PCA9557_regRead(i2c_dev, PCA9557_OUTPUT_PORT_REG, outputRegValue);
     if (status == RETURN_OK) {
         LOGGER_DEBUG("IOEXP:INFO:: IO Expander 0x%x on bus 0x%x is "
                      "reporting Output Port Reg value of 0x%x.\n",

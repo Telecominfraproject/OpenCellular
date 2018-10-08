@@ -21,25 +21,30 @@
  *****************************************************************************/
 /* Mask/Enable Register Bits */
 #define INA_ALERT_EN_MASK 0xF800 /* Upper 5 bits are the enable bits */
-#define INA_MSK_SOL  (1 << 15)  /* Shunt over-voltage */
-#define INA_MSK_SUL  (1 << 14)  /* Shunt under-voltage */
-#define INA_MSK_BOL  (1 << 13)  /* Bus over-voltage */
-#define INA_MSK_BUL  (1 << 12)  /* Bus under-voltage */
-#define INA_MSK_POL  (1 << 11)  /* Power over limit */
-#define INA_MSK_CNVR (1 << 10)  /* Conversion ready - enable alert when
+#define INA_MSK_SOL (1 << 15) /* Shunt over-voltage */
+#define INA_MSK_SUL (1 << 14) /* Shunt under-voltage */
+#define INA_MSK_BOL (1 << 13) /* Bus over-voltage */
+#define INA_MSK_BUL (1 << 12) /* Bus under-voltage */
+#define INA_MSK_POL (1 << 11) /* Power over limit */
+#define INA_MSK_CNVR \
+    (1 << 10) /* Conversion ready - enable alert when
                                  * CVRF is set (ready for next conversion) */
 
-#define INA_MSK_AFF  (1 << 4)   /* Alert Function Flag (caused by alert)
+#define INA_MSK_AFF \
+    (1 << 4) /* Alert Function Flag (caused by alert)
                                  * In latch mode, cleared on mask read */
-#define INA_MSK_CVRF (1 << 3)   /* Conversion Ready Flag, cleared when
+#define INA_MSK_CVRF \
+    (1 << 3) /* Conversion Ready Flag, cleared when
                                  * writing to cfg reg or mask read */
-#define INA_MSK_OVF  (1 << 2)   /* Math Overflow Flag (data may be invalid) */
-#define INA_MSK_APOL (1 << 1)   /* Alert Polarity (1 = invert, active high) */
-#define INA_MSK_LEN  (1 << 0)   /* Alert Latch Enable
+#define INA_MSK_OVF (1 << 2) /* Math Overflow Flag (data may be invalid) */
+#define INA_MSK_APOL (1 << 1) /* Alert Polarity (1 = invert, active high) */
+#define INA_MSK_LEN \
+    (1 << 0) /* Alert Latch Enable
                                  * 1 Latch (alert only cleared by read to msk)
                                  * 0 Transparent (auto-clear on fault clear) */
 
-#define INA_HYSTERESIS 30 /* 30mA TODO: need to make more robust, maybe percentage based */
+#define INA_HYSTERESIS \
+    30 /* 30mA TODO: need to make more robust, maybe percentage based */
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -56,8 +61,8 @@ typedef enum INA226_Event {
     INA226_EVT_CUL, /* Current under limit - based on SUL */
 } INA226_Event;
 
-typedef void (*INA226_CallbackFn) (INA226_Event evt, uint16_t value,
-                                   void *context);
+typedef void (*INA226_CallbackFn)(INA226_Event evt, uint16_t value,
+                                  void *context);
 
 typedef struct INA226_Cfg {
     I2C_Dev dev;
@@ -78,13 +83,12 @@ typedef struct INA226_Dev {
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
-ReturnStatus ina226_readCurrentLim(INA226_Dev *dev, uint16_t* currLimit);
+ReturnStatus ina226_readCurrentLim(INA226_Dev *dev, uint16_t *currLimit);
 ReturnStatus ina226_setCurrentLim(INA226_Dev *dev, uint16_t currLimit);
-ReturnStatus ina226_readBusVoltage(INA226_Dev *dev, uint16_t* busVoltValue);
-ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
-                                     uint16_t* shuntVoltValue);
-ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t* currValue);
-ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t* powValue);
+ReturnStatus ina226_readBusVoltage(INA226_Dev *dev, uint16_t *busVoltValue);
+ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev, uint16_t *shuntVoltValue);
+ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t *currValue);
+ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t *powValue);
 ReturnStatus ina226_init(INA226_Dev *dev);
 void ina226_setAlertHandler(INA226_Dev *dev, INA226_CallbackFn alert_cb,
                             void *cb_context);

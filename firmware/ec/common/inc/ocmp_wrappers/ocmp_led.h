@@ -18,13 +18,11 @@ static const Driver HCI_LED = {
     .status = NULL,
     .config = NULL,
     .alerts = NULL,
-    .commands = (Command[]){
-        {
-            .name = "set",
-            .cb_cmd = led_testpattern_control,
-        },
-        {}
-    },
+    .commands = (Command[]){ {
+                                     .name = "set",
+                                     .cb_cmd = led_testpattern_control,
+                             },
+                             {} },
     .fxnTable = &LED_fxnTable,
 };
 

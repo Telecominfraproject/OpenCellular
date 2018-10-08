@@ -52,7 +52,7 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
 {
     bool ret = false;
 
-    if(control == OC_PMIC_ENABLE) {
+    if (control == OC_PMIC_ENABLE) {
         /*TODO:: Disabling for USB debugging*/
 
         OcGpio_write(&driver->pin_ap_12v_onoff, false);
@@ -67,10 +67,10 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
         OcGpio_write(&driver->pin_ap_12v_onoff, true);
         SysCtlDelay(100);
 
-        if(gpp_check_core_power(driver)) {
+        if (gpp_check_core_power(driver)) {
             //OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
             //SysCtlDelay(10);
-            if(gpp_check_processor_reset(driver)) {
+            if (gpp_check_processor_reset(driver)) {
                 ret = true;
                 LOGGER_DEBUG("GPP:INFO:: Processor out of reset.\n");
             }
@@ -104,39 +104,40 @@ bool gpp_pwrgd_protection(Gpp_gpioCfg *driver)
 /*****************************************************************************
  * gpp_pre_init : Intiliazes all GPIO's required for initialization.
  *****************************************************************************/
-bool gpp_pre_init(void* driver, void *returnValue)
+bool gpp_pre_init(void *driver, void *returnValue)
 {
     Gpp_gpioCfg *gpioCfg = (Gpp_gpioCfg *)driver;
     OcGpio_configure(&gpioCfg->pin_soc_pltrst_n, OCGPIO_CFG_INPUT);
     OcGpio_configure(&gpioCfg->pin_soc_corepwr_ok, OCGPIO_CFG_INPUT);
     OcGpio_configure(&gpioCfg->pin_msata_ec_das, OCGPIO_CFG_INPUT);
     OcGpio_configure(&gpioCfg->pin_lt4256_ec_pwrgd, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&gpioCfg->pin_ap_12v_onoff, OCGPIO_CFG_OUTPUT |
-                                             OCGPIO_CFG_OUT_LOW);
-    OcGpio_configure(&gpioCfg->pin_ec_reset_to_proc, OCGPIO_CFG_OUTPUT |
-                                                 OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&gpioCfg->pin_ap_12v_onoff,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&gpioCfg->pin_ec_reset_to_proc,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
     return true;
 }
 
 /*****************************************************************************
  * gpp_post_init : power on devices required after GPP init is success.
  *****************************************************************************/
-bool gpp_post_init(void* driver, void *ssState)
+bool gpp_post_init(void *driver, void *ssState)
 {
     bool ret = false;
-    eSubSystemStates *newState = (eSubSystemStates*)ssState;
+    eSubSystemStates *newState = (eSubSystemStates *)ssState;
     if (!gpp_pwrgd_protection(driver)) {
-        LOGGER_DEBUG("GPP:INFO:: LT4256 EC power good is for genration of 12V ok.\n");
+        LOGGER_DEBUG(
+                "GPP:INFO:: LT4256 EC power good is for genration of 12V ok.\n");
     } else {
         *newState = SS_STATE_FAULTY;
         return ret;
     }
     //Power on processor.
-    if(gpp_pmic_control(driver, OC_PMIC_ENABLE)) {
+    if (gpp_pmic_control(driver, OC_PMIC_ENABLE)) {
         *newState = SS_STATE_CFG;
         ret = true;
     } else {
-        *newState =  SS_STATE_FAULTY;
+        *newState = SS_STATE_FAULTY;
     }
     /*mSATA DAS not helping with anything as of now.*/
     //        if (!gpp_msata_das()) {
@@ -165,6 +166,7 @@ static bool gpp_ap_reset(Gpp_gpioCfg *driver)
 /*****************************************************************************
  * gpp_ap_reset : Calls application processor reset function.
  *****************************************************************************/
-bool GPP_ap_Reset(void *driver, void *params){
+bool GPP_ap_Reset(void *driver, void *params)
+{
     return (gpp_ap_reset(driver) == RETURN_OK);
 }

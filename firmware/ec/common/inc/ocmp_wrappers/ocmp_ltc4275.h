@@ -15,17 +15,13 @@ SCHEMA_IMPORT const Driver_fxnTable LTC4275_fxnTable;
 
 static const Driver LTC4275 = {
     .name = "LTC4275",
-    .status = (Parameter[]){
-        { .name = "class", .type = TYPE_ENUM },
-        { .name = "powerGoodState", .type = TYPE_ENUM },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "INCOMPATIBLE", .type = TYPE_ENUM },
-        { .name = "DISCONNECT", .type = TYPE_ENUM },
-        { .name = "CONNECT", .type = TYPE_ENUM },
-        {}
-    },
+    .status = (Parameter[]){ { .name = "class", .type = TYPE_ENUM },
+                             { .name = "powerGoodState", .type = TYPE_ENUM },
+                             {} },
+    .alerts = (Parameter[]){ { .name = "INCOMPATIBLE", .type = TYPE_ENUM },
+                             { .name = "DISCONNECT", .type = TYPE_ENUM },
+                             { .name = "CONNECT", .type = TYPE_ENUM },
+                             {} },
     .fxnTable = &LTC4275_fxnTable,
 };
 

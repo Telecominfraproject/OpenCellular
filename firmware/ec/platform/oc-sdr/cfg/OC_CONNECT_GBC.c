@@ -34,14 +34,14 @@ SCHEMA_IMPORT OcGpio_Port gbc_io_1;
 SCHEMA_IMPORT const Driver_fxnTable LTC4274_fxnTable;
 
 /* These are terrible pin names, but they match the net names... */
-OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
-OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
-OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
-OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
-OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
-OcGpio_Pin eth_sw_tiva_intn         = { &gbc_io_0, 11 };
+OcGpio_Pin pin_inven_eeprom_wp = { &gbc_io_0, 1, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_s_id_eeprom_wp = { &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_tempsen_evt1 = { &gbc_io_0, 4 };
+OcGpio_Pin pin_tempsen_evt2 = { &gbc_io_0, 5 };
+OcGpio_Pin pin_tempsen_evt3 = { &gbc_io_0, 6 };
+OcGpio_Pin pin_tempsen_evt4 = { &gbc_io_0, 7 };
+OcGpio_Pin pin_tempsen_evt5 = { &gbc_io_0, 8 };
+OcGpio_Pin eth_sw_tiva_intn = { &gbc_io_0, 11 };
 
 /*****************************************************************************
  *                               EEPROM CONFIG
@@ -66,128 +66,142 @@ Eeprom_Cfg eeprom_gbc_inv = {
 /* Power SubSystem Config */
 //Lead Acid Temperature sensor.
 SE98A_Dev gbc_pwr_lead_acid_ts = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C1,
-            .slave_addr = PWR_LEAD_ACID_BATT_DEV_TEMP_SENS_ADDR
-        },
-        .pin_evt = &pin_tempsen_evt1,
-    },
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C1,
+                             .slave_addr =
+                                     PWR_LEAD_ACID_BATT_DEV_TEMP_SENS_ADDR },
+                    .pin_evt = &pin_tempsen_evt1,
+            },
     .obj = {},
 };
 
 //Lead acid battery charge controller.
 LTC4015_Dev gbc_pwr_ext_bat_charger = {
-        .cfg = {
-            .i2c_dev = {
-                .bus = OC_CONNECT1_I2C0,
-                .slave_addr = 0x68, /* LTC4015 I2C address in 7-bit format */
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C0,
+                                    .slave_addr =
+                                            0x68, /* LTC4015 I2C address in 7-bit format */
+                            },
+                    .chem = LTC4015_CHEM_LEAD_ACID,
+                    .r_snsb = PWR_EXT_BATT_RSNSB,
+                    .r_snsi = PWR_EXT_BATT_RSNSI,
+                    .cellcount = 6,
+                    .pin_lt4015_i2c_sel = { &gbc_io_1, 4,
+                                            OCGPIO_CFG_OUT_OD_NOPULL },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_PWR_LACID_ALERT },
             },
-            .chem = LTC4015_CHEM_LEAD_ACID,
-            .r_snsb = PWR_EXT_BATT_RSNSB,
-            .r_snsi = PWR_EXT_BATT_RSNSI,
-            .cellcount = 6,
-            .pin_lt4015_i2c_sel = { &gbc_io_1, 4, OCGPIO_CFG_OUT_OD_NOPULL },
-            .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                        OC_EC_PWR_LACID_ALERT },
-        },
-        .obj = {},
-    };
+    .obj = {},
+};
 
 //Lithium ion battery charge controller.
 LTC4015_Dev gbc_pwr_int_bat_charger = {
-       .cfg = {
-           .i2c_dev = {
-               .bus = OC_CONNECT1_I2C0,
-               .slave_addr = 0x68, /* LTC4015 I2C address in 7-bit format */
-           },
-           .chem = LTC4015_CHEM_LI_ION,
-           .r_snsb = PWR_INT_BATT_RSNSB,
-           .r_snsi = PWR_INT_BATT_RSNSI,
-           .cellcount = 3,
-           .pin_lt4015_i2c_sel = { &gbc_io_1, 4, OCGPIO_CFG_OUT_OD_NOPULL },
-           .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_PWR_LION_ALERT },
-       },
-       .obj = {},
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C0,
+                                    .slave_addr =
+                                            0x68, /* LTC4015 I2C address in 7-bit format */
+                            },
+                    .chem = LTC4015_CHEM_LI_ION,
+                    .r_snsb = PWR_INT_BATT_RSNSB,
+                    .r_snsi = PWR_INT_BATT_RSNSI,
+                    .cellcount = 3,
+                    .pin_lt4015_i2c_sel = { &gbc_io_1, 4,
+                                            OCGPIO_CFG_OUT_OD_NOPULL },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_PWR_LION_ALERT },
+            },
+    .obj = {},
 };
 
 //Power Source Equipment
 LTC4274_Dev gbc_pwr_pse = {
-    .cfg = {
-        .i2c_dev = {
-            .bus = OC_CONNECT1_I2C8,
-            .slave_addr = 0x2F, /* LTC4274 I2C address in 7-bit format */
-        },
-        .pin_evt = &(OcGpio_Pin){ &ec_io,
-                                  OC_EC_GBC_PSE_ALERT },
-        .reset_pin ={ &ec_io, OC_EC_PWR_PSE_RESET },
-    },
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C8,
+                                    .slave_addr =
+                                            0x2F, /* LTC4274 I2C address in 7-bit format */
+                            },
+                    .pin_evt = &(OcGpio_Pin){ &ec_io, OC_EC_GBC_PSE_ALERT },
+                    .reset_pin = { &ec_io, OC_EC_PWR_PSE_RESET },
+            },
     .obj = {},
 };
 
 //Power Device
 LTC4275_Dev gbc_pwr_pd = {
-    .cfg = {
-            .pin_evt = &(OcGpio_Pin){ &ec_io,
-                                       OC_EC_PD_PWRGD_ALERT },
-            .pin_detect = &(OcGpio_Pin){ &ec_io,
-                                          OC_EC_PWR_PD_NT2P },
+    .cfg =
+            {
+                    .pin_evt = &(OcGpio_Pin){ &ec_io, OC_EC_PD_PWRGD_ALERT },
+                    .pin_detect = &(OcGpio_Pin){ &ec_io, OC_EC_PWR_PD_NT2P },
 
-        },
-        .obj = {},
-    };
+            },
+    .obj = {},
+};
 
 //Power Source
-PWRSRC_Dev gbc_pwr_powerSource = { /*Added as a place holder for now.*/
-        .cfg = {
-            /* SOLAR_AUX_PRSNT_N */
-            .pin_solar_aux_prsnt_n  = { &ec_io, OC_EC_PWR_PRSNT_SOLAR_AUX },
-            /* POE_PRSNT_N */
-            .pin_poe_prsnt_n        = { &ec_io, OC_EC_PWR_PRSNT_POE },
-            /* INT_BAT_PRSNT */
-            .pin_int_bat_prsnt      = { &gbc_io_0, 11 },
-            /* EXT_BAT_PRSNT */
-            .pin_ext_bat_prsnt      = { &gbc_io_0, 12 },
-        },
-        .obj = {},
+PWRSRC_Dev gbc_pwr_powerSource = {
+    /*Added as a place holder for now.*/
+    .cfg =
+            {
+                    /* SOLAR_AUX_PRSNT_N */
+                    .pin_solar_aux_prsnt_n = { &ec_io,
+                                               OC_EC_PWR_PRSNT_SOLAR_AUX },
+                    /* POE_PRSNT_N */
+                    .pin_poe_prsnt_n = { &ec_io, OC_EC_PWR_PRSNT_POE },
+                    /* INT_BAT_PRSNT */
+                    .pin_int_bat_prsnt = { &gbc_io_0, 11 },
+                    /* EXT_BAT_PRSNT */
+                    .pin_ext_bat_prsnt = { &gbc_io_0, 12 },
+            },
+    .obj = {},
 };
 
 /* BMS SubSystem Config */
 //EC Power sensor for 12V rail.
 INA226_Dev gbc_bms_ec_ps_12v = {
     /* 12V Power Sensor */
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C6,
-            .slave_addr = BMS_EC_CURRENT_SENSOR_12V_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                    OC_EC_GBC_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C6,
+                                    .slave_addr =
+                                            BMS_EC_CURRENT_SENSOR_12V_ADDR,
+                            },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_GBC_INA_ALERT },
+            },
 };
 
 //EC Power sensor for 3.3V rail.
 INA226_Dev gbc_bms_ec_ps_3p3v = {
     /* 3.3V Power Sensor */
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C7,
-            .slave_addr = BMS_EC_CURRENT_SENSOR_3P3V_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                    OC_EC_GBC_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C7,
+                                    .slave_addr =
+                                            BMS_EC_CURRENT_SENSOR_3P3V_ADDR,
+                            },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_GBC_INA_ALERT },
+            },
 };
 
 // EC Temperature sensor.
 SE98A_Dev gbc_bms_ec_ts = {
-    .cfg = {
-            .dev = {
-                .bus = OC_CONNECT1_I2C1,
-                .slave_addr = BMS_EC_TEMP_SENSOR_ADDR
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C1,
+                             .slave_addr = BMS_EC_TEMP_SENSOR_ADDR },
+                    .pin_evt = &pin_tempsen_evt2,
             },
-            .pin_evt = &pin_tempsen_evt2,
-    },
     .obj = {},
 };
 
@@ -237,77 +251,78 @@ Eth_cfg gbc_eth_port4 = {
 /* GPP Subsystem Config*/
 //EC Power sensor for 12V rail.
 INA226_Dev gbc_gpp_ap_ps = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C6,
-            .slave_addr = GPP_AP_CURRENT_SENSOR_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                     OC_EC_GBC_AP_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C6,
+                                    .slave_addr = GPP_AP_CURRENT_SENSOR_ADDR,
+                            },
+                    .pin_alert =
+                            &(OcGpio_Pin){ &ec_io, OC_EC_GBC_AP_INA_ALERT },
+            },
 };
 
 // AP Temperature sensor
 SE98A_Dev gbc_gpp_ap_ts1 = {
-     .cfg = {
-         .dev = {
-             .bus = OC_CONNECT1_I2C1,
-             .slave_addr = GPP_AP_TEMPSENS1_ADDR
-         },
-         .pin_evt = &pin_tempsen_evt3,
-     },
-     .obj = {},
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C1,
+                             .slave_addr = GPP_AP_TEMPSENS1_ADDR },
+                    .pin_evt = &pin_tempsen_evt3,
+            },
+    .obj = {},
 };
 
 SE98A_Dev gbc_gpp_ap_ts2 = {
-    .cfg = {
-            .dev = {
-                    .bus = OC_CONNECT1_I2C1,
-                    .slave_addr = GPP_AP_TEMPSENS2_ADDR
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C1,
+                             .slave_addr = GPP_AP_TEMPSENS2_ADDR },
+                    .pin_evt = &pin_tempsen_evt5,
             },
-            .pin_evt = &pin_tempsen_evt5,
-    },
     .obj = {},
 };
 
 SE98A_Dev gbc_gpp_ap_ts3 = {
-     .cfg = {
-         .dev = {
-             .bus = OC_CONNECT1_I2C1,
-             .slave_addr = GPP_AP_TEMPSENS3_ADDR
-         },
-         .pin_evt = &pin_tempsen_evt4,
-     },
-     .obj = {},
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C1,
+                             .slave_addr = GPP_AP_TEMPSENS3_ADDR },
+                    .pin_evt = &pin_tempsen_evt4,
+            },
+    .obj = {},
 };
 
 //mSATA power sensor
 INA226_Dev gbc_gpp_msata_ps = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C6,
-            .slave_addr = GPP_MSATA_CURRENT_SENSOR_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-            OC_EC_GBC_AP_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C6,
+                                    .slave_addr = GPP_MSATA_CURRENT_SENSOR_ADDR,
+                            },
+                    .pin_alert =
+                            &(OcGpio_Pin){ &ec_io, OC_EC_GBC_AP_INA_ALERT },
+            },
 };
 
 Gpp_gpioCfg gbc_gpp_gpioCfg = (Gpp_gpioCfg){
     /* SOC_PLTRST_N */
-    .pin_soc_pltrst_n     = { &ec_io, OC_EC_GPP_SOC_PLTRST },
+    .pin_soc_pltrst_n = { &ec_io, OC_EC_GPP_SOC_PLTRST },
     /* TIVA_SOC_GPIO2 */
-    .pin_ap_boot_alert1   = { &ec_io, OC_EC_GPP_AP_BM_1 },
+    .pin_ap_boot_alert1 = { &ec_io, OC_EC_GPP_AP_BM_1 },
     /* TIVA_SOC_GPIO3 */
-    .pin_ap_boot_alert2   = { &ec_io, OC_EC_GPP_AP_BM_2 },
+    .pin_ap_boot_alert2 = { &ec_io, OC_EC_GPP_AP_BM_2 },
     /* SOC_COREPWROK */
-    .pin_soc_corepwr_ok   = { &ec_io, OC_EC_GPP_PMIC_CORE_PWR },
+    .pin_soc_corepwr_ok = { &ec_io, OC_EC_GPP_PMIC_CORE_PWR },
     /* MSATA_EC_DAS */
-    .pin_msata_ec_das     = { &ec_io, OC_EC_GPP_MSATA_DAS },
+    .pin_msata_ec_das = { &ec_io, OC_EC_GPP_MSATA_DAS },
     /* LT4256_EC_PWRGD */
-    .pin_lt4256_ec_pwrgd  = { &ec_io, OC_EC_GPP_PWRGD_PROTECTION },
+    .pin_lt4256_ec_pwrgd = { &ec_io, OC_EC_GPP_PWRGD_PROTECTION },
     /* AP_12V_ONOFF */
-    .pin_ap_12v_onoff     = { &ec_io, OC_EC_GPP_PMIC_CTRL },
+    .pin_ap_12v_onoff = { &ec_io, OC_EC_GPP_PMIC_CTRL },
     /* EC_RESET_TO_PROC */
     .pin_ec_reset_to_proc = { &ec_io, OC_EC_GPP_RST_TO_PROC },
 };
@@ -487,7 +502,6 @@ S_OCGPIO_Cfg debug_gbc_ioexpanderx70 = {
 S_OCGPIO_Cfg debug_gbc_ioexpanderx71 = {
     .port = &gbc_io_0,
 };
-
 
 /* Factory Configuration for the Devices*/
 //Power Factory Config.

@@ -42,27 +42,31 @@ Eeprom_Cfg eeprom_fe_inv = {
 // FE Channel 1 Power sensor.
 INA226_Dev fe_ch1_ps_5_7v = {
     /* CH1 5.7V Sensor */
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C4,
-            .slave_addr = RFFE_INA226_CH1_5_7V_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                    OC_EC_RFFE_TEMP_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C4,
+                                    .slave_addr = RFFE_INA226_CH1_5_7V_ADDR,
+                            },
+                    .pin_alert =
+                            &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
+            },
 };
 
 //FE Channel 2 Power sensor.
 INA226_Dev fe_ch2_ps_5_7v = {
     /* CH2 5.7V Sensor */
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C4,
-            .slave_addr = RFFE_INA226_CH2_5_7V_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                    OC_EC_RFFE_TEMP_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C4,
+                                    .slave_addr = RFFE_INA226_CH2_5_7V_ADDR,
+                            },
+                    .pin_alert =
+                            &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
+            },
 };
 
 //FE Channel 1 temperature sensor.
@@ -73,23 +77,23 @@ I2C_Dev fe_ch1_ts = {
 
 //FE Channel 2 temperature sensor.
 I2C_Dev fe_ch2_ts = (I2C_Dev){
-        .bus = OC_CONNECT1_I2C4,
-        .slave_addr = RFFE_CH2_TEMP_SENSOR_ADDR,
+    .bus = OC_CONNECT1_I2C4,
+    .slave_addr = RFFE_CH2_TEMP_SENSOR_ADDR,
 };
 
 //FE EEPROM inventory
-void* fe_eeprom_inventory = &eeprom_fe_inv;
+void *fe_eeprom_inventory = &eeprom_fe_inv;
 
 //FE Channel 1 ADC
 I2C_Dev fe_ch1_ads7830 = {
-   .bus = OC_CONNECT1_I2C4,
-   .slave_addr = RFFE_CHANNEL1_ADC_ADDR,
+    .bus = OC_CONNECT1_I2C4,
+    .slave_addr = RFFE_CHANNEL1_ADC_ADDR,
 };
 
 //FE Channel 2 ADC
 I2C_Dev fe_ch2_ads7830 = {
-   .bus = OC_CONNECT1_I2C4,
-   .slave_addr = RFFE_CHANNEL2_ADC_ADDR,
+    .bus = OC_CONNECT1_I2C4,
+    .slave_addr = RFFE_CHANNEL2_ADC_ADDR,
 };
 
 Fe_Gain_Cfg fe_ch1_gain = {
@@ -98,111 +102,111 @@ Fe_Gain_Cfg fe_ch1_gain = {
     /* CH1_TX_ATTN_P5DB */
     .pin_tx_attn_p5db = { &fe_ch1_gain_io, 2 },
     /* CH1_TX_ATTN_1DB */
-    .pin_tx_attn_1db  = { &fe_ch1_gain_io, 3 },
+    .pin_tx_attn_1db = { &fe_ch1_gain_io, 3 },
     /* CH1_TX_ATTN_2DB */
-    .pin_tx_attn_2db  = { &fe_ch1_gain_io, 4 },
+    .pin_tx_attn_2db = { &fe_ch1_gain_io, 4 },
     /* CH1_TX_ATTN_4DB */
-    .pin_tx_attn_4db  = { &fe_ch1_gain_io, 5 },
+    .pin_tx_attn_4db = { &fe_ch1_gain_io, 5 },
     /* CH1_TX_ATTN_8DB */
-    .pin_tx_attn_8db  = { &fe_ch1_gain_io, 6 },
+    .pin_tx_attn_8db = { &fe_ch1_gain_io, 6 },
     /* CH1_TX_ATTN_ENB */
-    .pin_tx_attn_enb  = { &fe_ch1_gain_io, 7 },
+    .pin_tx_attn_enb = { &fe_ch1_gain_io, 7 },
 };
 
 Fe_Gain_Cfg fe_ch2_gain = {
-       /* CH2_TX_ATTN_16DB */
-       .pin_tx_attn_16db = { &fe_ch2_gain_io, 1 },
-       /* CH2_TX_ATTN_P5DB */
-       .pin_tx_attn_p5db = { &fe_ch2_gain_io, 2 },
-       /* CH2_TX_ATTN_1DB */
-       .pin_tx_attn_1db  = { &fe_ch2_gain_io, 3 },
-       /* CH2_TX_ATTN_2DB */
-       .pin_tx_attn_2db  = { &fe_ch2_gain_io, 4 },
-       /* CH2_TX_ATTN_4DB */
-       .pin_tx_attn_4db  = { &fe_ch2_gain_io, 5 },
-       /* CH2_TX_ATTN_8DB */
-       .pin_tx_attn_8db  = { &fe_ch2_gain_io, 6 },
-       /* CH2_TX_ATTN_ENB */
-       .pin_tx_attn_enb  = { &fe_ch2_gain_io, 7 },
+    /* CH2_TX_ATTN_16DB */
+    .pin_tx_attn_16db = { &fe_ch2_gain_io, 1 },
+    /* CH2_TX_ATTN_P5DB */
+    .pin_tx_attn_p5db = { &fe_ch2_gain_io, 2 },
+    /* CH2_TX_ATTN_1DB */
+    .pin_tx_attn_1db = { &fe_ch2_gain_io, 3 },
+    /* CH2_TX_ATTN_2DB */
+    .pin_tx_attn_2db = { &fe_ch2_gain_io, 4 },
+    /* CH2_TX_ATTN_4DB */
+    .pin_tx_attn_4db = { &fe_ch2_gain_io, 5 },
+    /* CH2_TX_ATTN_8DB */
+    .pin_tx_attn_8db = { &fe_ch2_gain_io, 6 },
+    /* CH2_TX_ATTN_ENB */
+    .pin_tx_attn_enb = { &fe_ch2_gain_io, 7 },
 };
 
 Fe_Lna_Cfg fe_ch1_lna = {
     /* CH1_RX_ATTN_P5DB */
     .pin_rx_attn_p5db = { &fe_ch1_lna_io, 2 },
     /* CH1_RX_ATTN_1DB */
-    .pin_rx_attn_1db  = { &fe_ch1_lna_io, 3 },
+    .pin_rx_attn_1db = { &fe_ch1_lna_io, 3 },
     /* CH1_RX_ATTN_2DB */
-    .pin_rx_attn_2db  = { &fe_ch1_lna_io, 4 },
+    .pin_rx_attn_2db = { &fe_ch1_lna_io, 4 },
     /* CH1_RX_ATTN_4DB */
-    .pin_rx_attn_4db  = { &fe_ch1_lna_io, 5 },
+    .pin_rx_attn_4db = { &fe_ch1_lna_io, 5 },
     /* CH1_RX_ATTN_8DB */
-    .pin_rx_attn_8db  = { &fe_ch1_lna_io, 6 },
+    .pin_rx_attn_8db = { &fe_ch1_lna_io, 6 },
     /* CH1_RX_ATTN_ENB */
-    .pin_rx_attn_enb  = { &fe_ch1_lna_io, 7 },
+    .pin_rx_attn_enb = { &fe_ch1_lna_io, 7 },
 };
 
 Fe_Lna_Cfg fe_ch2_lna = {
     /* CH2_RX_ATTN_P5DB */
     .pin_rx_attn_p5db = { &fe_ch2_lna_io, 2 },
     /* CH2_RX_ATTN_1DB */
-    .pin_rx_attn_1db  = { &fe_ch2_lna_io, 3 },
+    .pin_rx_attn_1db = { &fe_ch2_lna_io, 3 },
     /* CH2_RX_ATTN_2DB */
-    .pin_rx_attn_2db  = { &fe_ch2_lna_io, 4 },
+    .pin_rx_attn_2db = { &fe_ch2_lna_io, 4 },
     /* CH2_RX_ATTN_4DB */
-    .pin_rx_attn_4db  = { &fe_ch2_lna_io, 5 },
+    .pin_rx_attn_4db = { &fe_ch2_lna_io, 5 },
     /* CH2_RX_ATTN_8DB */
-    .pin_rx_attn_8db  = { &fe_ch2_lna_io, 6 },
+    .pin_rx_attn_8db = { &fe_ch2_lna_io, 6 },
     /* CH2_RX_ATTN_ENB */
-    .pin_rx_attn_enb  = { &fe_ch2_lna_io, 7 },
+    .pin_rx_attn_enb = { &fe_ch2_lna_io, 7 },
 };
 
 //FE watch dog
 Fe_Watchdog_Cfg fe_watchdog_cfg = {
     /* AOSEL_FPGA */
-    .pin_aosel_fpga     = { &fe_watchdog_io, 0 },
+    .pin_aosel_fpga = { &fe_watchdog_io, 0 },
     /* CH2_RF_PWR_OFF */
     .pin_ch2_rf_pwr_off = { &fe_watchdog_io, 1 },
     /* CO6_WD */
-    .pin_co6_wd         = { &fe_watchdog_io, 2 },
+    .pin_co6_wd = { &fe_watchdog_io, 2 },
     /* CO5_WD */
-    .pin_co5_wd         = { &fe_watchdog_io, 3 },
+    .pin_co5_wd = { &fe_watchdog_io, 3 },
     /* CO4_WD */
-    .pin_co4_wd         = { &fe_watchdog_io, 4 },
+    .pin_co4_wd = { &fe_watchdog_io, 4 },
     /* CO3_WD */
-    .pin_co3_wd         = { &fe_watchdog_io, 5 },
+    .pin_co3_wd = { &fe_watchdog_io, 5 },
     /* CO2_WD */
-    .pin_co2_wd         = { &fe_watchdog_io, 6 },
+    .pin_co2_wd = { &fe_watchdog_io, 6 },
     /* COPOL_FPGA */
-    .pin_copol_fpga     = { &fe_watchdog_io, 7 },
+    .pin_copol_fpga = { &fe_watchdog_io, 7 },
 };
 
 Fe_gpioCfg fe_gpiocfg = {
-     /* EC_TRXFECONN_GPIO3/RF_PGOOD_LDO */
-     .pin_rf_pgood_ldo         = { &ec_io, OC_EC_FE_PWR_GD },
-     /* FE_12V_CTRL */
-     .pin_fe_12v_ctrl          = { &ec_io, OC_EC_FE_CONTROL },
-     .pin_trxfe_conn_reset = { &ec_io, OC_EC_FE_TRXFE_CONN_RESET },
+    /* EC_TRXFECONN_GPIO3/RF_PGOOD_LDO */
+    .pin_rf_pgood_ldo = { &ec_io, OC_EC_FE_PWR_GD },
+    /* FE_12V_CTRL */
+    .pin_fe_12v_ctrl = { &ec_io, OC_EC_FE_CONTROL },
+    .pin_trxfe_conn_reset = { &ec_io, OC_EC_FE_TRXFE_CONN_RESET },
 };
 
 //FE Ch1 TX Gain control
-Fe_Ch1_Gain_Cfg fe_ch1_tx_gain_cfg = (Fe_Ch1_Gain_Cfg) {
+Fe_Ch1_Gain_Cfg fe_ch1_tx_gain_cfg = (Fe_Ch1_Gain_Cfg){
     .fe_gain_cfg = &fe_ch1_gain,
 };
 
 //FE Ch2 TX Gain control
-Fe_Ch2_Gain_Cfg fe_ch2_tx_gain_cfg = (Fe_Ch2_Gain_Cfg) {
+Fe_Ch2_Gain_Cfg fe_ch2_tx_gain_cfg = (Fe_Ch2_Gain_Cfg){
     /* CH1_2G_LB_BAND_SEL_L */
     .pin_ch1_2g_lb_band_sel_l = { &fe_ch2_gain_io, 0 },
     .fe_gain_cfg = &fe_ch2_gain,
 };
 
 //FE Ch1 LNA config
-Fe_Ch1_Lna_Cfg fe_ch1_rx_gain_cfg = (Fe_Ch1_Lna_Cfg) {
+Fe_Ch1_Lna_Cfg fe_ch1_rx_gain_cfg = (Fe_Ch1_Lna_Cfg){
     .fe_lna_cfg = &fe_ch1_lna,
 };
 
 //FE Ch2 LNA config
-Fe_Ch2_Lna_Cfg fe_ch2_rx_gain_cfg = (Fe_Ch2_Lna_Cfg) {
+Fe_Ch2_Lna_Cfg fe_ch2_rx_gain_cfg = (Fe_Ch2_Lna_Cfg){
     /* CH1_RF_PWR_OFF */
     .pin_ch1_rf_pwr_off = { &fe_ch2_lna_io, 1 },
     .fe_lna_cfg = &fe_ch2_lna,
@@ -225,11 +229,11 @@ RfWatchdog_Cfg fe_ch2_watchdog = {
 /* FE GPIO's */
 Fe_Cfg fe_rffecfg = {
     .fe_gpio_cfg = &fe_gpiocfg,
-    .fe_ch1_gain_cfg = (Fe_Ch1_Gain_Cfg*)&fe_ch1_tx_gain_cfg,
-    .fe_ch2_gain_cfg = (Fe_Ch2_Gain_Cfg*)&fe_ch2_tx_gain_cfg,
-    .fe_ch1_lna_cfg = (Fe_Ch1_Lna_Cfg*)&fe_ch1_rx_gain_cfg,
-    .fe_ch2_lna_cfg = (Fe_Ch2_Lna_Cfg*)&fe_ch2_rx_gain_cfg,
-    .fe_watchdog_cfg = (Fe_Watchdog_Cfg*)&fe_watchdog_cfg,
+    .fe_ch1_gain_cfg = (Fe_Ch1_Gain_Cfg *)&fe_ch1_tx_gain_cfg,
+    .fe_ch2_gain_cfg = (Fe_Ch2_Gain_Cfg *)&fe_ch2_tx_gain_cfg,
+    .fe_ch1_lna_cfg = (Fe_Ch1_Lna_Cfg *)&fe_ch1_rx_gain_cfg,
+    .fe_ch2_lna_cfg = (Fe_Ch2_Lna_Cfg *)&fe_ch2_rx_gain_cfg,
+    .fe_watchdog_cfg = (Fe_Watchdog_Cfg *)&fe_watchdog_cfg,
 };
 
 FE_Ch_Band_cfg fe_ch1_bandcfg = {
@@ -240,30 +244,27 @@ FE_Ch_Band_cfg fe_ch2_bandcfg = {
     .channel = RFFE_CHANNEL2,
 };
 
-Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = {
-    .channel = RFFE_CHANNEL1,
-    .fe_Rffecfg = (Fe_Cfg*)&fe_rffecfg
-};
+Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = { .channel = RFFE_CHANNEL1,
+                                .fe_Rffecfg = (Fe_Cfg *)&fe_rffecfg };
 
-Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = {
-    .channel = RFFE_CHANNEL2,
-    .fe_Rffecfg = (Fe_Cfg*)&fe_rffecfg
-};
+Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = { .channel = RFFE_CHANNEL2,
+                                .fe_Rffecfg = (Fe_Cfg *)&fe_rffecfg };
 
-// TestModule 
+// TestModule
 TestMod_Cfg testModuleCfg = (TestMod_Cfg){
-        .g510_cfg = {
-            .uart = OC_CONNECT1_UART4,
-            /* 2G_SIM_PRESENCE */
-            .pin_sim_present = { &gbc_io_1, 0, OCGPIO_CFG_IN_PU },
+    .g510_cfg =
+            {
+                    .uart = OC_CONNECT1_UART4,
+                    /* 2G_SIM_PRESENCE */
+                    .pin_sim_present = { &gbc_io_1, 0, OCGPIO_CFG_IN_PU },
 
-            /* NOTE: enable & power go through MOSFETs, inverting them */
-            /* 2GMODULE_POWEROFF  */
-            .pin_enable = { &gbc_io_1, 2, OCGPIO_CFG_INVERT },
-            /* EC_2GMODULE_PWR_ON  */
-            .pin_pwr_en = { &gbc_io_1, 1, OCGPIO_CFG_INVERT },
-        },
-        .pin_ant_sw = {},
+                    /* NOTE: enable & power go through MOSFETs, inverting them */
+                    /* 2GMODULE_POWEROFF  */
+                    .pin_enable = { &gbc_io_1, 2, OCGPIO_CFG_INVERT },
+                    /* EC_2GMODULE_PWR_ON  */
+                    .pin_pwr_en = { &gbc_io_1, 1, OCGPIO_CFG_INVERT },
+            },
+    .pin_ant_sw = {},
 };
 
 // RFFE IO EXPANDERS

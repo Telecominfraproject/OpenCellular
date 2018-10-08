@@ -16,8 +16,8 @@
 #include <ti/sysbios/knl/Task.h>
 
 // Threaded interrupt info
-#define TI_TASKSTACKSIZE        1024
-#define TI_TASKPRIORITY         6
+#define TI_TASKSTACKSIZE 1024
+#define TI_TASKPRIORITY 6
 
 // This number is fairly superficial - just used to keep track of the
 // various tasks, it can be increased without much overhead
@@ -25,14 +25,15 @@
 
 // Config simply to map context to our GPIO interrupts
 typedef struct InterruptConfig {
-    Semaphore_Handle sem;       //!< Semaphore to wake up INT thread
-    ThreadedInt_Callback cb;    //!< Callback to run when interrupt occurs
-    void *context;              //!< Pointer to pass to cb function
+    Semaphore_Handle sem; //!< Semaphore to wake up INT thread
+    ThreadedInt_Callback cb; //!< Callback to run when interrupt occurs
+    void *context; //!< Pointer to pass to cb function
 } InterruptConfig;
 static InterruptConfig s_intConfigs[MAX_DEVICES] = {};
 static int s_numDevices = 0;
 
-static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
+static void gpioIntFxn(const OcGpio_Pin *pin, void *context)
+{
     Semaphore_Handle sem = context;
 
     // TODO: this should probably be an assert
@@ -44,7 +45,8 @@ static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
     Semaphore_post(sem);
 }
 
-static void ThreadedInt_Task(UArg arg0, UArg arg1) {
+static void ThreadedInt_Task(UArg arg0, UArg arg1)
+{
     InterruptConfig *cfg = (InterruptConfig *)arg0;
     if (!cfg) {
         DEBUG("Threaded Int started without configuration???\n");
@@ -60,7 +62,8 @@ static void ThreadedInt_Task(UArg arg0, UArg arg1) {
 
 // TODO: this function isn't thread safe at the moment
 void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
-                      void *context) {
+                      void *context)
+{
     // Build up table of all devices for interrupt handling. This is an ok
     // workaround for TI RTOS GPIO interrupts for now (only using one device)
     if (s_numDevices >= MAX_DEVICES) {
@@ -75,7 +78,7 @@ void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
         return;
     }
 
-    s_intConfigs[devNum] = (InterruptConfig) {
+    s_intConfigs[devNum] = (InterruptConfig){
         .sem = sem,
         .cb = cb,
         .context = context,
@@ -103,4 +106,3 @@ void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
     OcGpio_setCallback(irqPin, gpioIntFxn, sem);
     OcGpio_enableInt(irqPin);
 }
-

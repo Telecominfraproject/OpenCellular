@@ -111,18 +111,21 @@ static void gossiper_init(void)
     /*Creating Semaphore for RX Message Queue*/
     semGossiperMsg = Semaphore_create(0, NULL, NULL);
     if (semGossiperMsg == NULL) {
-        LOGGER_ERROR("GOSSIPER:ERROR::GOSSIPER RX Semaphore creation failed.\n");
+        LOGGER_ERROR(
+                "GOSSIPER:ERROR::GOSSIPER RX Semaphore creation failed.\n");
     }
 
     /*Creating RX Message Queue*/
     gossiperRxMsgQueue = Util_constructQueue(&gossiperRxMsg);
-    LOGGER_DEBUG("GOSSIPER:INFO::Constructing message Queue 0x%x for RX Gossiper Messages.\n",
-                     gossiperRxMsgQueue);
+    LOGGER_DEBUG(
+            "GOSSIPER:INFO::Constructing message Queue 0x%x for RX Gossiper Messages.\n",
+            gossiperRxMsgQueue);
 
     /*Creating TX Message Queue*/
     gossiperTxMsgQueue = Util_constructQueue(&gossiperTxMsg);
-    LOGGER_DEBUG("GOSSIPER:INFO::Constructing message Queue 0x%x for TX Gossiper Messages.\n",
-                     gossiperTxMsgQueue);
+    LOGGER_DEBUG(
+            "GOSSIPER:INFO::Constructing message Queue 0x%x for TX Gossiper Messages.\n",
+            gossiperTxMsgQueue);
 }
 
 /*****************************************************************************
@@ -142,8 +145,8 @@ static void gossiper_taskfxn(UArg a0, UArg a1)
         if (Semaphore_pend(semGossiperMsg, BIOS_WAIT_FOREVER)) {
             /* Gossiper RX Messgaes */
             while (!Queue_empty(gossiperRxMsgQueue)) {
-                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
-                        gossiperRxMsgQueue);
+                uint8_t *pWrite =
+                        (uint8_t *)Util_dequeueMsg(gossiperRxMsgQueue);
                 if (pWrite) {
                     gossiper_process_rx_msg(pWrite);
                 } else {
@@ -153,8 +156,8 @@ static void gossiper_taskfxn(UArg a0, UArg a1)
 
             /* Gossiper TX Messgaes */
             while (!Queue_empty(gossiperTxMsgQueue)) {
-                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
-                        gossiperTxMsgQueue);
+                uint8_t *pWrite =
+                        (uint8_t *)Util_dequeueMsg(gossiperTxMsgQueue);
                 if (pWrite) {
                     gossiper_process_tx_msg(pWrite);
                 } else {
@@ -180,13 +183,14 @@ static ReturnStatus gossiper_process_rx_msg(uint8_t *pMsg)
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("GOSSIPER:INFO:: Processing Gossiper RX Message.\n");
 
-    OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
+    OCMPMessageFrame *pOCMPMessageFrame = (OCMPMessageFrame *)pMsg;
     if (pOCMPMessageFrame != NULL) {
-        LOGGER_DEBUG("GOSSIPER:INFO:: RX Msg recieved with Length: 0x%x, Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
-                         pOCMPMessageFrame->header.ocmpFrameLen,
-                         pOCMPMessageFrame->header.ocmpInterface,
-                         pOCMPMessageFrame->header.ocmpSeqNumber,
-                         pOCMPMessageFrame->header.ocmpTimestamp);
+        LOGGER_DEBUG(
+                "GOSSIPER:INFO:: RX Msg recieved with Length: 0x%x, Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
+                pOCMPMessageFrame->header.ocmpFrameLen,
+                pOCMPMessageFrame->header.ocmpInterface,
+                pOCMPMessageFrame->header.ocmpSeqNumber,
+                pOCMPMessageFrame->header.ocmpTimestamp);
         /*Update the Debug info required based on the debug jumper connected*/
         //status = CheckDebugEnabled()
         if (pOCMPMessageFrame->message.msgtype == OCMP_MSG_TYPE_DEBUG) {
@@ -199,7 +203,8 @@ static ReturnStatus gossiper_process_rx_msg(uint8_t *pMsg)
             }
 #endif
         }
-        Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg, (uint8_t*) pMsg);
+        Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
+                        (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("GOSSIPER:ERROR:: Not valid pointer.\n");
     }
@@ -220,18 +225,18 @@ static ReturnStatus gossiper_process_tx_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("GOSSIPER:INFO:: Processing Gossiper TX Message.\n");
-    OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
+    OCMPMessageFrame *pOCMPMessageFrame = (OCMPMessageFrame *)pMsg;
     if (pOCMPMessageFrame != NULL) {
         if (pOCMPMessageFrame->header.ocmpInterface == OCMP_COMM_IFACE_UART) {
             status = gossiper_uart_send_msg(pMsg);
-        } else if (pOCMPMessageFrame->header.ocmpInterface
-                == OCMP_COMM_IFACE_ETHERNET) {
+        } else if (pOCMPMessageFrame->header.ocmpInterface ==
+                   OCMP_COMM_IFACE_ETHERNET) {
             status = gossiper_ethernet_send_msg(pMsg);
-        } else if (pOCMPMessageFrame->header.ocmpInterface
-                == OCMP_COMM_IFACE_SBD) {
-                // Will be added later.
-        } else if (pOCMPMessageFrame->header.ocmpInterface
-                == OCMP_COMM_IFACE_USB) {
+        } else if (pOCMPMessageFrame->header.ocmpInterface ==
+                   OCMP_COMM_IFACE_SBD) {
+            // Will be added later.
+        } else if (pOCMPMessageFrame->header.ocmpInterface ==
+                   OCMP_COMM_IFACE_USB) {
             status = gossiper_usb_send_msg(pMsg);
         }
     } else {
@@ -253,9 +258,10 @@ static ReturnStatus gossiper_process_tx_msg(uint8_t *pMsg)
 static ReturnStatus gossiper_ethernet_send_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
-    LOGGER_DEBUG("GOSSIPER:INFO:: Forwarding TX message to the ETH Interface.\n");
+    LOGGER_DEBUG(
+            "GOSSIPER:INFO:: Forwarding TX message to the ETH Interface.\n");
     if (pMsg != NULL) {
-        Util_enqueueMsg(ethTxMsgQueue, ethTxsem, (uint8_t*) pMsg);
+        Util_enqueueMsg(ethTxMsgQueue, ethTxsem, (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("GOSSIPER::ERROR::No Valid Pointer.\n");
     }
@@ -275,9 +281,10 @@ static ReturnStatus gossiper_ethernet_send_msg(uint8_t *pMsg)
 static ReturnStatus gossiper_uart_send_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
-    LOGGER_DEBUG("GOSSIPER:INFO:: Forwarding TX message to the UART Interface.\n");
+    LOGGER_DEBUG(
+            "GOSSIPER:INFO:: Forwarding TX message to the UART Interface.\n");
     if (pMsg != NULL) {
-        Util_enqueueMsg(uartTxMsgQueue, semUARTTX, (uint8_t*) pMsg);
+        Util_enqueueMsg(uartTxMsgQueue, semUARTTX, (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("GOSSIPER::ERROR::No Valid Pointer.\n");
     }
@@ -297,9 +304,10 @@ static ReturnStatus gossiper_uart_send_msg(uint8_t *pMsg)
 static ReturnStatus gossiper_usb_send_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
-    LOGGER_DEBUG("GOSSIPER:INFO:: Forwarding TX message to the USB Interface.\n");
+    LOGGER_DEBUG(
+            "GOSSIPER:INFO:: Forwarding TX message to the USB Interface.\n");
     if (pMsg != NULL) {
-        Util_enqueueMsg(usbTxMsgQueue, semUSBTX, (uint8_t*) pMsg);
+        Util_enqueueMsg(usbTxMsgQueue, semUSBTX, (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("GOSSIPER::ERROR::No Valid Pointer.\n");
     }

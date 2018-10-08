@@ -66,11 +66,10 @@ extern "C" {
  * TYPEDEFS
  */
 
-typedef struct
-{
-  uint16_t event; // Event type.
-  uint8_t state; // Event state;
-}appEvtHdr_t;
+typedef struct {
+    uint16_t event; // Event type.
+    uint8_t state; // Event state;
+} appEvtHdr_t;
 
 /*********************************************************************
  * MACROS
@@ -95,12 +94,9 @@ typedef struct
  *
  * @return  Clock_Handle  - a handle to the clock instance.
  */
-Clock_Handle Util_constructClock(Clock_Struct *pClock,
-                                        Clock_FuncPtr clockCB,
-                                        uint32_t clockDuration,
-                                        uint32_t clockPeriod,
-                                        uint8_t startFlag,
-                                        UArg arg);
+Clock_Handle Util_constructClock(Clock_Struct *pClock, Clock_FuncPtr clockCB,
+                                 uint32_t clockDuration, uint32_t clockPeriod,
+                                 uint8_t startFlag, UArg arg);
 
 /*********************************************************************
  * @fn      Util_startClock
@@ -184,7 +180,8 @@ Queue_Handle Util_constructQueue(Queue_Struct *pQueue);
  *
  * @return  TRUE if message was queued, FALSE otherwise.
  */
-uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem, uint8_t *pMsg);
+uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem,
+                        uint8_t *pMsg);
 
 /*********************************************************************
  * @fn      Util_dequeueMsg

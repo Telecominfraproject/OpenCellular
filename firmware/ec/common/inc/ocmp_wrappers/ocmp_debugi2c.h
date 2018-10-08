@@ -16,24 +16,20 @@ SCHEMA_IMPORT bool i2c_write(void *driver, void *data);
 
 static const Driver OC_I2C = {
     .name = "OC_I2C",
-    .argList = (Parameter[]){
-        { .name = "slave_address", .type = TYPE_UINT8 },
-        { .name = "no_of_bytes", .type = TYPE_UINT8 },
-        { .name = "reg_address", .type = TYPE_UINT8 },
-        { .name = "reg_values", .type = TYPE_UINT16 },
-        {}
-    },
-    .commands = (Command[]){
-         {
-              .name = "get",
-              .cb_cmd = i2c_read,
-         },
-         {
-             .name = "set",
-             .cb_cmd = i2c_write,
-         },
-         {}
-    },
+    .argList = (Parameter[]){ { .name = "slave_address", .type = TYPE_UINT8 },
+                              { .name = "no_of_bytes", .type = TYPE_UINT8 },
+                              { .name = "reg_address", .type = TYPE_UINT8 },
+                              { .name = "reg_values", .type = TYPE_UINT16 },
+                              {} },
+    .commands = (Command[]){ {
+                                     .name = "get",
+                                     .cb_cmd = i2c_read,
+                             },
+                             {
+                                     .name = "set",
+                                     .cb_cmd = i2c_write,
+                             },
+                             {} },
 };
 
 #endif /* INC_DEVICES_OCMP_WRAPPERS_OCMP_I2C_H_ */

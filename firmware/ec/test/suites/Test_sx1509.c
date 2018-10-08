@@ -15,8 +15,8 @@
 #include <string.h>
 
 /* ======================== Constants & variables =========================== */
-#define I2C_BUS     7
-#define I2C_ADDR    0x00
+#define I2C_BUS 7
+#define I2C_ADDR 0x00
 
 static const I2C_Dev s_sx1509_dev = {
     .bus = I2C_BUS,
@@ -171,15 +171,13 @@ void test_ioexp_led_input(void)
     uint8_t input_val = 0xff;
 
     SX1509_regs[0x11] = 0xF2;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_get_data(&s_sx1509_dev,
-                      SX1509_REG_A, &input_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_get_data(&s_sx1509_dev, SX1509_REG_A,
+                                                    &input_val));
     TEST_ASSERT_EQUAL_HEX8(0xF2, input_val);
 
     SX1509_regs[0x10] = 0x04;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_get_data(&s_sx1509_dev,
-                      SX1509_REG_B, &input_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_get_data(&s_sx1509_dev, SX1509_REG_B,
+                                                    &input_val));
     TEST_ASSERT_EQUAL_HEX8(0x04, input_val);
 }
 
@@ -189,19 +187,16 @@ void test_ioexp_led_output(void)
     uint8_t output_val = 0xff;
 
     SX1509_regs[0x11] = 0x0C;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-              ioexp_led_get_data(&s_sx1509_dev,
-              SX1509_REG_A, &output_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_get_data(&s_sx1509_dev, SX1509_REG_A,
+                                                    &output_val));
     TEST_ASSERT_EQUAL_HEX8(0x0C, output_val);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_set_data(&s_sx1509_dev,
-                      SX1509_REG_A, 0xAA, 0x00));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_set_data(&s_sx1509_dev, SX1509_REG_A,
+                                                    0xAA, 0x00));
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x11]);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-              ioexp_led_get_data(&s_sx1509_dev,
-              SX1509_REG_A, &output_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_get_data(&s_sx1509_dev, SX1509_REG_A,
+                                                    &output_val));
     TEST_ASSERT_EQUAL_HEX8(0xAA, output_val);
 }
 
@@ -209,8 +204,8 @@ void test_ioexp_led_on_time(void)
 {
     /* Test setting on time value */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_set_on_time(&s_sx1509_dev,
-                      0, 0x10)); // ON time register I/O[0]
+                      ioexp_led_set_on_time(&s_sx1509_dev, 0,
+                                            0x10)); // ON time register I/O[0]
     TEST_ASSERT_EQUAL_HEX8(0x10, SX1509_regs[0x29]);
 }
 
@@ -218,106 +213,104 @@ void test_ioexp_led_off_time(void)
 {
     /* Test setting off time value */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_set_off_time(&s_sx1509_dev,
-                      0, 0x80)); // OFF time register I/O[0]
+                      ioexp_led_set_off_time(&s_sx1509_dev, 0,
+                                             0x80)); // OFF time register I/O[0]
     TEST_ASSERT_EQUAL_HEX8(0x80, SX1509_regs[0x2B]);
 }
-
 
 void test_ioexp_led_software_reset(void)
 {
     /* Test software reset */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_software_reset(&s_sx1509_dev));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_software_reset(&s_sx1509_dev));
 }
 
 void test_ioexp_led_inputbuffer(void)
 {
     /* Test setting input buffer values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_inputbuffer(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x55, 0xAA)); // LSB(Reg A), LSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_inputbuffer(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x55,
+                                         0xAA)); // LSB(Reg A), LSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x01]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x00]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_inputbuffer(&s_sx1509_dev,
-                      SX1509_REG_B, 0x7F, 0x00)); // Reg B
+                      ioexp_led_config_inputbuffer(&s_sx1509_dev, SX1509_REG_B,
+                                                   0x7F, 0x00)); // Reg B
     TEST_ASSERT_EQUAL_HEX8(0x7F, SX1509_regs[0x00]);
 }
 
 void test_ioexp_led_pullup(void)
 {
     /* Test setting pull up values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_pullup(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x27, 0x82)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_pullup(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x27,
+                                         0x82)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x27, SX1509_regs[0x07]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x82, SX1509_regs[0x06]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_pullup(&s_sx1509_dev,
-                      SX1509_REG_A, 0x23, 0x00)); // Reg A
+                      ioexp_led_config_pullup(&s_sx1509_dev, SX1509_REG_A, 0x23,
+                                              0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x23, SX1509_regs[0x07]);
 }
 
 void test_ioexp_led_pulldown(void)
 {
     /* Test setting pull down values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_pulldown(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x32, 0x5F)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_pulldown(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x32,
+                                         0x5F)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x32, SX1509_regs[0x09]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x5F, SX1509_regs[0x08]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_pulldown(&s_sx1509_dev,
-                      SX1509_REG_A, 0xFF, 0x00)); // Reg A
+                      ioexp_led_config_pulldown(&s_sx1509_dev, SX1509_REG_A,
+                                                0xFF, 0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xFF, SX1509_regs[0x09]);
 }
 
 void test_ioexp_led_opendrain(void)
 {
     /* Test setting open drain values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_opendrain(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x45, 0x54)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_opendrain(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x45,
+                                         0x54)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x45, SX1509_regs[0x0B]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x54, SX1509_regs[0x0A]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_opendrain(&s_sx1509_dev,
-                      SX1509_REG_B, 0x00, 0x00)); // Reg A
+                      ioexp_led_config_opendrain(&s_sx1509_dev, SX1509_REG_B,
+                                                 0x00, 0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x00, SX1509_regs[0x0A]);
 }
 
 void test_ioexp_led_data_direction(void)
 {
     /* Test setting data direction values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_data_direction(&s_sx1509_dev,
-                      SX1509_REG_AB, 0xAB, 0xD9)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_data_direction(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0xAB,
+                                         0xD9)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0xAB, SX1509_regs[0x0F]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xD9, SX1509_regs[0x0E]); // Reg B
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_data_direction(&s_sx1509_dev,
-                      SX1509_REG_B, 0x98, 0x00)); // Reg A
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_data_direction(
+                                         &s_sx1509_dev, SX1509_REG_B, 0x98,
+                                         0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x98, SX1509_regs[0x0E]);
 }
 
 void test_ioexp_led_polarity(void)
 {
     /* Test setting polarity values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_polarity(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x67, 0xCD)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_polarity(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x67,
+                                         0xCD)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x67, SX1509_regs[0x0D]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xCD, SX1509_regs[0x0C]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_polarity(&s_sx1509_dev,
-                      SX1509_REG_A, 0xAB, 0x00)); // Reg A
+                      ioexp_led_config_polarity(&s_sx1509_dev, SX1509_REG_A,
+                                                0xAB, 0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xAB, SX1509_regs[0x0D]);
 }
 
@@ -326,17 +319,19 @@ void test_ioexp_led_clock(void)
     /* Test setting clock settings */
     TEST_ASSERT_EQUAL(RETURN_OK,
                       ioexp_led_config_clock(&s_sx1509_dev,
-                      SX1509_INTERNAL_CLOCK_2MHZ, SX1509_CLOCK_OSC_IN));
+                                             SX1509_INTERNAL_CLOCK_2MHZ,
+                                             SX1509_CLOCK_OSC_IN));
     TEST_ASSERT_EQUAL_HEX8(0x40, SX1509_regs[0x1E]); //0100 0000
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_clock(&s_sx1509_dev,
-                      SX1509_EXTERNAL_CLOCK, SX1509_CLOCK_OSC_IN));
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_clock(&s_sx1509_dev,
+                                                        SX1509_EXTERNAL_CLOCK,
+                                                        SX1509_CLOCK_OSC_IN));
     TEST_ASSERT_EQUAL_HEX8(0x20, SX1509_regs[0x1E]); //0010 0000
 
     TEST_ASSERT_EQUAL(RETURN_OK,
                       ioexp_led_config_clock(&s_sx1509_dev,
-                      SX1509_INTERNAL_CLOCK_2MHZ, SX1509_CLOCK_OSC_OUT));
+                                             SX1509_INTERNAL_CLOCK_2MHZ,
+                                             SX1509_CLOCK_OSC_OUT));
     TEST_ASSERT_EQUAL_HEX8(0x50, SX1509_regs[0x1E]); //0101 0000
 
     //How to configure clock frequency on OSCOUT pin?
@@ -345,19 +340,22 @@ void test_ioexp_led_clock(void)
 void test_ioexp_led_misc(void)
 {
     /* Test setting misc settings */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_misc(&s_sx1509_dev,
-                      0x24)); //Clkx-1MHz, Fading-Linear(Bank A, B)
+    TEST_ASSERT_EQUAL(
+            RETURN_OK,
+            ioexp_led_config_misc(&s_sx1509_dev,
+                                  0x24)); //Clkx-1MHz, Fading-Linear(Bank A, B)
     TEST_ASSERT_EQUAL_HEX8(0x24, SX1509_regs[0x1F]);
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_misc(&s_sx1509_dev,
-                      0x54)); //Clkx-125KHz, Fading-Linear(Bank A, B)
+                      ioexp_led_config_misc(
+                              &s_sx1509_dev,
+                              0x54)); //Clkx-125KHz, Fading-Linear(Bank A, B)
     TEST_ASSERT_EQUAL_HEX8(0x54, SX1509_regs[0x1F]); //0010 0000
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_misc(&s_sx1509_dev,
-                      0xAC)); //Clkx-1MHz, Fading-Loarithmic(Bank A, B)
+                      ioexp_led_config_misc(
+                              &s_sx1509_dev,
+                              0xAC)); //Clkx-1MHz, Fading-Loarithmic(Bank A, B)
     TEST_ASSERT_EQUAL_HEX8(0xAC, SX1509_regs[0x1F]); //0101 0000
 
     //How to configure multiple things on RegMisc settings?
@@ -366,15 +364,15 @@ void test_ioexp_led_misc(void)
 void test_ioexp_led_enable_leddriver(void)
 {
     /* Test setting led driver values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_enable_leddriver(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x52, 0xF8)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_enable_leddriver(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x52,
+                                         0xF8)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x52, SX1509_regs[0x21]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xF8, SX1509_regs[0x20]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_enable_leddriver(&s_sx1509_dev,
-                      SX1509_REG_B, 0x9C, 0x00)); // Reg B
+                      ioexp_led_enable_leddriver(&s_sx1509_dev, SX1509_REG_B,
+                                                 0x9C, 0x00)); // Reg B
     TEST_ASSERT_EQUAL_HEX8(0x9C, SX1509_regs[0x20]);
 }
 
@@ -397,15 +395,15 @@ void test_ioexp_led_testregister_1(void)
 void test_ioexp_led_interrupt(void)
 {
     /* Test setting interrupt values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_interrupt(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x27, 0x28)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_interrupt(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x27,
+                                         0x28)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x27, SX1509_regs[0x13]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x28, SX1509_regs[0x12]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_interrupt(&s_sx1509_dev,
-                      SX1509_REG_A, 0x38, 0x00)); // Reg A
+                      ioexp_led_config_interrupt(&s_sx1509_dev, SX1509_REG_A,
+                                                 0x38, 0x00)); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x38, SX1509_regs[0x13]);
 }
 
@@ -413,22 +411,22 @@ void test_ioexp_led_edge_sense_A(void)
 {
     /* Test setting Edge sense A values */
     /* Rising edge */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_A(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x55, 0x55)); // Low(Reg A), High(Reg A)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_edge_sense_A(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x55,
+                                         0x55)); // Low(Reg A), High(Reg A)
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x17]); // Low Reg A
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x16]); // High Reg A
 
     /* Falling edge */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_A(&s_sx1509_dev,
-                      SX1509_REG_A, 0xAA, 0x00)); // Low Reg A
+                      ioexp_led_config_edge_sense_A(&s_sx1509_dev, SX1509_REG_A,
+                                                    0xAA, 0x00)); // Low Reg A
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x17]);
 
     /* Both edges */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_A(&s_sx1509_dev,
-                      SX1509_REG_B, 0xFF, 0x00)); // High Reg A
+                      ioexp_led_config_edge_sense_A(&s_sx1509_dev, SX1509_REG_B,
+                                                    0xFF, 0x00)); // High Reg A
     TEST_ASSERT_EQUAL_HEX8(0xFF, SX1509_regs[0x16]);
 }
 
@@ -436,22 +434,22 @@ void test_ioexp_led_edge_sense_B(void)
 {
     /* Test setting Edge sense A values */
     /* Falling edge */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_B(&s_sx1509_dev,
-                      SX1509_REG_AB, 0xAA, 0xAA)); // Low(Reg B), High(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_edge_sense_B(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0xAA,
+                                         0xAA)); // Low(Reg B), High(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x15]); // Low Reg B
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x14]); // High Reg B
 
     /* Rising edge */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_B(&s_sx1509_dev,
-                      SX1509_REG_B, 0x55, 0x00)); // High Reg B
+                      ioexp_led_config_edge_sense_B(&s_sx1509_dev, SX1509_REG_B,
+                                                    0x55, 0x00)); // High Reg B
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x14]);
 
     /* Both edges */
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_config_edge_sense_B(&s_sx1509_dev,
-                      SX1509_REG_A, 0xFF, 0x00)); // Low Reg B
+                      ioexp_led_config_edge_sense_B(&s_sx1509_dev, SX1509_REG_A,
+                                                    0xFF, 0x00)); // Low Reg B
     TEST_ASSERT_EQUAL_HEX8(0xFF, SX1509_regs[0x15]);
 }
 
@@ -472,15 +470,15 @@ void test_ioexp_led_debounce_time(void)
 void test_ioexp_led_enable_debounce(void)
 {
     /* Test enabling debounce values */
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_enable_debounce(&s_sx1509_dev,
-                      SX1509_REG_AB, 0x4B, 0x2C)); // LSB(Reg A), MSB(Reg B)
+    TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_enable_debounce(
+                                         &s_sx1509_dev, SX1509_REG_AB, 0x4B,
+                                         0x2C)); // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x4B, SX1509_regs[0x24]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x2C, SX1509_regs[0x23]); // Reg B
 
     TEST_ASSERT_EQUAL(RETURN_OK,
-                      ioexp_led_enable_debounce(&s_sx1509_dev,
-                      SX1509_REG_B, 0x61, 0x00)); // Reg B
+                      ioexp_led_enable_debounce(&s_sx1509_dev, SX1509_REG_B,
+                                                0x61, 0x00)); // Reg B
     TEST_ASSERT_EQUAL_HEX8(0x61, SX1509_regs[0x23]);
 }
 
@@ -517,18 +515,17 @@ void test_ioexp_led_not_present(void)
 
     /* Ensure that we fail properly if the device isn't on the bus */
     uint8_t dummy_val;
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_get_data(&invalid_dev, SX1509_REG_A,
-                                         &dummy_val));
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_set_data(&invalid_dev, SX1509_REG_A,
-                                         dummy_val, 0x00));
+    TEST_ASSERT_EQUAL(
+            RETURN_NOTOK,
+            ioexp_led_get_data(&invalid_dev, SX1509_REG_A, &dummy_val));
+    TEST_ASSERT_EQUAL(
+            RETURN_NOTOK,
+            ioexp_led_set_data(&invalid_dev, SX1509_REG_A, dummy_val, 0x00));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_set_on_time(&invalid_dev, 0, dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_set_off_time(&invalid_dev, 0, dummy_val));
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_software_reset(&invalid_dev));
+    TEST_ASSERT_EQUAL(RETURN_NOTOK, ioexp_led_software_reset(&invalid_dev));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_config_inputbuffer(&invalid_dev, SX1509_REG_A,
                                                    dummy_val, 0x00));
@@ -547,17 +544,14 @@ void test_ioexp_led_not_present(void)
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_config_polarity(&invalid_dev, SX1509_REG_A,
                                                 dummy_val, 0x00));
+    TEST_ASSERT_EQUAL(RETURN_NOTOK, ioexp_led_config_clock(&invalid_dev, 0, 1));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_config_clock(&invalid_dev, 0, 1));
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_config_misc(&invalid_dev,
-                                            dummy_val));
+                      ioexp_led_config_misc(&invalid_dev, dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_enable_leddriver(&invalid_dev, SX1509_REG_A,
                                                  dummy_val, 0x00));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      ioexp_led_read_testregister_1(&invalid_dev,
-                                                    &dummy_val));
+                      ioexp_led_read_testregister_1(&invalid_dev, &dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ioexp_led_config_interrupt(&invalid_dev, SX1509_REG_A,
                                                  dummy_val, 0x00));

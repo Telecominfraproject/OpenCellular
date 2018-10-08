@@ -32,10 +32,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define TCPPORT         1000
+#define TCPPORT 1000
 #define TCPHANDLERSTACK 1024
-#define TCPPACKETSIZE   OCMP_FRAME_TOTAL_LENGTH
-#define NUMTCPWORKERS   3
+#define TCPPACKETSIZE OCMP_FRAME_TOTAL_LENGTH
+#define NUMTCPWORKERS 3
 
 Semaphore_Handle ethTxsem;
 Semaphore_Handle ethRxsem;
@@ -58,7 +58,7 @@ Void tcpHandler(UArg arg0, UArg arg1);
  */
 Void tcp_Tx_Worker(UArg arg0, UArg arg1)
 {
-    int clientfd = (int) arg0;
+    int clientfd = (int)arg0;
     int bytesSent;
     uint8_t *buffer;
 
@@ -85,12 +85,12 @@ Void tcp_Tx_Worker(UArg arg0, UArg arg1)
  */
 Void tcp_Rx_Worker(UArg arg0, UArg arg1)
 {
-    int clientfd = (int) arg0;
+    int clientfd = (int)arg0;
     char buffer[TCPPACKETSIZE];
 
     LOGGER_DEBUG("tcpWorker: start clientfd = 0x%x\n", clientfd);
     while ((bytesRcvd = recv(clientfd, buffer, TCPPACKETSIZE, 0)) > 0) {
-        Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, (uint8_t *) buffer);
+        Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, (uint8_t *)buffer);
     }
     LOGGER_DEBUG("tcpWorker stop clientfd = 0x%x\n", clientfd);
 
@@ -101,7 +101,8 @@ Void tcp_Rx_Worker(UArg arg0, UArg arg1)
 #include "utils/swupdate.h"
 #include <xdc/runtime/Types.h>
 #include <ti/sysbios/BIOS.h>
-static void sw_update_cb(void) {
+static void sw_update_cb(void)
+{
     /* Gate whole system, start update */
     /* Note: Types_FreqHz contains a hi and lo 32 bit int, not sure why,
      * but we should only have to worry about the low bits
@@ -130,18 +131,19 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
         LOGGER_DEBUG("tcpHandler: socket failed\n");
         Task_exit();
         return;
-    }else {
+    } else {
         LOGGER_DEBUG(" %d socket success\n", fdError());
     }
     System_flush();
     memset((char *)&sLocalAddr, 0, sizeof(sLocalAddr));
-    LOGGER_DEBUG(" Ip in client: %s\n",destIp);
+    LOGGER_DEBUG(" Ip in client: %s\n", destIp);
     sLocalAddr.sin_family = AF_INET;
     sLocalAddr.sin_addr.s_addr = inet_addr(destIp);
     sLocalAddr.sin_port = htons(arg0);
 
-    while(connect(lSocket, (struct sockaddr *)&sLocalAddr, sizeof(sLocalAddr)) < 0){
-        SysCtlDelay(g_ui32SysClock/100/3);
+    while (connect(lSocket, (struct sockaddr *)&sLocalAddr,
+                   sizeof(sLocalAddr)) < 0) {
+        SysCtlDelay(g_ui32SysClock / 100 / 3);
     }
     System_flush();
     /* Test pattern to be sent across the TCP connection to external server */
@@ -149,13 +151,13 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
     int nbytes = 14; /* Test Pattern length */
 
     while (numRepeat > 0) {
-        send(lSocket, (char *)buffer, nbytes, 0 );
+        send(lSocket, (char *)buffer, nbytes, 0);
         Task_sleep(500);
         numRepeat--;
         System_flush();
     }
     if (lSocket > 0)
-    close(lSocket);
+        close(lSocket);
     fdCloseSession(TaskSelf());
 }
 
@@ -190,7 +192,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(arg0);
 
-    status = bind(server, (struct sockaddr *) &localAddr, sizeof(localAddr));
+    status = bind(server, (struct sockaddr *)&localAddr, sizeof(localAddr));
     if (status == -1) {
         LOGGER_DEBUG("Error: bind failed.\n");
         goto shutdown;
@@ -208,9 +210,8 @@ Void tcpHandler(UArg arg0, UArg arg1)
         goto shutdown;
     }
 
-    while ((clientfd = accept(server, (struct sockaddr *) &clientAddr, &addrlen))
-            != -1) {
-
+    while ((clientfd = accept(server, (struct sockaddr *)&clientAddr,
+                              &addrlen)) != -1) {
         LOGGER_DEBUG("tcpHandler: Creating thread clientfd = %d\n", clientfd);
 
         /* Init the Error_Block */
@@ -218,10 +219,10 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&task_Tx_Params);
-        task_Tx_Params.arg0 = (UArg) clientfd;
+        task_Tx_Params.arg0 = (UArg)clientfd;
         task_Tx_Params.stackSize = 1280;
-        task_Tx_Handle = Task_create((Task_FuncPtr) tcp_Tx_Worker,
-                                        &task_Tx_Params, &eb);
+        task_Tx_Handle =
+                Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
         if (task_Tx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
@@ -229,10 +230,10 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&task_Rx_Params);
-        task_Rx_Params.arg0 = (UArg) clientfd;
+        task_Rx_Params.arg0 = (UArg)clientfd;
         task_Rx_Params.stackSize = 1280;
-        task_Rx_Handle = Task_create((Task_FuncPtr) tcp_Rx_Worker,
-                                        &task_Rx_Params, &eb);
+        task_Rx_Handle =
+                Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
         if (task_Rx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
@@ -244,7 +245,8 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
     LOGGER_DEBUG("Error: accept failed.\n");
 
-    shutdown: if (server > 0) {
+shutdown:
+    if (server > 0) {
         close(server);
     }
 }
@@ -306,7 +308,7 @@ void netOpenHook()
     taskParams.stackSize = TCPHANDLERSTACK;
     taskParams.priority = 1;
     taskParams.arg0 = TCPPORT;
-    taskHandle = Task_create((Task_FuncPtr) tcpHandler, &taskParams, &eb);
+    taskHandle = Task_create((Task_FuncPtr)tcpHandler, &taskParams, &eb);
     if (taskHandle == NULL) {
         LOGGER_DEBUG("netOpenHook: Failed to create tcpHandler Task\n");
     }

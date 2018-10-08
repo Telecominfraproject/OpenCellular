@@ -22,11 +22,11 @@
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-OCMPMessageFrame * OCMP_mallocFrame(uint16_t len)
+OCMPMessageFrame *OCMP_mallocFrame(uint16_t len)
 {
     OCMPMessageFrame *pMsg;
     // Allocate memory for NPI Frame
-    pMsg = (OCMPMessageFrame *)malloc(sizeof(OCMPMessageFrame)+len);
+    pMsg = (OCMPMessageFrame *)malloc(sizeof(OCMPMessageFrame) + len);
     if (pMsg != NULL) {
         // Assign Data Length of Frame
         pMsg->header.ocmpFrameLen = len;
@@ -38,7 +38,6 @@ OCMPMessageFrame * OCMP_mallocFrame(uint16_t len)
     }
     return pMsg;
 }
-
 
 /*****************************************************************************
  **    FUNCTION NAME   : create_ocmp_msg_frame
@@ -55,37 +54,36 @@ OCMPMessageFrame * OCMP_mallocFrame(uint16_t len)
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-OCMPMessageFrame* create_ocmp_msg_frame(OCMPSubsystem subSystem,
-                                        OCMPMsgType msgtype,
-                                        OCMPActionType actionType,
-                                        uint8_t componentId,
-                                        uint16_t parameters,
-                                        uint8_t payloadSize)
+OCMPMessageFrame *
+create_ocmp_msg_frame(OCMPSubsystem subSystem, OCMPMsgType msgtype,
+                      OCMPActionType actionType, uint8_t componentId,
+                      uint16_t parameters, uint8_t payloadSize)
 {
-    OCMPMessageFrame *ocmp_msg = (OCMPMessageFrame *) OCMP_mallocFrame(
-                payloadSize);
+    OCMPMessageFrame *ocmp_msg =
+            (OCMPMessageFrame *)OCMP_mallocFrame(payloadSize);
     if (ocmp_msg) {
-            *ocmp_msg = (OCMPMessageFrame){
-                .header = {
-                        .ocmpSof = OCMP_MSG_SOF,
-                        .ocmpInterface = OCMP_COMM_IFACE_USB,
-                        .ocmpFrameLen = payloadSize,
-                        //.ocmp_seqNumber = 0x00;
-                        //.ocmp_timestamp = 0x00; //Get RTC TimeStamp
-                },
-                .message = {
-                        .subsystem = subSystem,
-                        .componentID = componentId,
-                        .parameters = parameters,
-                        .msgtype = msgtype,
-                        .action = actionType,
-                }
-            };
-        memset(&(ocmp_msg->message.ocmp_data[0]),0x00,payloadSize);
-        }
+        *ocmp_msg = (OCMPMessageFrame){
+            .header =
+                    {
+                            .ocmpSof = OCMP_MSG_SOF,
+                            .ocmpInterface = OCMP_COMM_IFACE_USB,
+                            .ocmpFrameLen = payloadSize,
+                            //.ocmp_seqNumber = 0x00;
+                            //.ocmp_timestamp = 0x00; //Get RTC TimeStamp
+                    },
+            .message =
+                    {
+                            .subsystem = subSystem,
+                            .componentID = componentId,
+                            .parameters = parameters,
+                            .msgtype = msgtype,
+                            .action = actionType,
+                    }
+        };
+        memset(&(ocmp_msg->message.ocmp_data[0]), 0x00, payloadSize);
+    }
     return ocmp_msg;
 }
-
 
 /*****************************************************************************
  **    FUNCTION NAME   : create_ocmp_alert_from_Evt
@@ -99,22 +97,17 @@ OCMPMessageFrame* create_ocmp_msg_frame(OCMPSubsystem subSystem,
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-OCMPMessageFrame* create_ocmp_alert_from_Evt(OCMPMessageFrame* ocmpEventMsg,
-                                 uint8_t componentId,
-                                 uint16_t parameters )
+OCMPMessageFrame *create_ocmp_alert_from_Evt(OCMPMessageFrame *ocmpEventMsg,
+                                             uint8_t componentId,
+                                             uint16_t parameters)
 {
-    OCMPMessageFrame *ocmpAlertMsg =
-                (OCMPMessageFrame *) OCMP_mallocFrame(1);
+    OCMPMessageFrame *ocmpAlertMsg = (OCMPMessageFrame *)OCMP_mallocFrame(1);
     if (ocmpAlertMsg != NULL) {
-            memset(ocmpAlertMsg, 0x00, (sizeof(OCMPMessageFrame)));
-            memcpy(ocmpAlertMsg, ocmpEventMsg,
-                    (sizeof(OCMPMessageFrame)) + 1);
-            ocmpAlertMsg->message.msgtype = OCMP_MSG_TYPE_ALERT;
-            ocmpAlertMsg->message.componentID = componentId;
-            ocmpAlertMsg->message.parameters = parameters;
+        memset(ocmpAlertMsg, 0x00, (sizeof(OCMPMessageFrame)));
+        memcpy(ocmpAlertMsg, ocmpEventMsg, (sizeof(OCMPMessageFrame)) + 1);
+        ocmpAlertMsg->message.msgtype = OCMP_MSG_TYPE_ALERT;
+        ocmpAlertMsg->message.componentID = componentId;
+        ocmpAlertMsg->message.parameters = parameters;
     }
     return ocmpAlertMsg;
 }
-
-
-

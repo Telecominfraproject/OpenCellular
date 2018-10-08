@@ -24,7 +24,6 @@
 
 tPower_PDStatus_Info PDStatus_Info;
 
-
 /******************************************************************************
  * @fn          ltc4275_handle_irq
  *
@@ -34,12 +33,15 @@ tPower_PDStatus_Info PDStatus_Info;
  *
  * @return      None
  */
-static void ltc4275_handle_irq(void *context) {
+static void ltc4275_handle_irq(void *context)
+{
     LTC4275_Dev *dev = context;
 
-    const IArg mutexKey = GateMutex_enter(dev->obj.mutex); {
+    const IArg mutexKey = GateMutex_enter(dev->obj.mutex);
+    {
         ltc4275_update_status(dev);
-    } GateMutex_leave(dev->obj.mutex, mutexKey);
+    }
+    GateMutex_leave(dev->obj.mutex, mutexKey);
 
     /* See if we have a callback assigned to handle alerts */
     if (!dev->obj.alert_cb) {
@@ -90,7 +92,7 @@ ePostCode ltc4275_probe(const LTC4275_Dev *dev, POSTData *postData)
         LOGGER("LTC4275::ERROR: Power good signal read failed.\n");
         return postCode;
     }
-    if (pdStatus == LTC4275_POWERGOOD ) {
+    if (pdStatus == LTC4275_POWERGOOD) {
         PDStatus_Info.pdStatus.classStatus = LTC4275_CLASSTYPE_UNKOWN;
         PDStatus_Info.pdStatus.powerGoodStatus = LTC4275_POWERGOOD;
         PDStatus_Info.state = LTC4275_STATE_NOTOK;
@@ -102,7 +104,7 @@ ePostCode ltc4275_probe(const LTC4275_Dev *dev, POSTData *postData)
         PDStatus_Info.state = LTC4275_STATE_NOTOK;
         PDStatus_Info.pdalert = LTC4275_DISCONNECT_ALERT;
     }
-    post_update_POSTData(postData, 0xFF,0xFF,0xFF,0xFF);
+    post_update_POSTData(postData, 0xFF, 0xFF, 0xFF, 0xFF);
     return postCode;
 }
 
@@ -142,7 +144,8 @@ ReturnStatus ltc4275_init(LTC4275_Dev *dev)
     }
 
     if (dev->cfg.pin_evt) {
-        const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES ;
+        const uint32_t pin_evt_cfg =
+                OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
         if (OcGpio_configure(dev->cfg.pin_evt, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
@@ -163,7 +166,7 @@ ReturnStatus ltc4275_init(LTC4275_Dev *dev)
  * @return      None
  */
 void ltc4275_set_alert_handler(LTC4275_Dev *dev, LTC4275_CallbackFn alert_cb,
-                             void *cb_context)
+                               void *cb_context)
 {
     dev->obj.alert_cb = alert_cb;
     dev->obj.cb_context = cb_context;
@@ -185,9 +188,8 @@ ReturnStatus ltc4275_get_power_good(const LTC4275_Dev *dev, ePDPowerState *val)
     *val = LTC4275_POWERGOOD_NOTOK;
 
     /* Check Power Good */
-    *val = (ePDPowerState) OcGpio_read(dev->cfg.pin_evt);
-    if(*val == 0)
-    {
+    *val = (ePDPowerState)OcGpio_read(dev->cfg.pin_evt);
+    if (*val == 0) {
         *val = LTC4275_POWERGOOD;
     }
     DEBUG("LTC4275:INFO:: PD power good is %d.\n", *val);
@@ -245,7 +247,7 @@ ReturnStatus ltc4275_get_class(const LTC4275_Dev *dev, ePDClassType *val)
 void ltc4275_update_status(const LTC4275_Dev *dev)
 {
     ReturnStatus ret = RETURN_NOTOK;
-    ret = ltc4275_get_power_good(dev,&PDStatus_Info.pdStatus.powerGoodStatus);
+    ret = ltc4275_get_power_good(dev, &PDStatus_Info.pdStatus.powerGoodStatus);
     if (ret != RETURN_OK) {
         LOGGER("LTC4275::ERROR: Power good signal read failed.\n");
         return;

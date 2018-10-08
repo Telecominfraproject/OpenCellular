@@ -12,15 +12,15 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define PWR_INT_BATT_RSNSB                      30 //milli ohms
-#define PWR_INT_BATT_RSNSI                      7  //milli ohms
+#define PWR_INT_BATT_RSNSB 30 //milli ohms
+#define PWR_INT_BATT_RSNSI 7 //milli ohms
 
 /* Config parameters for Internal battery charger */
-#define PWR_INTBATT_UNDERVOLTAGE_VAL            9000  //milliVolts
-#define PWR_INTBATT_OVERVOLTAGE_VAL             12600 //milliVolts
-#define PWR_INTBATT_INPUTUNDERVOLATGE_VAL       16200 //milliVolts
-#define PWR_INTBATT_INPUTOVERCURRENT_VAL        5000  //milliAmps
-#define PWR_INTBATT_LOWBATTERYCURRENT_VAL       100   //milliAmps
-#define PWR_INTBATT_INPUTCURRENTLIMIT_VAL       5570  //milliAmps
+#define PWR_INTBATT_UNDERVOLTAGE_VAL 9000 //milliVolts
+#define PWR_INTBATT_OVERVOLTAGE_VAL 12600 //milliVolts
+#define PWR_INTBATT_INPUTUNDERVOLATGE_VAL 16200 //milliVolts
+#define PWR_INTBATT_INPUTOVERCURRENT_VAL 5000 //milliAmps
+#define PWR_INTBATT_LOWBATTERYCURRENT_VAL 100 //milliAmps
+#define PWR_INTBATT_INPUTCURRENTLIMIT_VAL 5570 //milliAmps
 
 #endif /* INT_BATTERY_H_ */

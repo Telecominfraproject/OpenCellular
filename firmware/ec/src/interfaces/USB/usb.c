@@ -26,13 +26,13 @@
 //*****************************************************************************
 //                             MACROS DEFINITION
 //*****************************************************************************
-#define OCUSB_TX_TASK_PRIORITY            4
-#define OCUSB_TX_TASK_STACK_SIZE          1024
+#define OCUSB_TX_TASK_PRIORITY 4
+#define OCUSB_TX_TASK_STACK_SIZE 1024
 
-#define OCUSB_RX_TASK_PRIORITY            5
-#define OCUSB_RX_TASK_STACK_SIZE          1024
+#define OCUSB_RX_TASK_PRIORITY 5
+#define OCUSB_RX_TASK_STACK_SIZE 1024
 
-#define USB_FRAME_LENGTH                  OCMP_FRAME_TOTAL_LENGTH
+#define USB_FRAME_LENGTH OCMP_FRAME_TOTAL_LENGTH
 
 //*****************************************************************************
 //                             HANDLES DEFINITION
@@ -86,9 +86,11 @@ void usb_tx_taskinit(void)
     /* Create USB TX Message Queue for TX Messages */
     usbTxMsgQueue = Util_constructQueue(&usbtTxMsg);
     if (usbTxMsgQueue == NULL) {
-        LOGGER_DEBUG("USBTX:ERROR:: Failed in Constructing USB TX Message Queue for TX Messages.\n");
+        LOGGER_DEBUG(
+                "USBTX:ERROR:: Failed in Constructing USB TX Message Queue for TX Messages.\n");
     } else {
-        LOGGER_DEBUG("USBTX:INFO:: Constructing message Queue for 0x%x USB TX Messages.\n",
+        LOGGER_DEBUG(
+                "USBTX:INFO:: Constructing message Queue for 0x%x USB TX Messages.\n",
                 usbTxMsgQueue);
     }
 }
@@ -114,9 +116,11 @@ void usb_rx_taskinit(void)
     /* Create USB RX Message Queue for RX Messages */
     usbRxMsgQueue = Util_constructQueue(&usbRxMsg);
     if (usbRxMsgQueue == NULL) {
-        LOGGER_DEBUG("USBRX:ERROR:: Failed in Constructing USB RX Message Queue for RX Messages.\n");
+        LOGGER_DEBUG(
+                "USBRX:ERROR:: Failed in Constructing USB RX Message Queue for RX Messages.\n");
     } else {
-        LOGGER_DEBUG("USBRX:INFO:: Constructing message Queue for 0x%x USB RX Messages.\n",
+        LOGGER_DEBUG(
+                "USBRX:INFO:: Constructing message Queue for 0x%x USB RX Messages.\n",
                 usbRxMsgQueue);
     }
 }
@@ -143,7 +147,7 @@ void usb_tx_taskfxn(UArg arg0, UArg arg1)
         if (Semaphore_pend(semUSBTX, BIOS_WAIT_FOREVER)) {
             /* OCMP UART TX Messgaes */
             while (!Queue_empty(usbTxMsgQueue)) {
-                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(usbTxMsgQueue);
+                uint8_t *pWrite = (uint8_t *)Util_dequeueMsg(usbTxMsgQueue);
                 if (pWrite) {
                     memset(ui8TxBuf, '\0', USB_FRAME_LENGTH);
                     memcpy(ui8TxBuf, pWrite, USB_FRAME_LENGTH);
@@ -157,7 +161,7 @@ void usb_tx_taskfxn(UArg arg0, UArg arg1)
                     LOGGER_DEBUG("\n");
 #endif
                     USBCDCD_sendData(pWrite, USB_FRAME_LENGTH,
-                                        BIOS_WAIT_FOREVER);
+                                     BIOS_WAIT_FOREVER);
                 }
                 free(pWrite);
             }
@@ -192,13 +196,13 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
         USBCDCD_waitForConnect(BIOS_WAIT_FOREVER);
 
         received = USBCDCD_receiveData(ui8RxBuf, USB_FRAME_LENGTH,
-                                        BIOS_WAIT_FOREVER);
+                                       BIOS_WAIT_FOREVER);
         ui8RxBuf[received] = '\0';
         if (received && (ui8RxBuf[0] == 0x55)) {
             /* OCMP USB RX Messgaes */
-            uint8_t * pWrite = NULL;
-            pWrite = (uint8_t *) malloc(
-                    sizeof(OCMPMessageFrame) + OCMP_FRAME_MSG_LENGTH);
+            uint8_t *pWrite = NULL;
+            pWrite = (uint8_t *)malloc(sizeof(OCMPMessageFrame) +
+                                       OCMP_FRAME_MSG_LENGTH);
             if (pWrite != NULL) {
                 memset(pWrite, '\0', USB_FRAME_LENGTH);
                 memcpy(pWrite, ui8RxBuf, USB_FRAME_LENGTH);
@@ -213,9 +217,9 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
 #endif
                 Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, pWrite);
             } else {
-                LOGGER_ERROR("USBRX:ERROR:: No memory left for Msg Length %d.\n",
+                LOGGER_ERROR(
+                        "USBRX:ERROR:: No memory left for Msg Length %d.\n",
                         USB_FRAME_LENGTH);
-
             }
         }
     }
@@ -239,8 +243,8 @@ void usb_tx_createtask(void)
     taskParams.stack = &ocUSBTxTaskStack;
     taskParams.instance->name = "USB_TX_TASK";
     taskParams.priority = OCUSB_TX_TASK_PRIORITY;
-    Task_construct(&ocUSBTxTask, (Task_FuncPtr) usb_tx_taskfxn, &taskParams,
-                    NULL);
+    Task_construct(&ocUSBTxTask, (Task_FuncPtr)usb_tx_taskfxn, &taskParams,
+                   NULL);
     LOGGER_DEBUG("USBTX:INFO:: Creating USB TX task function.\n");
 }
 
@@ -262,7 +266,7 @@ void usb_rx_createtask(void)
     taskParams.stack = &ocUSBRxTaskStack;
     taskParams.instance->name = "USB_RX_TASK";
     taskParams.priority = OCUSB_RX_TASK_PRIORITY;
-    Task_construct(&ocUSBRxTask, (Task_FuncPtr) usb_rx_taskfxn, &taskParams,
-                    NULL);
+    Task_construct(&ocUSBRxTask, (Task_FuncPtr)usb_rx_taskfxn, &taskParams,
+                   NULL);
     LOGGER_DEBUG("USBRX:INFO:: Creating USB RX task function.\n");
 }

@@ -19,7 +19,7 @@
 #include <ti/sysbios/knl/Task.h>
 
 extern void *led_hci_ioexp;
-#define HCI ((HciLedCfg*)led_hci_ioexp)
+#define HCI ((HciLedCfg *)led_hci_ioexp)
 
 //*****************************************************************************
 //                             HANDLES DEFINITION
@@ -28,8 +28,8 @@ ledSystemState s_ledState = SYSTEM_BOOT;
 
 /* TODO: Change the following approach for booting up and resetting led counter
  * for synchronization in future if needed */
-#define HCI_LED_TASK_PRIORITY              2
-#define HCI_LED_TASK_STACK_SIZE            1024
+#define HCI_LED_TASK_PRIORITY 2
+#define HCI_LED_TASK_STACK_SIZE 1024
 
 static Char hciLedTaskStack[HCI_LED_TASK_STACK_SIZE];
 
@@ -48,8 +48,8 @@ static void HCI_LedTaskFxn(UArg a0, UArg a1)
     while (true) {
         if (s_ledState == SYSTEM_BOOT) {
             //hci_led_system_boot();
-        } else if ((s_ledState == SYSTEM_RUNNING)
-                || (s_ledState == SYSTEM_FAILURE)) {
+        } else if ((s_ledState == SYSTEM_RUNNING) ||
+                   (s_ledState == SYSTEM_FAILURE)) {
             OcGpio_write(&HCI->pin_ec_gpio, false);
             Task_sleep(100);
             OcGpio_write(&HCI->pin_ec_gpio, true);

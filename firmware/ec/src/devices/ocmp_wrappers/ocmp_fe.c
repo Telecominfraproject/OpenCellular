@@ -55,44 +55,38 @@ bool rffe_ctrl_get_band(rffeChannel channel, rffeBand *band)
     return true;
 }
 
-bool static _get_config(void *driver, unsigned int param_id,
-                        void *return_buf)
-        {
+bool static _get_config(void *driver, unsigned int param_id, void *return_buf)
+{
     bool ret = false;
     FE_Ch_Band_cfg *driverCfg = driver;
     switch (param_id) {
-    case FE_CFG_BAND:
-    {
-        ret = rffe_ctrl_get_band(driverCfg->channel,return_buf);
-        break;
-    }
-    default:
-    {
-        LOGGER_ERROR("FE_PARAM::Unknown config param %d\n", param_id);
-        ret = false;
-    }
+        case FE_CFG_BAND: {
+            ret = rffe_ctrl_get_band(driverCfg->channel, return_buf);
+            break;
+        }
+        default: {
+            LOGGER_ERROR("FE_PARAM::Unknown config param %d\n", param_id);
+            ret = false;
+        }
     }
     return ret;
 }
 
-bool static _set_config(void *driver, unsigned int param_id,
-                        void *return_buf)
+bool static _set_config(void *driver, unsigned int param_id, void *return_buf)
 {
     bool ret = false;
     FE_Ch_Band_cfg *driverCfg = driver;
-    rffeBand *band = (rffeBand*)return_buf;
+    rffeBand *band = (rffeBand *)return_buf;
     switch (param_id) {
-    case FE_CFG_BAND:
-    {
-        rffeChannel *cfg = driver;
-        ret = rffe_ctrl_set_band(driverCfg->channel,*band);
-        break;
-    }
-    default:
-    {
-        LOGGER_ERROR("FE_PARAM::Unknown config param %d\n", param_id);
-        ret = false;
-    }
+        case FE_CFG_BAND: {
+            rffeChannel *cfg = driver;
+            ret = rffe_ctrl_set_band(driverCfg->channel, *band);
+            break;
+        }
+        default: {
+            LOGGER_ERROR("FE_PARAM::Unknown config param %d\n", param_id);
+            ret = false;
+        }
     }
     return ret;
 }

@@ -73,7 +73,8 @@ extern void usb_tx_createtask(void);
 extern void uartdma_rx_createtask(void);
 extern void uartdma_tx_createtask(void);
 extern void ebmp_create_task(void);
-extern void watchdog_create_task(void);;
+extern void watchdog_create_task(void);
+;
 
 /*****************************************************************************
  **    FUNCTION NAME   : bigbrother_process_tx_msg
@@ -90,7 +91,7 @@ static ReturnStatus bigbrother_process_tx_msg(uint8_t *pMsg)
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother TX Message.\n");
     if (pMsg != NULL) {
-        Util_enqueueMsg(gossiperTxMsgQueue, semGossiperMsg, (uint8_t*) pMsg);
+        Util_enqueueMsg(gossiperTxMsgQueue, semGossiperMsg, (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("BIGBROTHER::ERROR::No Valid Pointer.\n");
     }
@@ -131,10 +132,10 @@ static ReturnStatus bigbrother_process_rx_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother RX Message.\n");
-    OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
+    OCMPMessageFrame *pOCMPMessageFrame = (OCMPMessageFrame *)pMsg;
     if (pOCMPMessageFrame != NULL) {
         LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg recieved with Length: 0x%x,"
-                    "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
+                     "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
                      pOCMPMessageFrame->header.ocmpFrameLen,
                      pOCMPMessageFrame->header.ocmpInterface,
                      pOCMPMessageFrame->header.ocmpSeqNumber,
@@ -189,7 +190,7 @@ extern OcGpio_Port gbc_io_0;
 //OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
 //OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1, OCGPIO_CFG_OUT_OD_NOPULL };
 //OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_uart_sel             = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_uart_sel = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
 //OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
 //OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
 //OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
@@ -198,10 +199,10 @@ OcGpio_Pin pin_uart_sel             = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL }
 //OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10, OCGPIO_CFG_OUT_OD_NOPULL };
 //OcGpio_Pin pin_int_bat_prsnt        = { &gbc_io_0, 11 };
 //OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
-OcGpio_Pin pin_ec_syncconn_gpio1  = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_eth_sw_ec_intn     = { &gbc_io_0, 14 };
+OcGpio_Pin pin_ec_syncconn_gpio1 = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_eth_sw_ec_intn = { &gbc_io_0, 14 };
 
-OcGpio_Pin pin_v5_a_pgood   = { &gbc_io_1, 3, OCGPIO_CFG_IN_PU };
+OcGpio_Pin pin_v5_a_pgood = { &gbc_io_1, 3, OCGPIO_CFG_IN_PU };
 
 extern OcGpio_Port sync_io;
 extern OcGpio_Port sdr_fx3_io;
@@ -306,9 +307,9 @@ static void bigborther_spwan_task(void)
     /* Check the list for possible devices connected. */
 
     /* Launches other tasks */
-    usb_rx_createtask();                // P - 05
-    usb_tx_createtask();                // P - 04
-    gossiper_createtask();              // P - 06
+    usb_rx_createtask(); // P - 05
+    usb_tx_createtask(); // P - 04
+    gossiper_createtask(); // P - 06
     ebmp_create_task();
     watchdog_create_task();
 
@@ -332,17 +333,20 @@ static void bigbrother_init(void)
     /*Creating Semaphore for RX Message Queue*/
     semBigBrotherMsg = Semaphore_create(0, NULL, NULL);
     if (semBigBrotherMsg == NULL) {
-        LOGGER_ERROR("BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
+        LOGGER_ERROR(
+                "BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
     }
     /*Creating RX Message Queue*/
     bigBrotherRxMsgQueue = Util_constructQueue(&bigBrotherRxMsg);
-    LOGGER_DEBUG("BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-                 bigBrotherRxMsgQueue);
+    LOGGER_DEBUG(
+            "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+            bigBrotherRxMsgQueue);
 
     /*Creating TX Message Queue*/
     bigBrotherTxMsgQueue = Util_constructQueue(&bigBrotherTxMsg);
-    LOGGER_DEBUG("BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-                 bigBrotherTxMsgQueue);
+    LOGGER_DEBUG(
+            "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+            bigBrotherTxMsgQueue);
 }
 
 /*****************************************************************************
@@ -370,15 +374,15 @@ static void bigbrother_taskfxn(UArg a0, UArg a1)
     while (true) {
         if (Semaphore_pend(semBigBrotherMsg, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(bigBrotherRxMsgQueue)) {
-                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
-                                  bigBrotherRxMsgQueue);
+                uint8_t *pWrite =
+                        (uint8_t *)Util_dequeueMsg(bigBrotherRxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_rx_msg(pWrite);
                 }
             }
             while (!Queue_empty(bigBrotherTxMsgQueue)) {
-                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
-                                  bigBrotherTxMsgQueue);
+                uint8_t *pWrite =
+                        (uint8_t *)Util_dequeueMsg(bigBrotherTxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_tx_msg(pWrite);
                 }

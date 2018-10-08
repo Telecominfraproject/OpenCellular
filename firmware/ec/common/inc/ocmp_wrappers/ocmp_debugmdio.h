@@ -16,22 +16,18 @@ SCHEMA_IMPORT bool mdio_write(void *driver, void *data);
 
 static const Driver OC_MDIO = {
     .name = "OC_MDIO",
-    .argList = (Parameter[]){
-        { .name = "reg_address", .type = TYPE_UINT16 },
-        { .name = "reg_values", .type = TYPE_UINT16 },
-        {}
-    },
-    .commands = (Command[]){
-         {
-              .name = "get",
-              .cb_cmd = mdio_read,
-         },
-         {
-             .name = "set",
-             .cb_cmd = mdio_write,
-         },
-         {}
-    },
+    .argList = (Parameter[]){ { .name = "reg_address", .type = TYPE_UINT16 },
+                              { .name = "reg_values", .type = TYPE_UINT16 },
+                              {} },
+    .commands = (Command[]){ {
+                                     .name = "get",
+                                     .cb_cmd = mdio_read,
+                             },
+                             {
+                                     .name = "set",
+                                     .cb_cmd = mdio_write,
+                             },
+                             {} },
 };
 
 #endif /* INC_DEVICES_OCMP_WRAPPERS_OCMP_MDIO_H_ */

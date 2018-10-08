@@ -30,17 +30,19 @@ static uint8_t PCA9557_regs[] = {
 
 static const OcGpio_Port s_pca9557_ioexp = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg = &(PCA9557_Cfg) {
-        .i2c_dev = { I2C_BUS, I2C_ADDR },
-    },
+    .cfg =
+            &(PCA9557_Cfg){
+                    .i2c_dev = { I2C_BUS, I2C_ADDR },
+            },
     .object_data = &(PCA9557_Obj){},
 };
 
 static const OcGpio_Port s_invalid_ioexp = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg = &(PCA9557_Cfg) {
-        .i2c_dev = { I2C_BUS, 0x01 },
-    },
+    .cfg =
+            &(PCA9557_Cfg){
+                    .i2c_dev = { I2C_BUS, 0x01 },
+            },
     .object_data = &(PCA9557_Obj){},
 };
 
@@ -63,7 +65,7 @@ void setUp(void)
     OcGpio_init(&s_pca9557_ioexp);
 
     for (size_t i = 0; i < ARRAY_SIZE(s_test_pins); ++i) {
-        s_test_pins[i] = (OcGpio_Pin) {
+        s_test_pins[i] = (OcGpio_Pin){
             &s_pca9557_ioexp,
             i,
         };
@@ -102,15 +104,16 @@ void test_OcGpio_configure(void)
     TEST_ASSERT_EQUAL_HEX8(0x00, PCA9557_regs[0x02]);
 
     /* Test some arbitrary outputs - check cfg & output default value*/
-    TEST_ASSERT_EQUAL(OCGPIO_SUCCESS,
-                      OcGpio_configure(&s_test_pins[0],OCGPIO_CFG_OUTPUT |
-                                                       OCGPIO_CFG_OUT_HIGH));
+    TEST_ASSERT_EQUAL(
+            OCGPIO_SUCCESS,
+            OcGpio_configure(&s_test_pins[0],
+                             OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH));
     TEST_ASSERT_EQUAL_HEX8(0xFE, PCA9557_regs[0x03]);
     TEST_ASSERT_EQUAL_HEX8(0x01, PCA9557_regs[0x01]);
 
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS,
-                      OcGpio_configure(&s_test_pins[6], OCGPIO_CFG_OUTPUT |
-                                                        OCGPIO_CFG_OUT_LOW));
+                      OcGpio_configure(&s_test_pins[6],
+                                       OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW));
     TEST_ASSERT_EQUAL_HEX8(0xBE, PCA9557_regs[0x03]);
     TEST_ASSERT_EQUAL_HEX8(0x01, PCA9557_regs[0x01]);
 
@@ -169,8 +172,7 @@ void test_GpioPCA9557_write(void)
     }
 
     /* Test failure */
-    TEST_ASSERT_EQUAL(OCGPIO_FAILURE,
-                      OcGpio_write(&s_invalid_pin, true));
+    TEST_ASSERT_EQUAL(OCGPIO_FAILURE, OcGpio_write(&s_invalid_pin, true));
 }
 
 void test_GpioPCA9557_read_input(void)
@@ -189,8 +191,7 @@ void test_GpioPCA9557_read_input(void)
     /* Test failure */
     /* Can't use s_invalid_pin since we need to configure pin first */
     fake_I2C_unregisterDev(I2C_BUS, I2C_ADDR);
-    TEST_ASSERT_EQUAL(OCGPIO_FAILURE,
-                      OcGpio_read(&s_test_pins[0]));
+    TEST_ASSERT_EQUAL(OCGPIO_FAILURE, OcGpio_read(&s_test_pins[0]));
     fake_I2C_registerDevSimple(I2C_BUS, I2C_ADDR, PCA9557_regs,
                                sizeof(PCA9557_regs), sizeof(PCA9557_regs[0]),
                                sizeof(uint8_t), FAKE_I2C_DEV_LITTLE_ENDIAN);

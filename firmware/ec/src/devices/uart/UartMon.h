@@ -53,17 +53,17 @@
 extern const UART_FxnTable UartMon_fxnTable;
 
 typedef struct UartMon_Cfg {
-    unsigned int uart_in_idx;    /*!< The UART we're going to monitor */
+    unsigned int uart_in_idx; /*!< The UART we're going to monitor */
     unsigned int uart_debug_idx; /*!< The UART we're going to forward to */
 } UartMon_Cfg;
 
 /* Private data for the driver instance */
 typedef struct UartMon_Object {
     struct {
-        bool opened:1;       /*!< Is there an open handle to the driver */
+        bool opened : 1; /*!< Is there an open handle to the driver */
     } state;
 
-    UART_Handle hUart_in;    /*!< Handle to the monitored UART */
+    UART_Handle hUart_in; /*!< Handle to the monitored UART */
     UART_Handle hUart_debug; /*!< Handle to the forwarding UART */
 } UartMon_Object;
 

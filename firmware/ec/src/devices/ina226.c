@@ -20,21 +20,21 @@
 /*****************************************************************************
  *                          REGISTER DEFINITIONS
  *****************************************************************************/
-#define INA_CONFIGURATION_REG                       0x00
-#define INA_SHUNTVOLTAGE_REG                        0x01
-#define INA_BUSVOLTAGE_REG                          0x02
-#define INA_POWER_REG                               0x03
-#define INA_CURRENT_REG                             0x04
-#define INA_CALIBRATION_REG                         0x05
-#define INA_MASKENABLE_REG                          0x06
-#define INA_ALERTLIMIT_REG                          0x07
-#define INA_MANUFACTUREID_REG                       0xFE
-#define INA_DIEID_REG                               0xFF
+#define INA_CONFIGURATION_REG 0x00
+#define INA_SHUNTVOLTAGE_REG 0x01
+#define INA_BUSVOLTAGE_REG 0x02
+#define INA_POWER_REG 0x03
+#define INA_CURRENT_REG 0x04
+#define INA_CALIBRATION_REG 0x05
+#define INA_MASKENABLE_REG 0x06
+#define INA_ALERTLIMIT_REG 0x07
+#define INA_MANUFACTUREID_REG 0xFE
+#define INA_DIEID_REG 0xFF
 
 /*INA226 Device Info */
-#define INA226_MANFACTURE_ID                        0x5449
-#define INA226_DEVICE_ID                            0x2260
-#define INA226_DEV_VERSION                          0x00
+#define INA226_MANFACTURE_ID 0x5449
+#define INA226_DEVICE_ID 0x2260
+#define INA226_DEV_VERSION 0x00
 
 /* Configuration Register Bits */
 #define INA_CFG_RESET (1 << 15)
@@ -47,23 +47,25 @@
  * Calculate Shunt Voltage Alert Limit Register Value
  *  ui16rfINARegValue = (ui16rfINARegValue * 2048)/INA226_CALIBRATION_REG_VALUE;
  */
-#define CURRENT_TO_REG(x) ((2048 *(x/INA226_CURRENT_LSB)/INA226_CAL_REG_VALUE))
-#define REG_TO_CURRENT(y) ((y * INA226_CURRENT_LSB * INA226_CAL_REG_VALUE)/2048)
+#define CURRENT_TO_REG(x) \
+    ((2048 * (x / INA226_CURRENT_LSB) / INA226_CAL_REG_VALUE))
+#define REG_TO_CURRENT(y) \
+    ((y * INA226_CURRENT_LSB * INA226_CAL_REG_VALUE) / 2048)
 
 /*****************************************************************************
  *                           CONSTANTS DEFINITIONS
  *****************************************************************************/
 /* INA226 LSB Values */
-#define INA226_VSHUNT_LSB   2.5     /* 2.5uV or 2500nV  (uV default) */
-#define INA226_VBUS_LSB     1.25    /* 1.25mV or 1250uV (mV default) */
-#define INA226_CURRENT_LSB  0.1     /* 0.100mA 0r 100uA (mA default) */
-#define INA226_POWER_LSB    2.5     /* 2.5mW or 2500uW  (mW default) */
+#define INA226_VSHUNT_LSB 2.5 /* 2.5uV or 2500nV  (uV default) */
+#define INA226_VBUS_LSB 1.25 /* 1.25mV or 1250uV (mV default) */
+#define INA226_CURRENT_LSB 0.1 /* 0.100mA 0r 100uA (mA default) */
+#define INA226_POWER_LSB 2.5 /* 2.5mW or 2500uW  (mW default) */
 
 /* Configure the Configuration register with Number of Samples and Conversion
  * Time for Shunt and Bus Voltage.
  * Min(Default):0x4127; Max: 0x4FFF; Average: 0x476F
  */
-#define INA226_CONFIG_REG_VALUE                     0x476F
+#define INA226_CONFIG_REG_VALUE 0x476F
 
 /* Configure Calibration register with shunt resistor value and current LSB.
  Current_LSB = Maximum Expected Current/2^15
@@ -71,9 +73,9 @@
  Calibration Register(CAL) = 0.00512/(Current_LSB*RSHUNT)
  CAL = 0.00512/(100uA*2mOhm) =  = 25600 = 0x6400.(RSHUNT = 2mohm)
  */
-#define INA226_CAL_REG_VALUE                        0x6400
+#define INA226_CAL_REG_VALUE 0x6400
 
-#define INA226_MASKEN_REG_VALUE                     0x8001
+#define INA226_MASKEN_REG_VALUE 0x8001
 
 /*****************************************************************************
  **    FUNCTION NAME   : read_ina_reg
@@ -86,16 +88,15 @@
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus read_ina_reg(const INA226_Dev *dev,
-                                 uint8_t regAddress,
+static ReturnStatus read_ina_reg(const INA226_Dev *dev, uint8_t regAddress,
                                  uint16_t *regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle inaHandle = i2c_get_handle(dev->cfg.dev.bus);
     if (!inaHandle) {
         LOGGER_ERROR("INASENSOR:ERROR:: Failed to get I2C Bus for INA sensor "
-                     "0x%x on bus 0x%x.\n", dev->cfg.dev.slave_addr,
-                     dev->cfg.dev.bus);
+                     "0x%x on bus 0x%x.\n",
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus);
     } else {
         status = i2c_reg_read(inaHandle, dev->cfg.dev.slave_addr, regAddress,
                               regValue, 2);
@@ -115,16 +116,15 @@ static ReturnStatus read_ina_reg(const INA226_Dev *dev,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus write_ina_reg(const INA226_Dev *dev,
-                                  uint8_t regAddress,
+static ReturnStatus write_ina_reg(const INA226_Dev *dev, uint8_t regAddress,
                                   uint16_t regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle inaHandle = i2c_get_handle(dev->cfg.dev.bus);
     if (!inaHandle) {
         LOGGER_ERROR("INASENSOR:ERROR:: Failed to get I2C Bus for INA sensor "
-                     "0x%x on bus 0x%x.\n", dev->cfg.dev.slave_addr,
-                     dev->cfg.dev.bus);
+                     "0x%x on bus 0x%x.\n",
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus);
     } else {
         regValue = htobe16(regValue);
         status = i2c_reg_write(inaHandle, dev->cfg.dev.slave_addr, regAddress,
@@ -204,7 +204,7 @@ static ReturnStatus _set_cal_reg(INA226_Dev *dev, uint16_t regValue)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus ina226_readCurrentLim(INA226_Dev *dev, uint16_t* currLimit)
+ReturnStatus ina226_readCurrentLim(INA226_Dev *dev, uint16_t *currLimit)
 {
     uint16_t regValue = 0x0000;
     ReturnStatus status = read_ina_reg(dev, INA_ALERTLIMIT_REG, &regValue);
@@ -243,7 +243,7 @@ ReturnStatus ina226_setCurrentLim(INA226_Dev *dev, uint16_t currLimit)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus _read_alert_reg(INA226_Dev *dev, uint16_t* regValue)
+static ReturnStatus _read_alert_reg(INA226_Dev *dev, uint16_t *regValue)
 {
     return read_ina_reg(dev, INA_MASKENABLE_REG, regValue);
 }
@@ -273,8 +273,7 @@ static ReturnStatus _enable_alert(INA226_Dev *dev, uint16_t regValue)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus ina226_readBusVoltage(INA226_Dev *dev,
-                                          uint16_t* busVoltValue)
+ReturnStatus ina226_readBusVoltage(INA226_Dev *dev, uint16_t *busVoltValue)
 {
     uint16_t regValue;
     ReturnStatus status = read_ina_reg(dev, INA_BUSVOLTAGE_REG, &regValue);
@@ -298,8 +297,7 @@ ReturnStatus ina226_readBusVoltage(INA226_Dev *dev,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
-                                            uint16_t* shuntVoltValue)
+ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev, uint16_t *shuntVoltValue)
 {
     uint16_t regValue;
     ReturnStatus status = read_ina_reg(dev, INA_SHUNTVOLTAGE_REG, &regValue);
@@ -308,7 +306,8 @@ ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
         *shuntVoltValue = regValue * INA226_VSHUNT_LSB;
         LOGGER_DEBUG("INASENSOR:INFO:: INA sensor 0x%x on bus 0x%x is "
                      "reporting shunt voltage value  of %d uV.\n",
-                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus, *shuntVoltValue);
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus,
+                     *shuntVoltValue);
     }
     return status;
 }
@@ -323,7 +322,7 @@ ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t* currValue)
+ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t *currValue)
 {
     uint16_t regValue;
     ReturnStatus status = read_ina_reg(dev, INA_CURRENT_REG, &regValue);
@@ -347,7 +346,7 @@ ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t* currValue)
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t* powValue)
+ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t *powValue)
 {
     uint16_t regValue;
     ReturnStatus status = read_ina_reg(dev, INA_POWER_REG, &regValue);
@@ -363,7 +362,8 @@ ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t* powValue)
 /*****************************************************************************
  * Internal IRQ handler - reads in triggered interrupts and dispatches CBs
  *****************************************************************************/
-static void _ina226_isr(void *context) {
+static void _ina226_isr(void *context)
+{
     INA226_Dev *dev = context;
 
     /* Read the alert mask register (will clear the alert bit if set) */
@@ -404,7 +404,7 @@ static void _ina226_isr(void *context) {
 
         if (alert_mask & INA_MSK_SOL) {
             if (dev->obj.evt_to_monitor == INA226_EVT_COL ||
-                    dev->obj.evt_to_monitor == INA226_EVT_CUL) {
+                dev->obj.evt_to_monitor == INA226_EVT_CUL) {
                 if (ina226_readCurrent(dev, &value) != RETURN_OK) {
                     value = UINT16_MAX;
                 }
@@ -419,7 +419,7 @@ static void _ina226_isr(void *context) {
             new_mask |= INA_MSK_SUL;
         } else if (alert_mask & INA_MSK_SUL) {
             if (dev->obj.evt_to_monitor == INA226_EVT_CUL ||
-                    dev->obj.evt_to_monitor == INA226_EVT_COL) {
+                dev->obj.evt_to_monitor == INA226_EVT_COL) {
                 if (ina226_readCurrent(dev, &value) != RETURN_OK) {
                     value = UINT16_MAX;
                 }
@@ -502,13 +502,14 @@ ReturnStatus ina226_init(INA226_Dev *dev)
     }
 
     /* Make sure we're talking to the right device */
-//    if (ina226_probe(dev) != POST_DEV_FOUND) {
-//        return RETURN_NOTOK;
-//    }
+    //    if (ina226_probe(dev) != POST_DEV_FOUND) {
+    //        return RETURN_NOTOK;
+    //    }
 
     if (dev->cfg.pin_alert) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING;
-        if (OcGpio_configure(dev->cfg.pin_alert, pin_evt_cfg) < OCGPIO_SUCCESS) {
+        if (OcGpio_configure(dev->cfg.pin_alert, pin_evt_cfg) <
+            OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
 
@@ -521,7 +522,8 @@ ReturnStatus ina226_init(INA226_Dev *dev)
 /*****************************************************************************
  *****************************************************************************/
 void ina226_setAlertHandler(INA226_Dev *dev, INA226_CallbackFn alert_cb,
-                              void *cb_context) {
+                            void *cb_context)
+{
     dev->obj.alert_cb = alert_cb;
     dev->obj.cb_context = cb_context;
 }
@@ -575,6 +577,7 @@ ePostCode ina226_probe(INA226_Dev *dev, POSTData *postData)
     if (manfId != INA226_MANFACTURE_ID) {
         return POST_DEV_ID_MISMATCH;
     }
-    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,manfId, devId);
+    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,
+                         manfId, devId);
     return POST_DEV_FOUND;
 }

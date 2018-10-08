@@ -33,7 +33,8 @@ static SbdCallbackList sbdCallbackList = {}; // TODO: move into handle
 static AT_Response s_AtRes; // No point having this large struct on the stack
 
 // Helper function to take care of all-integer responses
-static bool copy_int_responses(AT_Response *atRes, int *info_out, int infoSize) {
+static bool copy_int_responses(AT_Response *atRes, int *info_out, int infoSize)
+{
     if (atRes->paramCount != infoSize) {
         return false;
     }
@@ -47,15 +48,16 @@ static bool copy_int_responses(AT_Response *atRes, int *info_out, int infoSize) 
     return true;
 }
 
-
-static bool sbdring(AT_Response *res, void *context) {
+static bool sbdring(AT_Response *res, void *context)
+{
     if (sbdCallbackList.sbdring) {
         sbdCallbackList.sbdring(context);
     }
     return true;
 }
 
-static bool ciev(AT_Response *res, void *context) {
+static bool ciev(AT_Response *res, void *context)
+{
     if (sbdCallbackList.ciev) {
         SbdCievInfo info_out;
         copy_int_responses(res, (int *)&info_out, NUM_RESPONSES(&info_out));
@@ -64,19 +66,19 @@ static bool ciev(AT_Response *res, void *context) {
     return true;
 }
 
-static const AT_UnsolicitedRes unsolicitedList[] = {
-    {
-        .fmt = "SBDRING",
-        .cb = sbdring,
-    },
-    {
-        .fmt = "+CIEV:",
-        .cb = ciev,
-    },
-    {}
-};
+static const AT_UnsolicitedRes unsolicitedList[] = { {
+                                                             .fmt = "SBDRING",
+                                                             .cb = sbdring,
+                                                     },
+                                                     {
+                                                             .fmt = "+CIEV:",
+                                                             .cb = ciev,
+                                                     },
+                                                     {} };
 
-SBD_Handle SBD_init(UART_Handle hCom, const SbdCallbackList *cbList, void *cbContext) {
+SBD_Handle SBD_init(UART_Handle hCom, const SbdCallbackList *cbList,
+                    void *cbContext)
+{
     if (cbList) {
         sbdCallbackList = *cbList;
     }
@@ -91,67 +93,85 @@ SBD_Handle SBD_init(UART_Handle hCom, const SbdCallbackList *cbList, void *cbCon
     return hSbd;
 }
 
-bool SBD_sbdix(SBD_Handle handle, SbdixInfo *info_out, bool alert_response) {
+bool SBD_sbdix(SBD_Handle handle, SbdixInfo *info_out, bool alert_response)
+{
     const char *cmd_fmt = (alert_response) ? "+SBDIXA" : "+SBDIX";
     AT_cmd_set_timeout(handle, SBDIX_TIMEOUT);
     bool res = AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-            copy_int_responses(&s_AtRes, (int *)info_out,
-                               NUM_RESPONSES(info_out));
+               copy_int_responses(&s_AtRes, (int *)info_out,
+                                  NUM_RESPONSES(info_out));
     AT_cmd_set_timeout(handle, AT_RES_DEFAULT_TIMEOUT);
     return res;
 }
 
-bool SBD_sbds(SBD_Handle handle, SbdsInfo *info_out) {
+bool SBD_sbds(SBD_Handle handle, SbdsInfo *info_out)
+{
     const char *cmd_fmt = "+SBDS";
     return AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-           copy_int_responses(&s_AtRes, (int *)info_out, NUM_RESPONSES(info_out));
+           copy_int_responses(&s_AtRes, (int *)info_out,
+                              NUM_RESPONSES(info_out));
 }
 
-bool SBD_sbdsx(SBD_Handle handle, SbdsxInfo *info_out) {
+bool SBD_sbdsx(SBD_Handle handle, SbdsxInfo *info_out)
+{
     const char *cmd_fmt = "+SBDSX";
     return AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-           copy_int_responses(&s_AtRes, (int *)info_out, NUM_RESPONSES(info_out));
+           copy_int_responses(&s_AtRes, (int *)info_out,
+                              NUM_RESPONSES(info_out));
 }
 
-bool SBD_cgsn(SBD_Handle handle, SbdcgsnInfo *info_out) {
+bool SBD_cgsn(SBD_Handle handle, SbdcgsnInfo *info_out)
+{
     return AT_cmd_raw(handle, info_out->imei, sizeof(info_out->imei), "+CGSN");
 }
 
-bool SBD_cgmi(SBD_Handle handle, SbdCgmiInfo *info_out) {
+bool SBD_cgmi(SBD_Handle handle, SbdCgmiInfo *info_out)
+{
     return AT_cmd_raw(handle, info_out->mfg, sizeof(info_out->mfg), "+CGMI");
 }
 
-bool SBD_cgmm(SBD_Handle handle, SbdCgmmInfo *info_out) {
-    return AT_cmd_raw(handle, info_out->model, sizeof(info_out->model), "+CGMM");
+bool SBD_cgmm(SBD_Handle handle, SbdCgmmInfo *info_out)
+{
+    return AT_cmd_raw(handle, info_out->model, sizeof(info_out->model),
+                      "+CGMM");
 }
 
-bool SBD_k(SBD_Handle handle, SbdFlowControl flowControl) {
+bool SBD_k(SBD_Handle handle, SbdFlowControl flowControl)
+{
     return AT_cmd(handle, NULL, "&K%u", flowControl);
 }
 
-bool SBD_sbdd(SBD_Handle handle, SbdDeleteType deleteType) {
+bool SBD_sbdd(SBD_Handle handle, SbdDeleteType deleteType)
+{
     char resCode;
-    bool res = AT_cmd_raw(handle, &resCode, sizeof(resCode), "+SBDD%u", deleteType);
+    bool res = AT_cmd_raw(handle, &resCode, sizeof(resCode), "+SBDD%u",
+                          deleteType);
     return (res && resCode == '0');
 }
 
-bool SBD_csq(SBD_Handle handle, SbdcsqInfo *info_out) {
+bool SBD_csq(SBD_Handle handle, SbdcsqInfo *info_out)
+{
     const char *cmd_fmt = "+CSQ";
     return AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-           copy_int_responses(&s_AtRes, (int *)info_out, NUM_RESPONSES(info_out));
+           copy_int_responses(&s_AtRes, (int *)info_out,
+                              NUM_RESPONSES(info_out));
 }
 
-bool SBD_csqf(SBD_Handle handle, SbdcsqInfo *info_out) {
+bool SBD_csqf(SBD_Handle handle, SbdcsqInfo *info_out)
+{
     const char *cmd_fmt = "+CSQF";
     return AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-           copy_int_responses(&s_AtRes, (int *)info_out, NUM_RESPONSES(info_out));
+           copy_int_responses(&s_AtRes, (int *)info_out,
+                              NUM_RESPONSES(info_out));
 }
 
-bool SBD_sbdareg(SBD_Handle handle, SbdAregMode mode) {
+bool SBD_sbdareg(SBD_Handle handle, SbdAregMode mode)
+{
     return AT_cmd(handle, NULL, "+SBDAREG=%u", mode);
 }
 
-bool SBD_sbdregRead(SBD_Handle handle, SbdRegStat *status_out) {
+bool SBD_sbdregRead(SBD_Handle handle, SbdRegStat *status_out)
+{
     if (!AT_cmd(handle, &s_AtRes, "+SBDREG?")) {
         return false;
     }
@@ -162,25 +182,29 @@ bool SBD_sbdregRead(SBD_Handle handle, SbdRegStat *status_out) {
     return true;
 }
 
-bool SBD_sbdtc(SBD_Handle handle) {
+bool SBD_sbdtc(SBD_Handle handle)
+{
     // We will get an info response, but we don't really care about it
     char res[100];
     return AT_cmd_raw(handle, res, sizeof(res), "+SBDTC");
 }
 
 bool SBD_cier(SBD_Handle handle, bool mode, bool sigind, bool svcind,
-              bool antind, bool sv_beam_coords_ind) {
+              bool antind, bool sv_beam_coords_ind)
+{
     return AT_cmd(handle, NULL, "+CIER=%d,%d,%d,%d,%d", mode, sigind, svcind,
                   antind, sv_beam_coords_ind);
 }
 
-bool SBD_sbdmta(SBD_Handle handle, bool mode) {
+bool SBD_sbdmta(SBD_Handle handle, bool mode)
+{
     return AT_cmd(handle, NULL, "+SBDMTA=%d", mode);
 }
 
 // Read and write functions - more complicated than the other commands
 // ============================================================================
-static uint16_t checksum(const void *data, size_t len) {
+static uint16_t checksum(const void *data, size_t len)
+{
     uint16_t sum = 0; // uints wrap around on overflow, so no need to worry
     for (int i = 0; i < len; ++i) {
         sum += ((uint8_t *)data)[i];
@@ -188,7 +212,8 @@ static uint16_t checksum(const void *data, size_t len) {
     return sum;
 }
 
-bool SBD_sbdwb(SBD_Handle handle, const void *data, int data_len) {
+bool SBD_sbdwb(SBD_Handle handle, const void *data, int data_len)
+{
     // Enter data mode
     // (parse the response separately, since it's very nonstandard)
     if (!AtCmd_enterBinaryMode(handle, "READY\r\n", "+SBDWB=%d", data_len)) {
@@ -197,7 +222,7 @@ bool SBD_sbdwb(SBD_Handle handle, const void *data, int data_len) {
     }
 
     // Successfully in data mode, write data
-    if(!AT_cmd_write_data(handle, data, data_len)) {
+    if (!AT_cmd_write_data(handle, data, data_len)) {
         return false;
     }
 
@@ -227,7 +252,8 @@ typedef struct SbdBinaryRes {
     uint8_t *data;
 } SbdBinaryRes;
 
-static int read_binary_data(AT_Handle handle, void *buf) {
+static int read_binary_data(AT_Handle handle, void *buf)
+{
     SbdBinaryRes *res = buf;
 
     // Read length (2B)
@@ -257,7 +283,8 @@ static int read_binary_data(AT_Handle handle, void *buf) {
 
 // We have to make the assumption that the start of this (the length) won't
 // overlap with <cr><lf> - luckily, it can't
-int SBD_sbdrb(SBD_Handle handle, void *buffer, int buffer_len) {
+int SBD_sbdrb(SBD_Handle handle, void *buffer, int buffer_len)
+{
     SbdBinaryRes binRes = {};
     int res = -1;
     AT_cmd_register_binary_handler(handle, read_binary_data);
@@ -287,7 +314,8 @@ cleanup:
     return res;
 }
 
-void SBD_test_invalid(SBD_Handle handle) {
+void SBD_test_invalid(SBD_Handle handle)
+{
     char response[100];
     AT_cmd_raw(handle, response, sizeof(response), "+CGsM");
 }

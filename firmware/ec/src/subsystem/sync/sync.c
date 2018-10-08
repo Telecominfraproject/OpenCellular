@@ -29,7 +29,8 @@ static Sync_gpioCfg s_sync_gpiocfg;
 static Char syncGpsTaskStack[SYNC_GPS_TASK_STACK_SIZE];
 Semaphore_Handle gpsSem;
 
-static ReturnStatus SYNC_GpsCheckLock(Sync_gpioCfg *sync_gpiocfg, gpsStatus *gpsStatus)
+static ReturnStatus SYNC_GpsCheckLock(Sync_gpioCfg *sync_gpiocfg,
+                                      gpsStatus *gpsStatus)
 {
     /* Get the "lock OK" status from LTE-LITE GPIO pin */
     int locked = OcGpio_read(&(sync_gpiocfg->pin_r_lock_ok_ioexp));
@@ -78,7 +79,7 @@ static void SYNC_GpsTaskFxn(UArg a0, UArg a1)
     while (true) {
         if (Semaphore_pend(gpsSem, BIOS_WAIT_FOREVER)) {
             gpsStatus gpsStatus;
-            SYNC_GpsCheckLock(&s_sync_gpiocfg,&gpsStatus);
+            SYNC_GpsCheckLock(&s_sync_gpiocfg, &gpsStatus);
             DEBUG("SYNC:INFO:: GPS is %s.\n",
                   (gpsStatus == GPS_LOCKED) ? "Locked" : "Not Locked");
         }
@@ -124,7 +125,7 @@ static void SYNC_GpsTaskInit(void)
     clkParams.startFlag = FALSE;
     /* Create a periodic Clock Instance with initial timeout= 10000(10 Secs)
      * and period = 10000(10 Secs) system time units */
-    Clock_Handle clk = Clock_create((Clock_FuncPtr) SYNC_GpsClkFxn, 10000,
+    Clock_Handle clk = Clock_create((Clock_FuncPtr)SYNC_GpsClkFxn, 10000,
                                     &clkParams, NULL);
     if (!clk) {
         DEBUG("SYNC::Can't create GPS Polling clock\n");
@@ -139,12 +140,12 @@ static void SYNC_GpsTaskInit(void)
 
 bool SYNC_GpsStatus(void *driver, unsigned int param_id, void *return_buf)
 {
-
     switch (param_id) {
         case 0: /* TODO: gross magic number */
             if (SYNC_GpsCheckLock(driver, return_buf) == RETURN_OK) {
                 DEBUG("SYNC:INFO:: GPS is %s.\n",
-                      (*(gpsStatus *)return_buf == GPS_LOCKED) ? "Locked" : "Not Locked");
+                      (*(gpsStatus *)return_buf == GPS_LOCKED) ? "Locked" :
+                                                                 "Not Locked");
                 return true;
             }
             break;
@@ -157,36 +158,40 @@ bool SYNC_GpsStatus(void *driver, unsigned int param_id, void *return_buf)
 
 bool SYNC_reset(void *driver, void *params)
 {
-    Sync_gpioCfg *sync_gpiocfg = (Sync_gpioCfg*)driver;
-    if (OcGpio_write(&sync_gpiocfg->pin_ec_sync_reset, false) <= OCGPIO_FAILURE) {
+    Sync_gpioCfg *sync_gpiocfg = (Sync_gpioCfg *)driver;
+    if (OcGpio_write(&sync_gpiocfg->pin_ec_sync_reset, false) <=
+        OCGPIO_FAILURE) {
         return false;
     }
     Task_sleep(100);
-    if (OcGpio_write(&sync_gpiocfg->pin_ec_sync_reset, true) <= OCGPIO_FAILURE) {
+    if (OcGpio_write(&sync_gpiocfg->pin_ec_sync_reset, true) <=
+        OCGPIO_FAILURE) {
         return false;
     }
     return true;
 }
 
-bool SYNC_Init(void*driver, void *return_buf)
+bool SYNC_Init(void *driver, void *return_buf)
 {
-    Sync_gpioCfg *sync_gpiocfg = (Sync_gpioCfg*)driver;
+    Sync_gpioCfg *sync_gpiocfg = (Sync_gpioCfg *)driver;
     /* Initialize IO pins */
-    OcGpio_configure(&sync_gpiocfg->pin_ec_sync_reset, OCGPIO_CFG_OUTPUT |
-                                               OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&sync_gpiocfg->pin_ec_sync_reset,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
     OcGpio_configure(&sync_gpiocfg->pin_spdt_cntrl_lvl, OCGPIO_CFG_OUTPUT);
-    OcGpio_configure(&sync_gpiocfg->pin_warmup_survey_init_sel, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&sync_gpiocfg->pin_warmup_survey_init_sel,
+                     OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&sync_gpiocfg->pin_r_phase_lock_ioexp, OCGPIO_CFG_INPUT);
     OcGpio_configure(&sync_gpiocfg->pin_r_lock_ok_ioexp, OCGPIO_CFG_INPUT);
     OcGpio_configure(&sync_gpiocfg->pin_r_alarm_ioexp, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&sync_gpiocfg->pin_12v_reg_enb, OCGPIO_CFG_OUTPUT |
-                                             OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&sync_gpiocfg->pin_12v_reg_enb,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
     OcGpio_configure(&sync_gpiocfg->pin_temp_alert, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&sync_gpiocfg->pin_spdt_cntrl_lte_cpu_gps_lvl, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&sync_gpiocfg->pin_spdt_cntrl_lte_cpu_gps_lvl,
+                     OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&sync_gpiocfg->pin_init_survey_sel, OCGPIO_CFG_OUTPUT);
-  
+
     /*Initiaize the local static driver config for the task*/
-    s_sync_gpiocfg = *(Sync_gpioCfg*)driver;
+    s_sync_gpiocfg = *(Sync_gpioCfg *)driver;
     /* TODO: Launch task for GPS */
     SYNC_GpsTaskInit();
     return true;

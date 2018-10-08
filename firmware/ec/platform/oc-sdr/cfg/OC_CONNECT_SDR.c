@@ -30,14 +30,16 @@ Eeprom_Cfg eeprom_sdr_inv = {
 /* SDR Subsystem Config.*/
 // SDR FPGA power sensor.
 INA226_Dev sdr_fpga_ps = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C3,
-            .slave_addr = SDR_FPGA_CURRENT_SENSOR_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-            OC_EC_SDR_FPGA_TEMP_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C3,
+                                    .slave_addr = SDR_FPGA_CURRENT_SENSOR_ADDR,
+                            },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io,
+                                                OC_EC_SDR_FPGA_TEMP_INA_ALERT },
+            },
 };
 
 //SDR FPGA temperature sensor
@@ -47,18 +49,19 @@ I2C_Dev sdr_fpga_ts = {
 };
 
 //SDR EEPROM
-void* sdr_eeprom_inventory = &eeprom_sdr_inv;
+void *sdr_eeprom_inventory = &eeprom_sdr_inv;
 
 //SDR Power sensor
 INA226_Dev sdr_ps = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C6,
-            .slave_addr = SDR_CURRENT_SENSOR_ADDR,
-        },
-        .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                    OC_EC_SDR_INA_ALERT },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = OC_CONNECT1_I2C6,
+                                    .slave_addr = SDR_CURRENT_SENSOR_ADDR,
+                            },
+                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_SDR_INA_ALERT },
+            },
 };
 
 // SDR IO EXPANDERS
@@ -81,17 +84,17 @@ const INA226_Config fact_sdr_fpga_ps_cfg = {
     .current_lim = 500,
 };
 
-Sdr_gpioCfg sdr_gpioCfg = (Sdr_gpioCfg) {
+Sdr_gpioCfg sdr_gpioCfg = (Sdr_gpioCfg){
     /* EC_TRXFECONN_GPIO2/SDR_REG_LDO_PGOOD */
-    .pin_sdr_reg_ldo_pgood  = { &ec_io, OC_EC_SDR_PWR_GD },
+    .pin_sdr_reg_ldo_pgood = { &ec_io, OC_EC_SDR_PWR_GD },
     /* TRXFE_12V_ONOFF */
-    .pin_trxfe_12v_onoff    = { &ec_io, OC_EC_SDR_PWR_CNTRL },
+    .pin_trxfe_12v_onoff = { &ec_io, OC_EC_SDR_PWR_CNTRL },
     /* EC_FE_RESET_OUT/RF_FE_IO_RESET */
-    .pin_rf_fe_io_reset     = { &ec_io, OC_EC_SDR_FE_IO_RESET_CTRL },
+    .pin_rf_fe_io_reset = { &ec_io, OC_EC_SDR_FE_IO_RESET_CTRL },
     /* EC_TRXFECONN_GPIO1/SDR_RESET_IN */
-    .pin_sdr_reset_in       = { &ec_io, OC_EC_SDR_DEVICE_CONTROL },
+    .pin_sdr_reset_in = { &ec_io, OC_EC_SDR_DEVICE_CONTROL },
     /* EC_TRXFE_RESET */
-    .pin_ec_trxfe_reset     = { &ec_io, OC_EC_RFFE_RESET },
+    .pin_ec_trxfe_reset = { &ec_io, OC_EC_RFFE_RESET },
     /* FX3_RESET */
-    .pin_fx3_reset       = { &sdr_fx3_io, 0 },
+    .pin_fx3_reset = { &sdr_fx3_io, 0 },
 };

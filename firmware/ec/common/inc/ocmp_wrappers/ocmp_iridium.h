@@ -16,31 +16,32 @@ SCHEMA_IMPORT bool IRIDIUM_reset(void *driver, void *params);
 
 static const Driver OBC_Iridium = {
     .name = "Iridium 96xx",
-    .status = (Parameter[]){
-        { .name = "imei", .type = TYPE_UINT64 },
-        { .name = "mfg", .type = TYPE_STR, .size = 10 },
-        { .name = "model", .type = TYPE_STR, .size = 4 },
-        { .name = "signal_quality", .type = TYPE_UINT8 },
-        { .name = "registration", .type = TYPE_ENUM,
-          .values = (Enum_Map[]){
-              { 0, "Detached" },
-              { 1, "None" },
-              { 2, "Registered" },
-              { 3, "Registration Denied" },
-              {}
-            },
-        },
-        { .name = "numberofoutgoingmessage", .type = TYPE_UINT8 },
-        { .name = "lasterror", .type = TYPE_UINT8, .size = 3 }, /* TODO: this is a complex type */
-        {}
-    },
-    .commands = (Command[]){
-        {
-            .name = "reset",
-            .cb_cmd = IRIDIUM_reset,
-        },
-        {}
-    },
+    .status =
+            (Parameter[]){
+                    { .name = "imei", .type = TYPE_UINT64 },
+                    { .name = "mfg", .type = TYPE_STR, .size = 10 },
+                    { .name = "model", .type = TYPE_STR, .size = 4 },
+                    { .name = "signal_quality", .type = TYPE_UINT8 },
+                    {
+                            .name = "registration",
+                            .type = TYPE_ENUM,
+                            .values =
+                                    (Enum_Map[]){ { 0, "Detached" },
+                                                  { 1, "None" },
+                                                  { 2, "Registered" },
+                                                  { 3, "Registration Denied" },
+                                                  {} },
+                    },
+                    { .name = "numberofoutgoingmessage", .type = TYPE_UINT8 },
+                    { .name = "lasterror",
+                      .type = TYPE_UINT8,
+                      .size = 3 }, /* TODO: this is a complex type */
+                    {} },
+    .commands = (Command[]){ {
+                                     .name = "reset",
+                                     .cb_cmd = IRIDIUM_reset,
+                             },
+                             {} },
     .fxnTable = &OBC_fxnTable,
     .payload_fmt_union = true, /* OBC breaks serialization pattern :( */
 };

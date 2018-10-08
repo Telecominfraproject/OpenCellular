@@ -9,8 +9,8 @@
 #include "unity.h"
 #include "inc/devices/eeprom.h"
 #include "drivers/GpioSX1509.h"
-#include<string.h>
-#include<stdio.h>
+#include <string.h>
+#include <stdio.h>
 #include "fake/fake_GPIO.h"
 #include "fake/fake_I2C.h"
 #include "fake/fake_ThreadedISR.h"
@@ -24,7 +24,7 @@
 
 #include <ti/sysbios/knl/Task.h>
 unsigned int s_task_sleep_ticks;
-xdc_Void ti_sysbios_knl_Task_sleep__E( xdc_UInt32 nticks )
+xdc_Void ti_sysbios_knl_Task_sleep__E(xdc_UInt32 nticks)
 {
     s_task_sleep_ticks += nticks;
 }
@@ -45,10 +45,11 @@ static const I2C_Dev I2C_DEV_1 = {
     .slave_addr = 0x51,
 };
 static Eeprom_Cfg s_dev = {
-    .i2c_dev = {
-        .bus = 6,
-        .slave_addr = 0x50,
-    },
+    .i2c_dev =
+            {
+                    .bus = 6,
+                    .slave_addr = 0x50,
+            },
 };
 
 static uint16_t EEPROM_regs[] = {
@@ -187,40 +188,41 @@ extern const OcGpio_FnTable GpioSX1509_fnTable;
 
 OcGpio_Port s_fake_io_exp = {
     .fn_table = &GpioSX1509_fnTable,
-    .cfg = &(SX1509_Cfg) {
-        .i2c_dev = { 6, 0x45 },
-        .pin_irq = NULL,
-    },
+    .cfg =
+            &(SX1509_Cfg){
+                    .i2c_dev = { 6, 0x45 },
+                    .pin_irq = NULL,
+            },
     .object_data = &(SX1509_Obj){},
 };
 
-OcGpio_Pin pin_inven_eeprom_wp      = { &s_fake_io_exp, 2, 32 };
+OcGpio_Pin pin_inven_eeprom_wp = { &s_fake_io_exp, 2, 32 };
 
 Eeprom_Cfg eeprom_gbc_sid = {
     .i2c_dev = { 6, 0x51 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = {0, 0},
+    .type = { 0, 0 },
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_gbc_inv = {
     .i2c_dev = { 6, 0x50 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = {0, 0},
+    .type = { 0, 0 },
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_sdr_inv = {
     .i2c_dev = { 3, 0x50 },
     .pin_wp = NULL,
-    .type = {0, 0},
+    .type = { 0, 0 },
     .ss = 0,
 };
 
 Eeprom_Cfg eeprom_fe_inv = {
     .i2c_dev = { 4, 0x50 },
     .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-    .type = {0, 0},
+    .type = { 0, 0 },
     .ss = 8,
 };
 
@@ -237,9 +239,9 @@ void suite_setUp(void)
     fake_I2C_registerDevSimple(I2C_DEV_1.bus, I2C_DEV_1.slave_addr, EEPROM_regs,
                                sizeof(EEPROM_regs), sizeof(EEPROM_regs[0]),
                                sizeof(uint16_t), FAKE_I2C_DEV_LITTLE_ENDIAN);
-    fake_I2C_registerDevSimple(6, 0x45, SX1509_regs,
-                               sizeof(SX1509_regs), sizeof(SX1509_regs[0]),
-                               sizeof(uint8_t), FAKE_I2C_DEV_LITTLE_ENDIAN);
+    fake_I2C_registerDevSimple(6, 0x45, SX1509_regs, sizeof(SX1509_regs),
+                               sizeof(SX1509_regs[0]), sizeof(uint8_t),
+                               FAKE_I2C_DEV_LITTLE_ENDIAN);
 }
 
 void setUp(void)
@@ -273,15 +275,16 @@ void test_eeprom_init(void)
 
     eeprom_init(&e_dev);
     TEST_ASSERT_EQUAL(1, eeprom_init(&e_dev));
-    TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH, Eeprom_GpioConfig[0x02]);
-
+    TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH,
+                      Eeprom_GpioConfig[0x02]);
 }
 
 void test_eeprom_read(void)
 {
     uint16_t buffer;
     EEPROM_regs[0xC601] = 0x0505;
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read(&s_dev, 0x01C6, &buffer,sizeof(buffer)));
+    TEST_ASSERT_EQUAL(RETURN_OK,
+                      eeprom_read(&s_dev, 0x01C6, &buffer, sizeof(buffer)));
     TEST_ASSERT_EQUAL_HEX8(0x0505, buffer);
 }
 
@@ -295,7 +298,7 @@ void test_eeprom_write(void)
     };
 
     uint16_t buffer = 0x0505;
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write(&p_dev, 0x01C6, &buffer,0x0A));
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write(&p_dev, 0x01C6, &buffer, 0x0A));
     TEST_ASSERT_EQUAL_HEX8(0x0505, EEPROM_regs[0xC601]);
 
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write(&p_dev, 0x01C6, &buffer, 0xCA));
@@ -310,7 +313,7 @@ void test_eeprom_disable_write(void)
     Eeprom_Cfg i_dev = {
         .i2c_dev = { 6, 0x45 },
         .pin_wp = &pin_inven_eeprom_wp,
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
 
@@ -326,7 +329,7 @@ void test_eeprom_enable_write(void)
     Eeprom_Cfg i_dev = {
         .i2c_dev = { 6, 0x45 },
         .pin_wp = &pin_inven_eeprom_wp,
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_enable_write(&i_dev));
@@ -335,12 +338,12 @@ void test_eeprom_enable_write(void)
 
 void test_eeprom_read_board_info(void)
 {
-    uint8_t rominfo=0xff;
+    uint8_t rominfo = 0xff;
     EEPROM_regs[0xAC01] = 0x05;
     Eeprom_Cfg b1_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_board_info(&b1_dev, &rominfo));
@@ -349,7 +352,7 @@ void test_eeprom_read_board_info(void)
     Eeprom_Cfg b2_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 7,
     };
     EEPROM_regs[0xAC01] = 0x06;
@@ -359,17 +362,16 @@ void test_eeprom_read_board_info(void)
     Eeprom_Cfg b3_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 8,
     };
     EEPROM_regs[0xAC01] = 0x07;
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_board_info(&b3_dev, &rominfo));
     TEST_ASSERT_EQUAL_HEX8(0x07, rominfo);
-
 }
 void test_eeprom_read_oc_info(void)
 {
-    uint8_t ocserial=0x00;
+    uint8_t ocserial = 0x00;
 
     EEPROM_regs[0xC601] = 0x05;
 
@@ -380,86 +382,92 @@ void test_eeprom_read_oc_info(void)
 
 void test_eeprom_read_device_info_record(void)
 {
-    uint8_t recordno= 1;
-    EEPROM_regs[0x0A01] = 0x4153 ;
-    char *deviceinfo = (char *) malloc(10);
+    uint8_t recordno = 1;
+    EEPROM_regs[0x0A01] = 0x4153;
+    char *deviceinfo = (char *)malloc(10);
 
     Eeprom_Cfg c1_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
-    memset(deviceinfo,0,10);
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(&c1_dev, recordno, deviceinfo));
+    memset(deviceinfo, 0, 10);
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
+                                         &c1_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo);
 
-    uint8_t recordno1= 1;
-    EEPROM_regs[0x0A01] = 0x4153 ;
-    char *deviceinfo1 = (char *) malloc(10);
+    uint8_t recordno1 = 1;
+    EEPROM_regs[0x0A01] = 0x4153;
+    char *deviceinfo1 = (char *)malloc(10);
 
     Eeprom_Cfg c2_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 7,
     };
-    memset(deviceinfo1,0,10);
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(&c2_dev, recordno1, deviceinfo1));
+    memset(deviceinfo1, 0, 10);
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
+                                         &c2_dev, recordno1, deviceinfo1));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo1);
 
-    uint8_t recordno2= 1;
-    EEPROM_regs[0x0A01] = 0x4153 ;
-    char *deviceinfo2 = (char *) malloc(10);
+    uint8_t recordno2 = 1;
+    EEPROM_regs[0x0A01] = 0x4153;
+    char *deviceinfo2 = (char *)malloc(10);
 
     Eeprom_Cfg c3_dev = {
         .i2c_dev = { 6, 0x50 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 8,
     };
-    memset(deviceinfo2,0,10);
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(&c3_dev, recordno2, deviceinfo2));
+    memset(deviceinfo2, 0, 10);
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
+                                         &c3_dev, recordno2, deviceinfo2));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo2);
 }
 
 void test_eeprom_write_device_info_record(void)
 {
-    uint8_t recordno= 1;
-    char *deviceinfo = (char *) malloc(10);
-    memset(deviceinfo,0,10);
+    uint8_t recordno = 1;
+    char *deviceinfo = (char *)malloc(10);
+    memset(deviceinfo, 0, 10);
 
-    strcpy(deviceinfo,"SA");
+    strcpy(deviceinfo, "SA");
 
     Eeprom_Cfg d1_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
 
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(&d1_dev, recordno, deviceinfo));
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
+                                         &d1_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4153, EEPROM_regs[0x0A01]);
     strcpy(deviceinfo, "SB");
 
     Eeprom_Cfg d2_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
 
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(&d2_dev, recordno, deviceinfo));
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
+                                         &d2_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4253, EEPROM_regs[0x0A01]);
 
     strcpy(deviceinfo, "SC");
     Eeprom_Cfg d3_dev = {
         .i2c_dev = { 6, 0x51 },
         .pin_wp = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        .type = {0, 0},
+        .type = { 0, 0 },
         .ss = 0,
     };
 
-    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(&d3_dev, recordno, deviceinfo));
+    TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
+                                         &d3_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4353, EEPROM_regs[0x0A01]);
 }

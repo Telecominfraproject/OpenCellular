@@ -29,10 +29,10 @@
 //*****************************************************************************
 //                             MACROS DEFINITION
 //*****************************************************************************
-#define OBC_TASK_PRIORITY     2
-#define OBC_TASK_STACK_SIZE   2048
+#define OBC_TASK_PRIORITY 2
+#define OBC_TASK_STACK_SIZE 2048
 
-#define SBD_WRITE_TIMEOUT     500
+#define SBD_WRITE_TIMEOUT 500
 
 /* TODO: move to helper? */
 #define STATIC_STRLEN(s) (ARRAY_SIZE(s) - 1)
@@ -45,13 +45,12 @@ extern OCSubsystem *ss_reg[];
 static UART_Handle uartIridium;
 static SBD_Handle s_hSbd = NULL;
 
-
 static UART_Handle open_comm(const Iridium_Cfg *iridium)
 {
     DEBUG("Resetting Iridium module\n");
 
-    OcGpio_configure(&iridium->pin_enable, OCGPIO_CFG_OUTPUT |
-                                           OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&iridium->pin_enable,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
     OcGpio_configure(&iridium->pin_nw_avail, OCGPIO_CFG_INPUT);
 
     /* reset - for proper reset, Iridium should be disabled for ~2s */
@@ -83,20 +82,21 @@ ReturnStatus sbd_init(const Iridium_Cfg *iridium)
     }
 
     /* Initialize SBD layers */
-//    const SbdCallbackList cbList = {
-//        .sbdring = sbdring_cb,
-//        .ciev = sbdciev_cb,
-//    };
+    //    const SbdCallbackList cbList = {
+    //        .sbdring = sbdring_cb,
+    //        .ciev = sbdciev_cb,
+    //    };
     s_hSbd = SBD_init(uartIridium, NULL, NULL);
     if (!s_hSbd) {
         return RETURN_NOTOK;
     }
 
     /* TODO: module verification? */
-    if (!SBD_k(s_hSbd, SBD_FLOW_CONTROL_HW)             /* Enable HW flow control */
-            || !SBD_sbdmta(s_hSbd, true)                /* Ring indication enable */
-            || !SBD_sbdareg(s_hSbd, SBD_AREG_MODE_AUTO) /* Auto registration */
-            || !SBD_cier(s_hSbd, true, false, true, false, false)) { /* Service change indications */
+    if (!SBD_k(s_hSbd, SBD_FLOW_CONTROL_HW) /* Enable HW flow control */
+        || !SBD_sbdmta(s_hSbd, true) /* Ring indication enable */
+        || !SBD_sbdareg(s_hSbd, SBD_AREG_MODE_AUTO) /* Auto registration */
+        || !SBD_cier(s_hSbd, true, false, true, false,
+                     false)) { /* Service change indications */
         /* TODO: handle cleanup */
         s_hSbd = NULL;
         return RETURN_NOTOK;
@@ -105,97 +105,96 @@ ReturnStatus sbd_init(const Iridium_Cfg *iridium)
     return RETURN_OK;
 }
 
-bool sbd9603_get_queueLength( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_queueLength(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	pIridiumStatusData->outQueueLen = 25;
-	return true;
+    pIridiumStatusData->outQueueLen = 25;
+    return true;
 }
 
-bool sbd9603_get_lastError( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_lastError(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	pIridiumStatusData->lastErr = (OBC_lastError) {
-		.src = ERR_RC_INTERNAL,
-	    .code = 5,
-	};
-	return true;
+    pIridiumStatusData->lastErr = (OBC_lastError){
+        .src = ERR_RC_INTERNAL,
+        .code = 5,
+    };
+    return true;
 }
 
-bool sbd9603_get_imei( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_imei(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	bool ret = true;
-	if (!s_hSbd) {
-		ret = false;
-	}
-	SbdcgsnInfo cgsnInfo;
-	if (!SBD_cgsn(s_hSbd, &cgsnInfo)) {
-		ret = false;
-	}
-	pIridiumStatusData->imei = strtoull(cgsnInfo.imei, NULL, 10);
-	return ret;
+    bool ret = true;
+    if (!s_hSbd) {
+        ret = false;
+    }
+    SbdcgsnInfo cgsnInfo;
+    if (!SBD_cgsn(s_hSbd, &cgsnInfo)) {
+        ret = false;
+    }
+    pIridiumStatusData->imei = strtoull(cgsnInfo.imei, NULL, 10);
+    return ret;
 }
 
-bool sbd9603_get_mfg( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_mfg(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	bool ret = true;
-	if (!s_hSbd) {
-		ret = false;
-	}
-	SbdCgmiInfo cgmiInfo;
-	if (!SBD_cgmi(s_hSbd, &cgmiInfo)) {
-		ret = false;
-	}
-	strncpy(pIridiumStatusData->mfg, cgmiInfo.mfg,
-			sizeof(pIridiumStatusData->mfg));
-	return ret;
+    bool ret = true;
+    if (!s_hSbd) {
+        ret = false;
+    }
+    SbdCgmiInfo cgmiInfo;
+    if (!SBD_cgmi(s_hSbd, &cgmiInfo)) {
+        ret = false;
+    }
+    strncpy(pIridiumStatusData->mfg, cgmiInfo.mfg,
+            sizeof(pIridiumStatusData->mfg));
+    return ret;
 }
 
-bool sbd9603_get_model( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_model(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-
-	bool ret = true;
-	if (!s_hSbd) {
-		ret = false;
-	}
-	SbdCgmmInfo cgmmInfo;
-	if (!SBD_cgmm(s_hSbd, &cgmmInfo)) {
-		ret = false;
-	}
-	/* Model string is verbose - if it's 9600 fam, replace with shorter
+    bool ret = true;
+    if (!s_hSbd) {
+        ret = false;
+    }
+    SbdCgmmInfo cgmmInfo;
+    if (!SBD_cgmm(s_hSbd, &cgmmInfo)) {
+        ret = false;
+    }
+    /* Model string is verbose - if it's 9600 fam, replace with shorter
 	 * model number since we only have 4 characters */
-	char *model = cgmmInfo.model;
-	const char fam_str[] = "IRIDIUM 9600 Family";
-	if (strncmp(model, fam_str, STATIC_STRLEN(fam_str)) == 0) {
-		model = "96xx";
-	}
-	strncpy(pIridiumStatusData->model, model,
-			sizeof(pIridiumStatusData->model));
-	return ret;
+    char *model = cgmmInfo.model;
+    const char fam_str[] = "IRIDIUM 9600 Family";
+    if (strncmp(model, fam_str, STATIC_STRLEN(fam_str)) == 0) {
+        model = "96xx";
+    }
+    strncpy(pIridiumStatusData->model, model,
+            sizeof(pIridiumStatusData->model));
+    return ret;
 }
 
-bool sbd9603_get_signalqual( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_signalqual(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	bool ret = true;
-	if (!s_hSbd) {
-		ret = false;
-	}
-	SbdcsqInfo csqInfo;
-	if (!SBD_csqf(s_hSbd, &csqInfo)) {
-		ret = false;
-	}
-	pIridiumStatusData->rssi = csqInfo.rssi;
-	return ret;
+    bool ret = true;
+    if (!s_hSbd) {
+        ret = false;
+    }
+    SbdcsqInfo csqInfo;
+    if (!SBD_csqf(s_hSbd, &csqInfo)) {
+        ret = false;
+    }
+    pIridiumStatusData->rssi = csqInfo.rssi;
+    return ret;
 }
 
-bool sbd9603_get_regStatus( OBC_Iridium_Status_Data *pIridiumStatusData)
+bool sbd9603_get_regStatus(OBC_Iridium_Status_Data *pIridiumStatusData)
 {
-	bool ret = true;
-	if (!s_hSbd) {
-		ret = false;
-	}
-	if (!SBD_sbdregRead(s_hSbd, &pIridiumStatusData->regStat)) {
-		ret = false;
-	}
-	return ret;
+    bool ret = true;
+    if (!s_hSbd) {
+        ret = false;
+    }
+    if (!SBD_sbdregRead(s_hSbd, &pIridiumStatusData->regStat)) {
+        ret = false;
+    }
+    return ret;
 }
 
 #include "helpers/memory.h"
@@ -228,7 +227,7 @@ static void loopback_test(SBD_Handle hSbd, bool debugLogs)
         System_abort("SBDTC Failed");
     }
 
-    char ret[sizeof(msg)] = { };
+    char ret[sizeof(msg)] = {};
     if (SBD_sbdrb(hSbd, ret, msgLen) < msgLen) {
         System_abort("SBDRB Failed");
     }

@@ -20,12 +20,12 @@ typedef struct AT_Info *AT_Handle;
 typedef AT_Handle GSM_Handle;
 
 typedef enum GsmCregStat {
-    GSM_CREG_STAT_NREG_NSEARCH  = 0x00,
-    GSM_CREG_STAT_REG_HOME      = 0x01,
-    GSM_CREG_STAT_NREG_SEARCH   = 0x02,
-    GSM_CREG_STAT_DENIED        = 0x03,
-    GSM_CREG_STAT_UNKNOWN       = 0x04,
-    GSM_CREG_STAT_REG_ROAMING   = 0x05,
+    GSM_CREG_STAT_NREG_NSEARCH = 0x00,
+    GSM_CREG_STAT_REG_HOME = 0x01,
+    GSM_CREG_STAT_NREG_SEARCH = 0x02,
+    GSM_CREG_STAT_DENIED = 0x03,
+    GSM_CREG_STAT_UNKNOWN = 0x04,
+    GSM_CREG_STAT_REG_ROAMING = 0x05,
 } GsmCregStat;
 
 typedef struct GsmCmtiInfo {
@@ -34,14 +34,14 @@ typedef struct GsmCmtiInfo {
 } GsmCmtiInfo;
 
 typedef enum GsmCallState {
-    GSM_CALL_STATE_ACTIVE   = 0,
-    GSM_CALL_STATE_HELD     = 1,
+    GSM_CALL_STATE_ACTIVE = 0,
+    GSM_CALL_STATE_HELD = 1,
 
-    GSM_CALL_STATE_DIALING  = 2, /* MO */
+    GSM_CALL_STATE_DIALING = 2, /* MO */
     GSM_CALL_STATE_ALERTING = 3, /* MO */
 
     GSM_CALL_STATE_INCOMING = 4, /* MT */
-    GSM_CALL_STATE_WAITING  = 5, /* MT */
+    GSM_CALL_STATE_WAITING = 5, /* MT */
 
     GSM_CALL_STATE_RELEASED = 6,
 } GsmCallState;
@@ -69,7 +69,8 @@ typedef struct GsmCallbackList {
     GsmClccCb clcc;
 } GsmCallbackList;
 
-GSM_Handle GSM_init(UART_Handle hCom, const GsmCallbackList *cbList, void *cbContext);
+GSM_Handle GSM_init(UART_Handle hCom, const GsmCallbackList *cbList,
+                    void *cbContext);
 
 typedef struct GsmCgsnInfo {
     char imei[16];
@@ -93,9 +94,9 @@ int GSM_cmgs(GSM_Handle handle, const char *number, const char *msg);
 // Enables/disables unsolicited creg message
 // TODO: I'm not sold on the enum naming
 typedef enum GsmCregMode {
-    GSM_CREG_STATUS_DISABLE     = 0x0,
-    GSM_CREG_STATUS_ENABLE      = 0x1,
-    GSM_CREG_STATUS_ENABLE_LOC  = 0x2,
+    GSM_CREG_STATUS_DISABLE = 0x0,
+    GSM_CREG_STATUS_ENABLE = 0x1,
+    GSM_CREG_STATUS_ENABLE_LOC = 0x2,
 } GsmCregMode;
 bool GSM_creg(GSM_Handle handle, GsmCregMode n);
 
@@ -112,10 +113,12 @@ bool GSM_cnmi(GSM_Handle handle, int mode, int mt, int bm, int ds, int bfr);
 typedef struct GsmCmgrInfo {
     char stat[12];
     char oa[15];
-    char alpha[5]; // TODO: this isn't present with our module, what should it be?
+    char alpha
+            [5]; // TODO: this isn't present with our module, what should it be?
     char scts[16]; // service center timestamp
 } GsmCmgrInfo;
-bool GSM_cmgr(GSM_Handle handle, unsigned int index, char *sms_out, GsmCmgrInfo *info_out);
+bool GSM_cmgr(GSM_Handle handle, unsigned int index, char *sms_out,
+              GsmCmgrInfo *info_out);
 
 bool GSM_csdh(GSM_Handle handle, bool show);
 
@@ -137,25 +140,25 @@ typedef struct GsmCgmmInfo {
 bool GSM_cgmm(GSM_Handle handle, GsmCgmmInfo *info_out);
 
 typedef enum GsmCopsMode {
-    GSM_COPS_MODE_AUTO        = 0,
-    GSM_COPS_MODE_MANUAL      = 1,
-    GSM_COPS_MODE_DEREG       = 2,
-    GSM_COPS_MODE_SET_FMT     = 3,
+    GSM_COPS_MODE_AUTO = 0,
+    GSM_COPS_MODE_MANUAL = 1,
+    GSM_COPS_MODE_DEREG = 2,
+    GSM_COPS_MODE_SET_FMT = 3,
     GSM_COPS_MODE_MANUAL_AUTO = 4,
 } GsmCopsMode;
 
 typedef enum GsmCopsFmt {
-    GSM_COPS_FMT_LONG_ALPHA  = 0,
+    GSM_COPS_FMT_LONG_ALPHA = 0,
     GSM_COPS_FMT_SHORT_ALPHA = 1,
-    GSM_COPS_FMT_NUMERIC     = 2,
+    GSM_COPS_FMT_NUMERIC = 2,
 } GsmCopsFmt;
 bool GSM_cops(GSM_Handle handle, GsmCopsMode mode, GsmCopsFmt format,
               const char *oper);
 
 typedef enum GsmCopsStat {
-    GSM_COPS_STAT_UNKNOWN   = 0,
+    GSM_COPS_STAT_UNKNOWN = 0,
     GSM_COPS_STAT_AVAILABLE = 1,
-    GSM_COPS_STAT_CURRENT   = 2,
+    GSM_COPS_STAT_CURRENT = 2,
     GSM_COPS_STAT_FORBIDDEN = 3
 } GsmCopsStat;
 
@@ -181,20 +184,20 @@ bool GSM_h(GSM_Handle handle);
 bool GSM_cnma(GSM_Handle handle);
 
 typedef enum GsmCmgdFlag {
-  GSM_CMGD_DELETE_AT_INDEX = 0,
-  GSM_CMGD_DELETE_ALL_READ = 1,
-  GSM_CMGD_DELETE_ALL_READ_AND_SENT_MO = 2,
-  GSM_CMGD_DELETE_ALL_READ_AND_MO = 3,
-  GSM_CMGD_DELETE_ALL = 4,
+    GSM_CMGD_DELETE_AT_INDEX = 0,
+    GSM_CMGD_DELETE_ALL_READ = 1,
+    GSM_CMGD_DELETE_ALL_READ_AND_SENT_MO = 2,
+    GSM_CMGD_DELETE_ALL_READ_AND_MO = 3,
+    GSM_CMGD_DELETE_ALL = 4,
 } GsmCmgdFlag;
 
 bool GSM_cmgd(GSM_Handle handle, int index, GsmCmgdFlag flag);
 
 typedef enum GsmCFun {
-    GSM_CFUN_OFF = 0,       /*!< Power off module */
-    GSM_CFUN_FULL = 1,      /*!< Enable full radio functionality */
-    GSM_CFUN_AIRPLANE = 4,  /*!< Turn off radio functionality */
-    GSM_CFUN_RESET = 15     /*!< Hardware reset */
+    GSM_CFUN_OFF = 0, /*!< Power off module */
+    GSM_CFUN_FULL = 1, /*!< Enable full radio functionality */
+    GSM_CFUN_AIRPLANE = 4, /*!< Turn off radio functionality */
+    GSM_CFUN_RESET = 15 /*!< Hardware reset */
 } GsmCFun;
 bool GSM_cfun(GSM_Handle handle, GsmCFun fun);
 

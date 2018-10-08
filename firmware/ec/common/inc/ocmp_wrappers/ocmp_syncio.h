@@ -11,21 +11,19 @@
 
 #include "common/inc/global/Framework.h"
 
-SCHEMA_IMPORT  const Driver_fxnTable SYNC_fxnTable;
+SCHEMA_IMPORT const Driver_fxnTable SYNC_fxnTable;
 static const Driver Sync_IO = {
     .name = "sync_ioexp",
-    .status = (Parameter[]){
-        {
-            .name = "gps_lock",
-            .type = TYPE_ENUM,
-            .values = (Enum_Map[]){
-                {0, "Gps Not Locked" },
-                {1, "Gps Locked" },
-                {}
-            },
-        },
-        {}
-    },
+    .status =
+            (Parameter[]){
+                    {
+                            .name = "gps_lock",
+                            .type = TYPE_ENUM,
+                            .values = (Enum_Map[]){ { 0, "Gps Not Locked" },
+                                                    { 1, "Gps Locked" },
+                                                    {} },
+                    },
+                    {} },
     .fxnTable = &SYNC_fxnTable,
 };
 

@@ -20,57 +20,66 @@
 #define PORT_REG_REQUEST(port) check_clause_22(s_oc_mdio_cfg->port)
 #define PHY_PORT_MAX 5
 
-bool check_clause_45(uint16_t regAddr) {
+bool check_clause_45(uint16_t regAddr)
+{
     bool status = false;
     if (REG_C45_PACKET_GEN == regAddr || REG_C45_CRC_ERROR_COUNTER == regAddr)
         status = true;
     return status;
 }
 
-bool check_clause_22(uint8_t port) {
+bool check_clause_22(uint8_t port)
+{
     bool status = false;
     if (port < PHY_PORT_MAX)
         status = true;
     return status;
 }
 
-bool mdio_read(void* mdio_cfg, void *ocmdio )
+bool mdio_read(void *mdio_cfg, void *ocmdio)
 {
-    S_MDIO_Cfg* s_oc_mdio_cfg = (S_MDIO_Cfg*)mdio_cfg;
-    S_OCMDIO* s_ocmdio = (S_OCMDIO*)ocmdio;
-    s_ocmdio->reg_value= 0xf00f;
+    S_MDIO_Cfg *s_oc_mdio_cfg = (S_MDIO_Cfg *)mdio_cfg;
+    S_OCMDIO *s_ocmdio = (S_OCMDIO *)ocmdio;
+    s_ocmdio->reg_value = 0xf00f;
 
     if (CLAUSE_45_REQUEST(reg_address))
         /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 45 registers*/
-        s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+        s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port,
+                                                        s_ocmdio->reg_address);
     else if (PORT_REG_REQUEST(port))
         /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 22 registers*/
-        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port,
+                                                    s_ocmdio->reg_address);
     else
         /*GLOBAL and SWITCH registers can be accessed directly*/
-        s_ocmdio->reg_value = mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+        s_ocmdio->reg_value =
+                mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     return 0;
 }
 
-bool mdio_write(void* mdio_cfg, void *ocmdio )
+bool mdio_write(void *mdio_cfg, void *ocmdio)
 {
-    S_MDIO_Cfg* s_oc_mdio_cfg = (S_MDIO_Cfg*)mdio_cfg;
-    S_OCMDIO* s_ocmdio = (S_OCMDIO*)ocmdio;
+    S_MDIO_Cfg *s_oc_mdio_cfg = (S_MDIO_Cfg *)mdio_cfg;
+    S_OCMDIO *s_ocmdio = (S_OCMDIO *)ocmdio;
 
     if (CLAUSE_45_REQUEST(reg_address)) {
         /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 45 registers*/
-        mdiobb_write_by_paging_c45(s_oc_mdio_cfg->port, s_ocmdio->reg_address, s_ocmdio->reg_value);
-        s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
-    }
-    else if (PORT_REG_REQUEST(port)) {
+        mdiobb_write_by_paging_c45(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
+                                   s_ocmdio->reg_value);
+        s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port,
+                                                        s_ocmdio->reg_address);
+    } else if (PORT_REG_REQUEST(port)) {
         /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 22 registers*/
-        mdiobb_write_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address, s_ocmdio->reg_value);
-        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
-    }
-    else {
+        mdiobb_write_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
+                               s_ocmdio->reg_value);
+        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port,
+                                                    s_ocmdio->reg_address);
+    } else {
         /*GLOBAL and SWITCH registers can be accessed directly*/
-        mdiobb_write(s_oc_mdio_cfg->port, s_ocmdio->reg_address, s_ocmdio->reg_value);
-        s_ocmdio->reg_value = mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+        mdiobb_write(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
+                     s_ocmdio->reg_value);
+        s_ocmdio->reg_value =
+                mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     }
     return 0;
 }

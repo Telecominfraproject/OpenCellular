@@ -17,16 +17,16 @@
 #include <driverlib/sysctl.h>
 #include <driverlib/timer.h>
 
-#define MDIO_READ       2
-#define MDIO_WRITE      1
+#define MDIO_READ 2
+#define MDIO_WRITE 1
 
 #define MDIO_SETUP_TIME 10
-#define MDIO_HOLD_TIME  10
+#define MDIO_HOLD_TIME 10
 
 /* Minimum MDC period is 400 ns, plus some margin for error.  MDIO_DELAY
  * is done twice per period.
  */
-#define MDIO_DELAY      40
+#define MDIO_DELAY 40
 
 /* The PHY may take up to 300 ns to produce data, plus some margin
  * for error.
@@ -190,8 +190,8 @@ void mdiobb_write_by_paging(int smi_device, int reg_addr, int data)
 
     mdiobb_write(0x7, 0x19, data);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5)
-                | reg_addr;
+    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
+                reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {
@@ -215,8 +215,8 @@ int mdiobb_read_by_paging(int smi_device, int reg_addr)
             break;
     } while (1);
 
-    write_reg = (1 << 15) | (1 << 12) | (0x2 << 10) | (smi_device << 5)
-                | reg_addr;
+    write_reg =
+            (1 << 15) | (1 << 12) | (0x2 << 10) | (smi_device << 5) | reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     /*
@@ -233,9 +233,8 @@ int mdiobb_read_by_paging(int smi_device, int reg_addr)
 }
 
 /* Try to write directly using 0x18 and 0x19 registers */
-void mdiobb_write_by_paging_c45( int smi_device,
-                            unsigned int reg_addr,
-                            unsigned int data)
+void mdiobb_write_by_paging_c45(int smi_device, unsigned int reg_addr,
+                                unsigned int data)
 {
     unsigned int read_val = 0xf00f;
     unsigned int write_reg = 0;
@@ -313,7 +312,6 @@ void mdiobb_write_by_paging_c45( int smi_device,
         if (!(read_val & (1 << 15)))
             break;
     } while (1);
-
 }
 
 /* try to read the C45 registers using 13 and 14 registers */
@@ -422,8 +420,8 @@ void mdiobb_set_bits(int smi_device, int reg_addr, int datamask)
 
     mdiobb_write(0x7, 0x19, datamask);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5)
-            | reg_addr;
+    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
+                reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {
@@ -455,8 +453,8 @@ void mdiobb_clear_bits(int smi_device, int reg_addr, int datamask)
 
     mdiobb_write(0x7, 0x19, datamask);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5)
-            | reg_addr;
+    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
+                reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {
@@ -466,9 +464,8 @@ void mdiobb_clear_bits(int smi_device, int reg_addr, int datamask)
     } while (1);
 }
 
-void mdiobb_set_bits_C45(   int smi_device,
-                            unsigned int reg_addr,
-                            unsigned int datamask)
+void mdiobb_set_bits_C45(int smi_device, unsigned int reg_addr,
+                         unsigned int datamask)
 {
     int read_val = 0;
 
@@ -482,9 +479,8 @@ void mdiobb_set_bits_C45(   int smi_device,
     mdiobb_write_by_paging_c45(smi_device, reg_addr, datamask);
 }
 
-void mdiobb_clear_bits_C45( int smi_device,
-                            unsigned int reg_addr,
-                            unsigned int datamask)
+void mdiobb_clear_bits_C45(int smi_device, unsigned int reg_addr,
+                           unsigned int datamask)
 {
     int read_val = 0;
 
@@ -524,6 +520,6 @@ void prepare_mdio(void)
      */
     TimerConfigure(TIMER0_BASE, TIMER_CFG_ONE_SHOT);
     delay = 0x700000;
-        while (delay--)
-            ;
+    while (delay--)
+        ;
 }

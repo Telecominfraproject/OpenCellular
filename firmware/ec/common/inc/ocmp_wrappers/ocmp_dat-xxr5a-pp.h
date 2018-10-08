@@ -16,10 +16,7 @@ SCHEMA_IMPORT const Driver_fxnTable DATXXR5APP_fxnTable;
 static const Driver DATXXR5APP = {
     .name = "DAT-XXR5A-PP+",
     .status = NULL,
-    .config = (Parameter[]){
-        { .name = "atten", .type = TYPE_INT16 },
-        {}
-    },
+    .config = (Parameter[]){ { .name = "atten", .type = TYPE_INT16 }, {} },
     .alerts = NULL,
     .fxnTable = &DATXXR5APP_fxnTable,
 };

@@ -30,7 +30,7 @@ static uint32_t LTC4275_GpioConfig[] = {
 
 unsigned int s_task_sleep_ticks;
 
-xdc_Void ti_sysbios_knl_Task_sleep__E( xdc_UInt32 nticks )
+xdc_Void ti_sysbios_knl_Task_sleep__E(xdc_UInt32 nticks)
 {
     s_task_sleep_ticks += nticks;
 }
@@ -39,17 +39,17 @@ void test_alert(void)
 {
 }
 
-// Parameters are not used as this is just used to test assigning the 
+// Parameters are not used as this is just used to test assigning the
 //   alert_handler right now.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 static void alert_handler(LTC4275_Event evt, void *context)
 {
-
 }
 #pragma GCC diagnostic pop
 
-void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, uint16_t manId, uint16_t devId)
+void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress,
+                          uint16_t manId, uint16_t devId)
 {
     pData->i2cBus = I2CBus;
     pData->devAddr = devAddress;
@@ -69,7 +69,6 @@ void suite_setUp(void)
 
 void setUp(void)
 {
-
 }
 
 void tearDown(void)
@@ -81,13 +80,13 @@ void suite_tearDown(void)
 }
 
 LTC4275_Dev l_dev = {
-    .cfg = {
-        .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 0x60 },
-        .pin_detect = &(OcGpio_Pin){ &s_fake_io_port, 0x40 },
+    .cfg =
+            {
+                    .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 0x60 },
+                    .pin_detect = &(OcGpio_Pin){ &s_fake_io_port, 0x40 },
 
-    },
+            },
 };
-
 
 /* ================================ Tests =================================== */
 void test_ltc4275_init(void)
@@ -98,7 +97,8 @@ void test_ltc4275_init(void)
 
     TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_init(&l_dev));
     TEST_ASSERT_EQUAL(0, PDStatus_Info.pdStatus.powerGoodStatus);
-    TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES, LTC4275_GpioConfig[0x60]);
+    TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES,
+                      LTC4275_GpioConfig[0x60]);
 }
 
 void test_ltc4275_get_power_good(void)
@@ -106,13 +106,12 @@ void test_ltc4275_get_power_good(void)
     ePDPowerState val;
 
     LTC4275_GpioPins[0x60] = 0;
-    TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_get_power_good(&l_dev,&val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_get_power_good(&l_dev, &val));
     TEST_ASSERT_EQUAL(LTC4275_POWERGOOD, val);
 
     LTC4275_GpioPins[0x60] = 1;
-    TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_get_power_good(&l_dev,&val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_get_power_good(&l_dev, &val));
     TEST_ASSERT_EQUAL(LTC4275_POWERGOOD_NOTOK, val);
-
 }
 
 void test_ltc4275_probe(void)

@@ -15,11 +15,8 @@ SCHEMA_IMPORT const Driver_fxnTable RFFEWatchdogP_fxnTable;
 
 static const Driver RFFEWatchdog = {
     .name = "RFFE Watchdog",
-    .alerts = (Parameter[]){
-        { .name = "LB_R_PWR" },
-        { .name = "HB_R_PWR" },
-        {}
-    },
+    .alerts =
+            (Parameter[]){ { .name = "LB_R_PWR" }, { .name = "HB_R_PWR" }, {} },
     .fxnTable = &RFFEWatchdogP_fxnTable,
 };
 

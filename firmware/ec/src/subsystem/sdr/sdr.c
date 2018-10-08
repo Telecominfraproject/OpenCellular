@@ -26,7 +26,6 @@
 
 /* SDR device config */
 
-
 /*****************************************************************************
  **    FUNCTION NAME   : sdr_pwr_control
  **
@@ -43,11 +42,11 @@ void sdr_pwr_control(Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
      * OBC and we don't want to configure then write if OBC has already
      * configured it (it'll reset Iridium that way) */
     if (control == OC_SDR_ENABLE) {
-        OcGpio_configure(&sdr_gpioCfg->pin_trxfe_12v_onoff, OCGPIO_CFG_OUTPUT |
-                                                    OCGPIO_CFG_OUT_HIGH);
+        OcGpio_configure(&sdr_gpioCfg->pin_trxfe_12v_onoff,
+                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
     } else {
-        OcGpio_configure(&sdr_gpioCfg->pin_trxfe_12v_onoff, OCGPIO_CFG_OUTPUT |
-                                                    OCGPIO_CFG_OUT_LOW);
+        OcGpio_configure(&sdr_gpioCfg->pin_trxfe_12v_onoff,
+                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
     }
 }
 
@@ -106,7 +105,6 @@ static void sdr_control_reset(Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
     } else {
         OcGpio_write(&sdr_gpioCfg->pin_ec_trxfe_reset, false);
     }
-
 }
 
 /*****************************************************************************
@@ -119,7 +117,7 @@ static void sdr_control_reset(Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-static ReturnStatus sdr_fx3_reset(Sdr_gpioCfg* fx3_cfg)
+static ReturnStatus sdr_fx3_reset(Sdr_gpioCfg *fx3_cfg)
 {
     /*TODO: We need to figure out a way for configuring PCA pins on Intel reset.*/
     OcGpio_configure(&fx3_cfg->pin_fx3_reset, OCGPIO_CFG_OUTPUT);
@@ -137,7 +135,8 @@ static ReturnStatus sdr_fx3_reset(Sdr_gpioCfg* fx3_cfg)
     return RETURN_OK;
 }
 
-bool SDR_fx3Reset(void *driver, void *params) {
+bool SDR_fx3Reset(void *driver, void *params)
+{
     return (sdr_fx3_reset(driver) == RETURN_OK);
 }
 
@@ -151,17 +150,17 @@ bool SDR_fx3Reset(void *driver, void *params) {
  **    RETURN TYPE     : ePostCode
  **
  *****************************************************************************/
-bool SDR_Init(void* driver, void *return_buf)
+bool SDR_Init(void *driver, void *return_buf)
 {
-    Sdr_gpioCfg *sdr_gpioCfg = (Sdr_gpioCfg*)driver;
+    Sdr_gpioCfg *sdr_gpioCfg = (Sdr_gpioCfg *)driver;
     /* Initialize IO pins */
     OcGpio_configure(&sdr_gpioCfg->pin_sdr_reg_ldo_pgood, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&sdr_gpioCfg->pin_rf_fe_io_reset, OCGPIO_CFG_OUTPUT |
-                                                OCGPIO_CFG_OUT_LOW);
-    OcGpio_configure(&sdr_gpioCfg->pin_sdr_reset_in, OCGPIO_CFG_OUTPUT |
-                                             OCGPIO_CFG_OUT_LOW);
-    OcGpio_configure(&sdr_gpioCfg->pin_ec_trxfe_reset, OCGPIO_CFG_OUTPUT |
-                                                OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&sdr_gpioCfg->pin_rf_fe_io_reset,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&sdr_gpioCfg->pin_sdr_reset_in,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&sdr_gpioCfg->pin_ec_trxfe_reset,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
 
     /* Power On SDR  */
     sdr_pwr_control(sdr_gpioCfg, OC_SDR_ENABLE);
@@ -183,10 +182,9 @@ bool SDR_Init(void* driver, void *return_buf)
     NOP_DELAY();
 
     /* Check Powergood status(SDR_REG_LDO_PGOOD) */
-    if(OcGpio_read(&sdr_gpioCfg->pin_sdr_reg_ldo_pgood)) {
+    if (OcGpio_read(&sdr_gpioCfg->pin_sdr_reg_ldo_pgood)) {
         LOGGER("SDR:INFO:: PowerGood Status is OK.\n");
-    }
-    else {
+    } else {
         LOGGER("SDR:INFO:: PowerGood Status is NOT OK.\n");
     }
 
@@ -200,8 +198,9 @@ bool SDR_Init(void* driver, void *return_buf)
     return true;
 }
 
-bool SDR_reset(void *driver, void *params) {
-    Sdr_gpioCfg *sdr_gpioCfg = (Sdr_gpioCfg*)driver;
+bool SDR_reset(void *driver, void *params)
+{
+    Sdr_gpioCfg *sdr_gpioCfg = (Sdr_gpioCfg *)driver;
     if (OcGpio_write(&sdr_gpioCfg->pin_sdr_reset_in, false) <= OCGPIO_FAILURE) {
         return false;
     }

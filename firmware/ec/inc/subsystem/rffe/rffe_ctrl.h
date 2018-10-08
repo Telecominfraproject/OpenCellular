@@ -19,7 +19,7 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define RFFE_IO_BOARD_CFG_ADDR                      0x19
+#define RFFE_IO_BOARD_CFG_ADDR 0x19
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -33,7 +33,7 @@ typedef enum rfChannel {
 
 typedef struct FE_Ch_Band_cfg {
     rffeChannel channel;
-}FE_Ch_Band_cfg;
+} FE_Ch_Band_cfg;
 
 /* RFFE Band Type */
 typedef enum {
@@ -49,7 +49,7 @@ typedef enum {
 
 typedef struct FE_Band_Cfg {
     rffeBand band;
-}FE_Band_Cfg;
+} FE_Band_Cfg;
 
 /* Power Amplifier Control Type */
 typedef enum rfPACtrl {

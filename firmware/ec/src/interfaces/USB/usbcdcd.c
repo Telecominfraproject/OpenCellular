@@ -61,14 +61,14 @@
 /* Example/Board Header files */
 
 #if defined(TIVAWARE)
-typedef uint32_t            USBCDCDEventType;
+typedef uint32_t USBCDCDEventType;
 #else
 #define eUSBModeForceDevice USB_MODE_FORCE_DEVICE
-typedef unsigned long       USBCDCDEventType;
+typedef unsigned long USBCDCDEventType;
 #endif
 
 /* Defines */
-#define USBBUFFERSIZE   256
+#define USBBUFFERSIZE 256
 
 /* Typedefs */
 typedef volatile enum {
@@ -100,81 +100,134 @@ static USBCDCDEventType cbTxHandler(void *cbData, USBCDCDEventType event,
                                     USBCDCDEventType eventMsg,
                                     void *eventMsgPtr);
 static Void USBCDCD_hwiHandler(UArg arg0);
-static unsigned int rxData(unsigned char *pStr,
-                           unsigned int length,
+static unsigned int rxData(unsigned char *pStr, unsigned int length,
                            unsigned int timeout);
-static unsigned int txData(const unsigned char *pStr,
-                           int length, unsigned int timeout);
+static unsigned int txData(const unsigned char *pStr, int length,
+                           unsigned int timeout);
 void USBCDCD_init(void);
-unsigned int USBCDCD_receiveData(unsigned char *pStr,
-                                 unsigned int length,
+unsigned int USBCDCD_receiveData(unsigned char *pStr, unsigned int length,
                                  unsigned int timeout);
-unsigned int USBCDCD_sendData(const unsigned char *pStr,
-                              unsigned int length,
+unsigned int USBCDCD_sendData(const unsigned char *pStr, unsigned int length,
                               unsigned int timeout);
 bool USBCDCD_waitForConnect(unsigned int timeout);
 
 /* The languages supported by this device. */
-const unsigned char langDescriptor[] = {
-    4,
-    USB_DTYPE_STRING,
-    USBShort(USB_LANG_EN_US)
-};
+const unsigned char langDescriptor[] = { 4, USB_DTYPE_STRING,
+                                         USBShort(USB_LANG_EN_US) };
 
 /* The manufacturer string. */
 const unsigned char manufacturerString[] = {
-    (17 + 1) * 2,
-    USB_DTYPE_STRING,
-    'T', 0, 'e', 0, 'x', 0, 'a', 0, 's', 0, ' ', 0, 'I', 0, 'n', 0, 's', 0,
-    't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0,
+    (17 + 1) * 2, USB_DTYPE_STRING,
+    'T',          0,
+    'e',          0,
+    'x',          0,
+    'a',          0,
+    's',          0,
+    ' ',          0,
+    'I',          0,
+    'n',          0,
+    's',          0,
+    't',          0,
+    'r',          0,
+    'u',          0,
+    'm',          0,
+    'e',          0,
+    'n',          0,
+    't',          0,
+    's',          0,
 };
 
 /* The product string. */
-const unsigned char productString[] = {
-    2 + (16 * 2),
-    USB_DTYPE_STRING,
-    'V', 0, 'i', 0, 'r', 0, 't', 0, 'u', 0, 'a', 0, 'l', 0, ' ', 0,
-    'C', 0, 'O', 0, 'M', 0, ' ', 0, 'P', 0, 'o', 0, 'r', 0, 't', 0
-};
+const unsigned char productString[] = { 2 + (16 * 2), USB_DTYPE_STRING,
+                                        'V',          0,
+                                        'i',          0,
+                                        'r',          0,
+                                        't',          0,
+                                        'u',          0,
+                                        'a',          0,
+                                        'l',          0,
+                                        ' ',          0,
+                                        'C',          0,
+                                        'O',          0,
+                                        'M',          0,
+                                        ' ',          0,
+                                        'P',          0,
+                                        'o',          0,
+                                        'r',          0,
+                                        't',          0 };
 
 /* The serial number string. */
-const unsigned char serialNumberString[] = {
-    (8 + 1) * 2,
-    USB_DTYPE_STRING,
-    '1', 0, '2', 0, '3', 0, '4', 0, '5', 0, '6', 0, '7', 0, '8', 0
-};
+const unsigned char serialNumberString[] = { (8 + 1) * 2, USB_DTYPE_STRING,
+                                             '1',         0,
+                                             '2',         0,
+                                             '3',         0,
+                                             '4',         0,
+                                             '5',         0,
+                                             '6',         0,
+                                             '7',         0,
+                                             '8',         0 };
 
 /* The interface description string. */
-const unsigned char controlInterfaceString[] = {
-    2 + (21 * 2),
-    USB_DTYPE_STRING,
-    'A', 0, 'C', 0, 'M', 0, ' ', 0, 'C', 0, 'o', 0, 'n', 0, 't', 0,
-    'r', 0, 'o', 0, 'l', 0, ' ', 0, 'I', 0, 'n', 0, 't', 0, 'e', 0,
-    'r', 0, 'f', 0, 'a', 0, 'c', 0, 'e', 0
-};
+const unsigned char controlInterfaceString[] = { 2 + (21 * 2), USB_DTYPE_STRING,
+                                                 'A',          0,
+                                                 'C',          0,
+                                                 'M',          0,
+                                                 ' ',          0,
+                                                 'C',          0,
+                                                 'o',          0,
+                                                 'n',          0,
+                                                 't',          0,
+                                                 'r',          0,
+                                                 'o',          0,
+                                                 'l',          0,
+                                                 ' ',          0,
+                                                 'I',          0,
+                                                 'n',          0,
+                                                 't',          0,
+                                                 'e',          0,
+                                                 'r',          0,
+                                                 'f',          0,
+                                                 'a',          0,
+                                                 'c',          0,
+                                                 'e',          0 };
 
 /* The configuration description string. */
-const unsigned char configString[] = {
-    2 + (26 * 2),
-    USB_DTYPE_STRING,
-    'S', 0, 'e', 0, 'l', 0, 'f', 0, ' ', 0, 'P', 0, 'o', 0, 'w', 0,
-    'e', 0, 'r', 0, 'e', 0, 'd', 0, ' ', 0, 'C', 0, 'o', 0, 'n', 0,
-    'f', 0, 'i', 0, 'g', 0, 'u', 0, 'r', 0, 'a', 0, 't', 0, 'i', 0,
-    'o', 0, 'n', 0
-};
+const unsigned char configString[] = { 2 + (26 * 2), USB_DTYPE_STRING,
+                                       'S',          0,
+                                       'e',          0,
+                                       'l',          0,
+                                       'f',          0,
+                                       ' ',          0,
+                                       'P',          0,
+                                       'o',          0,
+                                       'w',          0,
+                                       'e',          0,
+                                       'r',          0,
+                                       'e',          0,
+                                       'd',          0,
+                                       ' ',          0,
+                                       'C',          0,
+                                       'o',          0,
+                                       'n',          0,
+                                       'f',          0,
+                                       'i',          0,
+                                       'g',          0,
+                                       'u',          0,
+                                       'r',          0,
+                                       'a',          0,
+                                       't',          0,
+                                       'i',          0,
+                                       'o',          0,
+                                       'n',          0 };
 
 /* The descriptor string table. */
-const unsigned char * const stringDescriptors[] = {
-    langDescriptor,
-    manufacturerString,
-    productString,
-    serialNumberString,
-    controlInterfaceString,
-    configString
+const unsigned char *const stringDescriptors[] = {
+    langDescriptor,     manufacturerString,     productString,
+    serialNumberString, controlInterfaceString, configString
 };
 
-#define STRINGDESCRIPTORSCOUNT (sizeof(stringDescriptors) / \
-                                sizeof(unsigned char *))
+#define STRINGDESCRIPTORSCOUNT \
+    (sizeof(stringDescriptors) / sizeof(unsigned char *))
 
 #if defined(TIVAWARE)
 tUSBBuffer txBuffer;
@@ -182,47 +235,45 @@ tUSBBuffer rxBuffer;
 static tUSBDCDCDevice serialDevice;
 
 tUSBBuffer rxBuffer = {
-    false,                      /* This is a receive buffer. */
-    cbRxHandler,                /* pfnCallback */
-    (void *)&serialDevice,      /* Callback data is our device pointer. */
-    USBDCDCPacketRead,          /* pfnTransfer */
-    USBDCDCRxPacketAvailable,   /* pfnAvailable */
-    (void *)&serialDevice,      /* pvHandle */
-    receiveBuffer,              /* pcBuffer */
-    USBBUFFERSIZE,              /* ulBufferSize */
-    {{0, 0, 0, 0}, 0, 0}        /* private data workspace */
+    false, /* This is a receive buffer. */
+    cbRxHandler, /* pfnCallback */
+    (void *)&serialDevice, /* Callback data is our device pointer. */
+    USBDCDCPacketRead, /* pfnTransfer */
+    USBDCDCRxPacketAvailable, /* pfnAvailable */
+    (void *)&serialDevice, /* pvHandle */
+    receiveBuffer, /* pcBuffer */
+    USBBUFFERSIZE, /* ulBufferSize */
+    { { 0, 0, 0, 0 }, 0, 0 } /* private data workspace */
 };
 
 tUSBBuffer txBuffer = {
-    true,                       /* This is a transmit buffer. */
-    cbTxHandler,                /* pfnCallback */
-    (void *)&serialDevice,      /* Callback data is our device pointer. */
-    USBDCDCPacketWrite,         /* pfnTransfer */
-    USBDCDCTxPacketAvailable,   /* pfnAvailable */
-    (void *)&serialDevice,      /* pvHandle */
-    transmitBuffer,             /* pcBuffer */
-    USBBUFFERSIZE,              /* ulBufferSize */
-    {{0, 0, 0, 0}, 0, 0}        /* private data workspace */
+    true, /* This is a transmit buffer. */
+    cbTxHandler, /* pfnCallback */
+    (void *)&serialDevice, /* Callback data is our device pointer. */
+    USBDCDCPacketWrite, /* pfnTransfer */
+    USBDCDCTxPacketAvailable, /* pfnAvailable */
+    (void *)&serialDevice, /* pvHandle */
+    transmitBuffer, /* pcBuffer */
+    USBBUFFERSIZE, /* ulBufferSize */
+    { { 0, 0, 0, 0 }, 0, 0 } /* private data workspace */
 };
 
-static tUSBDCDCDevice serialDevice = {
-    USB_VID_TI_1CBE,
-    USB_PID_SERIAL,
-    0,
-    USB_CONF_ATTR_SELF_PWR,
+static tUSBDCDCDevice serialDevice = { USB_VID_TI_1CBE,
+                                       USB_PID_SERIAL,
+                                       0,
+                                       USB_CONF_ATTR_SELF_PWR,
 
-    cbSerialHandler,
-    NULL,
+                                       cbSerialHandler,
+                                       NULL,
 
-    USBBufferEventCallback,
-    (void *)&rxBuffer,
+                                       USBBufferEventCallback,
+                                       (void *)&rxBuffer,
 
-    USBBufferEventCallback,
-    (void *)&txBuffer,
+                                       USBBufferEventCallback,
+                                       (void *)&txBuffer,
 
-    stringDescriptors,
-    STRINGDESCRIPTORSCOUNT
-};
+                                       stringDescriptors,
+                                       STRINGDESCRIPTORSCOUNT };
 #else
 const tUSBBuffer rxBuffer;
 const tUSBBuffer txBuffer;
@@ -233,27 +284,27 @@ static tCDCSerInstance serialInstance;
 const tUSBDCDCDevice serialDevice;
 
 const tUSBBuffer rxBuffer = {
-    false,                      /* This is a receive buffer. */
-    cbRxHandler,                /* pfnCallback */
-    (void *)&serialDevice,      /* Callback data is our device pointer. */
-    USBDCDCPacketRead,          /* pfnTransfer */
-    USBDCDCRxPacketAvailable,   /* pfnAvailable */
-    (void *)&serialDevice,      /* pvHandle */
-    receiveBuffer,              /* pcBuffer */
-    USBBUFFERSIZE,              /* ulBufferSize */
-    receiveBufferWorkspace      /* pvWorkspace */
+    false, /* This is a receive buffer. */
+    cbRxHandler, /* pfnCallback */
+    (void *)&serialDevice, /* Callback data is our device pointer. */
+    USBDCDCPacketRead, /* pfnTransfer */
+    USBDCDCRxPacketAvailable, /* pfnAvailable */
+    (void *)&serialDevice, /* pvHandle */
+    receiveBuffer, /* pcBuffer */
+    USBBUFFERSIZE, /* ulBufferSize */
+    receiveBufferWorkspace /* pvWorkspace */
 };
 
 const tUSBBuffer txBuffer = {
-    true,                       /* This is a transmit buffer. */
-    cbTxHandler,                /* pfnCallback */
-    (void *)&serialDevice,      /* Callback data is our device pointer. */
-    USBDCDCPacketWrite,         /* pfnTransfer */
-    USBDCDCTxPacketAvailable,   /* pfnAvailable */
-    (void *)&serialDevice,      /* pvHandle */
-    transmitBuffer,             /* pcBuffer */
-    USBBUFFERSIZE,              /* ulBufferSize */
-    transmitBufferWorkspace     /* pvWorkspace */
+    true, /* This is a transmit buffer. */
+    cbTxHandler, /* pfnCallback */
+    (void *)&serialDevice, /* Callback data is our device pointer. */
+    USBDCDCPacketWrite, /* pfnTransfer */
+    USBDCDCTxPacketAvailable, /* pfnAvailable */
+    (void *)&serialDevice, /* pvHandle */
+    transmitBuffer, /* pcBuffer */
+    USBBUFFERSIZE, /* ulBufferSize */
+    transmitBufferWorkspace /* pvWorkspace */
 };
 
 const tUSBDCDCDevice serialDevice = {
@@ -279,10 +330,10 @@ const tUSBDCDCDevice serialDevice = {
 #endif
 
 static tLineCoding g_sLineCoding = {
-    115200,                     /* 115200 baud rate. */
-    1,                          /* 1 Stop Bit. */
-    0,                          /* No Parity. */
-    8                           /* 8 Bits of data. */
+    115200, /* 115200 baud rate. */
+    1, /* 1 Stop Bit. */
+    0, /* No Parity. */
+    8 /* 8 Bits of data. */
 };
 
 /*
@@ -448,25 +499,24 @@ static Void USBCDCD_hwiHandler(UArg arg0)
 /*
  *  ======== rxData ========
  */
-static unsigned int rxData(unsigned char *pStr,
-                           unsigned int length,
+static unsigned int rxData(unsigned char *pStr, unsigned int length,
                            unsigned int timeout)
 {
     unsigned int read = 0;
 
-    if (USBBufferDataAvailable(&rxBuffer) || Semaphore_pend(semRxSerial, timeout)) {
-       read = USBBufferRead(&rxBuffer, pStr, length);
+    if (USBBufferDataAvailable(&rxBuffer) ||
+        Semaphore_pend(semRxSerial, timeout)) {
+        read = USBBufferRead(&rxBuffer, pStr, length);
     }
 
     return (read);
 }
 
-
 /*
  *  ======== txData ========
  */
-static unsigned int txData(const unsigned char *pStr,
-                           int length, unsigned int timeout)
+static unsigned int txData(const unsigned char *pStr, int length,
+                           unsigned int timeout)
 {
     unsigned int buffAvailSize;
     unsigned int bufferedCount = 0;
@@ -480,8 +530,7 @@ static unsigned int txData(const unsigned char *pStr,
         /* Determine how much needs to be sent */
         if ((length - bufferedCount) > buffAvailSize) {
             sendCount = buffAvailSize;
-        }
-        else {
+        } else {
             sendCount = length - bufferedCount;
         }
 
@@ -568,8 +617,7 @@ void USBCDCD_init(void)
 /*
  *  ======== USBCDCD_receiveData ========
  */
-unsigned int USBCDCD_receiveData(unsigned char *pStr,
-                                 unsigned int length,
+unsigned int USBCDCD_receiveData(unsigned char *pStr, unsigned int length,
                                  unsigned int timeout)
 {
     unsigned int retValue = 0;
@@ -615,8 +663,7 @@ unsigned int USBCDCD_receiveData(unsigned char *pStr,
 /*
  *  ======== USBCDCD_sendData ========
  */
-unsigned int USBCDCD_sendData(const unsigned char *pStr,
-                              unsigned int length,
+unsigned int USBCDCD_sendData(const unsigned char *pStr, unsigned int length,
                               unsigned int timeout)
 {
     unsigned int retValue = 0;

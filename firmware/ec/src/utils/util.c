@@ -53,10 +53,9 @@
  */
 
 // RTOS queue for profile/app messages.
-typedef struct _queueRec_
-{
-  Queue_Elem _elem;          // queue element
-  uint8_t *pData;            // pointer to app data
+typedef struct _queueRec_ {
+    Queue_Elem _elem; // queue element
+    uint8_t *pData; // pointer to app data
 } queueRec_t;
 
 /*********************************************************************
@@ -91,35 +90,32 @@ typedef struct _queueRec_
  *
  * @return  Clock_Handle  - a handle to the clock instance.
  */
-Clock_Handle Util_constructClock(Clock_Struct *pClock,
-                                 Clock_FuncPtr clockCB,
-                                 uint32_t clockDuration,
-                                 uint32_t clockPeriod,
-                                 uint8_t startFlag,
-                                 UArg arg)
+Clock_Handle Util_constructClock(Clock_Struct *pClock, Clock_FuncPtr clockCB,
+                                 uint32_t clockDuration, uint32_t clockPeriod,
+                                 uint8_t startFlag, UArg arg)
 {
-  Clock_Params clockParams;
+    Clock_Params clockParams;
 
-  // Convert clockDuration in milliseconds to ticks.
-  uint32_t clockTicks = clockDuration * (1000 / Clock_tickPeriod);
+    // Convert clockDuration in milliseconds to ticks.
+    uint32_t clockTicks = clockDuration * (1000 / Clock_tickPeriod);
 
-  // Setup parameters.
-  Clock_Params_init(&clockParams);
+    // Setup parameters.
+    Clock_Params_init(&clockParams);
 
-  // Setup argument.
-  clockParams.arg = arg;
+    // Setup argument.
+    clockParams.arg = arg;
 
-  // If period is 0, this is a one-shot timer.
-  clockParams.period = clockPeriod * (1000 / Clock_tickPeriod);
+    // If period is 0, this is a one-shot timer.
+    clockParams.period = clockPeriod * (1000 / Clock_tickPeriod);
 
-  // Starts immediately after construction if true, otherwise wait for a call
-  // to start.
-  clockParams.startFlag = startFlag;
+    // Starts immediately after construction if true, otherwise wait for a call
+    // to start.
+    clockParams.startFlag = startFlag;
 
-  // Initialize clock instance.
-  Clock_construct(pClock, clockCB, clockTicks, &clockParams);
+    // Initialize clock instance.
+    Clock_construct(pClock, clockCB, clockTicks, &clockParams);
 
-  return Clock_handle(pClock);
+    return Clock_handle(pClock);
 }
 
 /*********************************************************************
@@ -133,10 +129,10 @@ Clock_Handle Util_constructClock(Clock_Struct *pClock,
  */
 void Util_startClock(Clock_Struct *pClock)
 {
-  Clock_Handle handle = Clock_handle(pClock);
+    Clock_Handle handle = Clock_handle(pClock);
 
-  // Start clock instance
-  Clock_start(handle);
+    // Start clock instance
+    Clock_start(handle);
 }
 
 /*********************************************************************
@@ -151,25 +147,24 @@ void Util_startClock(Clock_Struct *pClock)
  */
 void Util_restartClock(Clock_Struct *pClock, uint32_t clockTimeout)
 {
-  uint32_t clockTicks;
-  Clock_Handle handle;
+    uint32_t clockTicks;
+    Clock_Handle handle;
 
-  handle = Clock_handle(pClock);
+    handle = Clock_handle(pClock);
 
-  if (Clock_isActive(handle))
-  {
-    // Stop clock first
-    Clock_stop(handle);
-  }
+    if (Clock_isActive(handle)) {
+        // Stop clock first
+        Clock_stop(handle);
+    }
 
-  // Convert timeout in milliseconds to ticks.
-  clockTicks = clockTimeout * (1000 / Clock_tickPeriod);
+    // Convert timeout in milliseconds to ticks.
+    clockTicks = clockTimeout * (1000 / Clock_tickPeriod);
 
-  // Set the initial timeout
-  Clock_setTimeout(handle, clockTicks);
+    // Set the initial timeout
+    Clock_setTimeout(handle, clockTicks);
 
-  // Start clock instance
-  Clock_start(handle);
+    // Start clock instance
+    Clock_start(handle);
 }
 
 /*********************************************************************
@@ -183,10 +178,10 @@ void Util_restartClock(Clock_Struct *pClock, uint32_t clockTimeout)
  */
 bool Util_isActive(Clock_Struct *pClock)
 {
-  Clock_Handle handle = Clock_handle(pClock);
+    Clock_Handle handle = Clock_handle(pClock);
 
-  // Start clock instance
-  return Clock_isActive(handle);
+    // Start clock instance
+    return Clock_isActive(handle);
 }
 
 /*********************************************************************
@@ -200,10 +195,10 @@ bool Util_isActive(Clock_Struct *pClock)
  */
 void Util_stopClock(Clock_Struct *pClock)
 {
-  Clock_Handle handle = Clock_handle(pClock);
+    Clock_Handle handle = Clock_handle(pClock);
 
-  // Stop clock instance
-  Clock_stop(handle);
+    // Stop clock instance
+    Clock_stop(handle);
 }
 
 /*********************************************************************
@@ -217,28 +212,26 @@ void Util_stopClock(Clock_Struct *pClock)
  */
 void Util_rescheduleClock(Clock_Struct *pClock, uint32_t clockPeriod)
 {
-  bool running;
-  uint32_t clockTicks;
-  Clock_Handle handle;
+    bool running;
+    uint32_t clockTicks;
+    Clock_Handle handle;
 
-  handle = Clock_handle(pClock);
-  running = Clock_isActive(handle);
+    handle = Clock_handle(pClock);
+    running = Clock_isActive(handle);
 
-  if (running)
-  {
-    Clock_stop(handle);
-  }
+    if (running) {
+        Clock_stop(handle);
+    }
 
-  // Convert period in milliseconds to ticks.
-  clockTicks = clockPeriod * (1000 / Clock_tickPeriod);
+    // Convert period in milliseconds to ticks.
+    clockTicks = clockPeriod * (1000 / Clock_tickPeriod);
 
-  Clock_setTimeout(handle, clockTicks);
-  Clock_setPeriod(handle, clockTicks);
+    Clock_setTimeout(handle, clockTicks);
+    Clock_setPeriod(handle, clockTicks);
 
-  if (running)
-  {
-    Clock_start(handle);
-  }
+    if (running) {
+        Clock_start(handle);
+    }
 }
 
 /*********************************************************************
@@ -252,10 +245,10 @@ void Util_rescheduleClock(Clock_Struct *pClock, uint32_t clockPeriod)
  */
 Queue_Handle Util_constructQueue(Queue_Struct *pQueue)
 {
-  // Construct a Queue instance.
-  Queue_construct(pQueue, NULL);
+    // Construct a Queue instance.
+    Queue_construct(pQueue, NULL);
 
-  return Queue_handle(pQueue);
+    return Queue_handle(pQueue);
 }
 
 /*********************************************************************
@@ -273,31 +266,28 @@ Queue_Handle Util_constructQueue(Queue_Struct *pQueue)
 uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem,
                         uint8_t *pMsg)
 {
-  queueRec_t *pRec;
+    queueRec_t *pRec;
 
-  // Allocated space for queue node.
+    // Allocated space for queue node.
 
-  if (pRec = (queueRec_t *)malloc(sizeof(queueRec_t)))
-  {
-    pRec->pData = pMsg;
+    if (pRec = (queueRec_t *)malloc(sizeof(queueRec_t))) {
+        pRec->pData = pMsg;
 
-    Queue_enqueue(msgQueue, &pRec->_elem);
+        Queue_enqueue(msgQueue, &pRec->_elem);
 
-    // Wake up the application thread event handler.
-    if (sem)
-    {
-      Semaphore_post(sem);
+        // Wake up the application thread event handler.
+        if (sem) {
+            Semaphore_post(sem);
+        }
+
+        return TRUE;
     }
 
-    return TRUE;
-  }
+    // Free the message.
 
-  // Free the message.
+    free(pMsg);
 
-  free(pMsg);
-
-
-  return FALSE;
+    return FALSE;
 }
 
 /*********************************************************************
@@ -311,19 +301,16 @@ uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem,
  */
 uint8_t *Util_dequeueMsg(Queue_Handle msgQueue)
 {
-  if (!Queue_empty(msgQueue))
-  {
-    queueRec_t *pRec = Queue_dequeue(msgQueue);
-    uint8_t *pData = pRec->pData;
+    if (!Queue_empty(msgQueue)) {
+        queueRec_t *pRec = Queue_dequeue(msgQueue);
+        uint8_t *pData = pRec->pData;
 
-    // Free the queue node
-    // Note:  this does not free space allocated by data within the node.
-    free(pRec);
+        // Free the queue node
+        // Note:  this does not free space allocated by data within the node.
+        free(pRec);
 
+        return pData;
+    }
 
-    return pData;
-  }
-
-  return NULL;
+    return NULL;
 }
-

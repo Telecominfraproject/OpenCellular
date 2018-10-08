@@ -14,7 +14,8 @@
 #include "inc/common/global_header.h"
 #include "inc/devices/pca9557.h"
 
-static int GpioPCA9557_probe(const OcGpio_Port *port) {
+static int GpioPCA9557_probe(const OcGpio_Port *port)
+{
     /* if we are able to read configuration register this means PCA device is accessible*/
     const PCA9557_Cfg *pca_cfg = port->cfg;
     PCA9557_Obj *obj = port->object_data;
@@ -24,7 +25,8 @@ static int GpioPCA9557_probe(const OcGpio_Port *port) {
     return OCGPIO_SUCCESS;
 }
 
-static int GpioPCA9557_init(const OcGpio_Port *port) {
+static int GpioPCA9557_init(const OcGpio_Port *port)
+{
     const PCA9557_Cfg *pca_cfg = port->cfg;
     PCA9557_Obj *obj = port->object_data;
 
@@ -40,8 +42,9 @@ static int GpioPCA9557_init(const OcGpio_Port *port) {
     obj->reg_config = 0xFF;
 
     /* Just in case, we'll read the true values */
-    if (PCA9557_getOutput(&pca_cfg->i2c_dev, &obj->reg_output) != RETURN_OK     ||
-        PCA9557_getPolarity(&pca_cfg->i2c_dev, &obj->reg_polarity) != RETURN_OK ||
+    if (PCA9557_getOutput(&pca_cfg->i2c_dev, &obj->reg_output) != RETURN_OK ||
+        PCA9557_getPolarity(&pca_cfg->i2c_dev, &obj->reg_polarity) !=
+                RETURN_OK ||
         PCA9557_getConfig(&pca_cfg->i2c_dev, &obj->reg_config) != RETURN_OK) {
         return OCGPIO_FAILURE;
     }
@@ -49,7 +52,8 @@ static int GpioPCA9557_init(const OcGpio_Port *port) {
     return OCGPIO_SUCCESS;
 }
 
-static int GpioPCA9557_write(const OcGpio_Pin *pin, bool value) {
+static int GpioPCA9557_write(const OcGpio_Pin *pin, bool value)
+{
     const PCA9557_Cfg *pca_cfg = pin->port->cfg;
     PCA9557_Obj *obj = pin->port->object_data;
     int res = OCGPIO_FAILURE;
@@ -75,7 +79,8 @@ cleanup:
     return res;
 }
 
-static int GpioPCA9557_read(const OcGpio_Pin *pin) {
+static int GpioPCA9557_read(const OcGpio_Pin *pin)
+{
     const PCA9557_Cfg *pca_cfg = pin->port->cfg;
     PCA9557_Obj *obj = pin->port->object_data;
 
@@ -98,7 +103,8 @@ static int GpioPCA9557_read(const OcGpio_Pin *pin) {
     return (input_reg >> pin->idx) & 0x01;
 }
 
-static int GpioPCA9557_configure(const OcGpio_Pin *pin, uint32_t cfg) {
+static int GpioPCA9557_configure(const OcGpio_Pin *pin, uint32_t cfg)
+{
     const PCA9557_Cfg *pca_cfg = pin->port->cfg;
     PCA9557_Obj *obj = pin->port->object_data;
     int res = OCGPIO_FAILURE;
@@ -140,8 +146,8 @@ cleanup:
 }
 
 static int GpioPCA9557_setCallback(const OcGpio_Pin *pin,
-                                   OcGpio_CallbackFn callback,
-                                   void *context) {
+                                   OcGpio_CallbackFn callback, void *context)
+{
     UNUSED(pin);
     UNUSED(callback);
     UNUSED(context);
@@ -149,13 +155,15 @@ static int GpioPCA9557_setCallback(const OcGpio_Pin *pin,
     return OCGPIO_FAILURE;
 }
 
-static int GpioPCA9557_disableInt(const OcGpio_Pin *pin) {
+static int GpioPCA9557_disableInt(const OcGpio_Pin *pin)
+{
     UNUSED(pin);
     LOGGER_ERROR("disableInt not supported by PCA9557 driver\n");
     return OCGPIO_FAILURE;
 }
 
-static int GpioPCA9557_enableInt(const OcGpio_Pin *pin) {
+static int GpioPCA9557_enableInt(const OcGpio_Pin *pin)
+{
     UNUSED(pin);
     LOGGER_ERROR("enableInt not supported by PCA9557 driver\n");
     return OCGPIO_FAILURE;
@@ -171,4 +179,3 @@ const OcGpio_FnTable GpioPCA9557_fnTable = {
     .disableInt = GpioPCA9557_disableInt,
     .enableInt = GpioPCA9557_enableInt,
 };
-

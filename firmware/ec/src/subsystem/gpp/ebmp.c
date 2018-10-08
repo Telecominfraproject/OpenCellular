@@ -172,51 +172,49 @@ void ebmp_check_soc_plt_reset(void)
  *****************************************************************************/
 void ebmp_check_boot_pin_status(void)
 {
-
     int32_t bootstatus_1 = 0;
     int32_t bootstatus_2 = 0;
 
     bootstatus_1 = OcGpio_read(pin_ap_boot_alert1);
     bootstatus_2 = OcGpio_read(pin_ap_boot_alert2);
     if (!secondIteration) {
-            if (bootstatus_2 == 0) {
-                if (bootstatus_1) {
-                    apState = STATE_T2;        //  s5_09(PL3) = 0 , s0_59(PE3) = 1
-                } else {
-                    apState = STATE_T1;        // s5_09(PL3) = 0 , s0_59(PE3) = 0
-                }
+        if (bootstatus_2 == 0) {
+            if (bootstatus_1) {
+                apState = STATE_T2; //  s5_09(PL3) = 0 , s0_59(PE3) = 1
             } else {
-                if (bootstatus_1) {
-                    apState = STATE_T3;        // s5_09(PL3) = 1 , s0_59(PE3) = 1
-                }
-                else {
-                    apState = STATE_T4;        // s5_09(PL3) = 1 , s0_59(PE3) = 0,
-                    secondIteration = 1;
-                }
+                apState = STATE_T1; // s5_09(PL3) = 0 , s0_59(PE3) = 0
             }
         } else {
-            if (bootstatus_2 == 0) {
-                if (bootstatus_1) {
-                    apState = STATE_T6;        // 5_09(PL3) = 0, s0_59(PE3) = 1
-                } else {
-                    apState = STATE_T5;        // s5_09(PL3) = 0, s0_59(PE3) = 0
-                }
+            if (bootstatus_1) {
+                apState = STATE_T3; // s5_09(PL3) = 1 , s0_59(PE3) = 1
             } else {
-                if (bootstatus_1) {
-                    apState = STATE_T7;        // s5_09(PL3) = 1, s0_59(PE3) = 1
-                    secondIteration = 0;
-                } else {
-                    apState = STATE_INVALID;   // s5_09(PL3) = 1, s0_59(PE3) = 0,
-                }
+                apState = STATE_T4; // s5_09(PL3) = 1 , s0_59(PE3) = 0,
+                secondIteration = 1;
             }
         }
+    } else {
+        if (bootstatus_2 == 0) {
+            if (bootstatus_1) {
+                apState = STATE_T6; // 5_09(PL3) = 0, s0_59(PE3) = 1
+            } else {
+                apState = STATE_T5; // s5_09(PL3) = 0, s0_59(PE3) = 0
+            }
+        } else {
+            if (bootstatus_1) {
+                apState = STATE_T7; // s5_09(PL3) = 1, s0_59(PE3) = 1
+                secondIteration = 0;
+            } else {
+                apState = STATE_INVALID; // s5_09(PL3) = 1, s0_59(PE3) = 0,
+            }
+        }
+    }
 }
-
 
 /*****************************************************************************
  * Internal IRQ handler - reads in triggered interrupts and dispatches CBs
  *****************************************************************************/
-static void ebmp_handle_irq(void *context) {
+static void ebmp_handle_irq(void *context)
+{
     apBootMonitor alertPin = (apBootMonitor)context;
     if (alertPin == AP_RESET) {
         ebmp_check_soc_plt_reset();
@@ -234,31 +232,38 @@ static void ebmp_handle_irq(void *context) {
  *****************************************************************************/
 void ebmp_init(Gpp_gpioCfg *driver)
 {
-	pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
-	pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
-	pin_soc_pltrst_n = &driver->pin_soc_pltrst_n;
-	pin_soc_corepwr_ok = &driver->pin_soc_corepwr_ok;
+    pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
+    pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
+    pin_soc_pltrst_n = &driver->pin_soc_pltrst_n;
+    pin_soc_corepwr_ok = &driver->pin_soc_corepwr_ok;
 
-	if (pin_ap_boot_alert1->port) {
-        const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-        if (OcGpio_configure(pin_ap_boot_alert1, pin_evt_cfg) < OCGPIO_SUCCESS) {
+    if (pin_ap_boot_alert1->port) {
+        const uint32_t pin_evt_cfg =
+                OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
+        if (OcGpio_configure(pin_ap_boot_alert1, pin_evt_cfg) <
+            OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
         /* Use a threaded interrupt to handle IRQ */
-        ThreadedInt_Init(pin_ap_boot_alert1, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_1);
+        ThreadedInt_Init(pin_ap_boot_alert1, ebmp_handle_irq,
+                         (void *)AP_BOOT_PROGRESS_MONITOR_1);
     }
 
     if (pin_ap_boot_alert2->port) {
-        const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-        if (OcGpio_configure(pin_ap_boot_alert2, pin_evt_cfg) < OCGPIO_SUCCESS) {
+        const uint32_t pin_evt_cfg =
+                OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
+        if (OcGpio_configure(pin_ap_boot_alert2, pin_evt_cfg) <
+            OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
         /* Use a threaded interrupt to handle IRQ */
-        ThreadedInt_Init(pin_ap_boot_alert2, ebmp_handle_irq, (void *)AP_BOOT_PROGRESS_MONITOR_2);
+        ThreadedInt_Init(pin_ap_boot_alert2, ebmp_handle_irq,
+                         (void *)AP_BOOT_PROGRESS_MONITOR_2);
     }
 
     if (pin_soc_pltrst_n->port) {
-        const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
+        const uint32_t pin_evt_cfg =
+                OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
         if (OcGpio_configure(pin_soc_pltrst_n, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
@@ -306,32 +311,27 @@ void ebmp_task_fxn(UArg a0, UArg a1)
              */
             // What is the difference between T0 to T1? Nothing! So better
             // to start counter with T1
-            case STATE_T0:
-            {
+            case STATE_T0: {
                 //oldState = apState;
                 ebmp_restart_timer(500);
                 break;
             }
-            case STATE_T1:
-            {
+            case STATE_T1: {
                 DEBUG("EBMP:INFO::STATE_T1 AP out of reset.\n");
                 ebmp_restart_timer(500);
                 break;
             }
-            case STATE_T2:
-            {
+            case STATE_T2: {
                 DEBUG("EBMP:INFO::STATE_T2 Coreboot ROM Stage.\n");
                 ebmp_restart_timer(500);
                 break;
             }
-            case STATE_T3:
-            {
+            case STATE_T3: {
                 DEBUG("EBMP:INFO::STATE_T3 Coreboot RAM stage.\n");
                 ebmp_restart_timer(500);
                 break;
             }
-            case STATE_T4:
-            {
+            case STATE_T4: {
                 DEBUG("EBMP:INFO::STATE_T4 Coreboot configures SeaBIOS to load OS.\n");
                 ebmp_restart_timer(1000);
                 /*
@@ -342,8 +342,7 @@ void ebmp_task_fxn(UArg a0, UArg a1)
                 //bootOption();
                 break;
             }
-            case STATE_T5:
-            {
+            case STATE_T5: {
                 DEBUG("EBMP:INFO::STATE_T5 SeaBIOS loads OS.\n");
                 ebmp_restart_timer(10000);
                 /*
@@ -354,16 +353,14 @@ void ebmp_task_fxn(UArg a0, UArg a1)
                 //bootOption();
                 break;
             }
-            case STATE_T6:
-            {
+            case STATE_T6: {
                 DEBUG("EBMP:INFO::STATE_T6 Watchdog Daemon started.\n");
                 /* OC-Watchdog started */
                 ebmp_restart_timer(10000);
                 break;
             }
                 /*Fully booted */
-            case STATE_T7:
-            {
+            case STATE_T7: {
                 DEBUG("EBMP:INFO:: STATE_T7 AP Watchdog daemon process responds to EP request.\n");
                 //Semaphore_post(apStateSem);
                 /* Stop timer. It will be used by OCWatchdog */
@@ -373,15 +370,14 @@ void ebmp_task_fxn(UArg a0, UArg a1)
                 // Semaphore_OCWatchdog();
                 break;
             }
-            default:
-            {
+            default: {
                 DEBUG("EBMP:ERROR:: Invalid state\n");
             }
         }
         DEBUG("EBMP:INFO:: Boot Monitor Pin 1 [PE3] : %d Boot Monitor Pin 2 [PL3] : %d SOC PLTRST : %d.\n",
-                OcGpio_read(pin_ap_boot_alert1)? 1: 0,
-                OcGpio_read(pin_ap_boot_alert2)? 1: 0,
-                OcGpio_read(pin_soc_pltrst_n)? 1: 0);
+              OcGpio_read(pin_ap_boot_alert1) ? 1 : 0,
+              OcGpio_read(pin_ap_boot_alert2) ? 1 : 0,
+              OcGpio_read(pin_soc_pltrst_n) ? 1 : 0);
         oldState = apState;
     }
 }

@@ -11,15 +11,15 @@
 
 #include <stdint.h>
 
-typedef struct __attribute__ ((packed, aligned(1))){
-    uint8_t    slaveAddress;
-    uint8_t    number_of_bytes;
-    uint8_t    reg_address;
-    uint16_t   reg_value;
-}S_OCI2C;
+typedef struct __attribute__((packed, aligned(1))) {
+    uint8_t slaveAddress;
+    uint8_t number_of_bytes;
+    uint8_t reg_address;
+    uint16_t reg_value;
+} S_OCI2C;
 
 typedef struct S_I2C_Cfg {
     unsigned int bus;
-}S_I2C_Cfg;
+} S_I2C_Cfg;
 
 #endif /* INC_DEVICES_OC_I2C_H_ */

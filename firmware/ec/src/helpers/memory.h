@@ -16,19 +16,19 @@
 #include <stdlib.h>
 
 #ifndef HIWORD
-    #define HIWORD(x) ((uint16_t)((x) >> 16))
+#define HIWORD(x) ((uint16_t)((x) >> 16))
 #endif
 
 #ifndef LOWORD
-    #define LOWORD(x) ((uint16_t)(x))
+#define LOWORD(x) ((uint16_t)(x))
 #endif
 
 #ifndef HIBYTE
-    #define HIBYTE(x) ((uint8_t)((x) >> 8))
+#define HIBYTE(x) ((uint8_t)((x) >> 8))
 #endif
 
 #ifndef LOBYTE
-    #define LOBYTE(x) ((uint8_t)(x))
+#define LOBYTE(x) ((uint8_t)(x))
 #endif
 
 #define zalloc(size) calloc((size), 1)

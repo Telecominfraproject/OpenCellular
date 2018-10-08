@@ -16,8 +16,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define POST_ENABLED    0
-#define POST_DISABLED   1
+#define POST_ENABLED 0
+#define POST_DISABLED 1
 
 /* For enabling schema sharing between host and firmware we need to import the
  * factory config and driver config to schema.c as weak attribute from
@@ -63,7 +63,7 @@ typedef struct Parameter {
     };
 } Parameter;
 
-typedef bool (*CB_Command) (void *driver, void *params);
+typedef bool (*CB_Command)(void *driver, void *params);
 
 typedef struct Command {
     const char *name;
@@ -71,37 +71,37 @@ typedef struct Command {
     const CB_Command cb_cmd;
 } Command;
 
-typedef bool (*CB_POST) (void **params);
+typedef bool (*CB_POST)(void **params);
 
 typedef struct Post {
     const char *name;
     const CB_POST cb_postCmd;
-}Post;
+} Post;
 
 // To avoid the awkward situation of not knowing how much to allocate for the return value (think
 // string returns), we instead rely on the 'get' and 'set' functions to allocate and return a
 // pointer to the value it wants to return via OCMP
-typedef bool (*StatusGet_Cb) (void *driver, unsigned int param_id,
-                              void *return_buf);
-typedef bool (*ConfigGet_Cb) (void *driver, unsigned int param_id,
-                              void *return_buf);
-typedef bool (*ConfigSet_Cb) (void *driver, unsigned int param_id,
-                              const void *data);
+typedef bool (*StatusGet_Cb)(void *driver, unsigned int param_id,
+                             void *return_buf);
+typedef bool (*ConfigGet_Cb)(void *driver, unsigned int param_id,
+                             void *return_buf);
+typedef bool (*ConfigSet_Cb)(void *driver, unsigned int param_id,
+                             const void *data);
 
-typedef ePostCode (*CB_Probe) (void *driver, POSTData* postData);
-typedef ePostCode (*CB_Init) (void *driver, const void *config,
-                              const void *alert_token);
+typedef ePostCode (*CB_Probe)(void *driver, POSTData *postData);
+typedef ePostCode (*CB_Init)(void *driver, const void *config,
+                             const void *alert_token);
 
-typedef bool (*ssHook_Cb) (void *driver, void *return_buf);
+typedef bool (*ssHook_Cb)(void *driver, void *return_buf);
 
 typedef struct Driver_fxnTable {
     // TODO: These callbacks are a bit rough. They'll get the job done, but we should revisit other
-     // options (per-parameter callbacks for example)
-     StatusGet_Cb cb_get_status;
-     ConfigGet_Cb cb_get_config;
-     ConfigSet_Cb cb_set_config;
-     CB_Probe cb_probe;
-     CB_Init cb_init;
+    // options (per-parameter callbacks for example)
+    StatusGet_Cb cb_get_status;
+    ConfigGet_Cb cb_get_config;
+    ConfigSet_Cb cb_set_config;
+    CB_Probe cb_probe;
+    CB_Init cb_init;
 } Driver_fxnTable;
 
 typedef struct Driver {
@@ -111,27 +111,28 @@ typedef struct Driver {
     const Parameter *alerts;
     const Parameter *argList;
     const Command *commands;
-    const Driver_fxnTable* fxnTable;
+    const Driver_fxnTable *fxnTable;
     const Post *post;
     bool payload_fmt_union; /* TODO: hack to account for OBC/Testmodule payload
                                being packed as a union instead of a struct */
 } Driver;
 
 typedef struct SSHookSet {
- ssHook_Cb preInitFxn ;/* Function will run before post is executed */
- ssHook_Cb postInitFxn; /* Function will run after post is executed */
-}SSHookSet;
+    ssHook_Cb preInitFxn; /* Function will run before post is executed */
+    ssHook_Cb postInitFxn; /* Function will run after post is executed */
+} SSHookSet;
 
-typedef void (*Component_InitCb) (void);
+typedef void (*Component_InitCb)(void);
 
 typedef struct Component {
     const char *name;
     const struct Component *components;
     const Driver *driver;
     void *driver_cfg; // TODO: this could be turned into a standard polymorphism struct to hold the
-                      // driver, hw config & driver object data (like we did for GPIO)
+            // driver, hw config & driver object data (like we did for GPIO)
     const void *factory_config; /* Factory defaults for the device */
-    const Command *commands; /* TODO: super gross hack to fit into current CLI */
+    const Command
+            *commands; /* TODO: super gross hack to fit into current CLI */
     const SSHookSet *ssHookSet;
     bool postDisabled; //Flag for POST execution.
     void *ss;
@@ -144,8 +145,7 @@ typedef struct AlertData {
     uint8_t deviceId;
 } AlertData;
 
-void OCMP_GenerateAlert(const AlertData *alert_data,
-                        unsigned int alert_id,
+void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
                         const void *data);
 
 #endif /* _SYS_CFG_FRAMEWORK_H */

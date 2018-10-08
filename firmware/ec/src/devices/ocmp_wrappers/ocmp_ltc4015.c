@@ -41,7 +41,8 @@ typedef enum LTC4015Alert {
     LTC4015_ALERT_DIE_TEMPERATURE_HIGH,
 } LTC4015Alert;
 
-static bool _choose_battery_charger(LTC4015_Dev *dev) {
+static bool _choose_battery_charger(LTC4015_Dev *dev)
+{
     if (OcGpio_write(&dev->cfg.pin_lt4015_i2c_sel,
                      (dev->cfg.chem == LTC4015_CHEM_LI_ION)) < OCGPIO_SUCCESS) {
         return false;
@@ -49,9 +50,9 @@ static bool _choose_battery_charger(LTC4015_Dev *dev) {
     return true;
 }
 
-static bool _get_status(void *driver, unsigned int param_id,
-                        void *return_buf) {
-    if(!_choose_battery_charger(driver))
+static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
+{
+    if (!_choose_battery_charger(driver))
         return false;
 
     switch (param_id) {
@@ -89,42 +90,41 @@ static bool _get_status(void *driver, unsigned int param_id,
     }
 }
 
-static bool _get_config(void *driver, unsigned int param_id,
-                        void *return_buf) {
-
-    if(!_choose_battery_charger(driver))
+static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
+{
+    if (!_choose_battery_charger(driver))
         return false;
 
     switch (param_id) {
         case LTC4015_CONFIG_BATTERY_VOLTAGE_LOW: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_battery_voltage_low(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_battery_voltage_low(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_battery_voltage_high(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_battery_voltage_high(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_BATTERY_CURRENT_LOW: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_battery_current_low(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_battery_current_low(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_VOLTAGE_LOW: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_input_voltage_low(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_input_voltage_low(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_CURRENT_HIGH: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_input_current_high(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_input_current_high(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_CURRENT_LIMIT: {
             uint16_t *res = return_buf;
-            return (LTC4015_get_cfg_input_current_limit(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_input_current_limit(driver, res) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_ICHARGE: {
             uint16_t *res = return_buf;
@@ -136,8 +136,8 @@ static bool _get_config(void *driver, unsigned int param_id,
         }
         case LTC4015_CONFIG_DIE_TEMPERATURE_HIGH: {
             int16_t *res = return_buf;
-            return (LTC4015_get_cfg_die_temperature_high(driver, res)
-                    == RETURN_OK);
+            return (LTC4015_get_cfg_die_temperature_high(driver, res) ==
+                    RETURN_OK);
         }
         default:
             LOGGER_ERROR("LTC4015::Unknown config param %d\n", param_id);
@@ -145,41 +145,40 @@ static bool _get_config(void *driver, unsigned int param_id,
     }
 }
 
-static bool _set_config(void *driver, unsigned int param_id,
-                        const void *data) {
-    if(!_choose_battery_charger(driver))
+static bool _set_config(void *driver, unsigned int param_id, const void *data)
+{
+    if (!_choose_battery_charger(driver))
         return false;
 
     switch (param_id) {
         case LTC4015_CONFIG_BATTERY_VOLTAGE_LOW: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_battery_voltage_low(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_battery_voltage_low(driver, *limit) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_battery_voltage_high(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_battery_voltage_high(driver, *limit) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_BATTERY_CURRENT_LOW: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_battery_current_low(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_battery_current_low(driver, *limit) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_VOLTAGE_LOW: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_input_voltage_low(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_input_voltage_low(driver, *limit) == RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_CURRENT_HIGH: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_input_current_high(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_input_current_high(driver, *limit) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_INPUT_CURRENT_LIMIT: {
             const uint16_t *limit = data;
-            return (LTC4015_cfg_input_current_limit(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_input_current_limit(driver, *limit) ==
+                    RETURN_OK);
         }
         case LTC4015_CONFIG_ICHARGE: {
             const uint16_t *limit = data;
@@ -191,8 +190,8 @@ static bool _set_config(void *driver, unsigned int param_id,
         }
         case LTC4015_CONFIG_DIE_TEMPERATURE_HIGH: {
             const int16_t *limit = data;
-            return (LTC4015_cfg_die_temperature_high(driver, *limit)
-                    == RETURN_OK);
+            return (LTC4015_cfg_die_temperature_high(driver, *limit) ==
+                    RETURN_OK);
         }
         default:
             LOGGER_ERROR("LTC4015::Unknown config param %d\n", param_id);
@@ -203,7 +202,7 @@ static bool _set_config(void *driver, unsigned int param_id,
 static ePostCode _probe(void *driver, POSTData *postData)
 {
     LTC4015_configure(driver);
-    if(!_choose_battery_charger(driver))
+    if (!_choose_battery_charger(driver))
         return false;
 
     return LTC4015_probe(driver, postData);
@@ -241,8 +240,9 @@ static void _alert_handler(LTC4015_Event evt, int16_t value, void *alert_data)
 }
 
 static ePostCode _init(void *driver, const void *config,
-                       const void *alert_token) {
-    if(!_choose_battery_charger(driver))
+                       const void *alert_token)
+{
+    if (!_choose_battery_charger(driver))
         return false;
 
     if (LTC4015_init(driver) != RETURN_OK) {
@@ -255,52 +255,46 @@ static ePostCode _init(void *driver, const void *config,
 
     const LTC4015_Config *ltc4015_config = config;
 
-    if (LTC4015_cfg_battery_voltage_low(driver,
-                                        ltc4015_config->batteryVoltageLow)
-            != RETURN_OK) {
+    if (LTC4015_cfg_battery_voltage_low(
+                driver, ltc4015_config->batteryVoltageLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-    if (LTC4015_cfg_battery_voltage_high(driver,
-                                         ltc4015_config->batteryVoltageHigh)
-            != RETURN_OK) {
+    if (LTC4015_cfg_battery_voltage_high(
+                driver, ltc4015_config->batteryVoltageHigh) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-    if (LTC4015_cfg_battery_current_low(driver,
-                                        ltc4015_config->batteryCurrentLow)
-            != RETURN_OK) {
+    if (LTC4015_cfg_battery_current_low(
+                driver, ltc4015_config->batteryCurrentLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-    if (LTC4015_cfg_input_voltage_low(driver, ltc4015_config->inputVoltageLow)
-            != RETURN_OK) {
+    if (LTC4015_cfg_input_voltage_low(
+                driver, ltc4015_config->inputVoltageLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-    if (LTC4015_cfg_input_current_high(driver, ltc4015_config->inputCurrentHigh)
-            != RETURN_OK) {
+    if (LTC4015_cfg_input_current_high(
+                driver, ltc4015_config->inputCurrentHigh) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
-    if (LTC4015_cfg_input_current_limit(driver,
-                                        ltc4015_config->inputCurrentLimit)
-            != RETURN_OK) {
+    if (LTC4015_cfg_input_current_limit(
+                driver, ltc4015_config->inputCurrentLimit) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (ltc4015_config->icharge) {
-        if (LTC4015_cfg_icharge(driver, ltc4015_config->icharge)
-                != RETURN_OK) {
+        if (LTC4015_cfg_icharge(driver, ltc4015_config->icharge) != RETURN_OK) {
             return POST_DEV_CFG_FAIL;
         }
     }
     if (ltc4015_config->vcharge) {
-        if (LTC4015_cfg_vcharge(driver, ltc4015_config->vcharge)
-                != RETURN_OK) {
+        if (LTC4015_cfg_vcharge(driver, ltc4015_config->vcharge) != RETURN_OK) {
             return POST_DEV_CFG_FAIL;
         }
     }
 
     LTC4015_setAlertHandler(driver, _alert_handler, (void *)alert_token);
     if (LTC4015_enableLimitAlerts(driver,
-                                  LTC4015_EVT_BVL | LTC4015_EVT_BVH
-                                  | LTC4015_EVT_IVL | LTC4015_EVT_ICH
-                                  | LTC4015_EVT_BCL) != RETURN_OK) {
+                                  LTC4015_EVT_BVL | LTC4015_EVT_BVH |
+                                          LTC4015_EVT_IVL | LTC4015_EVT_ICH |
+                                          LTC4015_EVT_BCL) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
 
@@ -313,9 +307,7 @@ static ePostCode _init(void *driver, const void *config,
 
 const Driver_fxnTable LTC4015_fxnTable = {
     /* Message handlers */
-    .cb_probe = _probe,
-    .cb_init = _init,
-    .cb_get_status = _get_status,
-    .cb_get_config = _get_config,
+    .cb_probe = _probe,           .cb_init = _init,
+    .cb_get_status = _get_status, .cb_get_config = _get_config,
     .cb_set_config = _set_config,
 };

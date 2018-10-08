@@ -19,13 +19,13 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define BIGBROTHER_TASK_PRIORITY            5
-#define BIGBROTHER_TASK_STACK_SIZE          8096
+#define BIGBROTHER_TASK_PRIORITY 5
+#define BIGBROTHER_TASK_STACK_SIZE 8096
 
 typedef enum {
     OC_SYS_S_ID_EEPROM = 1,
     OC_SYS_INVEN_EEPROM = 2,
-    OC_SYS_FLASH= 3,
+    OC_SYS_FLASH = 3,
 } eSysDeviceSno;
 
 /* Semaphore and Queue Handles for Big Brother */

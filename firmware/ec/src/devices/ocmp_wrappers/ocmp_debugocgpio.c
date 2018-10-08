@@ -13,43 +13,54 @@
 #include "inc/common/global_header.h"
 #include "inc/devices/debug_ocgpio.h"
 
-
 #include <ti/drivers/GPIO.h>
 
-#define NO_GPIO_PINS_IN_GROUP   8
+#define NO_GPIO_PINS_IN_GROUP 8
 extern GPIO_PinConfig gpioPinConfigs[];
 
-bool ocgpio_set(void* gpio_cfg, void* oc_gpio )
+bool ocgpio_set(void *gpio_cfg, void *oc_gpio)
 {
-    S_OCGPIO_Cfg* oc_gpio_cfg = (S_OCGPIO_Cfg*)gpio_cfg;
-    S_OCGPIO* s_oc_gpio = (S_OCGPIO*)oc_gpio;
+    S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)gpio_cfg;
+    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)oc_gpio;
     int ret = 0;
-    uint8_t idx = ((oc_gpio_cfg->group != 0)?(((oc_gpio_cfg->group-1) * NO_GPIO_PINS_IN_GROUP) + s_oc_gpio->pin):s_oc_gpio->pin);
-    OcGpio_Pin ocgpio = { (oc_gpio_cfg->port), idx, ((oc_gpio_cfg->group != 0)?(gpioPinConfigs[idx]>>16):OCGPIO_CFG_OUT_STD)};
+    uint8_t idx = ((oc_gpio_cfg->group != 0) ?
+                           (((oc_gpio_cfg->group - 1) * NO_GPIO_PINS_IN_GROUP) +
+                            s_oc_gpio->pin) :
+                           s_oc_gpio->pin);
+    OcGpio_Pin ocgpio = { (oc_gpio_cfg->port), idx,
+                          ((oc_gpio_cfg->group != 0) ?
+                                   (gpioPinConfigs[idx] >> 16) :
+                                   OCGPIO_CFG_OUT_STD) };
     ret = OcGpio_configure(&ocgpio, OCGPIO_CFG_OUTPUT);
-    ret = OcGpio_write(&ocgpio,s_oc_gpio->value);
+    ret = OcGpio_write(&ocgpio, s_oc_gpio->value);
     return (ret == 0);
 }
 
-bool ocgpio_get(void* gpio_cfg, void* oc_gpio )
+bool ocgpio_get(void *gpio_cfg, void *oc_gpio)
 {
-    S_OCGPIO_Cfg* oc_gpio_cfg = (S_OCGPIO_Cfg*)gpio_cfg;
-    S_OCGPIO* s_oc_gpio = (S_OCGPIO*)oc_gpio;
+    S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)gpio_cfg;
+    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)oc_gpio;
     int ret = 0;
-    uint8_t idx = ((oc_gpio_cfg->group != 0)?(((oc_gpio_cfg->group-1) * NO_GPIO_PINS_IN_GROUP) + s_oc_gpio->pin):s_oc_gpio->pin);
-    OcGpio_Pin ocgpio = { (oc_gpio_cfg->port), idx, ((oc_gpio_cfg->group!= 0)?(gpioPinConfigs[idx]>>16):OCGPIO_CFG_IN_PU)};
+    uint8_t idx = ((oc_gpio_cfg->group != 0) ?
+                           (((oc_gpio_cfg->group - 1) * NO_GPIO_PINS_IN_GROUP) +
+                            s_oc_gpio->pin) :
+                           s_oc_gpio->pin);
+    OcGpio_Pin ocgpio = { (oc_gpio_cfg->port), idx,
+                          ((oc_gpio_cfg->group != 0) ?
+                                   (gpioPinConfigs[idx] >> 16) :
+                                   OCGPIO_CFG_IN_PU) };
     ret = OcGpio_configure(&ocgpio, OCGPIO_CFG_INPUT);
     s_oc_gpio->value = OcGpio_read(&ocgpio);
-    if ( s_oc_gpio->value < 0) {
+    if (s_oc_gpio->value < 0) {
         ret = -1;
     }
     return (ret == 0);
 }
 
-static ePostCode _probe(S_OCGPIO_Cfg* oc_gpio_cfg)
+static ePostCode _probe(S_OCGPIO_Cfg *oc_gpio_cfg)
 {
     if (OcGpio_probe(oc_gpio_cfg->port) != 0) {
-            return POST_DEV_MISSING;
+        return POST_DEV_MISSING;
     } else {
         return POST_DEV_FOUND;
     }

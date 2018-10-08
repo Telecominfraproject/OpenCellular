@@ -20,38 +20,38 @@
  *                          Register Definitions
  *****************************************************************************/
 /* Register Addresses */
-#define SE98A_REG_CAPS      0x00
-#define SE98A_REG_CFG       0x01
-#define SE98A_REG_HIGH_LIM  0x02
-#define SE98A_REG_LOW_LIM   0x03
-#define SE98A_REG_CRIT_LIM  0x04
-#define SE98A_REG_TEMP      0x05
-#define SE98A_REG_MFG_ID    0x06
-#define SE98A_REG_DEV_ID    0x07
+#define SE98A_REG_CAPS 0x00
+#define SE98A_REG_CFG 0x01
+#define SE98A_REG_HIGH_LIM 0x02
+#define SE98A_REG_LOW_LIM 0x03
+#define SE98A_REG_CRIT_LIM 0x04
+#define SE98A_REG_TEMP 0x05
+#define SE98A_REG_MFG_ID 0x06
+#define SE98A_REG_DEV_ID 0x07
 
 /* Temperature Sensor Info */
-#define SE98A_MFG_ID        0x1131
-#define SE98A_DEV_ID        0xA1
+#define SE98A_MFG_ID 0x1131
+#define SE98A_DEV_ID 0xA1
 
 /* Configuration Bits */
-#define SE98A_CFG_HEN_H  (1 << 10) /* Hysteresis Enable High Bit */
-#define SE98A_CFG_HEN_L  (1 << 9)  /* Hysteresis Enable Low Bit */
-#define SE98A_CFG_SHMD   (1 << 8)  /* Shutdown Mode */
+#define SE98A_CFG_HEN_H (1 << 10) /* Hysteresis Enable High Bit */
+#define SE98A_CFG_HEN_L (1 << 9) /* Hysteresis Enable Low Bit */
+#define SE98A_CFG_SHMD (1 << 8) /* Shutdown Mode */
 
-#define SE98A_CFG_CTLB   (1 << 7)  /* Critical Trip Lock Bit */
-#define SE98A_CFG_AWLB   (1 << 6)  /* Alarm Window Lock Bit */
-#define SE98A_CFG_CEVENT (1 << 5)  /* (WO) Clear EVENT */
-#define SE98A_CFG_ESTAT  (1 << 4)  /* (RO) EVENT Status */
+#define SE98A_CFG_CTLB (1 << 7) /* Critical Trip Lock Bit */
+#define SE98A_CFG_AWLB (1 << 6) /* Alarm Window Lock Bit */
+#define SE98A_CFG_CEVENT (1 << 5) /* (WO) Clear EVENT */
+#define SE98A_CFG_ESTAT (1 << 4) /* (RO) EVENT Status */
 
-#define SE98A_CFG_EOCTL  (1 << 3)  /* EVENT Output Control */
-#define SE98A_CFG_CVO    (1 << 2)  /* Critical Event Only */
-#define SE98A_CFG_EP     (1 << 1)  /* EVENT Polarity */
-#define SE98A_CFG_EMD    (1 << 0)  /* EVENT Mode */
+#define SE98A_CFG_EOCTL (1 << 3) /* EVENT Output Control */
+#define SE98A_CFG_CVO (1 << 2) /* Critical Event Only */
+#define SE98A_CFG_EP (1 << 1) /* EVENT Polarity */
+#define SE98A_CFG_EMD (1 << 0) /* EVENT Mode */
 
-#define SE98A_CFG_HYS_0     (0x0 << 9)
-#define SE98A_CFG_HYS_1P5   (0x1 << 9)
-#define SE98A_CFG_HYS_3     (0x2 << 9)
-#define SE98A_CFG_HYS_6     (0x3 << 9)
+#define SE98A_CFG_HYS_0 (0x0 << 9)
+#define SE98A_CFG_HYS_1P5 (0x1 << 9)
+#define SE98A_CFG_HYS_3 (0x2 << 9)
+#define SE98A_CFG_HYS_6 (0x3 << 9)
 
 /* Default CFG plus interrupt mode (we don't support comparator mode) */
 #define SE98A_CONFIG_DEFAULT (0x0000 | SE98A_CFG_EMD | SE98A_CFG_HYS_1P5)
@@ -59,16 +59,15 @@
 /*****************************************************************************
  * Helper to read from a SE98A register
  *****************************************************************************/
-static ReturnStatus se98a_reg_read(const SE98A_Dev *dev,
-                                   uint8_t regAddress,
+static ReturnStatus se98a_reg_read(const SE98A_Dev *dev, uint8_t regAddress,
                                    uint16_t *regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle tempHandle = i2c_get_handle(dev->cfg.dev.bus);
     if (!tempHandle) {
         LOGGER_ERROR("SE98A:ERROR:: Failed to get I2C Bus for Temperature "
-                     "sensor 0x%x on bus 0x%x.\n", dev->cfg.dev.slave_addr,
-                     dev->cfg.dev.bus);
+                     "sensor 0x%x on bus 0x%x.\n",
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus);
     } else {
         status = i2c_reg_read(tempHandle, dev->cfg.dev.slave_addr, regAddress,
                               regValue, 2);
@@ -80,16 +79,15 @@ static ReturnStatus se98a_reg_read(const SE98A_Dev *dev,
 /*****************************************************************************
  * Helper to write to a SE98A register
  *****************************************************************************/
-static ReturnStatus se98a_reg_write(const SE98A_Dev *dev,
-                                    uint8_t regAddress,
+static ReturnStatus se98a_reg_write(const SE98A_Dev *dev, uint8_t regAddress,
                                     uint16_t regValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     I2C_Handle tempHandle = i2c_get_handle(dev->cfg.dev.bus);
     if (!tempHandle) {
         LOGGER_ERROR("SE98A:ERROR:: Failed to get I2C Bus for Temperature "
-                     "sensor 0x%x on bus 0x%x.\n", dev->cfg.dev.slave_addr,
-                     dev->cfg.dev.bus);
+                     "sensor 0x%x on bus 0x%x.\n",
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus);
     } else {
         regValue = htobe16(regValue);
         status = i2c_reg_write(tempHandle, dev->cfg.dev.slave_addr, regAddress,
@@ -104,8 +102,7 @@ static ReturnStatus se98a_reg_write(const SE98A_Dev *dev,
 static ReturnStatus se98a_get_dev_id(const SE98A_Dev *dev, uint8_t *devID)
 {
     uint16_t regValue;
-    ReturnStatus status = se98a_reg_read(dev, SE98A_REG_DEV_ID,
-                                         &regValue);
+    ReturnStatus status = se98a_reg_read(dev, SE98A_REG_DEV_ID, &regValue);
     if (status == RETURN_OK) {
         /* Strip off the revision - we don't care about it right now */
         *devID = HIBYTE(regValue);
@@ -176,7 +173,8 @@ ReturnStatus se98a_set_limit(SE98A_Dev *dev,
 /*****************************************************************************
  * Helper to convert a SE98A register value to a temperature
  *****************************************************************************/
-static int8_t reg2temp(uint16_t reg) {
+static int8_t reg2temp(uint16_t reg)
+{
     /* The limit regs have lower precision, so by making this function common,
      * we lose 0.125 precision... since we round to the nearest int, I'm not
      * worried */
@@ -221,7 +219,6 @@ ReturnStatus se98a_read(SE98A_Dev *dev, int8_t *tempValue)
     return status;
 }
 
-
 /*****************************************************************************
  * Helper to read the configuration register
  *****************************************************************************/
@@ -235,7 +232,7 @@ static ReturnStatus se98a_get_config_reg(const SE98A_Dev *dev,
  *****************************************************************************/
 ReturnStatus se98a_get_limit(SE98A_Dev *dev,
                              eTempSensor_ConfigParamsId limitToConfig,
-                             int8_t* tempLimitValue)
+                             int8_t *tempLimitValue)
 {
     ReturnStatus status = RETURN_NOTOK;
     uint16_t regValue = 0x0000;
@@ -261,7 +258,8 @@ ReturnStatus se98a_get_limit(SE98A_Dev *dev,
         *tempLimitValue = reg2temp(regValue);
         LOGGER_DEBUG("TEMPSENSOR:INFO:: Temperature sensor 0x%x on bus "
                      "0x%x is having Limit configure to  0x%x.\n",
-                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus, *tempLimitValue);
+                     dev->cfg.dev.slave_addr, dev->cfg.dev.bus,
+                     *tempLimitValue);
     }
     return status;
 }
@@ -269,21 +267,24 @@ ReturnStatus se98a_get_limit(SE98A_Dev *dev,
 /*****************************************************************************
  * Internal IRQ handler - reads in triggered interrupts and dispatches CBs
  *****************************************************************************/
-static void se98a_handle_irq(void *context) {
+static void se98a_handle_irq(void *context)
+{
     SE98A_Dev *dev = context;
 
     ReturnStatus res = RETURN_NOTOK;
-    const IArg mutexKey = GateMutex_enter(dev->obj.mutex); {
+    const IArg mutexKey = GateMutex_enter(dev->obj.mutex);
+    {
         /* See if this event was from us (we can't just read the trip status
          * since those bits are sticky - they could be from an old event) */
         uint16_t config_reg;
         if ((se98a_get_config_reg(dev, &config_reg) == RETURN_OK) &&
-                (config_reg & SE98A_CFG_ESTAT)) {
+            (config_reg & SE98A_CFG_ESTAT)) {
             /* Clear the event */
             config_reg |= SE98A_CFG_CEVENT;
             res = se98a_set_config_reg(dev, config_reg);
         }
-    } GateMutex_leave(dev->obj.mutex, mutexKey);
+    }
+    GateMutex_leave(dev->obj.mutex, mutexKey);
 
     if (res != RETURN_OK) {
         return;
@@ -335,9 +336,8 @@ ReturnStatus se98a_init(SE98A_Dev *dev)
     /* The only way to truly reset this device is to cycle power - we'll just
      * clear out the config register to be safe and clear any interrupts from
      * a previous life */
-    if (se98a_set_config_reg(
-            dev, SE98A_CONFIG_DEFAULT | SE98A_CFG_CEVENT) !=
-            RETURN_OK) {
+    if (se98a_set_config_reg(dev, SE98A_CONFIG_DEFAULT | SE98A_CFG_CEVENT) !=
+        RETURN_OK) {
         return RETURN_NOTOK;
     }
 
@@ -371,19 +371,21 @@ ReturnStatus se98a_enable_alerts(SE98A_Dev *dev)
     Task_sleep(125);
 
     ReturnStatus res = RETURN_NOTOK;
-    const IArg mutexKey = GateMutex_enter(dev->obj.mutex); {
+    const IArg mutexKey = GateMutex_enter(dev->obj.mutex);
+    {
         uint16_t config_reg;
         if (se98a_get_config_reg(dev, &config_reg) == RETURN_OK) {
             config_reg |= SE98A_CFG_EOCTL;
             res = se98a_set_config_reg(dev, config_reg);
         }
-    } GateMutex_leave(dev->obj.mutex, mutexKey);
+    }
+    GateMutex_leave(dev->obj.mutex, mutexKey);
     return res;
 }
 
 /*****************************************************************************
  *****************************************************************************/
-ePostCode se98a_probe(SE98A_Dev *dev,  POSTData *postData)
+ePostCode se98a_probe(SE98A_Dev *dev, POSTData *postData)
 {
     uint8_t devId = 0x00;
     uint16_t manfId = 0x0000;
@@ -400,6 +402,7 @@ ePostCode se98a_probe(SE98A_Dev *dev,  POSTData *postData)
     if (manfId != SE98A_MFG_ID) {
         return POST_DEV_ID_MISMATCH;
     }
-    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,manfId, devId);
+    post_update_POSTData(postData, dev->cfg.dev.bus, dev->cfg.dev.slave_addr,
+                         manfId, devId);
     return POST_DEV_FOUND;
 }

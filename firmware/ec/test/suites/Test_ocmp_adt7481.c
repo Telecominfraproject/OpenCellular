@@ -39,15 +39,15 @@ typedef enum Adt7481Status {
     ADT7481_STATUS_TEMPERATURE = 0,
 } Adt7481Status;
 
-typedef enum Adt7481SConfig { 
-    ADT7481_CONFIG_LIM_LOW = 0, 
+typedef enum Adt7481SConfig {
+    ADT7481_CONFIG_LIM_LOW = 0,
     ADT7481_CONFIG_LIM_HIGH,
-    ADT7481_CONFIG_LIM_CRIT, 
+    ADT7481_CONFIG_LIM_CRIT,
 } Adt7481SConfig;
 
-typedef enum Adt7481SAlert { 
+typedef enum Adt7481SAlert {
     ADT7481_ALERT_LOW = 0,
-    ADT7481_ALERT_HIGH, 
+    ADT7481_ALERT_HIGH,
     ADT7481_ALERT_CRITICAL
 } Adt7481SAlert;
 
@@ -89,18 +89,18 @@ static uint8_t ADT7481_regs[] = {
     [0x37] = 0x00, /* Remote 2 Temp Low Limit Low Byte R*/
     [0x39] = 0x00, /* Remote 2 THERM Limit R*/
     [0x3D] = 0x00, /* Device ID R */
-    [0x3E] = 0x00, /* Manufacturer ID R */ 
+    [0x3E] = 0x00, /* Manufacturer ID R */
 };
 
 /* ============================= Fake Functions ============================= */
 #include <ti/sysbios/knl/Task.h>
 unsigned int s_task_sleep_ticks;
-xdc_Void ti_sysbios_knl_Task_sleep__E( xdc_UInt32 nticks )
+xdc_Void ti_sysbios_knl_Task_sleep__E(xdc_UInt32 nticks)
 {
     s_task_sleep_ticks += nticks;
 }
 
-void test_alert(void) 
+void test_alert(void)
 {
 }
 
@@ -108,10 +108,9 @@ void test_alert(void)
 void suite_setUp(void)
 {
     fake_I2C_init();
-    fake_I2C_registerDevSimple(I2C_DEV.bus, I2C_DEV.slave_addr,
-                               ADT7481_regs, sizeof(ADT7481_regs),
-                               sizeof(ADT7481_regs[0]), sizeof(uint8_t),
-                               FAKE_I2C_DEV_BIG_ENDIAN);
+    fake_I2C_registerDevSimple(I2C_DEV.bus, I2C_DEV.slave_addr, ADT7481_regs,
+                               sizeof(ADT7481_regs), sizeof(ADT7481_regs[0]),
+                               sizeof(uint8_t), FAKE_I2C_DEV_BIG_ENDIAN);
 }
 
 void setUp(void)
@@ -125,10 +124,8 @@ void tearDown(void)
 
 void suite_tearDown(void)
 {
-    fake_I2C_deinit(); /* This will automatically unregister devices */	
+    fake_I2C_deinit(); /* This will automatically unregister devices */
 }
-
-
 
 /* ================================ Tests =================================== */
 
@@ -137,71 +134,79 @@ void test_probe(void)
     POSTData postData;
 
     /* Correct Dev id */
-    ADT7481_regs[0x3D] = 0x81;  /* Device ID */
-    ADT7481_regs[0x3E] = 0x41;  /* MFG ID */
-    
-    TEST_ASSERT_EQUAL(POST_DEV_FOUND, ADT7481_fxnTable.cb_probe(&I2C_DEV,
-                                &postData));
-    
+    ADT7481_regs[0x3D] = 0x81; /* Device ID */
+    ADT7481_regs[0x3E] = 0x41; /* MFG ID */
+
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND,
+                      ADT7481_fxnTable.cb_probe(&I2C_DEV, &postData));
+
     /*  Invalid device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, ADT7481_fxnTable.cb_probe(&s_invalid_dev,
-                                &postData));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING,
+                      ADT7481_fxnTable.cb_probe(&s_invalid_dev, &postData));
     /*  Invalid bus */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, ADT7481_fxnTable.cb_probe(&s_invalid_bus,
-                                &postData));    
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING,
+                      ADT7481_fxnTable.cb_probe(&s_invalid_bus, &postData));
     /* Incorrect Dev id */
-    ADT7481_regs[0x3D] = 0x80;  /* Device ID */
-    ADT7481_regs[0x3E] = 0x40;  /* MFG ID */
+    ADT7481_regs[0x3D] = 0x80; /* Device ID */
+    ADT7481_regs[0x3E] = 0x40; /* MFG ID */
     TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH,
-            ADT7481_fxnTable.cb_probe(&I2C_DEV, &postData));
+                      ADT7481_fxnTable.cb_probe(&I2C_DEV, &postData));
 }
 
 void test_get_status(void)
 {
     uint8_t tempvalue = 0xff;
     ADT7481_regs[0x30] = 0x73;
-    
+
     /* ADT7481_STATUS_TEMPERATURE */
-    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_status(&I2C_DEV,
-                                    ADT7481_STATUS_TEMPERATURE, &tempvalue));
+    TEST_ASSERT_EQUAL(
+            true, ADT7481_fxnTable.cb_get_status(
+                          &I2C_DEV, ADT7481_STATUS_TEMPERATURE, &tempvalue));
     TEST_ASSERT_EQUAL_HEX8(0x33, tempvalue);
-    
+
     /* Invalid device */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_status(&s_invalid_dev,
-                                    ADT7481_STATUS_TEMPERATURE, &tempvalue));
+    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_status(
+                                     &s_invalid_dev, ADT7481_STATUS_TEMPERATURE,
+                                     &tempvalue));
     /* Invalid bus */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_status(&s_invalid_bus,
-                                    ADT7481_STATUS_TEMPERATURE, &tempvalue));
+    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_status(
+                                     &s_invalid_bus, ADT7481_STATUS_TEMPERATURE,
+                                     &tempvalue));
     /* Invalid parameter */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_status(&I2C_DEV,
-                                    40, &tempvalue));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_get_status(&I2C_DEV, 40, &tempvalue));
 }
 
 void test_set_config(void)
 {
     int8_t limit = 0x62;
-    
+
     ADT7481_regs[0x32] = 0x00;
-    TEST_ASSERT_EQUAL(true,  ADT7481_fxnTable.cb_set_config(&I2C_DEV, ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_set_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_LOW, &limit));
     TEST_ASSERT_EQUAL_HEX8(0xA2, ADT7481_regs[0x32]);
-    
+
     ADT7481_regs[0x31] = 0x00;
-    TEST_ASSERT_EQUAL(true,  ADT7481_fxnTable.cb_set_config(&I2C_DEV, ADT7481_CONFIG_LIM_HIGH, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_set_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_HIGH, &limit));
     TEST_ASSERT_EQUAL_HEX8(0xA2, ADT7481_regs[0x31]);
 
     ADT7481_regs[0x39] = 0x00;
-    TEST_ASSERT_EQUAL(true,  ADT7481_fxnTable.cb_set_config(&I2C_DEV, ADT7481_CONFIG_LIM_CRIT, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_set_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_CRIT, &limit));
     TEST_ASSERT_EQUAL_HEX8(0xA2, ADT7481_regs[0x39]);
 
     /* Invalid Device */
-    TEST_ASSERT_EQUAL(false,  ADT7481_fxnTable.cb_set_config(&s_invalid_dev, 
-                            ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_set_config(
+                              &s_invalid_dev, ADT7481_CONFIG_LIM_LOW, &limit));
     /* Invalid bus */
-    TEST_ASSERT_EQUAL(false,  ADT7481_fxnTable.cb_set_config(&s_invalid_bus, 
-                            ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_set_config(
+                              &s_invalid_bus, ADT7481_CONFIG_LIM_LOW, &limit));
     /* Invalid Parameter */
-    TEST_ASSERT_EQUAL(false,  ADT7481_fxnTable.cb_set_config(&I2C_DEV, 
-                            40, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_set_config(&I2C_DEV, 40, &limit));
 }
 
 void test_get_config(void)
@@ -211,26 +216,31 @@ void test_get_config(void)
     ADT7481_regs[0x32] = 0xA2;
     ADT7481_regs[0x39] = 0xA2;
 
-    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(&I2C_DEV, ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_LOW, &limit));
     TEST_ASSERT_EQUAL_HEX8(0x62, limit);
 
     limit = 0xFF;
-    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(&I2C_DEV, ADT7481_CONFIG_LIM_HIGH, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_HIGH, &limit));
     TEST_ASSERT_EQUAL_HEX8(0x62, limit);
 
     limit = 0xFF;
-    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(&I2C_DEV, ADT7481_CONFIG_LIM_CRIT, &limit));
+    TEST_ASSERT_EQUAL(true, ADT7481_fxnTable.cb_get_config(
+                                    &I2C_DEV, ADT7481_CONFIG_LIM_CRIT, &limit));
     TEST_ASSERT_EQUAL_HEX8(0x62, limit);
 
     /* Invalid Device */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_config(&s_invalid_dev, 
-                            ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_get_config(
+                              &s_invalid_dev, ADT7481_CONFIG_LIM_LOW, &limit));
     /* Invalid bus */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_config(&s_invalid_bus, 
-                            ADT7481_CONFIG_LIM_LOW, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_get_config(
+                              &s_invalid_bus, ADT7481_CONFIG_LIM_LOW, &limit));
     /* Invalid Parameter */
-    TEST_ASSERT_EQUAL(false, ADT7481_fxnTable.cb_get_config(&I2C_DEV, 
-                            40, &limit));
+    TEST_ASSERT_EQUAL(false,
+                      ADT7481_fxnTable.cb_get_config(&I2C_DEV, 40, &limit));
 }
 
 void test_init(void)
@@ -240,20 +250,25 @@ void test_init(void)
         .highlimit = 75,
         .critlimit = 85,
     };
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, ADT7481_fxnTable.cb_init(&I2C_DEV, &fact_sdr_fpga_adt7481_cfg, NULL));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
+                      ADT7481_fxnTable.cb_init(
+                              &I2C_DEV, &fact_sdr_fpga_adt7481_cfg, NULL));
     TEST_ASSERT_EQUAL_HEX8(0x2C, ADT7481_regs[0x32]);
     TEST_ASSERT_EQUAL_HEX8(0x8B, ADT7481_regs[0x31]);
     TEST_ASSERT_EQUAL_HEX8(0x95, ADT7481_regs[0x39]);
 
     TEST_ASSERT_EQUAL_HEX8(ADT7481_CONFIGURATION_REG_VALUE, ADT7481_regs[0x09]);
-    TEST_ASSERT_EQUAL_HEX8(ADT7481_CONVERSION_RATE_REG_VALUE, ADT7481_regs[0x0A]);
+    TEST_ASSERT_EQUAL_HEX8(ADT7481_CONVERSION_RATE_REG_VALUE,
+                           ADT7481_regs[0x0A]);
 
     /* Invalid Device */
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, ADT7481_fxnTable.cb_init(&s_invalid_dev, 
-                            ADT7481_CONFIG_LIM_LOW, NULL));
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, ADT7481_fxnTable.cb_init(&s_invalid_bus, 
-                            ADT7481_CONFIG_LIM_LOW, NULL));
-	/* Invalid Parameter */
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, ADT7481_fxnTable.cb_init(&I2C_DEV, 
-                            NULL, NULL));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      ADT7481_fxnTable.cb_init(&s_invalid_dev,
+                                               ADT7481_CONFIG_LIM_LOW, NULL));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      ADT7481_fxnTable.cb_init(&s_invalid_bus,
+                                               ADT7481_CONFIG_LIM_LOW, NULL));
+    /* Invalid Parameter */
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      ADT7481_fxnTable.cb_init(&I2C_DEV, NULL, NULL));
 }

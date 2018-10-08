@@ -24,9 +24,8 @@
  *****************************************************************************/
 #define POST_RECORDS 55
 
-#define OC_POST_TASKPRIORITY    3
-#define POST_TASK_STACK_SIZE   4096
-
+#define OC_POST_TASKPRIORITY 3
+#define POST_TASK_STACK_SIZE 4096
 
 /*****************************************************************************
  *                            HANDLE DECLARATIONS

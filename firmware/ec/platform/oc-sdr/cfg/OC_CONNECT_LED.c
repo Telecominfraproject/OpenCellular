@@ -17,26 +17,27 @@ SCHEMA_IMPORT OcGpio_Port sync_io;
  *****************************************************************************/
 //LED Temperature sensor
 SE98A_Dev led_hci_ts = {
-    .cfg = {
-        .dev = {
-            .bus = OC_CONNECT1_I2C8,
-            .slave_addr = HCI_LED_TEMP_SENSOR_ADDR
-        },
-        .pin_evt = NULL,
-    },
+    .cfg =
+            {
+                    .dev = { .bus = OC_CONNECT1_I2C8,
+                             .slave_addr = HCI_LED_TEMP_SENSOR_ADDR },
+                    .pin_evt = NULL,
+            },
     .obj = {},
 };
 
 //LED IO Expander
-HciLedCfg led_hci_ioexp ={
-    .sx1509_dev[HCI_LED_DRIVER_LEFT] = {
-        .bus = OC_CONNECT1_I2C8,
-        .slave_addr = LED_SX1509_LEFT_ADDRESS,
-    },
-    .sx1509_dev[HCI_LED_DRIVER_RIGHT] = {
-        .bus = OC_CONNECT1_I2C8,
-        .slave_addr = LED_SX1509_RIGHT_ADDRESS,
-    },
+HciLedCfg led_hci_ioexp = {
+    .sx1509_dev[HCI_LED_DRIVER_LEFT] =
+            {
+                    .bus = OC_CONNECT1_I2C8,
+                    .slave_addr = LED_SX1509_LEFT_ADDRESS,
+            },
+    .sx1509_dev[HCI_LED_DRIVER_RIGHT] =
+            {
+                    .bus = OC_CONNECT1_I2C8,
+                    .slave_addr = LED_SX1509_RIGHT_ADDRESS,
+            },
     /* EC_GPIO */
     .pin_ec_gpio = { &ec_io, OC_EC_HCI_LED_RESET },
 };

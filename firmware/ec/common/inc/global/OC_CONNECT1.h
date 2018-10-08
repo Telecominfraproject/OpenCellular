@@ -13,41 +13,44 @@
 extern "C" {
 #endif
 
-#define OC_PMIC_ENABLE          (1)
-#define OC_PMIC_DISABLE         (0)
-#define OC_SDR_ENABLE           (1)
-#define OC_SDR_DISABLE          (0)
-#define OC_SDR_FE_IO_ENABLE     (1)
-#define OC_SDR_FE_IO_DISABLE    (0)
-#define OC_FE_ENABLE            (1)
-#define OC_FE_DISABLE           (0)
-#define OC_PWR_LION_BATT        (1)
-#define OC_PWR_LEAD_BATT        (0)
-#define OC_PWR_PSE_RESET_STATE  (1)
-#define OC_PWR_PSE_ON_STATE     (0)
-#define OC_GBC_PROC_ENABLE      (1)
-#define OC_GBC_PROC_RESET       (0)
-#define OC_SYNC_IOEXP_ENABLE    (1)
-#define OC_SYNC_IOEXP_RESET     (0)
-#define OC_HCI_LED_ENABLE       (1)
-#define OC_HCI_LED_DISABLE      (0)
-#define OC_ETH_SW_ENABLE        (1)
-#define OC_ETH_SW_DISABLE       (0)
-#define CAT24C256 { .page_size = 64, .mem_size = (256 / 8) }
+#define OC_PMIC_ENABLE (1)
+#define OC_PMIC_DISABLE (0)
+#define OC_SDR_ENABLE (1)
+#define OC_SDR_DISABLE (0)
+#define OC_SDR_FE_IO_ENABLE (1)
+#define OC_SDR_FE_IO_DISABLE (0)
+#define OC_FE_ENABLE (1)
+#define OC_FE_DISABLE (0)
+#define OC_PWR_LION_BATT (1)
+#define OC_PWR_LEAD_BATT (0)
+#define OC_PWR_PSE_RESET_STATE (1)
+#define OC_PWR_PSE_ON_STATE (0)
+#define OC_GBC_PROC_ENABLE (1)
+#define OC_GBC_PROC_RESET (0)
+#define OC_SYNC_IOEXP_ENABLE (1)
+#define OC_SYNC_IOEXP_RESET (0)
+#define OC_HCI_LED_ENABLE (1)
+#define OC_HCI_LED_DISABLE (0)
+#define OC_ETH_SW_ENABLE (1)
+#define OC_ETH_SW_DISABLE (0)
+#define CAT24C256                              \
+    {                                          \
+        .page_size = 64, .mem_size = (256 / 8) \
+    }
 
 /* GBC IO expander Slave address */
-#define BIGBROTHER_IOEXP0_ADDRESS           0x71
-#define BIGBROTHER_IOEXP1_ADDRESS           0x70
+#define BIGBROTHER_IOEXP0_ADDRESS 0x71
+#define BIGBROTHER_IOEXP1_ADDRESS 0x70
 /* SYNC IO expander Slave address */
-#define SYNC_IO_DEVICE_ADDR                 0x71
+#define SYNC_IO_DEVICE_ADDR 0x71
 /* SDR IO expander Slave address */
-#define SDR_FX3_IOEXP_ADDRESS               0x1E
+#define SDR_FX3_IOEXP_ADDRESS 0x1E
 /* RFFE IO expander Slave address */
-#define RFFE_CHANNEL1_IO_TX_ATTEN_ADDR      0x18
-#define RFFE_CHANNEL1_IO_RX_ATTEN_ADDR      0x1A
-#define RFFE_CHANNEL2_IO_TX_ATTEN_ADDR      0x1C
-#define RFFE_CHANNEL2_IO_RX_ATTEN_ADDR      0x1D
-#define RFFE_IO_REVPOWER_ALERT_ADDR         0x1B
+#define RFFE_CHANNEL1_IO_TX_ATTEN_ADDR 0x18
+#define RFFE_CHANNEL1_IO_RX_ATTEN_ADDR 0x1A
+#define RFFE_CHANNEL2_IO_TX_ATTEN_ADDR 0x1C
+#define RFFE_CHANNEL2_IO_RX_ATTEN_ADDR 0x1D
+#define RFFE_IO_REVPOWER_ALERT_ADDR 0x1B
 
 /*!
  *  @def    OC_CONNECT1_EMACName
@@ -79,7 +82,7 @@ typedef enum OC_EC_PORTGroupName {
     PN,
     PP,
     PQ
-}OC_EC_PORTGroupName;
+} OC_EC_PORTGroupName;
 
 typedef enum OC_CONNECT1_GPIOName {
     //PA
@@ -116,7 +119,7 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_SYNC_IOEXP_ALERT,
     //PE
     OC_EC_GBC_IOEXP71_ALERT = 32,
-    OC_EC_FE_CONTROL,//OC_CONNECT1_GBC_TEMP_ALERT2,
+    OC_EC_FE_CONTROL, //OC_CONNECT1_GBC_TEMP_ALERT2,
     OC_EC_AP_GPIO1,
     OC_EC_GPP_AP_BM_1,
     OC_EC_FLASH_MOSI,
@@ -173,7 +176,8 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_FE_PWR_GD,
     OC_EC_MODULE_UART1_RIN,
     //PP
-    OC_EC_SDR_FE_IO_RESET_CTRL = 104,//OC_EC_MPPT_LACID = 104, //OC_SDR_FE_IO_RESET_CTRL
+    OC_EC_SDR_FE_IO_RESET_CTRL =
+            104, //OC_EC_MPPT_LACID = 104, //OC_SDR_FE_IO_RESET_CTRL
     OC_EC_FE_RESET_OUT,
     OC_EC_SDR_PWR_CNTRL,
     OC_EC_GPP_PWRGD_PROTECTION,

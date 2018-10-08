@@ -42,8 +42,9 @@ ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *pwrCfg,
 {
     ReturnStatus status = RETURN_OK;
     rffeBand band = RFFE_SHUTDOWN;
-    rffeChannel channel =  pwrCfg->channel;
-    const Fe_Ch2_Gain_Cfg *fe_ch1_rf_band_sel = pwrCfg->fe_Rffecfg->fe_ch2_gain_cfg;
+    rffeChannel channel = pwrCfg->channel;
+    const Fe_Ch2_Gain_Cfg *fe_ch1_rf_band_sel =
+            pwrCfg->fe_Rffecfg->fe_ch2_gain_cfg;
     const Fe_Ch2_Lna_Cfg *fe_ch1_rf_pwr = pwrCfg->fe_Rffecfg->fe_ch2_lna_cfg;
     const Fe_Watchdog_Cfg *fe_ch2_rf_pwr = pwrCfg->fe_Rffecfg->fe_watchdog_cfg;
 
@@ -80,14 +81,14 @@ ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *pwrCfg,
 
 bool RFFE_enablePA(void *driver, void *params)
 {
-    Fe_Ch_Pwr_Cfg *channel = (Fe_Ch_Pwr_Cfg*)driver;
-    return (rffe_ctrl_configure_power_amplifier(channel,
-                    RFFE_ACTIVATE_PA) == RETURN_OK);
+    Fe_Ch_Pwr_Cfg *channel = (Fe_Ch_Pwr_Cfg *)driver;
+    return (rffe_ctrl_configure_power_amplifier(channel, RFFE_ACTIVATE_PA) ==
+            RETURN_OK);
 }
 
 bool RFFE_disablePA(void *driver, void *params)
 {
-    Fe_Ch_Pwr_Cfg *channel = (Fe_Ch_Pwr_Cfg*)driver;
-    return (rffe_ctrl_configure_power_amplifier(channel,
-                    RFFE_DEACTIVATE_PA) == RETURN_OK);
+    Fe_Ch_Pwr_Cfg *channel = (Fe_Ch_Pwr_Cfg *)driver;
+    return (rffe_ctrl_configure_power_amplifier(channel, RFFE_DEACTIVATE_PA) ==
+            RETURN_OK);
 }

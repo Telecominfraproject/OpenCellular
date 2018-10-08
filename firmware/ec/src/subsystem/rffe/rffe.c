@@ -38,7 +38,7 @@
  **    RETURN TYPE     : ReturnStatus
  **
  *****************************************************************************/
-void rffe_pwr_control(Fe_gpioCfg* feCfg, uint8_t control)
+void rffe_pwr_control(Fe_gpioCfg *feCfg, uint8_t control)
 {
     if (control == OC_FE_ENABLE) {
         OcGpio_write(&feCfg->pin_fe_12v_ctrl, true);
@@ -59,30 +59,30 @@ void rffe_pwr_control(Fe_gpioCfg* feCfg, uint8_t control)
  *****************************************************************************/
 bool rffe_pre_init(void *driver, void *returnValue)
 {
-    Fe_Cfg* feCfg = (Fe_Cfg*)driver;
+    Fe_Cfg *feCfg = (Fe_Cfg *)driver;
     /* Initialize IO pins */
     OcGpio_configure(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&feCfg->fe_gpio_cfg->pin_fe_12v_ctrl, OCGPIO_CFG_OUTPUT |
-                                             OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&feCfg->fe_gpio_cfg->pin_fe_12v_ctrl,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
 
     /* RF power on */
-    rffe_pwr_control(feCfg->fe_gpio_cfg,OC_FE_ENABLE);
+    rffe_pwr_control(feCfg->fe_gpio_cfg, OC_FE_ENABLE);
 
     NOP_DELAY();
 
     /* Check Powergood status(SDR_REG_LDO_PGOOD) */
-    if(OcGpio_read(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo)) {
+    if (OcGpio_read(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo)) {
         LOGGER("RFFE:INFO:: PowerGood Status is OK.\n");
-    }
-    else {
+    } else {
         LOGGER("RFFE:INFO:: PowerGood Status is NOT OK.\n");
     }
 
     /* Initilize FE IO Expander GPIO Controls (those not already controlled
      * by a driver) */
-    Fe_Ch2_Gain_Cfg* feCh2GainCfg = (Fe_Ch2_Gain_Cfg*)(feCfg->fe_ch2_gain_cfg);
-    Fe_Ch2_Lna_Cfg* feCh2LnaCfg = (Fe_Ch2_Lna_Cfg*)(feCfg->fe_ch2_lna_cfg);
-    Fe_Watchdog_Cfg* feWatchDogCfg = (Fe_Watchdog_Cfg*)(feCfg->fe_watchdog_cfg);
+    Fe_Ch2_Gain_Cfg *feCh2GainCfg = (Fe_Ch2_Gain_Cfg *)(feCfg->fe_ch2_gain_cfg);
+    Fe_Ch2_Lna_Cfg *feCh2LnaCfg = (Fe_Ch2_Lna_Cfg *)(feCfg->fe_ch2_lna_cfg);
+    Fe_Watchdog_Cfg *feWatchDogCfg =
+            (Fe_Watchdog_Cfg *)(feCfg->fe_watchdog_cfg);
     OcGpio_configure(&feCh2GainCfg->pin_ch1_2g_lb_band_sel_l,
                      OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&feCh2LnaCfg->pin_ch1_rf_pwr_off,
@@ -99,21 +99,17 @@ bool rffe_pre_init(void *driver, void *returnValue)
     return true;
 }
 
-bool rffe_post_init(void* driver, void *ssState)
+bool rffe_post_init(void *driver, void *ssState)
 {
     ReturnStatus status = RETURN_OK;
-    eSubSystemStates *newState = (eSubSystemStates*)ssState;
+    eSubSystemStates *newState = (eSubSystemStates *)ssState;
 
-    Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = {
-        .channel = RFFE_CHANNEL1,
-        .fe_Rffecfg = (Fe_Cfg*)driver
-    };
+    Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = { .channel = RFFE_CHANNEL1,
+                                    .fe_Rffecfg = (Fe_Cfg *)driver };
 
-    Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = {
-        .channel = RFFE_CHANNEL2,
-        .fe_Rffecfg = (Fe_Cfg*)driver
-    };
-    
+    Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = { .channel = RFFE_CHANNEL2,
+                                    .fe_Rffecfg = (Fe_Cfg *)driver };
+
     status |= rffe_ctrl_configure_power_amplifier(&fe_ch1_pwrcfg,
                                                   RFFE_ACTIVATE_PA);
 
@@ -124,7 +120,7 @@ bool rffe_post_init(void* driver, void *ssState)
 
     /*Updating subsystem sate info*/
     LOGGER_DEBUG("RFFE:INFO:: Subsystem device check and configuration is %s\n",
-            ((status == RETURN_OK) ? "successful" : "unsuccessful"));
+                 ((status == RETURN_OK) ? "successful" : "unsuccessful"));
 
     if (status == RETURN_OK) {
         *newState = SS_STATE_CFG;

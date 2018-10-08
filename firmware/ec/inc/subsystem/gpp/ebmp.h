@@ -14,8 +14,8 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define EBMP_TASK_STACK_SIZE        1024
-#define EBMP_TASK_PRIORITY          2
+#define EBMP_TASK_STACK_SIZE 1024
+#define EBMP_TASK_PRIORITY 2
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -46,7 +46,7 @@ typedef enum {
 } apStates;
 
 typedef enum {
-    AP_RESET    = 0,
+    AP_RESET = 0,
     AP_BOOT_PROGRESS_MONITOR_1 = 1,
     AP_BOOT_PROGRESS_MONITOR_2 = 2
 } apBootMonitor;
@@ -54,6 +54,6 @@ typedef enum {
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-void ebmp_init(Gpp_gpioCfg* driver);
+void ebmp_init(Gpp_gpioCfg *driver);
 
 #endif /* EBMP_H_ */

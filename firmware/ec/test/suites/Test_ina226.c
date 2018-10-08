@@ -22,21 +22,25 @@ static OcGpio_Port s_fake_io_port = {
 };
 
 static INA226_Dev s_dev = {
-    .cfg = {
-        .dev = {
-            .bus = 4,
-            .slave_addr = 0x01,
-        },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = 4,
+                                    .slave_addr = 0x01,
+                            },
+            },
 };
 
 static INA226_Dev s_invalid_dev = {
-    .cfg = {
-        .dev = {
-            .bus = 4,
-            .slave_addr = 0x02,
-        },
-    },
+    .cfg =
+            {
+                    .dev =
+                            {
+                                    .bus = 4,
+                                    .slave_addr = 0x02,
+                            },
+            },
 };
 
 static uint16_t INA226_regs[] = {
@@ -107,10 +111,11 @@ void test_ina226_init(void)
 
     /* Now try to init with a pin associated */
     INA226_Dev alerted_dev = {
-        .cfg = {
-            .dev = s_dev.cfg.dev,
-            .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        },
+        .cfg =
+                {
+                        .dev = s_dev.cfg.dev,
+                        .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+                },
     };
     TEST_ASSERT_EQUAL(RETURN_OK, ina226_init(&alerted_dev));
 }
@@ -133,8 +138,8 @@ static void _ina226_alert_handler(INA226_Event evt, uint16_t value,
     };
 }
 
-static void _test_alert(INA226_Dev *dev, INA226_Event evt,
-                        uint16_t alert_mask, uint16_t val, uint16_t new_mask)
+static void _test_alert(INA226_Dev *dev, INA226_Event evt, uint16_t alert_mask,
+                        uint16_t val, uint16_t new_mask)
 {
     INA226_regs[0x06] |= 0xF800; /* Enable all interrupts to see how we do */
     TEST_ASSERT_EQUAL(RETURN_OK, ina226_enableAlert(dev, evt));
@@ -158,7 +163,7 @@ static void _test_alert(INA226_Dev *dev, INA226_Event evt,
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
     TEST_ASSERT_EQUAL(0, s_alert_data.triggered);
 
-    INA226_regs[0x06] |= (1 << 4);  /* Fault caused alert */
+    INA226_regs[0x06] |= (1 << 4); /* Fault caused alert */
     alert_mask = INA226_regs[0x06]; /* Store reg value for later comparison */
 
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
@@ -176,10 +181,11 @@ void test_ina226_alerts(void)
 
     /* Create a device with an interrupt pin */
     INA226_Dev alerted_dev = {
-        .cfg = {
-            .dev = s_dev.cfg.dev,
-            .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-        },
+        .cfg =
+                {
+                        .dev = s_dev.cfg.dev,
+                        .pin_alert = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+                },
     };
     TEST_ASSERT_EQUAL(RETURN_OK, ina226_init(&alerted_dev));
 
@@ -208,19 +214,20 @@ void test_ina226_probe(void)
     /* Test with the actual values */
     INA226_regs[0xFF] = 0x2260;
     INA226_regs[0xFE] = 0x5449;
-    TEST_ASSERT_EQUAL(POST_DEV_FOUND, ina226_probe(&s_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND, ina226_probe(&s_dev, &postData));
 
     /* Test with an incorrect device ID */
     INA226_regs[0xFF] = 0xC802;
-    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, ina226_probe(&s_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, ina226_probe(&s_dev, &postData));
 
     /* Test with an incorrect mfg ID */
     INA226_regs[0xFF] = 0x2260;
     INA226_regs[0xFE] = 0x5DC7;
-    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, ina226_probe(&s_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH, ina226_probe(&s_dev, &postData));
 
     /* Test with a missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, ina226_probe(&s_invalid_dev,&postData));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING,
+                      ina226_probe(&s_invalid_dev, &postData));
 }
 
 void test_current_limit(void)
@@ -228,23 +235,19 @@ void test_current_limit(void)
     uint16_t current_val = 0xffff;
 
     INA226_regs[0x07] = 0x0320; //800
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readCurrentLim(&s_dev, &current_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readCurrentLim(&s_dev, &current_val));
     TEST_ASSERT_EQUAL(1000, current_val); //1000mA
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_setCurrentLim(&s_dev, 3000)); //3000mA
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_setCurrentLim(&s_dev, 3000)); //3000mA
     TEST_ASSERT_EQUAL_HEX16(0x0960, INA226_regs[0x07]); //2400
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readCurrentLim(&s_dev, &current_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readCurrentLim(&s_dev, &current_val));
     TEST_ASSERT_EQUAL(3000, current_val); //3000mA
 }
 
 void test_ina226_enableAlert(void)
 {
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_enableAlert(&s_dev, 0x8001));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_enableAlert(&s_dev, 0x8001));
     TEST_ASSERT_EQUAL_HEX16(0x8001, INA226_regs[0x06]);
 }
 
@@ -283,13 +286,11 @@ void test_curr_sens_current(void)
     uint16_t current_val = 0xffff;
 
     INA226_regs[0x04] = 0x1388; //5000
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readCurrent(&s_dev, &current_val));
-    TEST_ASSERT_EQUAL_HEX16(500, current_val);  //500mA
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readCurrent(&s_dev, &current_val));
+    TEST_ASSERT_EQUAL_HEX16(500, current_val); //500mA
 
     INA226_regs[0x04] = 0x2EE0; //12000
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readCurrent(&s_dev, &current_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readCurrent(&s_dev, &current_val));
     TEST_ASSERT_EQUAL_HEX16(1200, current_val); //1200mA
 }
 
@@ -298,13 +299,11 @@ void test_curr_sens_power(void)
     uint16_t power_val = 0xffff;
 
     INA226_regs[0x03] = 0x02A8; //680
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readPower(&s_dev, &power_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readPower(&s_dev, &power_val));
     TEST_ASSERT_EQUAL_HEX16(1700, power_val); //1700mW
 
     INA226_regs[0x03] = 0x04B0; //1200
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      ina226_readPower(&s_dev, &power_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, ina226_readPower(&s_dev, &power_val));
     TEST_ASSERT_EQUAL_HEX16(3000, power_val);
 }
 
@@ -314,7 +313,7 @@ void test_curr_sens_not_present(void)
     uint16_t dummy_val;
     POSTData postData;
     TEST_ASSERT_EQUAL(POST_DEV_MISSING,
-                      ina226_probe(&s_invalid_dev,&postData));
+                      ina226_probe(&s_invalid_dev, &postData));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       ina226_readCurrentLim(&s_invalid_dev, &dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,

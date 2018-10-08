@@ -25,45 +25,45 @@
 /* TODO: move to helper? */
 #define STATIC_STRLEN(s) (ARRAY_SIZE(s) - 1)
 
-#define TESTMOD_TASK_PRIORITY     2
-#define TESTMOD_TASK_STACK_SIZE   2048
+#define TESTMOD_TASK_PRIORITY 2
+#define TESTMOD_TASK_STACK_SIZE 2048
 
 #define G510_WRITE_TIMEOUT 500
 #define G510_READ_TIMEOUT 5000
 /* G510 enable line is active-low */
-#define GSM_EN_ASSERT   (0)
+#define GSM_EN_ASSERT (0)
 #define GSM_EN_DEASSERT (1)
 
-#define GSM_PWR_EN_ASSERT   (1)
+#define GSM_PWR_EN_ASSERT (1)
 #define GSM_PWR_EN_DEASSERT (0)
 
 #define GSM_SHUTDOWN_TIME 200
 #define GSM_COOLDOWN_TIME 50
 
 typedef enum {
-    TWOG_SIM_CALLSTATE_CHANGE   = 0,
-    TWOG_SIM_INCOMING_MSG       = 1,
-    TWOG_SIM_ALERT_PARAMS_MAX   /* Limiter */
+    TWOG_SIM_CALLSTATE_CHANGE = 0,
+    TWOG_SIM_INCOMING_MSG = 1,
+    TWOG_SIM_ALERT_PARAMS_MAX /* Limiter */
 } eTEST_MOD_ALERTParam;
 
-typedef enum  {
-    TWOG_CALL_EVT_RING     = 0,
+typedef enum {
+    TWOG_CALL_EVT_RING = 0,
     TWOG_CALL_EVT_CALL_END = 1,
 } eTEST_MODE_CallEvent;
 
 typedef enum {
-    TWOG_IMEI               = 0,
-    TWOG_IMSI               = 1,
-    TWOG_GETMFG             = 2,
-    TWOG_GETMODEL           = 3,
-    TWOG_RSSI               = 4,
-    TWOG_BER                = 5,
-    TWOG_REGSTATUS          = 6,
-    TWOG_NETWORK_OP_INFO    = 7,
-    TWOG_CELLID             = 8,
-    TWOG_BSIC               = 9,
-    TWOG_LASTERR            = 10,
-    TWOG_PARAM_MAX         /* Limiter */
+    TWOG_IMEI = 0,
+    TWOG_IMSI = 1,
+    TWOG_GETMFG = 2,
+    TWOG_GETMODEL = 3,
+    TWOG_RSSI = 4,
+    TWOG_BER = 5,
+    TWOG_REGSTATUS = 6,
+    TWOG_NETWORK_OP_INFO = 7,
+    TWOG_CELLID = 8,
+    TWOG_BSIC = 9,
+    TWOG_LASTERR = 10,
+    TWOG_PARAM_MAX /* Limiter */
 } eTestModule_StatusParam;
 
 static UART_Handle uartGsm;
@@ -89,7 +89,7 @@ static void cmti_cb(const GsmCmtiInfo *info, void *context)
 
 static void call_state_cb(const GsmClccInfo *info, void *context)
 {
-	LOGGER("CLCC %u\n", info->call_state);
+    LOGGER("CLCC %u\n", info->call_state);
     switch (info->call_state) {
         case GSM_CALL_STATE_INCOMING: {
             eTEST_MODE_CallEvent callState = TWOG_CALL_EVT_RING;
@@ -105,20 +105,19 @@ static void call_state_cb(const GsmClccInfo *info, void *context)
 }
 
 /* Configures the various IO pins associated with this subsystem */
-static bool configure_io(TestMod_Cfg *testmod_cfg) {
+static bool configure_io(TestMod_Cfg *testmod_cfg)
+{
     //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
-   G510_Cfg *cfg = &testmod_cfg->g510_cfg;
+    G510_Cfg *cfg = &testmod_cfg->g510_cfg;
 
     OcGpio_configure(&cfg->pin_sim_present, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&cfg->pin_enable, OCGPIO_CFG_OUTPUT |
-                                       OCGPIO_CFG_OUT_LOW);
-    OcGpio_configure(&cfg->pin_pwr_en, OCGPIO_CFG_OUTPUT |
-                                       OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&cfg->pin_enable, OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&cfg->pin_pwr_en, OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
 
     return true;
 }
 
-static UART_Handle open_comm(TestMod_Cfg * testmod_cfg)
+static UART_Handle open_comm(TestMod_Cfg *testmod_cfg)
 {
     //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
 
@@ -138,7 +137,7 @@ static UART_Handle open_comm(TestMod_Cfg * testmod_cfg)
     return UART_open(testmod_cfg->g510_cfg.uart, &uartParams);
 }
 
-static bool g510_reset(TestMod_Cfg * testmod_cfg)
+static bool g510_reset(TestMod_Cfg *testmod_cfg)
 {
     //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
     const G510_Cfg *cfg = &testmod_cfg->g510_cfg;
@@ -184,8 +183,7 @@ static bool g510_reset(TestMod_Cfg * testmod_cfg)
     return true;
 }
 
-
-ReturnStatus g510_init(TestMod_Cfg* testModuleCfg, const void *alert_token)
+ReturnStatus g510_init(TestMod_Cfg *testModuleCfg, const void *alert_token)
 {
     if (!configure_io(testModuleCfg)) {
         return RETURN_NOTOK;
@@ -243,7 +241,7 @@ static void testModule_task(UArg a0, UArg a1)
     GSM_cimi(s_hGsm, &imsi);
     /* TODO: hack because System_printf is crappy and doesn't support %llu */
     char imsiStr[16];
-    snprintf(imsiStr, sizeof(imsiStr), "%"PRIu64, imsi);
+    snprintf(imsiStr, sizeof(imsiStr), "%" PRIu64, imsi);
     LOGGER("IMSI: %s\n", imsiStr);
 
     /* NOTE: if the message storage fills up, the G510 will just
@@ -255,10 +253,10 @@ static void testModule_task(UArg a0, UArg a1)
     GSM_clccSet(s_hGsm, true); /* Enable clcc (call state) msg */
 
     /* Finish device configuration */
-    if (!GSM_cnmi(s_hGsm, 2, 1, 0, 0 , 0) ||   /* enable sms arrival notif */
+    if (!GSM_cnmi(s_hGsm, 2, 1, 0, 0, 0) || /* enable sms arrival notif */
         !GSM_cmgf(s_hGsm, GSM_MSG_FMT_TEXT) || /* set to text mode */
-        !GSM_csmp(s_hGsm, 17, 167, 0, 0) ||    /* text mode parameters */
-        !GSM_csdh(s_hGsm, true)) {             /* display extra info for cgmr */
+        !GSM_csmp(s_hGsm, 17, 167, 0, 0) || /* text mode parameters */
+        !GSM_csdh(s_hGsm, true)) { /* display extra info for cgmr */
         s_hGsm = NULL; /* TODO: proper teardown of handle */
     }
 
@@ -267,7 +265,8 @@ static void testModule_task(UArg a0, UArg a1)
             GSM_cnma(s_hGsm);
             static char sms[160];
             if (GSM_cmgr(s_hGsm, sms_idx, sms, NULL)) {
-            	LOGGER("SMS: %.*s\n", 50, sms); // System_printf has a limited buffer
+                LOGGER("SMS: %.*s\n", 50,
+                       sms); // System_printf has a limited buffer
                 OCMP_GenerateAlert(alert_token, TWOG_SIM_INCOMING_MSG, sms);
             } else {
                 LOGGER_ERROR("TESTMOD:Failed to read SMS\n");
@@ -306,130 +305,128 @@ ePostCode g510_task_init(void *driver, const void **config,
     taskParams.arg0 = (intptr_t)alert_token;
     Task_Handle task = Task_create(testModule_task, &taskParams, NULL);
     if (!task) {
-    	LOGGER("TESTMOD::FATAL: Unable to start G510 task\n");
+        LOGGER("TESTMOD::FATAL: Unable to start G510 task\n");
         Semaphore_delete(&sem_simReady);
         Semaphore_delete(&sem_sms);
         return POST_DEV_CFG_FAIL;
     }
 
-    if (g510_init(driver,alert_token) != RETURN_OK) {
+    if (g510_init(driver, alert_token) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     return POST_DEV_CFG_DONE;
 }
 
-bool g510_get_imei( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_imei(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCgsnInfo cgsnInfo;
-	if (!GSM_cgsn(s_hGsm, &cgsnInfo)) {
-		return false;
-	}
-	p2gStatusData->imei = strtoull(cgsnInfo.imei, NULL, 10);
-	return true;
+    GsmCgsnInfo cgsnInfo;
+    if (!GSM_cgsn(s_hGsm, &cgsnInfo)) {
+        return false;
+    }
+    p2gStatusData->imei = strtoull(cgsnInfo.imei, NULL, 10);
+    return true;
 }
 
-bool g510_get_imsi( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_imsi(TestMod_2G_Status_Data *p2gStatusData)
 {
-	uint64_t imsi;
-	if (!GSM_cimi(s_hGsm, &imsi)) {
-		return false;
-	}
-	p2gStatusData->imsi = imsi;
-	return true;
+    uint64_t imsi;
+    if (!GSM_cimi(s_hGsm, &imsi)) {
+        return false;
+    }
+    p2gStatusData->imsi = imsi;
+    return true;
 }
 
-bool g510_get_mfg( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_mfg(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCgmiInfo cgmiInfo;
-	if (!GSM_cgmi(s_hGsm, &cgmiInfo)) {
-		return false;
-	}
-	/* TODO: idea - make safe strncpy that always terminates str */
-	strncpy(p2gStatusData->mfg, cgmiInfo.mfgId,
-			sizeof(p2gStatusData->mfg));
-	return true;
+    GsmCgmiInfo cgmiInfo;
+    if (!GSM_cgmi(s_hGsm, &cgmiInfo)) {
+        return false;
+    }
+    /* TODO: idea - make safe strncpy that always terminates str */
+    strncpy(p2gStatusData->mfg, cgmiInfo.mfgId, sizeof(p2gStatusData->mfg));
+    return true;
 }
 
-bool g510_get_model( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_model(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCgmmInfo cgmmInfo;
-	if (!GSM_cgmm(s_hGsm, &cgmmInfo)) {
-		return false;
-	}
-	strncpy(p2gStatusData->model, cgmmInfo.model,
-			sizeof(p2gStatusData->model));
-	return true;
+    GsmCgmmInfo cgmmInfo;
+    if (!GSM_cgmm(s_hGsm, &cgmmInfo)) {
+        return false;
+    }
+    strncpy(p2gStatusData->model, cgmmInfo.model, sizeof(p2gStatusData->model));
+    return true;
 }
 
-bool g510_get_rssi( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_rssi(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCsqInfo csqInfo;
-	if (!GSM_csq(s_hGsm, &csqInfo)) {
-		return false;
-	}
-	p2gStatusData->rssi = csqInfo.rssi;
-	return true;
+    GsmCsqInfo csqInfo;
+    if (!GSM_csq(s_hGsm, &csqInfo)) {
+        return false;
+    }
+    p2gStatusData->rssi = csqInfo.rssi;
+    return true;
 }
 
-bool g510_get_ber( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_ber(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCsqInfo csqInfo;
-	if (!GSM_csq(s_hGsm, &csqInfo)) {
-		return false;
-	}
-	p2gStatusData->ber = csqInfo.ber;
-	return true;
+    GsmCsqInfo csqInfo;
+    if (!GSM_csq(s_hGsm, &csqInfo)) {
+        return false;
+    }
+    p2gStatusData->ber = csqInfo.ber;
+    return true;
 }
 
-bool g510_get_regStatus( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_regStatus(TestMod_2G_Status_Data *p2gStatusData)
 {
-	GsmCregInfo cregInfo;
-	if (!GSM_cregRead(s_hGsm, &cregInfo)) {
-		return false;
-	}
-	p2gStatusData->regStat = cregInfo.stat;
-	return true;
+    GsmCregInfo cregInfo;
+    if (!GSM_cregRead(s_hGsm, &cregInfo)) {
+        return false;
+    }
+    p2gStatusData->regStat = cregInfo.stat;
+    return true;
 }
 
-bool g510_get_cellId( TestMod_2G_Status_Data *p2gStatusData)
+bool g510_get_cellId(TestMod_2G_Status_Data *p2gStatusData)
 {
-	/* NOTE: requires CREG mode 2 (unsolicited + location info) */
-	GsmCregInfo cregInfo;
-	if (!GSM_cregRead(s_hGsm, &cregInfo)) {
-		return false;
-	}
-	p2gStatusData->cid = cregInfo.cid;
-	return true;
+    /* NOTE: requires CREG mode 2 (unsolicited + location info) */
+    GsmCregInfo cregInfo;
+    if (!GSM_cregRead(s_hGsm, &cregInfo)) {
+        return false;
+    }
+    p2gStatusData->cid = cregInfo.cid;
+    return true;
 }
 
 /* Command handling */
 bool TestMod_cmdEnable(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G Enable\n");
+    LOGGER("TESTMOD 2G Enable\n");
     return GSM_cfun(s_hGsm, GSM_CFUN_FULL);
 }
 
 bool TestMod_cmdDisable(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G Disable\n");
+    LOGGER("TESTMOD 2G Disable\n");
     return GSM_cfun(s_hGsm, GSM_CFUN_AIRPLANE);
 }
 
 bool TestMod_cmdDisconnect(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G Disconnect\n");
+    LOGGER("TESTMOD 2G Disconnect\n");
     return GSM_cops(s_hGsm, GSM_COPS_MODE_DEREG, GSM_COPS_FMT_NUMERIC, "");
 }
 
 bool TestMod_cmdConnect(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G Connect\n");
+    LOGGER("TESTMOD 2G Connect\n");
     return GSM_cops(s_hGsm, GSM_COPS_MODE_AUTO, GSM_COPS_FMT_NUMERIC, "");
 }
 
 bool TestMod_cmdSendSms(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G SMS\n");
+    LOGGER("TESTMOD 2G SMS\n");
     /* TODO: we assume number is null terminated, should have check */
     TestModule_sms *sms = params;
     return GSM_cmgs(s_hGsm, sms->number, sms->msg);
@@ -446,19 +443,18 @@ bool TestMod_cmdDial(void *driver, void *params)
 
 bool TestMod_cmdAnswer(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G answer\n");
+    LOGGER("TESTMOD 2G answer\n");
     return GSM_a(s_hGsm);
 }
 
 bool TestMod_cmdHangup(void *driver, void *params)
 {
-	LOGGER("TESTMOD 2G hangup\n");
+    LOGGER("TESTMOD 2G hangup\n");
     return GSM_h(s_hGsm);
 }
 
 bool TestMod_cmdReset(void *driver, void *params)
 {
-	LOGGER("TESTMOD Reset\n");
+    LOGGER("TESTMOD Reset\n");
     return false; /* Not yet implemented */
 }
-

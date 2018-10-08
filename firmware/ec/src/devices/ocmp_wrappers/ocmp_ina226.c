@@ -26,8 +26,8 @@ typedef enum INA226Alert {
     INA226_ALERT_OVERCURRENT = 0,
 } INA226Alert;
 
-static bool _get_status(void *driver, unsigned int param_id,
-                        void *return_buf) {
+static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
+{
     switch (param_id) {
         case INA226_STATUS_BUS_VOLTAGE: {
             uint16_t *res = return_buf;
@@ -51,8 +51,8 @@ static bool _get_status(void *driver, unsigned int param_id,
     }
 }
 
-static bool _get_config(void *driver, unsigned int param_id,
-                        void *return_buf) {
+static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
+{
     switch (param_id) {
         case INA226_CONFIG_CURRENT_LIM: {
             uint16_t *res = return_buf;
@@ -64,8 +64,8 @@ static bool _get_config(void *driver, unsigned int param_id,
     }
 }
 
-static bool _set_config(void *driver, unsigned int param_id,
-                        const void *data) {
+static bool _set_config(void *driver, unsigned int param_id, const void *data)
+{
     switch (param_id) {
         case INA226_CONFIG_CURRENT_LIM: {
             const uint16_t *limit = data;
@@ -79,7 +79,7 @@ static bool _set_config(void *driver, unsigned int param_id,
 
 static ePostCode _probe(void *driver, POSTData *postData)
 {
-    return ina226_probe(driver,postData);
+    return ina226_probe(driver, postData);
 }
 
 static void _alert_handler(INA226_Event evt, uint16_t value, void *alert_data)
@@ -118,9 +118,7 @@ static ePostCode _init(void *driver, const void *config,
 
 const Driver_fxnTable INA226_fxnTable = {
     /* Message handlers */
-    .cb_probe = _probe,
-    .cb_init = _init,
-    .cb_get_status = _get_status,
-    .cb_get_config = _get_config,
+    .cb_probe = _probe,           .cb_init = _init,
+    .cb_get_status = _get_status, .cb_get_config = _get_config,
     .cb_set_config = _set_config,
 };

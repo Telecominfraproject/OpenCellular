@@ -20,26 +20,20 @@ typedef union SE98A_Config {
     int8_t limits[3];
 } SE98A_Config;
 
-SCHEMA_IMPORT  const Driver_fxnTable SE98_fxnTable;
+SCHEMA_IMPORT const Driver_fxnTable SE98_fxnTable;
 
 static const Driver SE98A = {
     .name = "SE98A",
-    .status = (Parameter[]){
-        { .name = "temperature", .type = TYPE_UINT8 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "lowlimit", .type = TYPE_INT8 },
-        { .name = "highlimit", .type = TYPE_UINT8 },
-        { .name = "critlimit", .type = TYPE_UINT8 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BAW", .type = TYPE_UINT8 },
-        { .name = "AAW", .type = TYPE_UINT8 },
-        { .name = "ACW", .type = TYPE_UINT8 },
-        {}
-    },
+    .status =
+            (Parameter[]){ { .name = "temperature", .type = TYPE_UINT8 }, {} },
+    .config = (Parameter[]){ { .name = "lowlimit", .type = TYPE_INT8 },
+                             { .name = "highlimit", .type = TYPE_UINT8 },
+                             { .name = "critlimit", .type = TYPE_UINT8 },
+                             {} },
+    .alerts = (Parameter[]){ { .name = "BAW", .type = TYPE_UINT8 },
+                             { .name = "AAW", .type = TYPE_UINT8 },
+                             { .name = "ACW", .type = TYPE_UINT8 },
+                             {} },
     .fxnTable = &SE98_fxnTable,
 };
 

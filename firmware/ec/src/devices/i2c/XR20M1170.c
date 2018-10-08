@@ -47,11 +47,9 @@ static const XrStopBit XR_STOP_BIT_MAP[] = {
 };
 
 static const XrParity XR_PARITY_MAP[] = {
-    [UART_PAR_NONE] = XR_PARITY_NONE,
-    [UART_PAR_EVEN] = XR_PARITY_EVEN,
-    [UART_PAR_ODD]  = XR_PARITY_ODD,
-    [UART_PAR_ZERO] = XR_PARITY_ZERO,
-    [UART_PAR_ONE]  = XR_PARITY_ONE,
+    [UART_PAR_NONE] = XR_PARITY_NONE, [UART_PAR_EVEN] = XR_PARITY_EVEN,
+    [UART_PAR_ODD] = XR_PARITY_ODD,   [UART_PAR_ZERO] = XR_PARITY_ZERO,
+    [UART_PAR_ONE] = XR_PARITY_ONE,
 };
 
 // TXLVL IRQ will automatically fire after reset & give us the actual level
@@ -59,7 +57,7 @@ static XrRegTxlvl s_txEmptyBytes = 0;
 
 // UART function table for XR20M1170 implementation
 void XR20M1170_close(UART_Handle handle);
-int  XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg);
+int XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg);
 void XR20M1170_init(UART_Handle handle);
 UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params);
 int XR20M1170_read(UART_Handle handle, void *buffer, size_t size);
@@ -70,26 +68,23 @@ int XR20M1170_writePolling(UART_Handle handle, const void *buffer, size_t size);
 void XR20M1170_writeCancel(UART_Handle handle);
 
 const UART_FxnTable XR20M1170_fxnTable = {
-    XR20M1170_close,
-    XR20M1170_control,
-    XR20M1170_init,
-    XR20M1170_open,
-    XR20M1170_read,
-    XR20M1170_readPolling,
-    XR20M1170_readCancel,
-    XR20M1170_write,
-    XR20M1170_writePolling,
+    XR20M1170_close,      XR20M1170_control, XR20M1170_init,
+    XR20M1170_open,       XR20M1170_read,    XR20M1170_readPolling,
+    XR20M1170_readCancel, XR20M1170_write,   XR20M1170_writePolling,
     XR20M1170_writeCancel
 };
 
-static XrSubAddress getSubAddress(XrRegister reg) {
-    return (XrSubAddress) {
+static XrSubAddress getSubAddress(XrRegister reg)
+{
+    return (XrSubAddress){
         .channel = XR_CHANNEL_A, // The only supported option
         .reg = reg,
     };
 }
 
-static bool writeData(UART_Handle handle, XrRegister reg, const void *buffer, size_t size) {
+static bool writeData(UART_Handle handle, XrRegister reg, const void *buffer,
+                      size_t size)
+{
     XR20M1170_Object *object = handle->object;
     const XR20M1170_HWAttrs *hwAttrs = handle->hwAttrs;
 
@@ -101,7 +96,9 @@ static bool writeData(UART_Handle handle, XrRegister reg, const void *buffer, si
     return true;
 }
 
-static void readData(UART_Handle handle, XrRegister reg, void *buffer, size_t size) {
+static void readData(UART_Handle handle, XrRegister reg, void *buffer,
+                     size_t size)
+{
     XR20M1170_Object *object = handle->object;
     const XR20M1170_HWAttrs *hwAttrs = handle->hwAttrs;
 
@@ -111,10 +108,12 @@ static void readData(UART_Handle handle, XrRegister reg, void *buffer, size_t si
     }
 }
 
-void XR20M1170_close(UART_Handle handle) {
+void XR20M1170_close(UART_Handle handle)
+{
 }
 
-int XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg) {
+int XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg)
+{
     XR20M1170_Object *object = handle->object;
 
     // Most of the commands require this info, might as well dedupe
@@ -126,21 +125,18 @@ int XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg) {
     }
     GateMutex_leave(object->ringBufMutex, mutexKey);
 
-    switch(cmd) {
-        case UART_CMD_ISAVAILABLE:
-        {
+    switch (cmd) {
+        case UART_CMD_ISAVAILABLE: {
             bool *available = arg;
             *available = (rxLvl > 0);
             return (UART_STATUS_SUCCESS);
         }
-        case UART_CMD_GETRXCOUNT:
-        {
+        case UART_CMD_GETRXCOUNT: {
             int *count = arg;
             *count = rxLvl;
             return (UART_STATUS_SUCCESS);
         }
-        case UART_CMD_PEEK:
-        {
+        case UART_CMD_PEEK: {
             int *byte = (int *)arg;
             if (!rxLvl) {
                 *byte = UART_ERROR;
@@ -159,15 +155,17 @@ int XR20M1170_control(UART_Handle handle, unsigned int cmd, void *arg) {
 }
 
 // XR20M1170_init
-void XR20M1170_init(UART_Handle handle) {
+void XR20M1170_init(UART_Handle handle)
+{
     XR20M1170_Object *object = handle->object;
 
-    *object = (XR20M1170_Object) {
+    *object = (XR20M1170_Object){
         .state.opened = false,
     };
 }
 
-static void processIrq(void *context) {
+static void processIrq(void *context)
+{
     UART_Handle handle = context;
     XR20M1170_Object *object = handle->object;
 
@@ -176,10 +174,9 @@ static void processIrq(void *context) {
         XrRegIsr isr;
         readData(handle, XR_REG_ISR, &isr, sizeof(isr));
 
-        switch(isr.source) {
+        switch (isr.source) {
             case ISR_SRC_RXRDY_TMOUT:
-            case ISR_SRC_RXRDY:
-            {
+            case ISR_SRC_RXRDY: {
                 // See how much data is available
                 XrRegRxlvl rxLvl;
                 readData(handle, XR_REG_RXLVL, &rxLvl, sizeof(rxLvl));
@@ -211,14 +208,16 @@ static void processIrq(void *context) {
                     // copy and maybe auto-locking
                     for (int i = 0; i < bytesToRead; ++i) {
                         RingBuf_put(&object->ringBuffer, buf[i]);
-                        Semaphore_post(object->readSem); // TODO: move out of mutex lock?
+                        Semaphore_post(
+                                object->readSem); // TODO: move out of mutex lock?
                     }
                 }
                 GateMutex_leave(object->ringBufMutex, mutexKey);
                 break;
             }
             case ISR_SRC_TXRDY:
-                readData(handle, XR_REG_TXLVL, &s_txEmptyBytes, sizeof(s_txEmptyBytes));
+                readData(handle, XR_REG_TXLVL, &s_txEmptyBytes,
+                         sizeof(s_txEmptyBytes));
                 Semaphore_post(object->writeSem);
                 break;
             case ISR_SRC_LSR:
@@ -235,11 +234,13 @@ static void processIrq(void *context) {
 }
 
 static double calc_divisor(double xtal_freq, double prescaler, double baudRate,
-                           double sampling_mode) {
+                           double sampling_mode)
+{
     return (xtal_freq / prescaler) / (baudRate * sampling_mode);
 }
 
-static bool reset_ic(UART_Handle handle) {
+static bool reset_ic(UART_Handle handle)
+{
     XrRegIOCtrl ioCtrl = {
         .uartReset = true,
     };
@@ -251,7 +252,8 @@ static bool reset_ic(UART_Handle handle) {
 }
 
 // Sets up the XR20M1170 registers to match desired settings
-static bool register_config(UART_Handle handle, UART_Params *params) {
+static bool register_config(UART_Handle handle, UART_Params *params)
+{
     const XR20M1170_HWAttrs *hwAttrs = handle->hwAttrs;
 
     // TODO: Idea: have a function for setting registers to make sure everything
@@ -289,8 +291,8 @@ static bool register_config(UART_Handle handle, UART_Params *params) {
     // If the divisor is too big, introduce the prescaler
     if (divisor > UINT16_MAX) {
         prescaler = 4;
-        divisor = calc_divisor(hwAttrs->xtal1_freq, prescaler,
-                               params->baudRate, samplingMode);
+        divisor = calc_divisor(hwAttrs->xtal1_freq, prescaler, params->baudRate,
+                               samplingMode);
     }
 
     // Split the divisor into its integer and fractional parts
@@ -311,14 +313,14 @@ static bool register_config(UART_Handle handle, UART_Params *params) {
 
     // Calculate data error rate
     double realDivisor = (dld.fracDivisor / 16.0) + trunc(divisor);
-    double dataErrorRate = ((divisor - realDivisor)/divisor) * 100.0;
+    double dataErrorRate = ((divisor - realDivisor) / divisor) * 100.0;
     if (dataErrorRate > 0.001) {
         Log_warning2("XR20M1170: Data error rate of %d%% for baud rate %d",
                      dataErrorRate, params->baudRate);
     }
 
     // Set up LCR
-    lcr = (XrRegLcr) {
+    lcr = (XrRegLcr){
         .wordLen = XR_WORD_LEN_MAP[params->dataLength],
         .stopBits = XR_STOP_BIT_MAP[params->stopBits],
         .parity = XR_PARITY_MAP[params->parityType],
@@ -345,16 +347,16 @@ static bool register_config(UART_Handle handle, UART_Params *params) {
     writeData(handle, XR_REG_FCR, &fcr, sizeof(fcr));
 
     /* Set trigger levels - these override the levels set by FCR if nonzero */
-   XrRegTlr tlr = {
-       .rxTrigger = 32 / 4, /* 4-60, multiple of 4 */
-       .txTrigger = 32 / 4, /* 4-60, multiple of 4 */
-   };
-   writeData(handle, XR_REG_TLR, &tlr, sizeof(tlr));
+    XrRegTlr tlr = {
+        .rxTrigger = 32 / 4, /* 4-60, multiple of 4 */
+        .txTrigger = 32 / 4, /* 4-60, multiple of 4 */
+    };
+    writeData(handle, XR_REG_TLR, &tlr, sizeof(tlr));
 
     /* Set halt/resume levels - these can be relatively low since data should
      * normally be cleared quite quickly */
     XrRegTcr tcr = {
-        .rxHaltLvl = 40 / 4,   /* 0-60, multiple of 4 */
+        .rxHaltLvl = 40 / 4, /* 0-60, multiple of 4 */
         .rxResumeLvl = 12 / 4, /* 0-60, multiple of 4 */
     };
     writeData(handle, XR_REG_TCR, &tcr, sizeof(tcr));
@@ -382,7 +384,8 @@ static bool register_config(UART_Handle handle, UART_Params *params) {
 }
 
 // XR20M1170_open
-UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params) {
+UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params)
+{
     XR20M1170_Object *object = handle->object;
     const XR20M1170_HWAttrs *hwAttrs = handle->hwAttrs;
 
@@ -429,8 +432,8 @@ UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params) {
         DEBUG("XR20M1170:ERROR::Can't ring buffer mutex\n");
     }
 
-    OcGpio_configure(hwAttrs->pin_irq, OCGPIO_CFG_INPUT |
-                                       OCGPIO_CFG_INT_FALLING);
+    OcGpio_configure(hwAttrs->pin_irq,
+                     OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING);
 
     // Set up our threaded interrupt handler
     ThreadedInt_Init(hwAttrs->pin_irq, processIrq, handle);
@@ -447,8 +450,8 @@ UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params) {
     //    object->state.readDataMode   = params->readDataMode;
     //    object->state.writeDataMode  = params->writeDataMode;
     //    object->state.readEcho       = params->readEcho;
-    object->readTimeout          = params->readTimeout;
-    object->writeTimeout         = params->writeTimeout;
+    object->readTimeout = params->readTimeout;
+    object->writeTimeout = params->writeTimeout;
     //    object->readCallback         = params->readCallback;
     //    object->writeCallback        = params->writeCallback;
 
@@ -457,7 +460,8 @@ UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params) {
     return (handle);
 }
 
-int XR20M1170_read(UART_Handle handle, void *buffer, size_t size) {
+int XR20M1170_read(UART_Handle handle, void *buffer, size_t size)
+{
     XR20M1170_Object *object = handle->object;
     uint8_t *char_buf = buffer;
 
@@ -483,11 +487,12 @@ int XR20M1170_read(UART_Handle handle, void *buffer, size_t size) {
     return bytesRead;
 }
 
-int XR20M1170_write(UART_Handle handle, const void *buffer, size_t size) {
+int XR20M1170_write(UART_Handle handle, const void *buffer, size_t size)
+{
     XR20M1170_Object *object = handle->object;
     int bytes_written = 0;
 
-    while(size) {
+    while (size) {
         if (!Semaphore_pend(object->writeSem, object->writeTimeout)) {
             return bytes_written;
         }
@@ -501,20 +506,24 @@ int XR20M1170_write(UART_Handle handle, const void *buffer, size_t size) {
     return bytes_written;
 }
 
-int XR20M1170_readPolling(UART_Handle handle, void *buffer, size_t size) {
+int XR20M1170_readPolling(UART_Handle handle, void *buffer, size_t size)
+{
     DEBUG("XR20M1170::readPolling not yet implemented");
     return 0;
 }
 
-void XR20M1170_readCancel(UART_Handle handle) {
+void XR20M1170_readCancel(UART_Handle handle)
+{
     DEBUG("XR20M1170::readCancel not yet implemented");
 }
 
-int XR20M1170_writePolling(UART_Handle handle, const void *buffer, size_t size) {
+int XR20M1170_writePolling(UART_Handle handle, const void *buffer, size_t size)
+{
     DEBUG("XR20M1170::writePolling not yet implemented");
     return 0;
 }
 
-void XR20M1170_writeCancel(UART_Handle handle) {
+void XR20M1170_writeCancel(UART_Handle handle)
+{
     DEBUG("XR20M1170::writeCancel not yet implemented");
 }

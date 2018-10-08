@@ -14,26 +14,22 @@
 SCHEMA_IMPORT bool ocgpio_get(void *driver, void *data);
 SCHEMA_IMPORT bool ocgpio_set(void *driver, void *data);
 
-SCHEMA_IMPORT  const Driver_fxnTable DEBUG_OCGPIO_fxnTable;
+SCHEMA_IMPORT const Driver_fxnTable DEBUG_OCGPIO_fxnTable;
 
 static const Driver OC_GPIO = {
     .name = "OC_GPIO",
-    .argList = (Parameter[]){
-        { .name = "pin", .type = TYPE_UINT8 },
-        { .name = "value", .type = TYPE_UINT8 },
-        {}
-    },
-    .commands = (Command[]){
-        {
-            .name = "get",
-            .cb_cmd = ocgpio_get,
-        },
-        {
-            .name = "set",
-            .cb_cmd = ocgpio_set,
-        },
-        {}
-    },
+    .argList = (Parameter[]){ { .name = "pin", .type = TYPE_UINT8 },
+                              { .name = "value", .type = TYPE_UINT8 },
+                              {} },
+    .commands = (Command[]){ {
+                                     .name = "get",
+                                     .cb_cmd = ocgpio_get,
+                             },
+                             {
+                                     .name = "set",
+                                     .cb_cmd = ocgpio_set,
+                             },
+                             {} },
     .fxnTable = &DEBUG_OCGPIO_fxnTable,
 };
 

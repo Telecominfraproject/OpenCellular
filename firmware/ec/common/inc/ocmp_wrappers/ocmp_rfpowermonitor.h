@@ -14,11 +14,9 @@
 SCHEMA_IMPORT const Driver_fxnTable RFPowerMonitor_fxnTable;
 
 static const Driver RFPowerMonitor = {
-    .status = (Parameter[]){
-        { .name = "forward", .type = TYPE_UINT16 },
-        { .name = "reverse", .type = TYPE_UINT16 },
-        {}
-    },
+    .status = (Parameter[]){ { .name = "forward", .type = TYPE_UINT16 },
+                             { .name = "reverse", .type = TYPE_UINT16 },
+                             {} },
     .fxnTable = &RFPowerMonitor_fxnTable,
 };
 

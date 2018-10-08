@@ -17,9 +17,9 @@
 #include "inc/utils/ocmp_util.h"
 #include "inc/utils/util.h"
 
-#define OCMP_ACTION_TYPE_GET    1
-#define OCMP_ACTION_TYPE_SET    2
-#define OCMP_ACTION_TYPE_REPLY  3
+#define OCMP_ACTION_TYPE_GET 1
+#define OCMP_ACTION_TYPE_SET 2
+#define OCMP_ACTION_TYPE_REPLY 3
 #define OCMP_ACTION_TYPE_ACTIVE 4
 
 /* TODO: configurable directory (allow us to target different platforms) */
@@ -27,8 +27,8 @@
 
 #include <ti/sysbios/BIOS.h>
 
-#define OC_TASK_STACK_SIZE    2048
-#define OC_TASK_PRIORITY      2
+#define OC_TASK_STACK_SIZE 2048
+#define OC_TASK_PRIORITY 2
 
 static char OC_task_stack[SUBSYSTEM_COUNT][OC_TASK_STACK_SIZE];
 
@@ -52,7 +52,8 @@ static const size_t PARAM_SIZE_MAP[] = {
                         iterate over definition to determine size requirement*/
 };
 
-static unsigned int _subcompCount(const Component *comp) {
+static unsigned int _subcompCount(const Component *comp)
+{
     unsigned int i = 0;
     if (comp) {
         while (comp->components[i].name) {
@@ -62,7 +63,8 @@ static unsigned int _subcompCount(const Component *comp) {
     return i;
 }
 
-static size_t _paramSize(const Parameter *param) {
+static size_t _paramSize(const Parameter *param)
+{
     if (!param || (param->type >= ARRAY_SIZE(PARAM_SIZE_MAP))) {
         return 0;
     }
@@ -83,8 +85,7 @@ static bool _paramIsValid(const Parameter *param)
     return param && param->name;
 }
 
-void OCMP_GenerateAlert(const AlertData *alert_data,
-                        unsigned int alert_id,
+void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
                         const void *data)
 {
     if (!alert_data) {
@@ -92,7 +93,8 @@ void OCMP_GenerateAlert(const AlertData *alert_data,
     }
 
     const Component *subsystem = &sys_schema[alert_data->subsystem];
-    const Component *component = &subsystem->components[alert_data->componentId];
+    const Component *component =
+            &subsystem->components[alert_data->componentId];
     const Driver *driver = component->components[alert_data->deviceId].driver;
     const Parameter *param = &driver->alerts[alert_id];
 
@@ -110,16 +112,15 @@ void OCMP_GenerateAlert(const AlertData *alert_data,
     /* Align to 4 byte boundary (bug in host) */
     size_t param_size = (_paramSize(param) + 3) & ~0x03;
 
-    OCMPMessageFrame *pMsg = create_ocmp_msg_frame(alert_data->subsystem,
-                                                   OCMP_MSG_TYPE_ALERT,
-                                                   OCMP_AXN_TYPE_ACTIVE,
-                                                   alert_data->componentId + 1, /* TODO: inconsistency indexing in host */
-                                                   parameters,
-                                                   param_size);
+    OCMPMessageFrame *pMsg = create_ocmp_msg_frame(
+            alert_data->subsystem, OCMP_MSG_TYPE_ALERT, OCMP_AXN_TYPE_ACTIVE,
+            alert_data->componentId +
+                    1, /* TODO: inconsistency indexing in host */
+            parameters, param_size);
     if (pMsg) {
         memcpy(pMsg->message.ocmp_data, data, _paramSize(param));
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
-                        (uint8_t*) pMsg);
+                        (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("ERROR::Unable to allocate alert packet\n");
     }
@@ -131,7 +132,7 @@ static bool _handleMsgTypeCmd(OCMPMessageFrame *pMsg, const Component *comp)
     Component *dev;
     if (comp) {
         if (pMsg->message.parameters > 0) {
-            dev = &comp->components[(pMsg->message.parameters)-1];
+            dev = &comp->components[(pMsg->message.parameters) - 1];
         } else {
             dev = comp;
         }
@@ -154,12 +155,12 @@ static bool _handle_cmd_get(OCMPMessageFrame *pMsg, const Component *comp,
     switch (pMsg->message.msgtype) {
         case OCMP_MSG_TYPE_CONFIG:
             return (comp->driver->fxnTable->cb_get_config &&
-                    comp->driver->fxnTable->cb_get_config(comp->driver_cfg, param_id,
-                                                buf_ptr));
+                    comp->driver->fxnTable->cb_get_config(comp->driver_cfg,
+                                                          param_id, buf_ptr));
         case OCMP_MSG_TYPE_STATUS:
             return (comp->driver->fxnTable->cb_get_status &&
-                    comp->driver->fxnTable->cb_get_status(comp->driver_cfg, param_id,
-                                                buf_ptr));
+                    comp->driver->fxnTable->cb_get_status(comp->driver_cfg,
+                                                          param_id, buf_ptr));
         default:
             return false;
     }
@@ -171,8 +172,8 @@ static bool _handle_cmd_set(OCMPMessageFrame *pMsg, const Component *comp,
     switch (pMsg->message.msgtype) {
         case OCMP_MSG_TYPE_CONFIG:
             return (comp->driver->fxnTable->cb_set_config &&
-                    comp->driver->fxnTable->cb_set_config(comp->driver_cfg, param_id,
-                                                data));
+                    comp->driver->fxnTable->cb_set_config(comp->driver_cfg,
+                                                          param_id, data));
         default:
             return false;
     }
@@ -207,16 +208,14 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
         if (pMsg->message.parameters & (1 << *param_id)) {
             switch (pMsg->message.action) {
                 case OCMP_ACTION_TYPE_GET:
-                    if (_handle_cmd_get(pMsg, dev, normalized_id,
-                                        *buf_ptr)) {
+                    if (_handle_cmd_get(pMsg, dev, normalized_id, *buf_ptr)) {
                         dev_handled = true;
                     } else {
                         pMsg->message.parameters &= ~(1 << *param_id);
                     }
                     break;
                 case OCMP_ACTION_TYPE_SET:
-                    if (_handle_cmd_set(pMsg, dev, normalized_id,
-                                        *buf_ptr)) {
+                    if (_handle_cmd_set(pMsg, dev, normalized_id, *buf_ptr)) {
                         dev_handled = true;
                     } else {
                         pMsg->message.parameters &= ~(1 << *param_id);
@@ -240,27 +239,29 @@ static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
 {
     bool ret = false;
     OCMPMessageFrame *buffer;
-    const Post *postCmd = &comp->driver->post[(pMsg->message.action)-1];
+    const Post *postCmd = &comp->driver->post[(pMsg->message.action) - 1];
     if (postCmd && postCmd->cb_postCmd) {
         ret = postCmd->cb_postCmd(&buffer);
         if (ret) {
-            Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*)buffer);
+            Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t *)buffer);
         }
     }
     pMsg->message.ocmp_data[0] = !(ret); //RETURN_OK =0;
     return ret;
 }
 
-static bool _handle_post_active(OCMPMessageFrame *pMsg,unsigned int subsystem_id)
+static bool _handle_post_active(OCMPMessageFrame *pMsg,
+                                unsigned int subsystem_id)
 {
     ReturnStatus status = _execPost(pMsg, subsystem_id);
     return (status == RETURN_OK);
 }
 
-static bool _handle_post_get_results(const Component *comp,OCMPMessageFrame *pMsg)
+static bool _handle_post_get_results(const Component *comp,
+                                     OCMPMessageFrame *pMsg)
 {
     bool ret = false;
-    const Post *postCmd = &comp->driver->post[(pMsg->message.action)-1];
+    const Post *postCmd = &comp->driver->post[(pMsg->message.action) - 1];
     if (postCmd && postCmd->cb_postCmd) {
         postCmd->cb_postCmd(pMsg);
         ret = true;
@@ -268,7 +269,8 @@ static bool _handle_post_get_results(const Component *comp,OCMPMessageFrame *pMs
     return ret;
 }
 
-static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp, unsigned int subsystem_id)
+static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp,
+                               unsigned int subsystem_id)
 {
     /* Determine driver & parameter */
     unsigned int param_id = 0;
@@ -281,7 +283,7 @@ static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp, un
             }
             break;
         case OCMP_ACTION_TYPE_ACTIVE:
-            if (_handle_post_active(pMsg,subsystem_id)) {
+            if (_handle_post_active(pMsg, subsystem_id)) {
                 dev_handled = true;
             }
             break;
@@ -290,7 +292,7 @@ static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp, un
                 dev_handled = true;
             }
             break;
-/*        case OCMP_ACTION_REPLY:
+            /*        case OCMP_ACTION_REPLY:
             if (_handle_post_reply(pMsg, *buf_ptr)) {
                 dev_handled = true;
             }
@@ -331,7 +333,8 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
         LOGGER_ERROR("Component %d out of bounds\n", pMsg->message.componentID);
         return false;
     }
-    const Component *comp = &subsystem->components[(pMsg->message.componentID)-1];
+    const Component *comp =
+            &subsystem->components[(pMsg->message.componentID) - 1];
     /* TODO: clean up special handling for commands */
     bool dev_handled = false;
     switch (pMsg->message.msgtype) {
@@ -356,13 +359,15 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
         pMsg->message.parameters = 0x00;
     }
     /* The main exception to the flow right now is POST - check for it first */
-    if ((pMsg->message.msgtype == OCMP_MSG_TYPE_POST) && (pMsg->message.action == OCMP_ACTION_TYPE_ACTIVE)) {
+    if ((pMsg->message.msgtype == OCMP_MSG_TYPE_POST) &&
+        (pMsg->message.action == OCMP_ACTION_TYPE_ACTIVE)) {
         pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
-        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
+        Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t *)pMsg);
     } else {
         /* Send reply to the middleware */
         pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
-        Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg, (uint8_t *)pMsg);
+        Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
+                        (uint8_t *)pMsg);
     }
     return true;
 }
@@ -380,7 +385,7 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
         if (Semaphore_pend(ss->sem, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(ss->msgQueue)) {
                 OCMPMessageFrame *pMsg =
-                        (OCMPMessageFrame *) Util_dequeueMsg(ss->msgQueue);
+                        (OCMPMessageFrame *)Util_dequeueMsg(ss->msgQueue);
 
                 if (pMsg) {
                     /* Attempt to route the message to the correct driver
@@ -395,8 +400,9 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
     }
 }
 
-static void subsystem_init(OCMPSubsystem ss_id) {
-    OCSubsystem *ss = (OCSubsystem*)malloc(sizeof(OCSubsystem));
+static void subsystem_init(OCMPSubsystem ss_id)
+{
+    OCSubsystem *ss = (OCSubsystem *)malloc(sizeof(OCSubsystem));
     if (!ss) {
         return;
     }
@@ -408,22 +414,24 @@ static void subsystem_init(OCMPSubsystem ss_id) {
     ss->sem = Semaphore_handle(&ss->semStruct);
     if (!ss->sem) {
         LOGGER_DEBUG("SS REG:ERROR:: Failed in Creating RX Semaphore for "
-                     "subsystem %d\n", ss_id);
+                     "subsystem %d\n",
+                     ss_id);
     }
 
     /* Create Message Queue for RX Messages */
     ss->msgQueue = Util_constructQueue(&ss->queueStruct);
     if (!ss->msgQueue) {
         LOGGER_ERROR("SS REG:ERROR:: Failed in Constructing Message Queue for "
-                     "RX Message for subsystem %d\n", ss_id);
+                     "RX Message for subsystem %d\n",
+                     ss_id);
     }
 
     /* Spin up the task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
-    taskParams.stack = OC_task_stack[ss_id];// ss->taskStack;
-    taskParams.stackSize = OC_TASK_STACK_SIZE;//ss->taskStackSize;
-    taskParams.priority = OC_TASK_PRIORITY;//ss->taskPriority;
+    taskParams.stack = OC_task_stack[ss_id]; // ss->taskStack;
+    taskParams.stackSize = OC_TASK_STACK_SIZE; //ss->taskStackSize;
+    taskParams.priority = OC_TASK_PRIORITY; //ss->taskPriority;
     taskParams.arg0 = (UArg)ss;
     taskParams.arg1 = ss_id;
 
@@ -431,24 +439,27 @@ static void subsystem_init(OCMPSubsystem ss_id) {
     LOGGER_DEBUG("SS REG:DEBUG:: Creating Task for Subsystem %d\n", ss_id);
 }
 
-void SSRegistry_init(void) {
+void SSRegistry_init(void)
+{
     for (OCMPSubsystem i = (OCMPSubsystem)0; i < SUBSYSTEM_COUNT; ++i) {
         subsystem_init(i);
     }
 }
 
-OCSubsystem* SSRegistry_Get(OCMPSubsystem ss_id) {
+OCSubsystem *SSRegistry_Get(OCMPSubsystem ss_id)
+{
     if (ss_id >= SUBSYSTEM_COUNT) {
         return NULL;
     }
     return ss_reg[ss_id];
 }
 
-bool SSRegistry_sendMessage(OCMPSubsystem ss_id, void *pMsg) {
+bool SSRegistry_sendMessage(OCMPSubsystem ss_id, void *pMsg)
+{
     OCSubsystem *ss = SSRegistry_Get(ss_id);
     if (!ss) {
         return false;
     }
 
-    return Util_enqueueMsg(ss->msgQueue, ss->sem, (uint8_t*) pMsg);
+    return Util_enqueueMsg(ss->msgQueue, ss->sem, (uint8_t *)pMsg);
 }

@@ -21,29 +21,23 @@ typedef union ADT7481_Config {
 } ADT7481_Config;
 
 #ifdef UT_FRAMEWORK
-extern  const Driver_fxnTable ADT7481_fxnTable;
+extern const Driver_fxnTable ADT7481_fxnTable;
 #else
-SCHEMA_IMPORT  const Driver_fxnTable ADT7481_fxnTable;
+SCHEMA_IMPORT const Driver_fxnTable ADT7481_fxnTable;
 #endif
 
 static const Driver ADT7481 = {
     .name = "ADT7481",
-    .status = (Parameter[]){
-        { .name = "temperature", .type = TYPE_UINT8 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "lowlimit", .type = TYPE_INT8 },
-        { .name = "highlimit", .type = TYPE_UINT8 },
-        { .name = "critlimit", .type = TYPE_UINT8 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BAW", .type = TYPE_UINT8 },
-        { .name = "AAW", .type = TYPE_UINT8 },
-        { .name = "ACW", .type = TYPE_UINT8 },
-        {}
-    },
+    .status =
+            (Parameter[]){ { .name = "temperature", .type = TYPE_UINT8 }, {} },
+    .config = (Parameter[]){ { .name = "lowlimit", .type = TYPE_INT8 },
+                             { .name = "highlimit", .type = TYPE_UINT8 },
+                             { .name = "critlimit", .type = TYPE_UINT8 },
+                             {} },
+    .alerts = (Parameter[]){ { .name = "BAW", .type = TYPE_UINT8 },
+                             { .name = "AAW", .type = TYPE_UINT8 },
+                             { .name = "ACW", .type = TYPE_UINT8 },
+                             {} },
     .fxnTable = &ADT7481_fxnTable,
 };
 

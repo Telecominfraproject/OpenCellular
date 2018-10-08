@@ -141,9 +141,10 @@ static uint8_t SX1509_regs[] = {
 
 static const OcGpio_Port s_sx1509_ioexp = {
     .fn_table = &GpioSX1509_fnTable,
-    .cfg = &(SX1509_Cfg) {
-        .i2c_dev = { I2C_BUS, I2C_ADDR },
-    },
+    .cfg =
+            &(SX1509_Cfg){
+                    .i2c_dev = { I2C_BUS, I2C_ADDR },
+            },
     .object_data = &(SX1509_Obj){},
 };
 
@@ -169,7 +170,7 @@ void setUp(void)
     OcGpio_init(&s_sx1509_ioexp);
 
     for (size_t i = 0; i < ARRAY_SIZE(s_test_pins); ++i) {
-        s_test_pins[i] = (OcGpio_Pin) {
+        s_test_pins[i] = (OcGpio_Pin){
             &s_sx1509_ioexp,
             i,
         };
@@ -186,7 +187,8 @@ void suite_tearDown(void)
 }
 
 /* ================================ Tests =================================== */
-static void _test_cfg_helper(uint32_t pin_cfg) {
+static void _test_cfg_helper(uint32_t pin_cfg)
+{
     for (size_t i = 0; i < ARRAY_SIZE(s_test_pins); ++i) {
         TEST_ASSERT_EQUAL(OCGPIO_SUCCESS,
                           OcGpio_configure(&s_test_pins[i], pin_cfg));
@@ -253,4 +255,3 @@ void test_OcGpio_configure_outputs(void)
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x0A]); /* B */
     TEST_ASSERT_EQUAL_HEX8(0xA2, SX1509_regs[0x0B]); /* A */
 }
-

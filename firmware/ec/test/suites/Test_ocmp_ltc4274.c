@@ -41,23 +41,27 @@ static I2C_Dev I2C_INVALID_BUS = {
 };
 
 static LTC4274_Dev s_dev = {
-    .cfg = {
-        .i2c_dev = {
-            .bus = 7,
-            .slave_addr = 0x2F,
-        },
-        .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 27},
-        .reset_pin ={ &s_fake_io_port, 27 },
-    },
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = 7,
+                                    .slave_addr = 0x2F,
+                            },
+                    .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 27 },
+                    .reset_pin = { &s_fake_io_port, 27 },
+            },
 };
 
 static LTC4274_Dev s_invalid_dev = {
-    .cfg = {
-        .i2c_dev = {
-            .bus = 7,
-            .slave_addr = 0x52,
-        },
-    },
+    .cfg =
+            {
+                    .i2c_dev =
+                            {
+                                    .bus = 7,
+                                    .slave_addr = 0x52,
+                            },
+            },
 };
 
 static uint8_t LTC4274_regs[] = {
@@ -110,7 +114,7 @@ static uint32_t LTC7274_GpioConfig[] = {
 
 typedef enum LTC7274Status {
     LTC7274_STATUS_DETECT = 0,
-    LTC7274_STATUS_CLASS ,
+    LTC7274_STATUS_CLASS,
     LTC7274_STATUS_POWERGOOD,
 } LTC7274Status;
 
@@ -127,7 +131,7 @@ typedef enum LTC7274Alert {
     LTC4274_ALERT_POWER_ENABLE,
     LTC4274_ALERT_POWERGOOD,
     LTC4274_ALERT_DISCONNECT,
-    LTC4274_ALERT_DETECTION ,
+    LTC4274_ALERT_DETECTION,
     LTC4274_ALERT_CLASS,
     LTC4274_ALERT_TCUT,
     LTC4274_ALERT_TSTART,
@@ -137,12 +141,12 @@ typedef enum LTC7274Alert {
 /* ============================= Fake Functions ============================= */
 #include <ti/sysbios/knl/Task.h>
 unsigned int s_task_sleep_ticks;
-xdc_Void ti_sysbios_knl_Task_sleep__E( xdc_UInt32 nticks )
+xdc_Void ti_sysbios_knl_Task_sleep__E(xdc_UInt32 nticks)
 {
     s_task_sleep_ticks += nticks;
 }
 
-void test_alert(void) 
+void test_alert(void)
 {
 }
 
@@ -167,16 +171,15 @@ void tearDown(void)
 
 void suite_tearDown(void)
 {
-    fake_I2C_deinit(); /* This will automatically unregister devices */	
+    fake_I2C_deinit(); /* This will automatically unregister devices */
 }
 
 /* ================================ Tests =================================== */
-// Parameters are not used as this is just used to test assigning the 
+// Parameters are not used as this is just used to test assigning the
 //   alert_handler right now.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void OCMP_GenerateAlert(const AlertData *alert_data,
-                        unsigned int alert_id,
+void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
                         const void *data)
 {
     return;
@@ -190,20 +193,20 @@ void test_probe(void)
     /* Correct Dev id */
     LTC4274_regs[0x1B] = (0x0c << 3);
     LTC4274_GpioPins[27] = 1;
-    TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4274_fxnTable.cb_probe(&s_dev,
-                                &postData));
-    TEST_ASSERT_EQUAL(LTC7274_GpioConfig[27], OCGPIO_CFG_OUTPUT |
-                        OCGPIO_CFG_OUT_HIGH);
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND,
+                      LTC4274_fxnTable.cb_probe(&s_dev, &postData));
+    TEST_ASSERT_EQUAL(LTC7274_GpioConfig[27],
+                      OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
     TEST_ASSERT_EQUAL(0, LTC4274_GpioPins[27]);
 
     /*  Missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4274_fxnTable.cb_probe(&s_invalid_dev,
-                                &postData));
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING,
+                      LTC4274_fxnTable.cb_probe(&s_invalid_dev, &postData));
 
     /* Incorrect Dev id */
-    LTC4274_regs[0x1B] = (0x0D << 3); 
+    LTC4274_regs[0x1B] = (0x0D << 3);
     TEST_ASSERT_EQUAL(POST_DEV_ID_MISMATCH,
-            LTC4274_fxnTable.cb_probe(&s_dev, &postData));
+                      LTC4274_fxnTable.cb_probe(&s_dev, &postData));
 }
 
 void test_get_status(void)
@@ -213,166 +216,203 @@ void test_get_status(void)
     /* success values */
     LTC4274_regs[0x04] = 0xFF;
     LTC4274_regs[0x0C] = 0x01;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_status(&I2C_DEV,
-                LTC7274_STATUS_DETECT, &value));
+    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_status(
+                                    &I2C_DEV, LTC7274_STATUS_DETECT, &value));
     TEST_ASSERT_EQUAL_HEX8(0x01, value);
-    
+
     LTC4274_regs[0x04] = 0xFF;
-    LTC4274_regs[0x0C] = 0x2B; 
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_status(&I2C_DEV,
-                LTC7274_STATUS_CLASS, &value));
+    LTC4274_regs[0x0C] = 0x2B;
+    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_status(
+                                    &I2C_DEV, LTC7274_STATUS_CLASS, &value));
     TEST_ASSERT_EQUAL_HEX8(0x02, value);
-    
+
     LTC4274_regs[0x04] = 0xFF;
-    LTC4274_regs[0x10] = 0x00;  
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_status(&I2C_DEV,
-                LTC7274_STATUS_POWERGOOD, &value));
+    LTC4274_regs[0x10] = 0x00;
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_get_status(
+                              &I2C_DEV, LTC7274_STATUS_POWERGOOD, &value));
     TEST_ASSERT_EQUAL_HEX8(0x01, value);
 
     /* invalid paramid */
     LTC4274_regs[0x04] = 0xFF;
     LTC4274_regs[0x0C] = 0x01;
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_DEV,
-                0XFF, &value));
+    TEST_ASSERT_EQUAL(false,
+                      LTC4274_fxnTable.cb_get_status(&I2C_DEV, 0XFF, &value));
 
     /* invalid dev-id */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_DEV,
-                LTC7274_STATUS_CLASS, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_DEV,
-                LTC7274_STATUS_POWERGOOD, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_DEV,
-                LTC7274_STATUS_POWERGOOD, &value));
+    TEST_ASSERT_EQUAL(false,
+                      LTC4274_fxnTable.cb_get_status(
+                              &I2C_INVALID_DEV, LTC7274_STATUS_CLASS, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_status(
+                           &I2C_INVALID_DEV, LTC7274_STATUS_POWERGOOD, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_status(
+                           &I2C_INVALID_DEV, LTC7274_STATUS_POWERGOOD, &value));
     /* invalid bus */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_BUS,
-                LTC7274_STATUS_CLASS, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_BUS,
-                LTC7274_STATUS_POWERGOOD, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_status(&I2C_INVALID_BUS,
-                LTC7274_STATUS_POWERGOOD, &value));
-
+    TEST_ASSERT_EQUAL(false,
+                      LTC4274_fxnTable.cb_get_status(
+                              &I2C_INVALID_BUS, LTC7274_STATUS_CLASS, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_status(
+                           &I2C_INVALID_BUS, LTC7274_STATUS_POWERGOOD, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_status(
+                           &I2C_INVALID_BUS, LTC7274_STATUS_POWERGOOD, &value));
 }
 
 void test_set_config(void)
 {
     uint8_t value = 0x00;
-    
+
     /* success values */
     LTC4274_regs[0x12] = 0x00;
     value = 0x51;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_set_config(&I2C_DEV,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_set_config(
+                              &I2C_DEV, LTC4274_CONFIG_OPERATING_MODE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x12], value);
 
     LTC4274_regs[0x14] = 0xFF;
     value = 0x53;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_set_config(&I2C_DEV,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_set_config(
+                              &I2C_DEV, LTC4274_CONFIG_DETECT_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x14], value);
 
     LTC4274_regs[0x01] = 0xFF;
     value = 0x54;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_set_config(&I2C_DEV,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_set_config(
+                              &I2C_DEV, LTC4274_CONFIG_INTERRUPT_MASK, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x01], value);
 
     LTC4274_regs[0x17] = 0xFF;
     value = true;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_set_config(&I2C_DEV,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            true, LTC4274_fxnTable.cb_set_config(
+                          &I2C_DEV, LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8(0x80, LTC4274_regs[0x17]);
 
     LTC4274_regs[0x44] = 0xFF;
     value = 0x56;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_set_config(&I2C_DEV,
-                LTC4274_CONFIG_HP_ENABLE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_set_config(
+                              &I2C_DEV, LTC4274_CONFIG_HP_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x44], value);
 
     /* Invalid paramid */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_DEV, 0xFF, &value));
+    TEST_ASSERT_EQUAL(false,
+                      LTC4274_fxnTable.cb_set_config(&I2C_DEV, 0xFF, &value));
 
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_HP_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_set_config(
+                           &I2C_INVALID_DEV, LTC4274_CONFIG_HP_ENABLE, &value));
 
-	/* invalid bus */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_HP_ENABLE, &value));
+    /* invalid bus */
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_set_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_set_config(
+                           &I2C_INVALID_BUS, LTC4274_CONFIG_HP_ENABLE, &value));
 }
 
 void test_get_config(void)
 {
     uint8_t value = 0x00;
-    
+
     /* success values */
     LTC4274_regs[0x12] = 0x51;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_config(&I2C_DEV,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_get_config(
+                              &I2C_DEV, LTC4274_CONFIG_OPERATING_MODE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x12], value);
 
     LTC4274_regs[0x14] = 0x53;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_config(&I2C_DEV,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_get_config(
+                              &I2C_DEV, LTC4274_CONFIG_DETECT_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8((LTC4274_regs[0x14] & 07), value);
 
     LTC4274_regs[0x01] = 0x54;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_config(&I2C_DEV,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_get_config(
+                              &I2C_DEV, LTC4274_CONFIG_INTERRUPT_MASK, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x01], value);
 
     LTC4274_regs[0x17] = 0x80;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_config(&I2C_DEV,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            true, LTC4274_fxnTable.cb_get_config(
+                          &I2C_DEV, LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x17], value);
 
     LTC4274_regs[0x44] = 0x56;
-    TEST_ASSERT_EQUAL(true, LTC4274_fxnTable.cb_get_config(&I2C_DEV,
-                LTC4274_CONFIG_HP_ENABLE, &value));
+    TEST_ASSERT_EQUAL(true,
+                      LTC4274_fxnTable.cb_get_config(
+                              &I2C_DEV, LTC4274_CONFIG_HP_ENABLE, &value));
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x44], value);
 
     /* Invalid paramid */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_DEV, 0xFF, &value));
+    TEST_ASSERT_EQUAL(false,
+                      LTC4274_fxnTable.cb_get_config(&I2C_DEV, 0xFF, &value));
 
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_DEV,
-                LTC4274_CONFIG_HP_ENABLE, &value));
-	/* Invalid bus */
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_OPERATING_MODE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_DETECT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_INTERRUPT_MASK, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
-    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(&I2C_INVALID_BUS,
-                LTC4274_CONFIG_HP_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_DEV,
+                                     LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_config(
+                           &I2C_INVALID_DEV, LTC4274_CONFIG_HP_ENABLE, &value));
+    /* Invalid bus */
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_OPERATING_MODE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_DETECT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_INTERRUPT_MASK, &value));
+    TEST_ASSERT_EQUAL(false, LTC4274_fxnTable.cb_get_config(
+                                     &I2C_INVALID_BUS,
+                                     LTC4274_CONFIG_INTERRUPT_ENABLE, &value));
+    TEST_ASSERT_EQUAL(
+            false, LTC4274_fxnTable.cb_get_config(
+                           &I2C_INVALID_BUS, LTC4274_CONFIG_HP_ENABLE, &value));
 }
 
 void test_init(void)
 {
-    
     const int alert_token;
 
     const LTC4274_Config fact_ltc4274_cfg = {
@@ -382,9 +422,10 @@ void test_init(void)
         .interruptEnable = true,
         .pseHpEnable = LTC4274_HP_ENABLE,
     };
-    
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4274_fxnTable.cb_init(&s_dev,
-            &fact_ltc4274_cfg, &alert_token));
+
+    TEST_ASSERT_EQUAL(
+            POST_DEV_CFG_DONE,
+            LTC4274_fxnTable.cb_init(&s_dev, &fact_ltc4274_cfg, &alert_token));
 
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x12], LTC4274_AUTO_MODE);
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x14], LTC4274_DETECT_ENABLE);
@@ -392,10 +433,11 @@ void test_init(void)
     TEST_ASSERT_EQUAL_HEX8(0x80, LTC4274_regs[0x17]);
     TEST_ASSERT_EQUAL_HEX8(LTC4274_regs[0x44], LTC4274_HP_ENABLE);
     TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING,
-                            LTC7274_GpioConfig[27]);
-                            
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, LTC4274_fxnTable.cb_init(&s_invalid_dev,
-            &fact_ltc4274_cfg, &alert_token));
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4274_fxnTable.cb_init(&s_dev,
-            NULL, &alert_token));
+                      LTC7274_GpioConfig[27]);
+
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      LTC4274_fxnTable.cb_init(
+                              &s_invalid_dev, &fact_ltc4274_cfg, &alert_token));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
+                      LTC4274_fxnTable.cb_init(&s_dev, NULL, &alert_token));
 }

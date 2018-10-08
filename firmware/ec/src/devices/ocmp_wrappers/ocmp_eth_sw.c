@@ -53,34 +53,39 @@ bool ETHERNET_tivaClient(void *driver, void *params)
     return status;
 }
 
-static bool _get_status(void *driver, unsigned int param_id,
-                        void *return_buf)
+static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
 {
-    Eth_cfg *cfg = (Eth_cfg*)driver;
+    Eth_cfg *cfg = (Eth_cfg *)driver;
     switch (param_id) {
         case ETH_SW_STATUS_SPEED: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_speed(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_speed(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_STATUS_DUPLEX: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_duplex(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_duplex(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_STATUS_AUTONEG_ON: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_auto_neg(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_auto_neg(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_STATUS_SLEEP_MODE_EN: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_sleep_mode(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_sleep_mode(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_STATUS_AUTONEG_COMPLETE: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_auto_neg_complete(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_auto_neg_complete(cfg->eth_sw_port,
+                                                        res) == RETURN_OK);
         }
         case ETH_SW_STATUS_LINK: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_status_link_up(cfg->eth_sw_port, res) == RETURN_OK);
+            return (eth_sw_get_status_link_up(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         default:
             LOGGER_ERROR("ETH_SW::Unknown status param %d\n", param_id);
@@ -88,41 +93,39 @@ static bool _get_status(void *driver, unsigned int param_id,
     }
 }
 
-static bool _get_config(void *driver, unsigned int param_id,
-                        void *return_buf)
+static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
 {
-    Eth_cfg *cfg = (Eth_cfg*)driver;
+    Eth_cfg *cfg = (Eth_cfg *)driver;
     switch (param_id) {
         case ETH_SW_CONFIG_SPEED: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_config_speed(cfg->eth_sw_port, res)
-                    == RETURN_OK);
+            return (eth_sw_get_config_speed(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_CONFIG_DUPLEX: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_config_duplex(cfg->eth_sw_port, res)
-                    == RETURN_OK);
+            return (eth_sw_get_config_duplex(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_CONFIG_POWER_DOWN: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_config_power_down(cfg->eth_sw_port, res)
-                    == RETURN_OK);
+            return (eth_sw_get_config_power_down(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_CONFIG_SLEEPMODE_EN: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_config_sleep_mode(cfg->eth_sw_port, res)
-                    == RETURN_OK);
+            return (eth_sw_get_config_sleep_mode(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_CONFIG_INTERRUPT_EN: {
             uint8_t *res = return_buf;
-            return (eth_sw_get_config_interrupt_enable(cfg->eth_sw_port, res)
-                    == RETURN_OK);
+            return (eth_sw_get_config_interrupt_enable(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
         }
         case ETH_SW_CONFIG_SW_RESET: {
             uint8_t *res = return_buf;
             *res = 0;
             return false;
-
         }
         case ETH_SW_CONFIG_RESTART_AUTONEG: {
             uint8_t *res = return_buf;
@@ -135,47 +138,47 @@ static bool _get_config(void *driver, unsigned int param_id,
     }
 }
 
-static bool _set_config(void *driver, unsigned int param_id,
-                        const void *data)
+static bool _set_config(void *driver, unsigned int param_id, const void *data)
 {
-    Eth_cfg *cfg = (Eth_cfg*)driver;
+    Eth_cfg *cfg = (Eth_cfg *)driver;
     switch (param_id) {
-           case ETH_SW_CONFIG_SPEED: {
-               uint8_t *res = (uint8_t*)data;
-               return (eth_sw_set_config_speed(cfg->eth_sw_port, *res)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_DUPLEX: {
-               uint8_t *res = (uint8_t*)data;
-               return (eth_sw_set_config_duplex(cfg->eth_sw_port, *res)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_POWER_DOWN: {
-               uint8_t *res = (uint8_t*)data;
-               return (eth_sw_set_config_power_down(cfg->eth_sw_port, *res)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_SLEEPMODE_EN: {
-               uint8_t *res = (uint8_t*)data;
-               return (eth_sw_set_config_sleep_mode_enable(cfg->eth_sw_port, *res)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_INTERRUPT_EN: {
-               uint8_t *res = (uint8_t*)data;
-               return (eth_sw_set_config_interrupt_enable(cfg->eth_sw_port, res)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_SW_RESET: {
-               return (eth_sw_set_config_soft_reset(cfg->eth_sw_port)
-                       == RETURN_OK);
-           }
-           case ETH_SW_CONFIG_RESTART_AUTONEG: {
-               return (eth_sw_set_config_restart_neg(cfg->eth_sw_port) == RETURN_OK);
-           }
-           default:
-               LOGGER_ERROR("ETH_SW::Unknown config param %d\n", param_id);
-               return false;
-       }
+        case ETH_SW_CONFIG_SPEED: {
+            uint8_t *res = (uint8_t *)data;
+            return (eth_sw_set_config_speed(cfg->eth_sw_port, *res) ==
+                    RETURN_OK);
+        }
+        case ETH_SW_CONFIG_DUPLEX: {
+            uint8_t *res = (uint8_t *)data;
+            return (eth_sw_set_config_duplex(cfg->eth_sw_port, *res) ==
+                    RETURN_OK);
+        }
+        case ETH_SW_CONFIG_POWER_DOWN: {
+            uint8_t *res = (uint8_t *)data;
+            return (eth_sw_set_config_power_down(cfg->eth_sw_port, *res) ==
+                    RETURN_OK);
+        }
+        case ETH_SW_CONFIG_SLEEPMODE_EN: {
+            uint8_t *res = (uint8_t *)data;
+            return (eth_sw_set_config_sleep_mode_enable(cfg->eth_sw_port,
+                                                        *res) == RETURN_OK);
+        }
+        case ETH_SW_CONFIG_INTERRUPT_EN: {
+            uint8_t *res = (uint8_t *)data;
+            return (eth_sw_set_config_interrupt_enable(cfg->eth_sw_port, res) ==
+                    RETURN_OK);
+        }
+        case ETH_SW_CONFIG_SW_RESET: {
+            return (eth_sw_set_config_soft_reset(cfg->eth_sw_port) ==
+                    RETURN_OK);
+        }
+        case ETH_SW_CONFIG_RESTART_AUTONEG: {
+            return (eth_sw_set_config_restart_neg(cfg->eth_sw_port) ==
+                    RETURN_OK);
+        }
+        default:
+            LOGGER_ERROR("ETH_SW::Unknown config param %d\n", param_id);
+            return false;
+    }
 }
 
 static ePostCode _probe(void *driver, POSTData *postData)
@@ -206,9 +209,9 @@ static void _alert_handler(Eth_Sw_Events evt, int16_t value, void *alert_data)
         case ETH_EVT_ENERGY:
             alert = ETH_ALERT_ENERGY_DET;
         case ETH_EVT_POLARITY:
-             alert = ETH_ALERT_POLARITY_DET;
+            alert = ETH_ALERT_POLARITY_DET;
         case ETH_EVT_JABBER:
-             alert = ETH_ALERT_JABBER_DET;
+            alert = ETH_ALERT_JABBER_DET;
             break;
         default:
             LOGGER_ERROR("ETH_SW::Unknown Ethernet Switch evt: %d\n", evt);
@@ -233,9 +236,7 @@ static ePostCode _init(void *driver, const void *config,
 
 const Driver_fxnTable eth_fxnTable = {
     /* Message handlers */
-    .cb_probe = _probe,
-    .cb_init = _init,
-    .cb_get_status = _get_status,
-    .cb_get_config = _get_config,
+    .cb_probe = _probe,           .cb_init = _init,
+    .cb_get_status = _get_status, .cb_get_config = _get_config,
     .cb_set_config = _set_config,
 };

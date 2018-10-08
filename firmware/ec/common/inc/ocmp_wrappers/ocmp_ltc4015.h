@@ -26,37 +26,32 @@ SCHEMA_IMPORT const Driver_fxnTable LTC4015_fxnTable;
 
 static const Driver LTC4015 = {
     .name = "LTC4015",
-    .status = (Parameter[]){
-        { .name = "batteryVoltage", .type = TYPE_INT16 },
-        { .name = "batteryCurrent", .type = TYPE_INT16 },
-        { .name = "systemVoltage", .type = TYPE_INT16 },
-        { .name = "inputVoltage", .type = TYPE_INT16 },
-        { .name = "inputCurrent", .type = TYPE_INT16 },
-        { .name = "dieTemperature", .type = TYPE_INT16 },
-        { .name = "ichargeDAC", .type = TYPE_INT16 },
-        {}
-    },
-    .config = (Parameter[]){
-        { .name = "batteryVoltageLow", .type = TYPE_INT16 },
-        { .name = "batteryVoltageHigh", .type = TYPE_INT16 },
-        { .name = "batteryCurrentLow", .type = TYPE_INT16 },
-        { .name = "inputVoltageLow", .type = TYPE_INT16 },
-        { .name = "inputCurrentHigh", .type = TYPE_INT16 },
-        { .name = "inputCurrentLimit", .type = TYPE_UINT16 },
-        { .name = "icharge", .type = TYPE_UINT16 },
-        { .name = "vcharge", .type = TYPE_UINT16 },
-        { .name = "dieTemperature", .type = TYPE_INT16 },
-        {}
-    },
-    .alerts = (Parameter[]){
-        { .name = "BVL", .type = TYPE_INT16 },
-        { .name = "BVH", .type = TYPE_INT16 },
-        { .name = "BCL", .type = TYPE_INT16 },
-        { .name = "IVL", .type = TYPE_INT16 },
-        { .name = "ICH", .type = TYPE_INT16 },
-        { .name = "DTH", .type = TYPE_INT16 },
-        {}
-    },
+    .status = (Parameter[]){ { .name = "batteryVoltage", .type = TYPE_INT16 },
+                             { .name = "batteryCurrent", .type = TYPE_INT16 },
+                             { .name = "systemVoltage", .type = TYPE_INT16 },
+                             { .name = "inputVoltage", .type = TYPE_INT16 },
+                             { .name = "inputCurrent", .type = TYPE_INT16 },
+                             { .name = "dieTemperature", .type = TYPE_INT16 },
+                             { .name = "ichargeDAC", .type = TYPE_INT16 },
+                             {} },
+    .config =
+            (Parameter[]){ { .name = "batteryVoltageLow", .type = TYPE_INT16 },
+                           { .name = "batteryVoltageHigh", .type = TYPE_INT16 },
+                           { .name = "batteryCurrentLow", .type = TYPE_INT16 },
+                           { .name = "inputVoltageLow", .type = TYPE_INT16 },
+                           { .name = "inputCurrentHigh", .type = TYPE_INT16 },
+                           { .name = "inputCurrentLimit", .type = TYPE_UINT16 },
+                           { .name = "icharge", .type = TYPE_UINT16 },
+                           { .name = "vcharge", .type = TYPE_UINT16 },
+                           { .name = "dieTemperature", .type = TYPE_INT16 },
+                           {} },
+    .alerts = (Parameter[]){ { .name = "BVL", .type = TYPE_INT16 },
+                             { .name = "BVH", .type = TYPE_INT16 },
+                             { .name = "BCL", .type = TYPE_INT16 },
+                             { .name = "IVL", .type = TYPE_INT16 },
+                             { .name = "ICH", .type = TYPE_INT16 },
+                             { .name = "DTH", .type = TYPE_INT16 },
+                             {} },
     .fxnTable = &LTC4015_fxnTable,
 };
 

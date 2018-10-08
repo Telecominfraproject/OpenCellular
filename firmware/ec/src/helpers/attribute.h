@@ -11,7 +11,7 @@
 #ifndef HELPERS_ATTRIBUTE_H_
 #define HELPERS_ATTRIBUTE_H_
 
-#define PACKED __attribute__ ((__packed__))
+#define PACKED __attribute__((__packed__))
 
 #define UNUSED(x) (void)(x)
 
