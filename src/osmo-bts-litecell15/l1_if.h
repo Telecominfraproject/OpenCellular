@@ -10,6 +10,7 @@
 #include <osmo-bts/phy_link.h>
 
 #include <nrw/litecell15/gsml1prim.h>
+#include <nrw/litecell15/gsml1types.h>
 
 #include <stdbool.h>
 
@@ -37,7 +38,7 @@ struct calib_send_state {
 
 struct lc15l1_hdl {
 	struct gsm_time gsm_time;
-	uint32_t hLayer1;			/* handle to the L1 instance in the DSP */
+	HANDLE hLayer1;				/* handle to the L1 instance in the DSP */
 	uint32_t dsp_trace_f;			/* currently operational DSP trace flags */
 	struct llist_head wlc_list;
 

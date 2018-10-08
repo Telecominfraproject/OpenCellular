@@ -1375,6 +1375,57 @@ int l1if_trx_open(struct gsm_bts_trx *trx)
 	return l1if_req_compl(fl1h, msg, trx_open_compl_cb, NULL);
 }
 
+#if OCTPHY_USE_16X_OVERSAMPLING == 1
+static int over_sample_16x_modif_compl_cb(struct octphy_hdl *fl1,
+					  struct msgb *resp, void *data)
+{
+	tOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_RSP *mcr =
+	    (tOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_RSP*) resp->l2h;
+
+	/* in a completion call-back, we take msgb ownership and must
+	 * release it before returning */
+
+	mOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_RSP_SWAP(mcr);
+
+	LOGP(DL1C, LOGL_INFO, "Rx OVER-SAMPLE-16x-MODIFY.conf\n");
+
+	msgb_free(resp);
+
+	return 0;
+}
+
+static int l1if_over_sample_16x_modif(struct gsm_bts_trx *trx)
+{
+	/* NOTE: The 16x oversampling mode should always be enabled. Single-
+	 * TRX operation will work with standard 4x oversampling, but multi-
+	 * TRX requires 16x oversampling */
+
+	struct phy_instance *pinst = trx_phy_instance(trx);
+	struct phy_link *plink = pinst->phy_link;
+	struct octphy_hdl *fl1h = pinst->phy_link->u.octphy.hdl;
+	struct msgb *msg = l1p_msgb_alloc();
+	tOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CMD *mc;
+
+	mc = (tOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CMD*) msgb_put(msg,
+									  sizeof
+									  (*mc));
+	mOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CMD_DEF(mc);
+	l1if_fill_msg_hdr(&mc->Header, msg, fl1h, cOCTVC1_MSG_TYPE_COMMAND,
+			  cOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CID);
+
+	if (plink->u.octphy.over_sample_16x == true)
+		mc->ulOversample16xEnableFlag = 1;
+	else
+		mc->ulOversample16xEnableFlag = 0;
+
+	mOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CMD_SWAP(mc);
+
+	LOGP(DL1C, LOGL_INFO, "Tx OVER-SAMPLE-16x-MODIF.req\n");
+
+	return l1if_req_compl(fl1h, msg, over_sample_16x_modif_compl_cb, 0);
+}
+#endif
+
 uint32_t trx_get_hlayer1(struct gsm_bts_trx * trx)
 {
 	return 0;
@@ -1392,6 +1443,10 @@ static int trx_init(struct gsm_bts_trx *trx)
 
 	l1if_check_app_version(trx);
 	l1if_check_app_sys_version(trx);
+
+#if OCTPHY_USE_16X_OVERSAMPLING == 1
+	l1if_over_sample_16x_modif(trx);
+#endif
 
 	return l1if_trx_open(trx);
 }

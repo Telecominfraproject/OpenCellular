@@ -70,7 +70,6 @@ PKG_CHECK_MODULES(LIBOSMOCODEC, libosmocodec >= 0.11.0)
 PKG_CHECK_MODULES(LIBOSMOCODING, libosmocoding >= 0.11.0)
 PKG_CHECK_MODULES(LIBOSMOABIS, libosmoabis >= 0.5.0)
 PKG_CHECK_MODULES(LIBOSMOTRAU, libosmotrau >= 0.5.0)
-PKG_CHECK_MODULES(ORTP, ortp)
 
 AC_MSG_CHECKING([whether to enable support for sysmobts calibration tool])
 AC_ARG_ENABLE(sysmobts-calib,
@@ -250,6 +249,13 @@ if test "$enable_octphy" = "yes" ; then
 			[],
 			[#include <octphy/octvc1/hw/octvc1_hw_api.h>])
 
+	AC_CHECK_MEMBER([tOCTVC1_GSM_MSG_OVERSAMPLE_SELECT_16X_MODIFY_CMD.ulOversample16xEnableFlag],
+			AC_DEFINE([OCTPHY_USE_16X_OVERSAMPLING],
+			[1],
+			[Define to 1 if your octphy header files support 16x oversampling]),
+			[],
+			[#include <octphy/octvc1/gsm/octvc1_gsm_api.h>])
+
 	CPPFLAGS=$oldCPPFLAGS
 fi
 
@@ -272,6 +278,22 @@ if test "$enable_litecell15" = "yes"; then
 	PKG_CHECK_MODULES(LIBSYSTEMD, libsystemd)
 	CPPFLAGS=$oldCPPFLAGS
 fi
+
+# https://www.freedesktop.org/software/systemd/man/daemon.html
+AC_ARG_WITH([systemdsystemunitdir],
+     [AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files])],,
+     [with_systemdsystemunitdir=auto])
+AS_IF([test "x$with_systemdsystemunitdir" = "xyes" -o "x$with_systemdsystemunitdir" = "xauto"], [
+     def_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)
+
+     AS_IF([test "x$def_systemdsystemunitdir" = "x"],
+   [AS_IF([test "x$with_systemdsystemunitdir" = "xyes"],
+    [AC_MSG_ERROR([systemd support requested but pkg-config unable to query systemd package])])
+    with_systemdsystemunitdir=no],
+   [with_systemdsystemunitdir="$def_systemdsystemunitdir"])])
+AS_IF([test "x$with_systemdsystemunitdir" != "xno"],
+      [AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])])
+AM_CONDITIONAL([HAVE_SYSTEMD], [test "x$with_systemdsystemunitdir" != "xno"])
 
 AC_MSG_RESULT([CFLAGS="$CFLAGS"])
 AC_MSG_RESULT([CPPFLAGS="$CPPFLAGS"])
@@ -299,4 +321,8 @@ AC_OUTPUT(
     tests/tx_power/Makefile
     tests/power/Makefile
     tests/meas/Makefile
+    doc/Makefile
+    doc/examples/Makefile
+    contrib/Makefile
+    contrib/systemd/Makefile
     Makefile)

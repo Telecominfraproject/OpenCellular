@@ -33,7 +33,6 @@
 #include <osmocom/core/timer.h>
 #include <osmocom/core/bits.h>
 #include <osmocom/gsm/gsm_utils.h>
-#include <osmocom/trau/osmo_ortp.h>
 
 #include <osmo-bts/logging.h>
 #include <osmo-bts/bts.h>

@@ -481,13 +481,7 @@ static int pcu_rx_data_req(struct gsm_bts *bts, uint8_t msg_type,
 
 	switch (data_req->sapi) {
 	case PCU_IF_SAPI_PCH:
-		if (msg_type == PCU_IF_MSG_PAG_REQ) {
-			/* FIXME: Add function to schedule paging request.
-			 * This might not be required, if PCU_IF_MSG_DATA_REQ
-			 * is used instead. */
-		} else {
-			paging_add_imm_ass(bts->paging_state, data_req->data, data_req->len);
-		}
+		paging_add_imm_ass(bts->paging_state, data_req->data, data_req->len);
 		break;
 	case PCU_IF_SAPI_AGCH:
 		msg = msgb_alloc(data_req->len, "pcu_agch");
@@ -539,6 +533,24 @@ static int pcu_rx_data_req(struct gsm_bts *bts, uint8_t msg_type,
 			"unsupported sapi %d\n", data_req->sapi);
 		rc = -EINVAL;
 	}
+
+	return rc;
+}
+
+static int pcu_rx_pag_req(struct gsm_bts *bts, uint8_t msg_type,
+	struct gsm_pcu_if_pag_req *pag_req)
+{
+	int rc = 0;
+
+	OSMO_ASSERT(msg_type == PCU_IF_MSG_PAG_REQ);
+
+	/* FIXME: Add function to schedule paging request.
+	 * At present, osmo-pcu sends paging requests in PCU_IF_MSG_DATA_REQ
+	 * messages which are processed by pcu_rx_data_req().
+	 * This code path is not triggered in practice. */
+	LOGP(DPCU, LOGL_NOTICE, "Paging request received: chan_needed=%d length=%d "
+	     "(dropping message because support for PCU_IF_MSG_PAG_REQ is not yet implemented)\n",
+	     pag_req->chan_needed, pag_req->identity_lv[0]);
 
 	return rc;
 }
@@ -631,8 +643,10 @@ static int pcu_rx(struct gsm_network *net, uint8_t msg_type,
 
 	switch (msg_type) {
 	case PCU_IF_MSG_DATA_REQ:
-	case PCU_IF_MSG_PAG_REQ:
 		rc = pcu_rx_data_req(bts, msg_type, &pcu_prim->u.data_req);
+		break;
+	case PCU_IF_MSG_PAG_REQ:
+		rc = pcu_rx_pag_req(bts, msg_type, &pcu_prim->u.pag_req);
 		break;
 	case PCU_IF_MSG_ACT_REQ:
 		rc = pcu_rx_act_req(bts, &pcu_prim->u.act_req);
@@ -724,9 +738,9 @@ static void pcu_sock_close(struct pcu_sock_state *state)
 			ts = &trx->ts[j];
 			if (ts->mo.nm_state.operational == NM_OPSTATE_ENABLED
 			 && ts->pchan == GSM_PCHAN_PDCH) {
-				ts->lchan->rel_act_kind = LCHAN_REL_ACT_PCU;
+				ts->lchan[0].rel_act_kind = LCHAN_REL_ACT_PCU;
 				l1sap_chan_rel(trx,
-					gsm_lchan2chan_nr(ts->lchan));
+					gsm_lchan2chan_nr(&ts->lchan[0]));
 			}
 		}
 	}
@@ -931,6 +945,8 @@ int pcu_sock_init(const char *path)
 	osmo_signal_register_handler(SS_GLOBAL, pcu_if_signal_cb, NULL);
 
 	bts_gsmnet.pcu_state = state;
+
+	LOGP(DPCU, LOGL_INFO, "Started listening on PCU socket: %s\n", path);
 
 	return 0;
 }

@@ -138,3 +138,25 @@ int lc15bts_option_get(enum lc15bts_option_type type)
 
 	return option;	
 }
+
+const char* get_hwversion_desc()
+{
+        int rev;
+        int model;
+        size_t len;
+        static char model_name[64] = {0, };
+        len = snprintf(model_name, sizeof(model_name), "NuRAN Litecell 1.5 BTS");
+
+        rev = lc15bts_rev_get();
+        if (rev >= 0) {
+                len += snprintf(model_name + len, sizeof(model_name) - len,
+                                " Rev %c", (char)rev);
+        }
+
+        model = lc15bts_model_get();
+        if (model >= 0) {
+                snprintf(model_name + len, sizeof(model_name) - len,
+                         "%s (%05X)", model_name, model);
+        }
+        return model_name;
+}

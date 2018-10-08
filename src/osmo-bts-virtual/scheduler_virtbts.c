@@ -79,7 +79,8 @@ static void tx_to_virt_um(struct l1sched_trx *l1t, uint8_t tn, uint32_t fn,
 	timeslot = tn;
 	/* in Osmocom, AGCH is only sent on ccch block 0. no idea why. this seems to cause false GSMTAP channel
 	 * types for agch and pch. */
-	if (rsl_chantype == RSL_CHAN_PCH_AGCH && L1SAP_FN2CCCHBLOCK(fn) == 0)
+	if (rsl_chantype == RSL_CHAN_PCH_AGCH &&
+	    l1sap_fn2ccch_block(fn) >= num_agch(l1t->trx, "PH-DATA-REQ"))
 		gsmtap_chantype = GSMTAP_CHANNEL_PCH;
 	else
 		gsmtap_chantype = chantype_rsl2gsmtap(rsl_chantype, chdesc->link_id); /* the logical channel type */
@@ -198,7 +199,7 @@ static void tx_tch_common(struct l1sched_trx *l1t, uint8_t tn, uint32_t fn,
 #if 0
 	/* handle loss detection of received TCH frames */
 	if (rsl_cmode == RSL_CMOD_SPD_SPEECH
-	 && ++(chan_state->lost) > 5) {
+	 && ++(chan_state->lost_frames) > 5) {
 		uint8_t tch_data[GSM_FR_BYTES];
 		int len;
 

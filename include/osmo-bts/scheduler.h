@@ -47,6 +47,7 @@ enum trx_chan_type {
 	TRXC_SACCH8_7,
 	TRXC_PDTCH,
 	TRXC_PTCCH,
+	TRXC_CBCH,
 	_TRX_CHAN_MAX
 };
 
@@ -78,7 +79,7 @@ struct l1sched_chan_state {
 	int32_t			toa256_sum;	/* sum of TOA values (1/256 symbol) */
 
 	/* loss detection */
-	uint8_t			lost;		/* (SACCH) loss detection */
+	uint8_t			lost_frames;	/* how many L2 frames were lost */
 
 	/* mode */
 	uint8_t			rsl_cmode, tch_mode; /* mode for TCH channels */

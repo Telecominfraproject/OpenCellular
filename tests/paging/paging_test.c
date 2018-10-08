@@ -25,6 +25,7 @@
 #include <osmo-bts/logging.h>
 #include <osmo-bts/paging.h>
 #include <osmo-bts/gsm_data.h>
+#include <osmo-bts/l1sap.h>
 
 #include <unistd.h>
 
@@ -110,6 +111,59 @@ static void test_paging_sleep(void)
 	ASSERT_TRUE(paging_queue_length(bts->paging_state) == 0);
 }
 
+/* Set up a dummy trx with a valid setting for bs_ag_blks_res in SI3 */
+static struct gsm_bts_trx *test_is_ccch_for_agch_setup(uint8_t bs_ag_blks_res)
+{
+	static struct gsm_bts_trx trx;
+	static struct gsm_bts bts;
+	struct gsm48_system_information_type_3 si3;
+	si3.control_channel_desc.bs_ag_blks_res = bs_ag_blks_res;
+	trx.bts = &bts;
+	bts.si_valid |= 0x8;
+	memcpy(&bts.si_buf[SYSINFO_TYPE_3][0], &si3, sizeof(si3));
+	return &trx;
+}
+
+/* Walk through all possible settings for bs_ag_blks_res for two
+ * multiframe 51. The patterns shown in 3GPP TS 05.02 Clause 7
+ * Table 5 of 9 must occur. */
+static void test_is_ccch_for_agch(void)
+{
+	int is_ag_res;
+	int fn;
+	uint8_t bs_ag_blks_res;
+	struct gsm_bts_trx *trx;
+
+	printf("Fn:   AGCH: (bs_ag_blks_res=[0:7]\n");
+	for (fn = 0; fn < 102; fn++) {
+		uint8_t fn51 = fn % 51;
+		/* Note: the formula that computes the CCCH block number for a
+		 * given frame number is optimized to work on block boarders,
+		 * for frame numbers that do not fall at the beginning of the
+		 * related block this formula would produce wrong results, so
+		 * we only check with frame numbers that mark the beginning
+		 * of a new block. See also L1SAP_FN2CCCHBLOCK() in l1sap.h */
+
+		if (fn51 % 10 != 2 && fn51 % 10 != 6)
+			continue;
+
+		printf("%03u: ", fn);
+
+		if (fn51 == 2) {
+			printf(" . . . . . . . . (BCCH)\n");
+			continue;
+		}
+
+		/* Try allo possible settings for bs_ag_blks_res */
+		for (bs_ag_blks_res = 0; bs_ag_blks_res <= 7; bs_ag_blks_res++) {
+			trx = test_is_ccch_for_agch_setup(bs_ag_blks_res);
+			is_ag_res = is_ccch_for_agch(trx, fn);
+			printf(" %u", is_ag_res);
+		}
+		printf("\n");
+	}
+}
+
 int main(int argc, char **argv)
 {
 	tall_bts_ctx = talloc_named_const(NULL, 1, "OsmoBTS context");
@@ -125,6 +179,7 @@ int main(int argc, char **argv)
 
 	test_paging_smoke();
 	test_paging_sleep();
+	test_is_ccch_for_agch();
 	printf("Success\n");
 
 	return 0;

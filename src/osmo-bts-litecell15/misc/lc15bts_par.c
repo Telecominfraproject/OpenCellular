@@ -144,7 +144,7 @@ int lc15bts_par_set_int(void *ctx, enum lc15bts_par par, int val)
 		return -EIO;
 	}
 
-	fsync(fp);
+	fsync(fileno(fp));
 	fclose(fp);
 	return 0;
 }
@@ -176,7 +176,7 @@ int lc15bts_par_set_buf(void *ctx, enum lc15bts_par par, const uint8_t *buf, uns
 
         rc = fwrite(buf, 1, size, fp);
 
-        fsync(fp);
+        fsync(fileno(fp));
         fclose(fp);
 
         return rc;
@@ -225,7 +225,7 @@ int lc15bts_par_set_gps_fix(time_t val)
 		fclose(fp);
 		return -EIO;
 	}
-	fsync(fp);
+	fsync(fileno(fp));
 	fclose(fp);
 
 	return 0;

@@ -16,7 +16,12 @@ osmo-layer1-headers.sh sysmo "$FIRMWARE_VERSION"
 mkdir -p "$inst/include/sysmocom/femtobts"
 ln -s $deps/layer1-headers/include/* "$inst/include/sysmocom/femtobts/"
 
-configure_flags="--enable-sanitize --enable-sysmocom-bts --with-sysmobts=$inst/include/"
+configure_flags="\
+  --enable-sanitize \
+  --enable-werror \
+  --enable-sysmocom-bts \
+  --with-sysmobts=$inst/include/ \
+  "
 
 # This will not work for the femtobts
 if [ $FIRMWARE_VERSION != "femtobts_v2.7" ]; then

@@ -14,9 +14,9 @@ osmo-build-dep.sh libosmo-abis
 cd "$deps"
 
 configure_flags="\
-  --with-osmo-pcu=$deps/osmo-pcu/include \
-  --enable-trx \
   --enable-sanitize \
+  --enable-werror \
+  --enable-trx \
   "
 
 build_bts "osmo-bts-trx" "$configure_flags"

@@ -14,7 +14,11 @@ osmo-build-dep.sh libosmo-abis
 cd "$deps"
 osmo-layer1-headers.sh lc15 "$FIRMWARE_VERSION"
 
-configure_flags="--enable-sanitize --with-litecell15=$deps/layer1-headers/inc/ --enable-litecell15"
+configure_flags="\
+  --enable-sanitize \
+  --with-litecell15=$deps/layer1-headers/inc/ \
+  --enable-litecell15 \
+  "
 
 build_bts "osmo-bts-lc15" "$configure_flags"
 

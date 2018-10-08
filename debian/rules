@@ -12,14 +12,11 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@ --with=systemd --with autoreconf --fail-missing
 
 override_dh_strip:
-	dh_strip --dbg-package=osmo-bts-trx-dbg
-
-override_dh_autoreconf:
-	echo $(VERSION) > .tarball-version
-	dh_autoreconf
+	dh_strip --package=osmo-bts-virtual --dbg-package=osmo-bts-virtual-dbg
+	dh_strip --package=osmo-bts-trx --dbg-package=osmo-bts-trx-dbg
 
 override_dh_auto_configure:
-	dh_auto_configure --  --enable-trx
+	dh_auto_configure --  --enable-trx --with-systemdsystemunitdir=/lib/systemd/system
 
 override_dh_clean:
 	dh_clean
@@ -29,4 +26,3 @@ override_dh_clean:
 # Print test results in case of a failure
 override_dh_auto_test:
 	dh_auto_test || (find . -name testsuite.log -exec cat {} \; ; false)
-

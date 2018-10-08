@@ -114,31 +114,31 @@ static void *prim_init(GsmL1_Prim_t *prim, GsmL1_PrimId_t id, struct lc15l1_hdl 
 		prim->u.mphInitReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphCloseReq:
-		prim->u.mphCloseReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphCloseReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphCloseReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphConnectReq:
-		prim->u.mphConnectReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphConnectReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphConnectReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphDisconnectReq:
-		prim->u.mphDisconnectReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphDisconnectReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphDisconnectReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphActivateReq:
-		prim->u.mphActivateReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphActivateReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphActivateReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphDeactivateReq:
-		prim->u.mphDeactivateReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphDeactivateReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphDeactivateReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphConfigReq:
-		prim->u.mphConfigReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphConfigReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphConfigReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphMeasureReq:
-		prim->u.mphMeasureReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.mphMeasureReq.hLayer1 = gl1->hLayer1;
 		prim->u.mphMeasureReq.hLayer3 = hLayer3;
 		break;
 	case GsmL1_PrimId_MphInitCnf:
@@ -170,10 +170,10 @@ static void *prim_init(GsmL1_Prim_t *prim, GsmL1_PrimId_t id, struct lc15l1_hdl 
 	case GsmL1_PrimId_MphSyncInd:
 		break;
 	case GsmL1_PrimId_PhEmptyFrameReq:
-		prim->u.phEmptyFrameReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.phEmptyFrameReq.hLayer1 = gl1->hLayer1;
 		break;
 	case GsmL1_PrimId_PhDataReq:
-		prim->u.phDataReq.hLayer1 = (HANDLE)gl1->hLayer1;
+		prim->u.phDataReq.hLayer1 = gl1->hLayer1;
 		break;
 	case GsmL1_PrimId_PhConnectInd:
 		break;
@@ -348,7 +348,7 @@ static int trx_init_compl_cb(struct gsm_bts_trx *trx, struct msgb *l1_msg,
 		bts_shutdown(trx->bts, "MPH-INIT failure");
 	}
 
-	fl1h->hLayer1 = (uint32_t)ic->hLayer1;
+	fl1h->hLayer1 = ic->hLayer1;
 
 	/* If the TRX was already locked the MphInit would have undone it */
 	if (trx->mo.nm_state.administrative == NM_STATE_LOCKED)

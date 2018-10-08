@@ -116,6 +116,7 @@ const ubit_t _sched_sch_train[64] = {
  */
 
 const struct trx_chan_desc trx_chan_desc[_TRX_CHAN_MAX] = {
+  /*   	is_pdch	chan_type	chan_nr	link_id		name		rts_fn		dl_fn		ul_fn	auto_active */
       {	0,	TRXC_IDLE,	0,	LID_DEDIC,	"IDLE",		NULL,		tx_idle_fn,	NULL,		1 },
       {	0,	TRXC_FCCH,	0,	LID_DEDIC,	"FCCH",		NULL,		tx_fcch_fn,	NULL,		1 },
       {	0,	TRXC_SCH,	0,	LID_DEDIC,	"SCH",		NULL,		tx_sch_fn,	NULL,		1 },
@@ -154,6 +155,7 @@ const struct trx_chan_desc trx_chan_desc[_TRX_CHAN_MAX] = {
       {	0,	TRXC_SACCH8_7,	0x78,	LID_SACCH,	"SACCH/8(7)",	rts_data_fn,	tx_data_fn,	rx_data_fn,	0 },
       {	1,	TRXC_PDTCH,	0xc0,	LID_DEDIC,	"PDTCH",	rts_data_fn,	tx_pdtch_fn,	rx_pdtch_fn,	0 },
       {	1,	TRXC_PTCCH,	0xc0,	LID_DEDIC,	"PTCCH",	rts_data_fn,	tx_data_fn,	rx_data_fn,	0 },
+      {	0,	TRXC_CBCH,	0xc8,	LID_DEDIC,	"CBCH",		rts_data_fn,	tx_data_fn,	NULL,		1 },
 };
 
 const struct value_string trx_chan_type_names[] = {
@@ -195,6 +197,7 @@ const struct value_string trx_chan_type_names[] = {
 	OSMO_VALUE_STRING(TRXC_SACCH8_7),
 	OSMO_VALUE_STRING(TRXC_PDTCH),
 	OSMO_VALUE_STRING(TRXC_PTCCH),
+	OSMO_VALUE_STRING(TRXC_CBCH),
 	OSMO_VALUE_STRING(_TRX_CHAN_MAX),
  	{ 0, NULL }
 };
@@ -326,8 +329,8 @@ free_msg:
 found_msg:
 	if ((chan_nr ^ (trx_chan_desc[chan].chan_nr | tn))
 	 || ((link_id & 0xc0) ^ trx_chan_desc[chan].link_id)) {
-		LOGL1S(DL1P, LOGL_ERROR, l1t, tn, chan, fn, "Prim has wrong chan_nr=%02x link_id=%02x, "
-			"expecting chan_nr=%02x link_id=%02x.\n", chan_nr, link_id,
+		LOGL1S(DL1P, LOGL_ERROR, l1t, tn, chan, fn, "Prim has wrong chan_nr=0x%02x link_id=%02x, "
+			"expecting chan_nr=0x%02x link_id=%02x.\n", chan_nr, link_id,
 			trx_chan_desc[chan].chan_nr | tn, trx_chan_desc[chan].link_id);
 		goto free_msg;
 	}
@@ -367,7 +370,7 @@ int _sched_compose_ph_data_ind(struct l1sched_trx *l1t, uint8_t tn, uint32_t fn,
 		memcpy(msg->l2h, l2, l2_len);
 
 	if (L1SAP_IS_LINK_SACCH(trx_chan_desc[chan].link_id))
-		l1ts->chan_state[chan].lost = 0;
+		l1ts->chan_state[chan].lost_frames = 0;
 
 	/* forward primitive */
 	l1sap_up(l1t->trx, l1sap);
@@ -380,22 +383,28 @@ int _sched_compose_tch_ind(struct l1sched_trx *l1t, uint8_t tn, uint32_t fn,
 {
 	struct msgb *msg;
 	struct osmo_phsap_prim *l1sap;
+	struct gsm_bts_trx *trx = l1t->trx;
 	struct l1sched_ts *l1ts = l1sched_trx_get_ts(l1t, tn);
+	uint8_t chan_nr = trx_chan_desc[chan].chan_nr | tn;
+	struct gsm_lchan *lchan = &trx->ts[L1SAP_CHAN2TS(chan_nr)].lchan[l1sap_chan2ss(chan_nr)];
 
 	/* compose primitive */
 	msg = l1sap_msgb_alloc(tch_len);
 	l1sap = msgb_l1sap_prim(msg);
 	osmo_prim_init(&l1sap->oph, SAP_GSM_PH, PRIM_TCH,
 		PRIM_OP_INDICATION, msg);
-	l1sap->u.tch.chan_nr = trx_chan_desc[chan].chan_nr | tn;
+	l1sap->u.tch.chan_nr = chan_nr;
 	l1sap->u.tch.fn = fn;
 	msg->l2h = msgb_put(msg, tch_len);
 	if (tch_len)
 		memcpy(msg->l2h, tch, tch_len);
 
-	if (l1ts->chan_state[chan].lost)
-		l1ts->chan_state[chan].lost--;
+	if (l1ts->chan_state[chan].lost_frames)
+		l1ts->chan_state[chan].lost_frames--;
 
+	LOGL1S(DL1P, LOGL_DEBUG, l1t, tn, -1, l1sap->u.data.fn,
+	       "%s Rx -> RTP: %s\n",
+	       gsm_lchan_name(lchan), osmo_hexdump(msgb_l2(msg), msgb_l2len(msg)));
 	/* forward primitive */
 	l1sap_up(l1t->trx, l1sap);
 
@@ -864,10 +873,13 @@ int trx_sched_ul_burst(struct l1sched_trx *l1t, uint8_t tn, uint32_t current_fn,
 
 	/* start counting from last fn + 1, but only if not too many fn have
 	 * been elapsed */
-	if (elapsed < 10)
+	if (elapsed < 10) {
 		fn = (l1ts->mf_last_fn + 1) % GSM_HYPERFRAME;
-	else
+	} else {
+		LOGPFN(DL1P, LOGL_NOTICE, current_fn,
+		       "Too many contiguous elapsed fn, dropping %u\n", elapsed);
 		fn = current_fn;
+	}
 
 	while (42) {
 		/* get frame from multiframe */

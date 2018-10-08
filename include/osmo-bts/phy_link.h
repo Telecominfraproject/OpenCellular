@@ -74,6 +74,7 @@ struct phy_link {
 			uint32_t rx_gain_db;
 			bool tx_atten_flag;
 			uint32_t tx_atten_db;
+			bool over_sample_16x;
 #if OCTPHY_MULTI_TRX == 1
 			/* arfcn used by TRX with id 0 */
 			uint16_t center_arfcn;

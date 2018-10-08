@@ -251,9 +251,9 @@ static void write_volt_limit(struct vty *vty, const char *name,
 				struct lc15bts_volt_limit *limit)
 {
 	vty_out(vty, " %s%s", name, VTY_NEWLINE);
-	vty_out(vty, "   threshold warning min %d%s",
+	vty_out(vty, "  threshold warning min %d%s",
 		limit->thresh_warn_min, VTY_NEWLINE);
-	vty_out(vty, "   threshold critical min %d%s",
+	vty_out(vty, "  threshold critical min %d%s",
 		limit->thresh_crit_min, VTY_NEWLINE);
 }
 
@@ -261,7 +261,7 @@ static void write_vswr_limit(struct vty *vty, const char *name,
 				struct lc15bts_vswr_limit *limit)
 {
 	vty_out(vty, " %s%s", name, VTY_NEWLINE);
-	vty_out(vty, "   threshold warning max %d%s",
+	vty_out(vty, "  threshold warning max %d%s",
 		limit->thresh_warn_max, VTY_NEWLINE);
 }
 
@@ -269,9 +269,9 @@ static void write_pwr_limit(struct vty *vty, const char *name,
 				struct lc15bts_pwr_limit *limit)
 {
 	vty_out(vty, " %s%s", name, VTY_NEWLINE);
-	vty_out(vty, "   threshold warning max %d%s",
+	vty_out(vty, "  threshold warning max %d%s",
 		limit->thresh_warn_max, VTY_NEWLINE);
-	vty_out(vty, "   threshold critical max %d%s",
+	vty_out(vty, "  threshold critical max %d%s",
 		limit->thresh_crit_max, VTY_NEWLINE);
 }
 

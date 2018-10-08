@@ -46,7 +46,6 @@
 #include <osmo-bts/measurement.h>
 #include <osmo-bts/pcu_if.h>
 #include <osmo-bts/handover.h>
-#include <osmo-bts/cbch.h>
 #include <osmo-bts/bts_model.h>
 #include <osmo-bts/l1sap.h>
 #include <osmo-bts/msg_utils.h>
@@ -381,11 +380,13 @@ static int ph_data_req(struct gsm_bts_trx *trx, struct msgb *msg,
 		sapi = GsmL1_Sapi_Sdcch;
 	} else if (L1SAP_IS_CHAN_BCCH(chan_nr)) {
 		sapi = GsmL1_Sapi_Bcch;
+	} else if (L1SAP_IS_CHAN_CBCH(chan_nr)) {
+		sapi = GsmL1_Sapi_Cbch;
 	} else if (L1SAP_IS_CHAN_AGCH_PCH(chan_nr)) {
 		/* The sapi depends on DSP configuration, not
 		 * on the actual SYSTEM INFORMATION 3. */
-		u8BlockNbr = L1SAP_FN2CCCHBLOCK(u32Fn);
-		if (u8BlockNbr >= 1)
+		u8BlockNbr = l1sap_fn2ccch_block(u32Fn);
+		if (u8BlockNbr >= num_agch(trx, "PH-DATA-REQ"))
 			sapi = GsmL1_Sapi_Pch;
 		else
 			sapi = GsmL1_Sapi_Agch;
@@ -697,6 +698,9 @@ static uint8_t chan_nr_by_sapi(struct gsm_bts_trx_ts *ts,
 	case GsmL1_Sapi_Bcch:
 		cbits = 0x10;
 		break;
+	case GsmL1_Sapi_Cbch:
+		cbits = 0xc8 >> 3; /* Osmocom extension for CBCH via L1SAP */
+		break;
 	case GsmL1_Sapi_Sacch:
 		switch(pchan) {
 		case GSM_PCHAN_TCH_F:
@@ -706,9 +710,11 @@ static uint8_t chan_nr_by_sapi(struct gsm_bts_trx_ts *ts,
 			cbits = 0x02 + subCh;
 			break;
 		case GSM_PCHAN_CCCH_SDCCH4:
+		case GSM_PCHAN_CCCH_SDCCH4_CBCH:
 			cbits = 0x04 + subCh;
 			break;
 		case GSM_PCHAN_SDCCH8_SACCH8C:
+		case GSM_PCHAN_SDCCH8_SACCH8C_CBCH:
 			cbits = 0x08 + subCh;
 			break;
 		default:
@@ -720,9 +726,11 @@ static uint8_t chan_nr_by_sapi(struct gsm_bts_trx_ts *ts,
 	case GsmL1_Sapi_Sdcch:
 		switch(pchan) {
 		case GSM_PCHAN_CCCH_SDCCH4:
+		case GSM_PCHAN_CCCH_SDCCH4_CBCH:
 			cbits = 0x04 + subCh;
 			break;
 		case GSM_PCHAN_SDCCH8_SACCH8C:
+		case GSM_PCHAN_SDCCH8_SACCH8C_CBCH:
 			cbits = 0x08 + subCh;
 			break;
 		default:
@@ -859,10 +867,6 @@ static int handle_ph_readytosend_ind(struct femtol1_hdl *fl1,
 		break;
 	case GsmL1_Sapi_Prach:
 		goto empty_frame;
-		break;
-	case GsmL1_Sapi_Cbch:
-		/* get them from bts->si_buf[] */
-		bts_cbch_get(bts, msu_param->u8Buffer, &g_time);
 		break;
 	default:
 		memcpy(msu_param->u8Buffer, fill_frame, GSM_MACBLOCK_LEN);
@@ -1259,6 +1263,7 @@ int get_clk_cal(struct femtol1_hdl *hdl)
 #endif
 }
 
+#if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,2,0)
 /*
  * RevC was the last HW revision without an external
  * attenuator. Check for that.
@@ -1268,13 +1273,13 @@ static int has_external_atten(struct femtol1_hdl *hdl)
 	/* older version doesn't have an attenuator */
 	return hdl->hw_info.ver_major > 2;
 }
+#endif /* 2.2.0 */
 
 /* activate or de-activate the entire RF-Frontend */
 int l1if_activate_rf(struct femtol1_hdl *hdl, int on)
 {
 	struct msgb *msg = sysp_msgb_alloc();
 	SuperFemto_Prim_t *sysp = msgb_sysprim(msg);
-	struct gsm_bts_trx *trx = hdl->phy_inst->trx;
 
 	if (on) {
 		sysp->id = SuperFemto_PrimId_ActivateRfReq;
@@ -1302,6 +1307,7 @@ int l1if_activate_rf(struct femtol1_hdl *hdl, int on)
 		sysp->u.activateRfReq.rfRx.iClkCor = get_clk_cal(hdl);
 #endif /* API 2.4.0 */
 #if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,2,0)
+		struct gsm_bts_trx *trx = hdl->phy_inst->trx;
 		if (has_external_atten(hdl)) {
 			LOGP(DL1C, LOGL_INFO, "Using external attenuator.\n");
 			sysp->u.activateRfReq.rfTrx.u8UseExtAtten = 1;
@@ -1387,11 +1393,6 @@ static int mute_rf_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 /* mute/unmute RF time slots */
 int l1if_mute_rf(struct femtol1_hdl *hdl, uint8_t mute[8], l1if_compl_cb *cb)
 {
-	const uint8_t unmuted[8] = { 0,0,0,0,0,0,0,0 };
-	struct msgb *msg = sysp_msgb_alloc();
-	SuperFemto_Prim_t *sysp = msgb_sysprim(msg);
-	struct gsm_bts_trx *trx = hdl->phy_inst->trx;
-	int i;
 
 	LOGP(DL1C, LOGL_INFO, "Tx RF-MUTE.req (%d, %d, %d, %d, %d, %d, %d, %d)\n",
 	     mute[0], mute[1], mute[2], mute[3],
@@ -1399,18 +1400,22 @@ int l1if_mute_rf(struct femtol1_hdl *hdl, uint8_t mute[8], l1if_compl_cb *cb)
 	    );
 
 #if SUPERFEMTO_API_VERSION < SUPERFEMTO_API(3,6,0)
+	const uint8_t unmuted[8] = { 0,0,0,0,0,0,0,0 };
+	struct gsm_bts_trx *trx = hdl->phy_inst->trx;
+	int i;
 	LOGP(DL1C, LOGL_ERROR, "RF-MUTE.req not supported by SuperFemto\n");
-	msgb_free(msg);
 	/* always acknowledge an un-MUTE (which is a no-op if MUTE is not supported */
-	if (!memcmp(mute, unmuted, ARRAY_SIZE(mute))) {
+	if (!memcmp(mute, unmuted, ARRAY_SIZE(unmuted))) {
 		bts_update_status(BTS_STATUS_RF_MUTE, mute[0]);
 		oml_mo_rf_lock_chg(&trx->mo, mute, 1);
-		for (i = 0; i < ARRAY_SIZE(mute); ++i)
+		for (i = 0; i < ARRAY_SIZE(unmuted); ++i)
 			mute_handle_ts(&trx->ts[i], mute[i]);
 		return 0;
 	}
 	return -ENOTSUP;
 #else
+	struct msgb *msg = sysp_msgb_alloc();
+	SuperFemto_Prim_t *sysp = msgb_sysprim(msg);
 	sysp->id = SuperFemto_PrimId_MuteRfReq;
 	memcpy(sysp->u.muteRfReq.u8Mute, mute, sizeof(sysp->u.muteRfReq.u8Mute));
 	/* save for later use */
@@ -1427,7 +1432,6 @@ static int info_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 	SuperFemto_Prim_t *sysp = msgb_sysprim(resp);
 	SuperFemto_SystemInfoCnf_t *sic = &sysp->u.systemInfoCnf;
 	struct femtol1_hdl *fl1h = trx_femtol1_hdl(trx);
-	int rc;
 
 	fl1h->hw_info.dsp_version[0] = sic->dspVersion.major;
 	fl1h->hw_info.dsp_version[1] = sic->dspVersion.minor;
@@ -1470,7 +1474,7 @@ static int info_compl_cb(struct gsm_bts_trx *trx, struct msgb *resp,
 
 #if SUPERFEMTO_API_VERSION >= SUPERFEMTO_API(2,4,0)
 	/* load calibration tables (if we know their path) */
-	rc = calib_load(fl1h);
+	int rc = calib_load(fl1h);
 	if (rc < 0)
 		LOGP(DL1C, LOGL_ERROR, "Operating without calibration; "
 			"unable to load tables!\n");
