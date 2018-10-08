@@ -724,9 +724,9 @@ static void pcu_sock_close(struct pcu_sock_state *state)
 			ts = &trx->ts[j];
 			if (ts->mo.nm_state.operational == NM_OPSTATE_ENABLED
 			 && ts->pchan == GSM_PCHAN_PDCH) {
-				ts->lchan->rel_act_kind = LCHAN_REL_ACT_PCU;
+				ts->lchan[0].rel_act_kind = LCHAN_REL_ACT_PCU;
 				l1sap_chan_rel(trx,
-					gsm_lchan2chan_nr(ts->lchan));
+					gsm_lchan2chan_nr(&ts->lchan[0]));
 			}
 		}
 	}
