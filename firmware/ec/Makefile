@@ -41,8 +41,8 @@ TARGET = gnu.targets.arm.M4F
 PLATFORM = ti.platforms.tiva:TM4C1294NCPDT
 PART=TM4C1294NCPDT
 ROV_XS_SUFFIX = pm4fg
-CONFIGURO_OPTS = -v -o $(OUT)
 CONFIG=OpenCellular
+CONFIGURO_OPTS = -v -o $(OUT)$(CONFIG)
 empty:=
 space:= $(empty) $(empty)
 XDCPATH = $(subst $(space),;,$(XDCPATH_LIST))
@@ -55,7 +55,7 @@ SRC_FILE = $(shell find . -name '*.c' ! -path './test/*' ! -path './$(OUT)*')
 MAIN_OBJS = $(SRC_FILE:.c=.o)
 
 CC = $(TOOLCHAIN)/bin/arm-none-eabi-gcc
-CFLAGS = -Wall -mcpu=cortex-m4 -mthumb -mabi=aapcs -mapcs-frame @$(OUT)/compiler.opt -O3
+CFLAGS = -Wall -mcpu=cortex-m4 -mthumb -mabi=aapcs -mapcs-frame @$(OUT)$(CONFIG)/compiler.opt -O3
 CFLAGS += -std=c99 -ffunction-sections -fdata-sections
 CFLAGS += -DTIVAWARE -DPART_$(PART) -DTARGET_IS_TM4C129_RA1 -Dgcc
 CFLAGS += -I$(OCWARE_DIR)/src/ -I$(OCWARE_DIR)/common/ -I$(OCWARE_DIR)/
@@ -70,12 +70,12 @@ LFLAGS += -Xlinker -Map=$(OUT)/main.map #Optional
 LLIBS = -L$(TIVAWARE_DIR)/driverlib/gcc/
 LLIBS += -L$(TIVAWARE_DIR)/grlib/gcc/
 LLIBS += -L$(TIVAWARE_DIR)/usblib/gcc/
-LLIBS += -Wl,-T,$(OUT)/linker.cmd
+LLIBS += -Wl,-T,$(OUT)$(CONFIG)/linker.cmd
 LLIBS += -Wl,--start-group
 LLIBS += -ldriver -lgr -lusb -lm -lnosys -lc
 LLIBS += -Wl,--end-group
 
-.PRECIOUS: %/compiler.opt %/linker.cmd
+.PRECIOUS: $(OUT)%/compiler.opt $(OUT)%/linker.cmd
 
 OBJCOPY = $(TOOLCHAIN)/bin/arm-none-eabi-objcopy
 
@@ -84,7 +84,7 @@ oc_connect1: $(OUT)/OpenCellular.bin
 
 $(OUT)%/compiler.opt $(OUT)%/linker.cmd : %.cfg
 	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r release $<
-	cp $(OUT)/package/cfg/$*_$(ROV_XS_SUFFIX).rov.xs .
+	cp $(OUT)$(CONFIG)/package/cfg/$*_$(ROV_XS_SUFFIX).rov.xs .
 
 $(MAIN_OBJS): %.o: %.c $(OUT)$(CONFIG)/compiler.opt
 	$(CC) $(CFLAGS) -c $< -o $@
