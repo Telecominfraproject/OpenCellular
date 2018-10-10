@@ -12,7 +12,7 @@
 
 #include "src/drivers/OcGpio.h"
 
-#define FAKE_GPIO_PIN_COUNT 8
+#define FAKE_GPIO_PIN_COUNT 32
 
 typedef struct FakeGpio_Obj {
     struct {
