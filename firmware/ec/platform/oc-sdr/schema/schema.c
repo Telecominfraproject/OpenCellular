@@ -39,6 +39,7 @@ SCHEMA_IMPORT DriverStruct eeprom_gbc_inv;
 SCHEMA_IMPORT DriverStruct eeprom_sdr_inv;
 SCHEMA_IMPORT DriverStruct eeprom_fe_inv;
 /* Power SubSystem Configs */
+SCHEMA_IMPORT DriverStruct gbc_pwr_config;
 SCHEMA_IMPORT DriverStruct gbc_pwr_lead_acid_ts;
 SCHEMA_IMPORT DriverStruct gbc_pwr_ext_bat_charger;
 SCHEMA_IMPORT DriverStruct gbc_pwr_int_bat_charger;
@@ -198,6 +199,7 @@ SCHEMA_IMPORT const DriverStruct fact_ch2_band_cfg;
 SCHEMA_IMPORT const DriverStruct fact_sync_ts_cfg;
 
 //Function Type
+SCHEMA_IMPORT bool power_pre_init(void *driver, void *returnValue);
 SCHEMA_IMPORT bool gpp_pre_init(void *driver, void *returnValue);
 SCHEMA_IMPORT bool gpp_post_init(void *driver, void *returnValue);
 SCHEMA_IMPORT bool GPP_ap_Reset(void *driver, void *params);
@@ -269,6 +271,10 @@ const Component sys_schema[] = {
     },
     {
         .name = "power",
+        .driver_cfg =  &gbc_pwr_config,
+        .ssHookSet = &(SSHookSet){
+            .preInitFxn = (ssHook_Cb)power_pre_init,
+        },
         .components = (Component[]){
             {
                 .name = "comp_all",

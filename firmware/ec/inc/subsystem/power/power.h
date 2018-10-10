@@ -12,10 +12,16 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/ocmp_wrappers/ocmp_powersource.h"
 #include "inc/devices/ltc4015.h"
 #include "inc/devices/ltc4274.h"
 #include "inc/devices/ltc4275.h"
 #include "inc/devices/powerSource.h"
 #include "inc/devices/se98a.h"
+
+typedef struct Power_cfg {
+    Driver *driver;
+    PWRSRC_Dev *driver_cfg;
+}Power_cfg;
 
 #endif

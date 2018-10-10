@@ -152,6 +152,11 @@ PWRSRC_Dev gbc_pwr_powerSource = { /*Added as a place holder for now.*/
         .obj = {},
 };
 
+Power_cfg gbc_pwr_config = {
+    .driver = &PWRSRC,
+    .driver_cfg = &gbc_pwr_powerSource,
+};
+
 /* BMS SubSystem Config */
 //EC Power sensor for 12V rail.
 INA226_Dev gbc_bms_ec_ps_12v = {

@@ -27,14 +27,13 @@ static bool _get_status(void *driver, unsigned int param_id,
 
 static ePostCode _probe(void *driver)
 {
-    pwr_source_config(driver);
     return POST_DEV_NOSTATUS;
 }
 
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
-    pwr_source_init();
+    pwr_source_init(driver);
     return POST_DEV_NO_CFG_REQ;
 }
 

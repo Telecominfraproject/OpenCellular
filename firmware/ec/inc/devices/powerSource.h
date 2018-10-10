@@ -87,7 +87,7 @@ typedef struct PWRSRC_Dev {
     PWRSRC_Obj obj;
 } PWRSRC_Dev;
 
-void pwr_source_init(void);
+void pwr_source_init(PWRSRC_Dev* driver);
 void pwr_get_source_info(PWRSRC_Dev *pwrSrcDev);
 ReturnStatus pwr_process_get_status_parameters_data(
         ePower_StatusParamId paramIndex, uint8_t *pPowerStatusData);
