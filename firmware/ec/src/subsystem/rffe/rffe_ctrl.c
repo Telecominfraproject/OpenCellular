@@ -66,14 +66,19 @@ ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *pwrCfg,
             OcGpio_write(&fe_ch1_rf_pwr->pin_ch1_rf_pwr_off, true);
         } else if (rfPACtrl == RFFE_DEACTIVATE_PA) {
             OcGpio_write(&fe_ch1_rf_pwr->pin_ch1_rf_pwr_off, false);
+        } else {
+            return RETURN_NOTOK;
         }
-
     } else if (channel == RFFE_CHANNEL2) {
         if (rfPACtrl == RFFE_ACTIVATE_PA) {
             OcGpio_write(&fe_ch2_rf_pwr->pin_ch2_rf_pwr_off, true);
         } else if (rfPACtrl == RFFE_DEACTIVATE_PA) {
             OcGpio_write(&fe_ch2_rf_pwr->pin_ch2_rf_pwr_off, false);
-        }
+        } else {
+            return RETURN_NOTOK;
+        } 
+    } else {
+        return RETURN_NOTOK;
     }
     return RETURN_OK;
 }

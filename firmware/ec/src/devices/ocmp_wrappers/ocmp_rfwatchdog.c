@@ -13,6 +13,9 @@
 void _rffe_watchdog_handler(void *context)
 {
     RfWatchdog_Cfg *cfg = context;
+    if (!cfg || !cfg->pin_alert_lb) {
+        return;
+    }
     if (OcGpio_read(cfg->pin_alert_lb) > 0) {
         OCMP_GenerateAlert(context, 0, NULL);
     }

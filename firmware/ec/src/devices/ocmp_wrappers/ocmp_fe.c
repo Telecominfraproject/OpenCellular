@@ -55,7 +55,7 @@ bool rffe_ctrl_get_band(rffeChannel channel, rffeBand *band)
     return true;
 }
 
-bool static _get_config(void *driver, unsigned int param_id,
+static bool _get_config(void *driver, unsigned int param_id,
                         void *return_buf)
         {
     bool ret = false;
@@ -75,7 +75,7 @@ bool static _get_config(void *driver, unsigned int param_id,
     return ret;
 }
 
-bool static _set_config(void *driver, unsigned int param_id,
+static bool _set_config(void *driver, unsigned int param_id,
                         void *return_buf)
 {
     bool ret = false;

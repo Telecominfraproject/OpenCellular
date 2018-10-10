@@ -39,7 +39,7 @@ CFLAGS += -Dxdc_target_types__="xdc_target_posix.h"
 # Short enums are assumed throughout the code, need the -fshort-enums flag
 CFLAGS += -fshort-enums
 
-INC_DIRS=-I. -Isrc -I$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -I$(DIR_SYSBIOS) -I$(DIR_TIDRIVERS) -I$(DIR_XDC)
+INC_DIRS=-I. -Isrc -I$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -I$(DIR_SYSBIOS) -I$(DIR_TIDRIVERS) -I$(DIR_TIVADRIVERS) -I$(DIR_XDC)
 
 BUILD_PATHS = $(RUNNER_PATH) $(PATHB) $(PATHR)
 
@@ -56,6 +56,7 @@ ifeq ($(OS),Windows_NT)
   DIR_XDC ?= C:/ti/xdctools_3_32_00_06_core/packages/
   DIR_SYSBIOS ?= C:/ti/tirtos_tivac_2_16_01_14/products/bios_6_45_02_31/packages/
   DIR_TIDRIVERS ?= C:/ti/tirtos_tivac_2_16_01_14/products/tidrivers_tivac_2_16_01_13/packages/
+  DIR_TIVADRIVERS ?= C:/ti/tirtos_tivac_2_16_01_14/products/TivaWare_C_Series-2.1.1.71b/
 
   TARGET_EXTENSION=.exe
 
@@ -70,6 +71,7 @@ else
   DIR_XDC ?= $(HOME)/ti/xdctools_3_32_00_06_core/packages/
   DIR_SYSBIOS ?= $(HOME)/ti/tirtos_tivac_2_16_01_14/products/bios_6_45_02_31/packages/
   DIR_TIDRIVERS ?= $(HOME)/ti/tirtos_tivac_2_16_01_14/products/tidrivers_tivac_2_16_01_13/packages/
+  DIR_TIVADRIVERS ?= $(HOME)/ti/tirtos_tivac_2_16_01_14/products/TivaWare_C_Series-2.1.1.71b/
 
   CLEANUP = rm -f
   MKDIR = mkdir -p
@@ -145,6 +147,10 @@ $(PATHB)Test_PinGroup_driver$(TARGET_EXTENSION): $(STD_FILES) $(TEST_PINGROUP_SR
 TEST_OCGPIO_SRC=$(OCWARE_ROOT)/src/drivers/OcGpio.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_I2C.c fake/fake_GPIO.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/helpers/memory.c stub/stub_GateMutex.c
 $(PATHB)Test_OcGpio$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCGPIO_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
+
+TEST_SUBSYS_RFFE_SRC= $(OCWARE_ROOT)/src/post/post_util.c $(OCWARE_ROOT)/src/subsystem/rffe/rffe.c $(OCWARE_ROOT)/src/subsystem/rffe/rffe_ctrl.c $(OCWARE_ROOT)/src/subsystem/rffe/rffe_powermonitor.c $(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_fe.c $(OCWARE_ROOT)/src/Devices/i2cbus.c fake/fake_I2C.c $(OCWARE_ROOT)/src/drivers/OcGpio.c fake/fake_GPIO.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/helpers/memory.c stub/stub_GateMutex.c stub/stub_Task.c stub/stub_Clock.c stub/stub_Semaphore.c stub/stub_Queue.c $(OCWARE_ROOT)/src/drivers/GpioPCA9557.c $(OCWARE_ROOT)/src/Devices/pca9557.c
+$(PATHB)Test_subsys_rffe$(TARGET_EXTENSION): $(STD_FILES) $(TEST_SUBSYS_RFFE_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@
 
 # Dummy target to allow us to force rebuild of testresults every time
 FORCE:

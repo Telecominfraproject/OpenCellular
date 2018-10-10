@@ -40,6 +40,9 @@
  *****************************************************************************/
 void rffe_pwr_control(Fe_gpioCfg* feCfg, uint8_t control)
 {
+    if (!feCfg) {
+        return;
+    }
     if (control == OC_FE_ENABLE) {
         OcGpio_write(&feCfg->pin_fe_12v_ctrl, true);
     } else {
@@ -59,6 +62,9 @@ void rffe_pwr_control(Fe_gpioCfg* feCfg, uint8_t control)
  *****************************************************************************/
 bool rffe_pre_init(void *driver, void *returnValue)
 {
+    if(!driver) {
+        return false;
+    }
     Fe_Cfg* feCfg = (Fe_Cfg*)driver;
     /* Initialize IO pins */
     OcGpio_configure(&feCfg->fe_gpio_cfg->pin_rf_pgood_ldo, OCGPIO_CFG_INPUT);
@@ -103,7 +109,10 @@ bool rffe_post_init(void* driver, void *ssState)
 {
     ReturnStatus status = RETURN_OK;
     eSubSystemStates *newState = (eSubSystemStates*)ssState;
-
+    if(!driver) {
+        return false;
+    }
+    
     Fe_Ch_Pwr_Cfg fe_ch1_pwrcfg = {
         .channel = RFFE_CHANNEL1,
         .fe_Rffecfg = (Fe_Cfg*)driver
@@ -139,6 +148,9 @@ bool RFFE_reset(void *driver, void *params)
 {
     /* TODO: this is the same line we use to reset the SDR - is this really
      * what we want to be doing here? */
+    if(!driver) {
+        return false;
+    }
     const Sdr_gpioCfg *cfg = (Sdr_gpioCfg *)driver;
     if (OcGpio_write(&cfg->pin_ec_trxfe_reset, false) < OCGPIO_SUCCESS) {
         return false;

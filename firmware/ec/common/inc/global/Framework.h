@@ -24,7 +24,11 @@
  * OC_CONNECT1.C. This helps host compilation as it doesn't need to know symbol definition for the configs
  * and schema sharing can be achived with limited common files.
  */
+#ifdef UT_FRAMEWORK
+#define SCHEMA_IMPORT extern
+#else
 #define SCHEMA_IMPORT extern __attribute__((weak))
+#endif
 
 /* DriverStruct acts as a generic datatype.
  * In schema we are more intreseted in the address of structure so we use this datatype DriverStruct

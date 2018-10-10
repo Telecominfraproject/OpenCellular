@@ -49,7 +49,7 @@ void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, u
     pData->manId = manId;
     pData->devId = devId;
 }
-#else
+#endif
 /* Execute POST for a given device driver (performs deep copy of alert_data) */
 static ePostCode _postDriver(const Component *subsystem,
                                 const Component *dev,
@@ -203,4 +203,3 @@ void post_update_POSTresult(POSTData *postData)
     //             postData->subsystem,postData->devSno,deviceCount+1);
      memcpy(&PostResult[deviceCount],postData,sizeof(POSTData));
 }
-#endif
