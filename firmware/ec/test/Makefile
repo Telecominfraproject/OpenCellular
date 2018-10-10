@@ -146,6 +146,10 @@ TEST_OCGPIO_SRC=$(OCWARE_ROOT)/src/drivers/OcGpio.c $(OCWARE_ROOT)/src/devices/i
 $(PATHB)Test_OcGpio$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCGPIO_SRC)
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 
+TEST_SUBSYS_GPP_SRC=$(OCWARE_ROOT)/src/subsystem/gpp/ebmp.c $(OCWARE_ROOT)/src/subsystem/gpp/gpp.c $(OCWARE_ROOT)/src/drivers/OcGpio.c fake/fake_GPIO.c fake/fake_ThreadedISR.c $(OCWARE_ROOT)/src/helpers/memory.c stub/stub_GateMutex.c stub/stub_Task.c stub/stub_Clock.c stub/stub_Semaphore.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_gbc.c
+$(PATHB)Test_subsys_gpp$(TARGET_EXTENSION): $(STD_FILES) $(TEST_SUBSYS_GPP_SRC)
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
+
 # Dummy target to allow us to force rebuild of testresults every time
 FORCE:
 

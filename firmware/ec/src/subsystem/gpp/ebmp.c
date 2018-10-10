@@ -234,12 +234,15 @@ static void ebmp_handle_irq(void *context) {
  *****************************************************************************/
 void ebmp_init(Gpp_gpioCfg *driver)
 {
-	pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
-	pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
-	pin_soc_pltrst_n = &driver->pin_soc_pltrst_n;
-	pin_soc_corepwr_ok = &driver->pin_soc_corepwr_ok;
+    pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
+    pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
+    pin_soc_pltrst_n = &driver->pin_soc_pltrst_n;
+    pin_soc_corepwr_ok = &driver->pin_soc_corepwr_ok;
 
-	if (pin_ap_boot_alert1->port) {
+    if (!driver) {
+        return;
+    }
+    if (pin_ap_boot_alert1->port) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
         if (OcGpio_configure(pin_ap_boot_alert1, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;

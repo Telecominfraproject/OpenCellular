@@ -33,6 +33,9 @@
 bool gpp_check_processor_reset(Gpp_gpioCfg *driver)
 {
     bool ret = false;
+    if (!driver) {
+        return ret;
+    }
     if (OcGpio_read(&driver->pin_soc_pltrst_n)) {
         ret = true;
     }
@@ -42,6 +45,9 @@ bool gpp_check_processor_reset(Gpp_gpioCfg *driver)
 bool gpp_check_core_power(Gpp_gpioCfg *driver)
 {
     bool ret = false;
+    if (!driver) {
+        return ret;
+    }
     if (OcGpio_read(&driver->pin_soc_corepwr_ok)) {
         ret = true;
     }
@@ -52,6 +58,9 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
 {
     bool ret = false;
 
+    if (!driver) {
+        return ret;
+    }
     if(control == OC_PMIC_ENABLE) {
         /*TODO:: Disabling for USB debugging*/
 
@@ -85,6 +94,9 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
 bool gpp_msata_das(Gpp_gpioCfg *driver)
 {
     bool ret = false;
+    if (!driver) {
+        return ret;
+    }
     if (!(OcGpio_read(&driver->pin_msata_ec_das))) {
         ret = true;
         LOGGER_DEBUG("GPP:INFO:: mSATA is active.\n");
@@ -95,6 +107,9 @@ bool gpp_msata_das(Gpp_gpioCfg *driver)
 bool gpp_pwrgd_protection(Gpp_gpioCfg *driver)
 {
     bool ret = false;
+    if (!driver) {
+        return ret;
+    }
     if (OcGpio_read(&driver->pin_lt4256_ec_pwrgd)) {
         ret = true;
     }
@@ -106,6 +121,9 @@ bool gpp_pwrgd_protection(Gpp_gpioCfg *driver)
  *****************************************************************************/
 bool gpp_pre_init(void* driver, void *returnValue)
 {
+    if(!driver) {
+        return false;
+    }
     Gpp_gpioCfg *gpioCfg = (Gpp_gpioCfg *)driver;
     OcGpio_configure(&gpioCfg->pin_soc_pltrst_n, OCGPIO_CFG_INPUT);
     OcGpio_configure(&gpioCfg->pin_soc_corepwr_ok, OCGPIO_CFG_INPUT);
@@ -124,6 +142,10 @@ bool gpp_pre_init(void* driver, void *returnValue)
 bool gpp_post_init(void* driver, void *ssState)
 {
     bool ret = false;
+
+    if(!(driver && ssState)) {
+        return ret;
+    }
     eSubSystemStates *newState = (eSubSystemStates*)ssState;
     if (!gpp_pwrgd_protection(driver)) {
         LOGGER_DEBUG("GPP:INFO:: LT4256 EC power good is for genration of 12V ok.\n");
@@ -151,6 +173,9 @@ bool gpp_post_init(void* driver, void *ssState)
  *****************************************************************************/
 static bool gpp_ap_reset(Gpp_gpioCfg *driver)
 {
+    if(!driver) {
+        return false;
+    }
     const OcGpio_Pin *pin = &(driver->pin_ec_reset_to_proc);
     if (OcGpio_write(pin, OC_GBC_PROC_RESET) < OCGPIO_SUCCESS) {
         return false;
