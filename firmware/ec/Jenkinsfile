@@ -1,0 +1,33 @@
+node {
+  currentBuild.result = 'SUCCESS'
+  ansiColor('xterm') {
+    withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi"]) {
+      try {
+          stage('Checkout') {
+            step([$class: 'WsCleanup'])
+            echo 'Checking out SCM'
+            checkout scm
+          }
+
+          stage('Static Analysis') {
+              sh 'fine firmware/ec -iname *.h -o -iname *.c -o -iname *.cc \ 
+                  | xargs clang-format -style=file -i -fallback-style=none'
+              sh 'git diff > clang_format.patch'                
+            }
+          }
+            
+          stage('Unit Test') {
+              dir ("firmware/ec/test"){ sh 'make ci' }
+          }
+          
+          stage('Firmware Build') {
+            dir ('firmware/ec') { sh 'make all' }
+          }
+
+      } catch (err) {
+        currentBuild.result = 'FAILURE'
+        throw err
+      }
+    }
+  }
+}
