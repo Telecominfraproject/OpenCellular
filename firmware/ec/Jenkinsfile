@@ -1,6 +1,5 @@
 node {
   currentBuild.result = 'SUCCESS'
-  ansiColor('xterm') {
     withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi"]) {
       try {
           stage('Checkout') {
@@ -10,10 +9,7 @@ node {
           }
 
           stage('Static Analysis') {
-              sh 'fine firmware/ec -iname *.h -o -iname *.c -o -iname *.cc \ 
-                  | xargs clang-format -style=file -i -fallback-style=none'
-              sh 'git diff > clang_format.patch'                
-            }
+              sh 'bash .ci/clang_patch'
           }
             
           stage('Unit Test') {
@@ -29,5 +25,4 @@ node {
         throw err
       }
     }
-  }
 }

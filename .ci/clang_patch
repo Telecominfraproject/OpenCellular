@@ -1,0 +1,16 @@
+#!/bin/bash
+
+find . -iname *.h -o -iname *.c -o -iname *.cpp -o -iname *.hpp \
+    | xargs clang-format -style=file -i -fallback-style=none
+
+git diff > clang_format.patch
+
+# Delete if 0 size and exit with 0
+if [ ! -s clang_format.patch ]
+then
+    rm clang_format.patch
+    exit 0
+fi
+
+# There were lint issues and should exit with error
+exit 1
