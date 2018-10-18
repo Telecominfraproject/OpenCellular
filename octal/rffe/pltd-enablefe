@@ -1,0 +1,230 @@
+#!/bin/sh
+
+SYSCFG_FILE_NAME=system.conf
+SYSCFG_DIR=
+SYSCFG_DIR_DEFAULT=/tmp
+
+CALFILES_DIR=
+CALFILES_DIR_DEFAULT=/tmp
+
+TX_POWER=
+TX_BW=
+TX_POWER_DEFAULT=30
+
+
+usage(){
+  echo "Usage
+        $0 - Set Baseband attenuators, Enable Front-End devices and set Front-End attenuators with calibration files
+
+SYNOPSIS
+        $0 [OPTIONS] [OPTIONS Value] [-b 10] [-c /etc] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -b BW, --bw BW
+                Bandwidth [5, 10, 20]
+
+        -d DLEAR, --dlearfcn DLEAR
+                Downlink Earfcn
+
+        -t FREQ, --txfreq FREQ
+                TX Frequency
+
+        -p POW, --txpower POW
+                TX Power (dBm)
+
+        -s FILE, --syscofig FILE
+                (optional) Directory to get system.conf
+                Default directory /tmp
+
+        -c PATH, --calfiles PATH
+                (pltd Mode only, optional) Specify directory to get calibration files
+"
+    exit 1
+}
+
+while [ $# -gt 0 ] ; do
+    case "$1" in
+    -h | --help)
+        usage
+        exit 1
+        ;;
+    -b | --bw)
+        shift;
+        TX_BW="$1"
+        ;;
+    -d | --dlearfcn)
+        shift;
+        DLEARFCN="$1"
+        ;;
+    -t | --txfreq)
+        shift;
+        TX_FREQ="$1"
+        ;;
+    -p | --txpower)
+        shift;
+        TX_POWER="$1"
+        ;;
+    -s | --sysconfig)
+        shift
+        SYSCFG_DIR=$1
+        ;;
+    -c | --calfiles)
+        shift
+        CALFILES_DIR=$1
+        ;;
+    -* | --*)
+        echo "$0 - No option: $1"
+        >&2 usage
+        exit 1
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+####################  Source system.conf  #######################
+if [ ! -z $SYSCFG_DIR ] ; then
+    if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
+        source "$SYSCFG_DIR/$SYSCFG_FILE_NAME"
+    else
+        echo "$0 - Error: can't stat system.conf file : No such file or directory"
+        exit 1
+    fi
+elif [ -f $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME ] ; then
+    source $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME
+else
+    echo "$0 - Error: can't stat system.conf file : No such file or directory"
+    exit 1
+fi
+
+####################  Check System Mode  ########################
+if [ ${MODE} != "pltd" ] ; then
+    echo "$0 - Error: Invalid Mode! Please set to pltd mode!"
+    exit 1
+fi
+
+############### Check Calibration files path ####################
+if [ -z $CALFILES_DIR ] ; then
+    CALFILES_DIR=$CALFILES_DIR_DEFAULT
+fi
+
+####################  Check TX Frequency  #######################
+if [ -z $TX_FREQ ] ; then
+    if [ -z $DLEARFCN ] ; then
+        echo "$0 - Please set Downlink(TX) Frequency."
+        exit 1
+    else
+        TX_FREQ=$(bb-getfreq -d dl -e $DLEARFCN 2> /dev/null)
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Get Downlink Frequency(TX) : $TX_FREQ"
+            exit 1
+        fi
+    fi
+fi
+
+TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+
+#######################  Check BandWidth  #######################
+if [ -z $TX_BW ] ; then
+    TX_BW=${BW}
+fi
+
+#######################  Check TX Power  ########################
+if [ -z $TX_POWER ] ; then
+    TX_POWER=${TX_POWER_DEFAULT}
+fi
+
+#####################  Set BB TX Attenuation ####################
+CAL_BB_ATT_TX1=$(cal-getbbtxatt ${TX_BW} 1 ${TX_FREQ} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get BB Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_BB_ATT_TX2=$(cal-getbbtxatt ${TX_BW} 2 ${TX_FREQ} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get BB Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+
+bb-settxatt 1 ${CAL_BB_ATT_TX1} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set BB Attenuation TX1"
+    exit 1
+fi
+
+bb-settxatt 2 ${CAL_BB_ATT_TX2} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set BB Attenuation TX2"
+    exit 1
+fi
+
+
+##########################  Enable FE  ##########################
+fe-enable 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Enable FE"
+    exit 1
+fi
+
+#################  Set FE FB Attenuation  #######################
+CAL_FE_FB_ATT_TX1=$(cal-getfefbatt ${TX_BW} 1 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE FB Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_FE_FB_ATT_TX2=$(cal-getfefbatt ${TX_BW} 2 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE FB Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+
+fe-setfbatt 1 ${CAL_FE_FB_ATT_TX1} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE FB Attenuation TX1"
+    exit 1
+fi
+
+fe-setfbatt 2 ${CAL_FE_FB_ATT_TX2} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE FB Attenuation TX2"
+    exit 1
+fi
+
+#################  Set FE TX Attenuation  #######################
+CAL_FE_TX_ATT_TX1=$(cal-getfetxatt -b ${TX_BW} -a 1 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+
+fe-settxatt 1 ${CAL_FE_TX_ATT_TX1} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX1"
+    exit 1
+fi
+
+fe-settxatt 2 ${CAL_FE_TX_ATT_TX2} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX2"
+    exit 1
+fi
+
+####################  Reset RFPAL  ##############################
+fe-resetrfpal

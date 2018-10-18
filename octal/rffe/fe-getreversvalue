@@ -1,0 +1,119 @@
+#!/bin/sh
+
+source FE_Env
+
+HW_REVISION=""
+
+ADC_PATH=""
+ADC_DIR=
+ADC_CHANNEL=
+
+usage(){
+  echo "Usage
+        $0 - Get revers ADC value.
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-t 1] [-c A] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -t, --tx
+                Channel of TX [1, 2]
+
+        -c, --channel
+                ADC channel:
+                    A : Channel A (Forward) Output of Error Amplifier
+                    P : Channel Differencing Op Amp Output, OUTP = OUTA – OUTB + VLVL
+                    N : Channel Differencing Op Amp Output, OUTN = OUTB – OUTA + VLVL
+                    B : Channel B (Revers) Output of Error Amplifier
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -t | --tx)
+                shift
+                TX_CHANNEL=$1
+                ;;
+            -c | --channel)
+                shift
+                ADC_CHANNEL=$1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                >&2 usage
+                exit 1
+                ;;
+            * )
+                >&2 usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+if [ -z $TX_CHANNEL ]; then
+    echo "Please set TX channel."
+    >&2 usage
+fi
+
+if [ -z $ADC_CHANNEL ]; then
+    echo "Please set ADC channel."
+    >&2 usage
+fi
+
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+fi
+
+if [ ${TX_CHANNEL} -eq 1 ]; then
+	if [ ${ADC_CHANNEL} == "A" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX0_RMS_FWD"
+	elif [ ${ADC_CHANNEL} == "P" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX0_RMS_DIFFP"
+	elif [ ${ADC_CHANNEL} == "N" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX0_RMS_DIFFN"
+	elif [ ${ADC_CHANNEL} == "B" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX0_RMS_REFL"
+	else
+		echo "Invalid ADC channel parameter!"
+		exit 1
+	fi
+elif [ ${TX_CHANNEL} -eq 2 ]; then
+	if [ ${ADC_CHANNEL} == "A" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX1_RMS_FWD"
+	elif [ ${ADC_CHANNEL} == "P" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX1_RMS_DIFFP"
+	elif [ ${ADC_CHANNEL} == "N" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX1_RMS_DIFFN"
+	elif [ ${ADC_CHANNEL} == "B" ]; then
+		eval ADC_PATH=\$"REV${HW_REVISION}_TX1_RMS_REFL"
+	else
+		echo "Invalid ADC channel parameter!"
+		exit 1
+	fi
+else
+	echo "Invalid TX channel parameter!"
+	exit 1
+fi
+
+if [ -r "$ADC_PATH" ]; then
+	cat $ADC_PATH
+else
+	echo "$0 - ERROR TX${TX_CHANNEL} Revers ADC channel ${ADC_CHANNEL} is not detected"
+	exit 1
+fi

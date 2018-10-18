@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -f /mnt/app/cal.tgz ];then
+    tar -zxvf /mnt/app/cal.tgz -C /tmp > /dev/null
+else
+    echo "$0 - Error : can't stat /mnt/app/cal.tgz : No such file or directory"
+    exit 1
+fi

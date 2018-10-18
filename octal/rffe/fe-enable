@@ -1,0 +1,70 @@
+#!/bin/sh
+
+source FE_Env
+
+HW_REVISION=""
+
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+fi
+
+case $HW_REVISION in
+	A | D)
+		echo 0 > ${ANT1_OR_SNIFFANT_TO_SNIFF}
+		echo 1 > ${ANT1_OR_SNIFF_TO_RX1}
+		echo 1 > ${ANT1_TO_DUP_OR_SNIFF}
+		#Sniffer :  Att = 31 dB
+		echo 1 > ${SNIFF_ATT_LE}
+		echo 127 > ${SNIFF_ATT}
+		echo 0 > ${SNIFF_LNA_EN}
+		;;
+	E )
+		
+		fe-setsniffercircuit --off 2> /dev/null
+		if [ $? -ne 0 ] ; then
+			echo "$0 - Error to set sniffer off "
+			exit 1
+		fi
+		;;
+	* )
+		echo "Hardware Rev $HW_REVISION is not supported."
+		exit 1
+		;;
+esac
+
+#Enable FE Devices and set default values
+
+echo 0 > ${RFPAL_RESET}
+
+#RX1 :  Att = 31 dB
+#RX2 :  Att = 31 dB
+echo 1 > ${RX0_ATT_LE}
+echo 127 > ${RX0_ATT}
+echo 1 > ${RX0_LNA_EN}
+echo 1 > ${RX1_ATT_LE}
+echo 127 > ${RX1_ATT}
+echo 1 > ${RX1_LNA_EN}
+
+
+#TX1 :  Att = 31 dB
+#TX2 :  Att = 31 dB
+echo 1  > ${TX0_PA_ATT_LE}
+echo 127 > ${TX0_PA_ATT}
+echo 1  > ${TX0_RFPAL_ATT_LE}
+echo 127 > ${TX0_RFPAL_ATT}
+echo 1  > ${TX1_PA_ATT_LE}
+echo 127 > ${TX1_PA_ATT}
+echo 1  > ${TX1_RFPAL_ATT_LE}
+echo 127 > ${TX1_RFPAL_ATT}
+
+#Enable TX predrivers and PAs
+echo 1 > ${TX0_PRE1_EN}
+echo 1 > ${TX0_PRE2_EN}
+echo 1 > ${TX1_PRE1_EN}
+echo 1 > ${TX1_PRE2_EN}
+echo "enabled" > ${PA0_EN}
+echo "enabled" > ${PA1_EN}
+
+echo 1 > ${RFPAL_RESET}

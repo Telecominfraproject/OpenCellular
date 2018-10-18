@@ -1,0 +1,179 @@
+#!/bin/sh
+
+FREQ_LINE=1
+OUTPUT_POWER_LINE=2
+TEMP_LINE=3
+CAL_OFFSET_LINE=4
+CALIBRATION_FOLDER_DEFAULT="/tmp"
+TEMP_CORRECT_DEFAULT=0            #by default, disable temperature correction
+
+source /tmp/system.conf
+
+usage(){
+  echo "Usage
+        $0 - Extract the Front-End attenuation settings from the calibration files
+
+SYNOPSIS
+        $0 [OPTIONS] [OPTIONS Value] [-b 10] [-t]...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -b BW, --bw BW
+                Bandwidth [5, 10, 20]
+
+        -a ANT, --ant ANT
+                Antenna selection [1, 2]
+
+        -f FREQ, --freq FREQ
+                Frequency of BB TX
+
+        -p POW, --power POW
+                TX Power (dBm)
+
+        -c FILE, --cal FILE
+                (optional) Calibration folder, default folder: /tmp
+
+        -t, --tc
+                (optional) Correct attenuation according to the temperature of PA.
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -b | --bw)
+                shift
+                BW=$1
+                ;;
+            -a | --ant)
+                shift
+                ANT=$1
+                ;;
+            -f | --freq)
+                shift
+                TX_FREQ=$1
+                ;;
+            -p | --power)
+                shift
+                TX_POWER=$1
+                ;;
+            -c | --cal)
+                shift
+                CAL_FOLDER=$1
+                ;;
+            -t | --tc)
+                TEMP_CORRECT=1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+#################  Check and Get Arguments  #####################
+if [ -z "$BW" ] || [ -z "$ANT" ] || [ -z "$TX_FREQ" ] || [ -z "$TX_POWER" ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+fi
+
+##################  Get Calibaration file  ######################
+if [ -z "$CAL_FOLDER" ]; then
+    CAL_FOLDER=${CALIBRATION_FOLDER_DEFAULT}
+fi
+CAL_FNAME="$CAL_FOLDER/fetxatten_b3_${BW}_ant${ANT}.cal"
+
+#################  Check Calibaration file  #####################
+if [ ! -e ${CAL_FNAME} ]; then
+    echo "$0 - The file $CAL_FNAME not found!"
+    exit 1
+fi
+
+#################  Check Antenna option Arguments  #####################
+if [ ${ANT} -ne "1" ] && [ ${ANT} -ne "2" ]; then
+    echo "$0 - Invalid antenna selection."
+    >&2 usage
+fi
+
+#####  Get supported Frequency from Calibration file  ###########
+FREQ_MIN=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 1)  # position 1 -> frequency min
+FREQ_STP=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 2)  # position 2 -> frequency step
+FREQ_MAX=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 3)  # position 3 -> frequency max
+
+###############  Convert Decimal to Integer  ####################
+TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+
+###############  Check Frequency option argument  ######################
+if [ ${TX_FREQ} -lt ${FREQ_MIN} ] || [ ${TX_FREQ} -gt ${FREQ_MAX} ]; then
+    echo "$0 - Invalid frequency, out of range."
+    echo ""
+    >&2 usage
+fi
+
+#######  Get supported TX Power from Calibration file  ##########
+POWER_MIN=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 1)  # position 1 -> power min
+POWER_STP=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 2)  # position 2 -> power step
+POWER_MAX=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 3)  # position 3 -> power max
+
+#################  Check TX Power option argument  #####################
+if [ ${TX_POWER} -lt ${POWER_MIN} ] || [ ${TX_POWER} -gt ${POWER_MAX} ]; then
+    echo "$0 - Invalid TX Power, out of range."
+    echo ""
+    >&2 usage
+fi
+
+##### Get Attenuation value postion from Frequency Axe  #########
+FRE_ARRAY_INDEX=$(expr $(expr $(expr ${TX_FREQ} - ${FREQ_MIN}) / ${FREQ_STP}) + 1)  # +1 for offset(start 1)
+
+##### Get Attenuation value postion from TX Power Axe  ##########
+TX_POWER_ARRAY_INDEX=$(expr $(expr $(expr ${TX_POWER} - ${POWER_MIN}) / ${POWER_STP}) + ${CAL_OFFSET_LINE})
+
+####### Get Attenuation value from Calibration file  ############
+CALIB_ATT=$(sed -n "${TX_POWER_ARRAY_INDEX}"p $CAL_FNAME | cut -d " " -f ${FRE_ARRAY_INDEX})
+
+##########  Check Temperature correction option  ##############
+if [ -z "$TEMP_CORRECT" ]; then
+    TEMP_CORRECT=${TEMP_CORRECT_DEFAULT}
+fi
+
+
+if [ ${TEMP_CORRECT} -eq 0 ]; then
+    ATT_TO_SET=${CALIB_ATT} # no temperature correction option
+else
+    ####  Get Calibration Temperature from Calibration file  ########
+    CALIB_TEMP=$(sed -n ${TEMP_LINE}p $CAL_FNAME | cut -d " " -f 1)
+
+    ##################  Get PA Temperature  #########################
+    PA_TEMP_mC=$(fe-gettemperature pa${ANT} 2> /dev/null)
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error : $PA_TEMP_mC"
+        exit 1
+    fi
+    PA_TEMP_C=$(echo ${PA_TEMP_mC} | awk '{div=$1/1000; printf"%0.02f\n", div }')
+
+    #############  Get Output Power ERROR Value  ####################
+    DIFF_TEMP=$(echo ${PA_TEMP_C} ${CALIB_TEMP} | awk '{div=$1-$2; printf"%0.02f\n", div }')
+    OUTPUT_POWER_ERROR=$(fe-getoutputpowererror -t ${DIFF_TEMP} -d)
+
+    #######  Calculate Attenuation value with Correction  ###########
+    ATT_TO_SET=$(echo ${CALIB_ATT} ${OUTPUT_POWER_ERROR} | awk '{div=$1-$2; printf"%d\n", div }')
+fi
+
+echo $ATT_TO_SET

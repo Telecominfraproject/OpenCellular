@@ -1,0 +1,95 @@
+#!/bin/sh
+
+source FE_Env
+
+usage(){
+  echo "Usage
+        $0 - FE Devices Control
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-pa1 on] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -pa1, -PA1
+                Turn on / off PA1 [on, off]
+
+        -pa2, -PA2
+                Turn on / off PA2 [on, off]
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 0
+                ;;
+            -pa1 | -PA1)
+                shift
+                PA1=$1
+                ;;
+            -pa2 | -PA2)
+                shift
+                PA2=$1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi 
+
+if [ ! -z $PA1 ]; then
+    if [ $PA1 == "on" ]; then
+        echo "enabled" > ${PA0_EN}
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Enable PA1"
+            exit 1
+        fi
+    elif [ $PA1 == "off" ]; then
+        echo "disabled" > ${PA0_EN}
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Disable PA1"
+            exit 1
+        fi
+    else
+        echo "$0 - Invalid argument of PA1 option"
+        >&2 usage
+    fi
+fi
+
+if [ ! -z $PA2 ]; then
+    if [ $PA2 == "on" ]; then
+        echo "enabled" > ${PA1_EN}
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Enable PA2"
+            exit 1
+        fi
+    elif [ $PA2 == "off" ]; then
+        echo "disabled" > ${PA1_EN}
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Disable PA2"
+            exit 1
+        fi
+    else
+        echo "$0 - Invalid argument of PA2 option"
+        >&2 usage
+    fi
+fi
+
+exit 0

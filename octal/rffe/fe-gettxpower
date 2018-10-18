@@ -1,0 +1,94 @@
+#!/bin/sh
+
+M=628
+B=-290490
+
+RESULT_FORMAT="DBM"
+
+usage(){
+  echo "Usage
+        $0 - Get TX power
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-t 1] [-d] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -t, --tx
+                Channel of TX [1, 2]
+                
+        -f, --format
+                Format of result
+                [ADC] return ADC value
+                [DBM] return TX power in dBm
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -t | --tx)
+                shift
+                TX_CHANNEL=$1
+                ;;
+            -f | --format)
+                shift
+                RESULT_FORMAT=$1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                >&2 usage
+                exit 1
+                ;;
+            * )
+                >&2 usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+if [ ${TX_CHANNEL} -eq 1 ]; then
+	if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/curr1_input ]; then
+		X="$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028/iio:device1/in_voltage0_raw)"
+	else
+		echo "$0 - ERROR TX1 ADC is not detected"
+		exit 1
+	fi
+elif [ ${TX_CHANNEL} -eq 2 ]; then
+	
+	if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/curr1_input ]; then
+		X="$(cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028/iio:device0/in_voltage0_raw)"
+	else
+		echo "$0 - ERROR TX1 ADC is not detected"
+		exit 1
+	fi
+else
+	echo "Invalid TX channel parameter!"
+	exit 1
+fi
+
+
+if [ $RESULT_FORMAT == "ADC" ] || [ $RESULT_FORMAT == "adc" ]; then
+	echo "$X"
+elif [ $RESULT_FORMAT == "DBM" ] || [ $RESULT_FORMAT == "dbm" ]; then
+	Y=$(expr ${M} \* ${X} + ${B})
+	Y_i=$(expr ${Y} / 10000)
+	Y_f=$(expr ${Y} - ${Y_i} \* 10000 )
+	Y_f=$(expr ${Y_f} / 100)
+	echo ${Y_i}.${Y_f}
+else
+	echo "Result format not support!"
+	exit 1
+fi

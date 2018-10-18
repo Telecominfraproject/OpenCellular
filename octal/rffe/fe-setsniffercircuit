@@ -1,0 +1,115 @@
+#!/bin/sh
+
+source FE_Env
+
+HW_REVISION=""
+
+HW_REVISION_SUPPORTED="E"
+HW_REVISION_OK=""
+
+ACTION=
+
+
+usage(){
+  echo "Usage
+		$0 - Enable/Disable Sniffer circuit
+
+SYNOPSIS
+		$0 [OPTIONS Value] [-on] ...
+
+DESCRIPTION
+		-h, --help
+			Print this messages
+
+		-1, --on
+			Enable sniffer circuit
+
+		-0, --off
+				Disable sniffer circuit
+"
+	exit 1
+}
+
+if [ $# -le 0 ]; then
+	echo "Invalid number of argument $#"
+	>&2 usage
+else
+	while [ $# -gt 0 ] ; do
+		case "$1" in
+			-h | --help)
+				usage
+				exit 1
+				;;
+			-r | --hdrev)
+				echo "Hardware revision support:"
+				for hdrev in $HW_REVISION_SUPPORTED ; do
+					echo " Rev$hdrev"
+				done
+				exit
+				;;
+			-1 | --on)
+				shift
+				ACTION=1
+				;;
+			-0 | --off)
+				shift
+				ACTION=0
+				;;
+			-* | --*)
+				echo "No option: $1"
+				usage
+				exit 1
+				;;
+			* )
+				usage
+				exit 1
+				;;
+		esac
+		shift
+	done
+fi 
+
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+fi
+
+
+case $HW_REVISION in
+	E)
+		if [ ! -r $REVE_SNIFFER_ANT_SW_FILE ]; then
+			echo "$0 - ERROR : Antenna switch is not detected"
+			exit 1
+		elif [ ! -r $REVE_SNIFFER_SNIFFER_SW_FILE ]; then
+			echo "$0 - ERROR : Sniffer switch is not detected"
+			exit
+		elif [ ! -r $REVE_SNIFFER_SNIFFER_EN_FILE ]; then
+			echo "$0 - ERROR : Sniffer switch enable is not detected"
+			exit
+		fi
+
+		if [ $ACTION -eq 1 ]; then
+			#Set High for Antenna and Sniffer switch
+			echo 1 > ${REVE_SNIFFER_ANT_SW_FILE}
+			echo 1 > ${REVE_SNIFFER_SNIFFER_SW_FILE}
+			#Enable Sniffer switch (reverse polarity)
+			echo 0 > ${REVE_SNIFFER_SNIFFER_EN_FILE}
+		elif [ $ACTION -eq 0 ]; then
+			#Set Low for Antenna and Sniffer switch
+			echo 0 > ${REVE_SNIFFER_ANT_SW_FILE}
+			echo 0 > ${REVE_SNIFFER_SNIFFER_SW_FILE}
+			#Disable Sniffer switch (reverse polarity)
+			echo 1 > ${REVE_SNIFFER_SNIFFER_EN_FILE}
+		else
+			echo "$0 - Invalid argument of channel"
+			>&2 usage
+		fi
+		;;
+	* )
+		echo "Hardware Rev $HW_REVISION is not supported."
+		exit 1
+		;;
+esac
+
+exit 0

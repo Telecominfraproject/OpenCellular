@@ -1,0 +1,61 @@
+#!/bin/sh
+
+CHANNEL=
+
+usage(){
+  echo "Usage
+        $0 - FE Devices Control
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-pa1 on] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -c, --channel
+                channel [1, 2]
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -c | -channel)
+                shift
+                CHANNEL=$1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi 
+
+if [ ! -z $CHANNEL ]; then
+    if [ $CHANNEL -eq 1 ]; then
+        rfpaltoolset 1 0 7 0 0	#Path B of RF-PAL
+        sleep 9
+    elif [ $CHANNEL -eq 2 ]; then
+        rfpaltoolset 0 0 7 0 0	#Path A of RF-PAL
+        sleep 9
+    else
+        echo "$0 - Invalid argument of channel"
+        >&2 usage
+    fi
+fi

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+source FE_Env
+
+usage()
+{
+	echo "usage: $0 <ANT>"
+	echo "Return the RMS value of RFIN of the SC2200"
+	echo ""
+	echo "  <ANT>     Antenna selection [1,2]"
+	exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+	usage
+fi
+
+if [ $1 -ne "1" ] && [ $1 -ne "2" ]; then
+	echo "Invalid antenna selection."
+	usage
+fi
+
+if [ $1 -eq "1" ]; then
+	rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+else
+	rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+fi

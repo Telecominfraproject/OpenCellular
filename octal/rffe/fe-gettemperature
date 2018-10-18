@@ -1,0 +1,60 @@
+#!/bin/sh
+
+usage()
+{
+    echo "Usage: $0 <Temperature Sensor>"
+    echo ""
+    echo "    Return the temperature sensor value as m°C"
+    echo ""
+    echo "    <Temperature Sensor>    Temperature Sensor selection [pa1, pa2, fe, led]"
+    exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+    >&2 usage
+    exit 1
+else
+    case $1 in
+        -h | --help )
+            usage
+            exit
+            ;;
+        pa1 | PA1)
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input ]; then
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input);
+			else
+				echo "$0 - ERROR PA1 temperature sensor is not detected"
+				exit 1
+			fi
+            ;;
+        pa2 | PA2)
+			if [ -r /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input ]; then
+				echo $(cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input);
+            else
+				echo "$0 - ERROR PA2 temperature sensor is not detected"
+				exit 1
+			fi
+            ;;
+        fe | FE)
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
+            else
+				echo "$0 - ERROR Front-End temperature sensor is not detected"
+				exit 1
+			fi
+            ;;
+        led | LED)
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f/temp1_input ]; then
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f/temp1_input);
+            else
+				echo "$0 - ERROR LED Board temperature sensor is not detected"
+				exit 1
+			fi
+            ;;
+        * )
+            usage
+            exit 1
+    esac
+    shift
+fi
+exit 0

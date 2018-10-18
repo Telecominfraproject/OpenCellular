@@ -1,0 +1,136 @@
+#!/bin/sh
+
+
+usage()
+{
+    echo "Usage: <COLOR> <ON_OFF>"
+    echo ""
+    echo "    Turn on or off led board with selected color"
+    echo ""
+    echo "    COLOR     Colort of led [red, green, orange]"
+    echo "    ON_OFF    Turon on/off led [on, off]"
+}
+
+turnOffAllLeds()
+{
+    for i in /sys/devices/soc.0/0.leds/leds/* ;do
+        echo 0 > $i/brightness
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Set LED OFF : $i/brightness"
+            exit 1
+        fi
+    done
+}
+
+redLed()
+{
+    if [ "$1" == "on" ]; then
+        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+            echo 255 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set RED LED ON : $i/brightness"
+                exit 1
+            fi
+        done
+        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+            echo 0 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set RED LED ON : $i/brightness"
+                exit 1
+            fi
+        done
+    elif [ "$1" == "off" ]; then
+        turnOffAllLeds
+    else
+        >&2 usage
+        exit 1
+    fi
+}
+
+
+greenLed()
+{
+    if [ "$1" == "on" ]; then
+        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+            echo 0 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set LED GREEN ON : $i/brightness"
+                exit 1
+            fi
+        done
+        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+            echo 255 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set LED GREEN ON : $i/brightness"
+                exit 1
+            fi
+        done
+    elif [ "$1" == "off" ]; then
+        turnOffAllLeds
+    else
+        >&2 usage
+        exit 1
+    fi
+}
+
+orangeLed()
+{
+    if [ "$1" == "on" ]; then
+        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+            echo 255 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set LED ORANGE ON : $i/brightness"
+                exit 1
+            fi
+        done
+        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+            echo 255 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set LED ORANGE ON : $i/brightness"
+                exit 1
+            fi
+        done
+    elif [ "$1" == "off" ]; then
+        turnOffAllLeds
+    else
+        >&2 usage
+        exit 1
+    fi
+}
+
+
+##################### Entry point ########################
+
+if [ "$1" == "" ]; then
+    >&2 usage
+    exit 1
+else
+    case $1 in
+        -h | --help )
+            usage
+            exit
+            ;;
+        red | RED)
+            redLed $2;
+            exit
+            ;;
+        green | GREEN)
+            greenLed $2;
+            exit
+            ;;
+        orange | ORANGE)
+            orangeLed $2;
+            exit
+            ;;
+        off | OFF)
+            turnOffAllLeds;
+            exit
+            ;;
+        * )
+            usage
+            exit 0
+    esac
+    shift
+fi
+
+exit 0

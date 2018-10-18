@@ -1,0 +1,7 @@
+#!/bin/sh
+
+source FE_Env
+
+echo 0 > ${RFPAL_RESET}
+sleep 1
+echo 1 > ${RFPAL_RESET}

@@ -1,0 +1,33 @@
+#!/bin/sh
+
+usage()
+{
+    echo "Usage: $0 <ANT> <ATT>"
+    echo ""
+    echo "    Set Baseband TX attenuation"
+    echo ""
+    echo "    <ANT>    Antenna selection [1,2]"
+    echo "    <ATT>    Attenuation in dB [5..40]"
+    exit 1
+}
+
+if [ "$#" -ne 2 ]; then
+    >&2 usage
+fi
+
+if [ $1 -ne "1" ] && [ $1 -ne "2" ]; then
+    echo "$0 - Invalid antenna selection."
+    >&2 usage
+fi
+
+if [ $2 -lt "5" ] || [ $2 -gt "40" ]; then
+    echo "$0 - Attenuation out of range."
+    >&2 usage
+fi   
+
+oncpu 0 /usr/bin/cn_rfdriver << eof > /dev/null
+a
+$1
+$2
+q
+eof

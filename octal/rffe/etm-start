@@ -1,0 +1,49 @@
+#!/bin/sh
+
+source /tmp/system.conf
+
+ETM_TV_DIR=
+ETM_TV_DIR_DEFAULT="/mnt/app"
+
+usage()
+{
+    echo "Usage: $0 [ETM]"
+    echo ""
+    echo "    Start ETM"
+    echo ""
+    echo "    <ETM>    ETM Test (1.1, 1.2, 2, 3.1, 3.2, 3.3)"
+    echo "    <FILE    (optional)ETM TV files directory. /mnt/app is default directory>"
+    exit 1
+}
+
+if [ "$#" -eq "2" ]; then
+    ETM=$1
+    ETM_TV_DIR=$2
+elif [ "$#" -eq "1" ]; then
+    ETM=$1
+    ETM_TV_DIR=${ETM_TV_DIR_DEFAULT}
+else
+    >&2 usage
+fi
+
+if [ "${ETM}" == "1.1" ]; then
+    etm="1"
+elif [ "${ETM}" == "1.2" ]; then
+    etm="2"
+elif [ "${ETM}" == "2" ] || [ "${ETM}" == "2.0" ]; then
+    etm="3"
+elif [ "${ETM}" == "3.1" ]; then
+    etm="4"
+elif [ "${ETM}" == "3.2" ]; then
+    etm="5"
+elif [ "${ETM}" == "3.3" ]; then
+    etm="6"
+else
+    >&2 usage
+fi
+
+etm-stop
+
+cd /usr/bin
+tar -zxf ${ETM_TV_DIR}/ETM_${BW}MHz_TV.tgz
+oncpu 0 /usr/bin/pltD -drv dl -tc 000${etm} -etm ${etm} -ant 2 -c 1 > /dev/null &

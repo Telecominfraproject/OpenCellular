@@ -1,0 +1,210 @@
+#!/bin/sh
+
+
+STARTUPCFG_DIR=
+STARTUPCFG_DIR_DEFAULT=/etc
+
+SYSCFG_FILE_NAME=system.conf
+SYSCFG_DIR=
+SYSCFG_DIR_DEFAULT=/tmp
+
+CALFILES_DIR=
+CALFILES_DIR_DEFAULT=/tmp
+
+TX_POWER=
+TX_BW=
+TX_POWER_DEFAULT=30
+
+
+usage(){
+  echo "Usage
+        $0 - Readjust FE TX Attenuation with the correction of output power error according to the temperature of PA
+
+SYNOPSIS
+        $0 [OPTIONS] [OPTIONS Value] [-b 10] [-c /etc]...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -b BW, --bw BW
+                Bandwidth [5, 10, 20]
+
+        -d DLEAR, --dlearfcn DLEAR
+                Downlink Earfcn
+
+        -u ULEAR, --ulearfcn ULEAR
+                Uplink Earfcn
+
+        -f FREQ, --txfreq FREQ
+                TX Frequency
+
+        -p POW, --txpower POW
+                TX Power (dBm)
+
+        -c FILE, --config FILE
+                (optional) Directory to get startup.cfg
+                Default directory /etc
+
+        -s FILE, --syscofig FILE
+                (optional) Directory to get system.conf
+                Default directory /tmp
+        -l PATH, --calfiles PATH
+                (pltd Mode only, optional) Specify directory to get calibration files
+"
+    exit 1
+}
+
+while [ $# -gt 0 ] ; do
+    case "$1" in
+    -h | --help)
+        usage
+        exit 1
+        ;;
+    -b | --bw)
+        shift;
+        TX_BW="$1"
+        RX_BW="$1"
+        ;;
+    -d | --dlearfcn)
+        shift;
+        DLEARFCN="$1"
+        ;;
+    -u | --ulearfcn)
+        shift;
+        ULEARFCN="$1"
+        ;;
+    -f | --txfreq)
+        shift;
+        TX_FREQ="$1"
+        ;;
+    -p | --txpower)
+        shift;
+        TX_POWER="$1"
+        ;;
+    -c | --config)
+        shift
+        STARTUPCFG_DIR=$1
+        ;;
+    -s | --sysconfig)
+        shift
+        SYSCFG_DIR=$1
+        ;;
+    -l | --calfiles)
+        shift
+        CALFILES_DIR=$1
+        ;;
+    -* | --*)
+        echo "No option: $1"
+        >&2 usage
+        exit 1
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+####################  Source system.conf  #######################
+if [ ! -z $SYSCFG_DIR ] ; then
+    if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
+        source "$SYSCFG_DIR/$SYSCFG_FILE_NAME"
+    else
+        echo "$0 - Error: can't stat system.conf file : No such file or directory"
+        exit 1
+    fi
+elif [ -f $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME ] ; then
+    source $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME
+else
+    echo "$0 - Error: can't stat system.conf file : No such file or directory"
+    exit 1
+fi
+
+############### Check Calibration files path ####################
+if [ -z $CALFILES_DIR ] ; then
+    CALFILES_DIR=$CALFILES_DIR_DEFAULT
+fi
+
+####################  Check TX Frequency  #######################
+if [ -z $TX_FREQ ] ; then
+    if [ -z $DLEARFCN ] ; then
+        #############  Check startup.cfg file  ##################
+        if [ ! -z $STARTUPCFG_DIR ] ; then
+            #########  Get DL Earfcn from startup.cfg file  #########
+            TX_FREQ=$(bb-getfreq -d dl -c $STARTUPCFG_DIR 2> /dev/null)
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Get Downlink Frequency : $TX_FREQ"
+                exit 1
+            fi
+        else
+            TX_FREQ=$(bb-getfreq -d dl -c $STARTUPCFG_DIR_DEFAULT 2> /dev/null)
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Get Downlink Frequency : $TX_FREQ"
+                exit 1
+            fi
+        fi
+    else
+        TX_FREQ=$(bb-getfreq -d dl -e $DLEARFCN 2> /dev/null)
+        if [ $? -ne 0 ] ; then
+            echo "$0 - Error Get Downlink Frequency : $TX_FREQ"
+            exit 1
+        fi
+    fi
+fi
+
+TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+
+#######################  Check BandWidth  #######################
+if [ -z $TX_BW ] ; then
+    TX_BW=${BW}
+    RX_BW=${BW}
+fi
+
+#######################  Check TX Power  ########################
+if [ -z $TX_POWER ] ; then
+    TX_POWER=${TX_POWER_DEFAULT}
+fi
+
+##############  Get Current FE TX Attenuation ###################
+FE_TX_ATT_TX1_CURRENT=$(fe-gettxatt 1 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get Current FE TX Attenuation TX1: $FE_TX_ATT_TX1_CURRENT"
+    exit 1
+fi
+
+FE_TX_ATT_TX2_CURRENT=$(fe-gettxatt 2 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get Current FE TX Attenuation TX2: $FE_TX_ATT_TX2_CURRENT"
+    exit 1
+fi
+
+##############  Get FE TX Attenuation to Set  ###################
+CAL_FE_TX_ATT_TX1=$(cal-getfetxatt -b ${TX_BW} -a 1 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE TX Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+if [ $FE_TX_ATT_TX1_CURRENT -ne $CAL_FE_TX_ATT_TX1 ] ; then
+    fe-settxatt 1 ${CAL_FE_TX_ATT_TX1} 2> /dev/null
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Set FE TX Attenuation TX1"
+        exit 1
+    fi
+fi
+
+if [ $FE_TX_ATT_TX2_CURRENT -ne $CAL_FE_TX_ATT_TX2 ] ; then
+    fe-settxatt 2 ${CAL_FE_TX_ATT_TX2} 2> /dev/null
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Set FE TX Attenuation TX2"
+        exit 1
+    fi
+fi

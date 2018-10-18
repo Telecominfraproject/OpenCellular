@@ -1,0 +1,66 @@
+#!/bin/sh
+
+M=-0.061707348242811
+B=1.118984025559105
+
+FACTOR_DB_TO_ATT=4
+
+usage(){
+  echo "Usage
+        $0 - Extract the Front-End output power error(quarter dB) according to the temperature of PA.
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-t 30] [-d] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -t, --temp
+                Temperature(Celsius)
+                
+        -d, --diff
+                (optional) Calculate with difference temperature
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -t | --temp)
+                shift
+                TEMPERATURE=$1
+                ;;
+            -d | --diff)
+                shift
+                CAL_DIFF=1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+if [ -z $CAL_DIFF ]; then
+    OUTPUT_POWER_ERROR=$(echo ${M} ${B} ${TEMPERATURE} ${FACTOR_DB_TO_ATT} | awk '{div=-($1*$3*$4+$2*$4); printf"%0.02f\n", div }')
+else
+    OUTPUT_POWER_ERROR=$(echo ${M} ${TEMPERATURE} ${FACTOR_DB_TO_ATT} | awk '{div=-($1*$2*$3); printf"%0.02f\n", div }')
+fi
+
+echo ${OUTPUT_POWER_ERROR}

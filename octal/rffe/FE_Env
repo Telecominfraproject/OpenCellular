@@ -1,0 +1,98 @@
+#!/bin/sh
+
+TIP_PATH="/sys/devices/soc.0/0.tip/"
+I2C_0="/sys/devices/soc.0/1180000001000.i2c/i2c-0/"
+I2C_1="/sys/devices/soc.0/1180000001200.i2c/i2c-1/"
+TX0_VSWR_PATH="${I2C_1}1-0028/iio:device1/"
+TX1_VSWR_PATH="${I2C_0}0-0028/iio:device0/"
+
+#SNIFFER circuit
+export ANT1_OR_SNIFFANT_TO_SNIFF="${TIP_PATH}ant1_or_sniffant_to_sniffer_switch"
+export ANT1_OR_SNIFF_TO_RX1="${TIP_PATH}ant1_or_sniffer_to_rx1_switch"
+export ANT1_TO_DUP_OR_SNIFF="${TIP_PATH}ant1_to_dup_or_sniffer_switch"
+export SNIFF_ATT="${TIP_PATH}sniffer_att"
+export SNIFF_ATT_LE="${TIP_PATH}sniffer_att_le"
+export SNIFF_LNA_EN="${TIP_PATH}sniffer_lna_en"
+
+export REVE_SNIFFER_ANT_SW_FILE="${TIP_PATH}ant2_trx_to_sniffer_switch"
+export REVE_SNIFFER_SNIFFER_SW_FILE="${TIP_PATH}ant2_sw_to_sniffer_switch"
+export REVE_SNIFFER_SNIFFER_EN_FILE="${TIP_PATH}sniffer_en"
+
+#EEPROM
+export EEPROM_CALIB_WP="${TIP_PATH}eeprom_calib_wp"
+export EEPROM_TIVA_WP="${TIP_PATH}eeprom_tiva_wp"
+
+#RFPAL
+export RFPAL_RESET="${TIP_PATH}rfpal_reset"
+
+#TX0
+export TX0_PA_ATT="${TIP_PATH}tx0_pa_att"
+export TX0_PA_ATT_LE="${TIP_PATH}tx0_pa_att_le"
+export TX0_PRE1_EN="${TIP_PATH}tx0_predriver1_en"
+export TX0_PRE2_EN="${TIP_PATH}tx0_predriver2_en"
+export TX0_RFPAL_ATT="${TIP_PATH}tx0_rfpal_att"
+export TX0_RFPAL_ATT_LE="${TIP_PATH}tx0_rfpal_att_le"
+
+#TX1
+export TX1_PA_ATT="${TIP_PATH}tx1_pa_att"
+export TX1_PA_ATT_LE="${TIP_PATH}tx1_pa_att_le"
+export TX1_PRE1_EN="${TIP_PATH}tx1_predriver1_en"
+export TX1_PRE2_EN="${TIP_PATH}tx1_predriver2_en"
+export TX1_RFPAL_ATT="${TIP_PATH}tx1_rfpal_att"
+export TX1_RFPAL_ATT_LE="${TIP_PATH}tx1_rfpal_att_le"
+
+#RX0
+export RX0_ATT="${TIP_PATH}rx0_att"
+export RX0_ATT_LE="${TIP_PATH}rx0_att_le"
+export RX0_LNA_EN="${TIP_PATH}rx0_lna_en"
+
+#RX1
+export RX1_ATT="${TIP_PATH}rx1_att"
+export RX1_ATT_LE="${TIP_PATH}rx1_att_le"
+export RX1_LNA_EN="${TIP_PATH}rx1_lna_en"
+
+#PAs
+export PA0_EN="/sys/devices/soc.0/0.pa0/state"
+export PA1_EN="/sys/devices/soc.0/0.pa1/state"
+
+#VSWR REVA
+export REVA_TX0_RMS_FWD="${TX0_VSWR_PATH}in_voltage0_raw"
+export REVA_TX0_RMS_DIFFP="${TX0_VSWR_PATH}in_voltage1_raw"
+export REVA_TX0_RMS_DIFFN="${TX0_VSWR_PATH}in_voltage2_raw"
+export REVA_TX0_RMS_REFL="${TX0_VSWR_PATH}in_voltage3_raw"
+export REVA_TX1_RMS_FWD="${TX1_VSWR_PATH}in_voltage0_raw"
+export REVA_TX1_RMS_DIFFP="${TX1_VSWR_PATH}in_voltage1_raw"
+export REVA_TX1_RMS_DIFFN="${TX1_VSWR_PATH}in_voltage2_raw"
+export REVA_TX1_RMS_REFL="${TX1_VSWR_PATH}in_voltage3_raw"
+
+#VSWR REVD
+export REVD_TX0_RMS_FWD="${TX0_VSWR_PATH}in_voltage0_raw"
+export REVD_TX0_RMS_DIFFP="${TX0_VSWR_PATH}in_voltage1_raw"
+export REVD_TX0_RMS_DIFFN="${TX0_VSWR_PATH}in_voltage2_raw"
+export REVD_TX0_RMS_REFL="${TX0_VSWR_PATH}in_voltage3_raw"
+export REVD_TX1_RMS_FWD="${TX1_VSWR_PATH}in_voltage0_raw"
+export REVD_TX1_RMS_DIFFP="${TX1_VSWR_PATH}in_voltage1_raw"
+export REVD_TX1_RMS_DIFFN="${TX1_VSWR_PATH}in_voltage2_raw"
+export REVD_TX1_RMS_REFL="${TX1_VSWR_PATH}in_voltage3_raw"
+
+#VSWR REVE
+export REVE_TX0_RMS_FWD="${TX0_VSWR_PATH}in_voltage0_raw"
+export REVE_TX0_RMS_DIFFP="${TX0_VSWR_PATH}in_voltage1_raw"
+export REVE_TX0_RMS_DIFFN="${TX0_VSWR_PATH}in_voltage2_raw"
+export REVE_TX0_RMS_REFL="${TX0_VSWR_PATH}in_voltage3_raw"
+export REVE_TX1_RMS_FWD="${TX1_VSWR_PATH}in_voltage3_raw"
+export REVE_TX1_RMS_DIFFP="${TX1_VSWR_PATH}in_voltage2_raw"
+export REVE_TX1_RMS_DIFFN="${TX1_VSWR_PATH}in_voltage1_raw"
+export REVE_TX1_RMS_REFL="${TX1_VSWR_PATH}in_voltage0_raw"
+
+#Current Sensor
+export TX_PA_CURRENT_SENSOR_HW_REVISION_SUPPORT="A D E"
+
+export REVA_TX0_PA_CURRENT_SENSOR_FILE="${I2C_1}1-0040/curr1_input"
+export REVA_TX1_PA_CURRENT_SENSOR_FILE="${I2C_0}0-0040/curr1_input"
+
+export REVD_TX0_PA_CURRENT_SENSOR_FILE="${I2C_1}1-0040/curr1_input"
+export REVD_TX1_PA_CURRENT_SENSOR_FILE="${I2C_0}0-0040/curr1_input"
+
+export REVE_TX0_PA_CURRENT_SENSOR_FILE="${I2C_1}1-0040/curr1_input"
+export REVE_TX1_PA_CURRENT_SENSOR_FILE="${I2C_1}1-0041/curr1_input"

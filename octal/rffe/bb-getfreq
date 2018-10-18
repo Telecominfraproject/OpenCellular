@@ -1,0 +1,109 @@
+#!/bin/sh
+
+STARTUPCFG_SRC_DEFAULT=/etc/startup.cfg
+
+usage(){
+  echo "Usage
+        $0 - Get Uplink or Downlink Earfcn from startup.cfg
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-d ul] [-c /mnt/app] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -d, --direction
+                Link direction [ul, dl]
+                
+        -e, --earfcn
+                (optional) Earfcn to convert
+                By default, get Earfcn from startup.cfg
+                
+        -c, --config
+                (optional) Directory to get startup.cfg
+                Default directory /etc
+                
+        -b, --band
+                (optional) Get band
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -d | --direct)
+                shift
+                LINK_DIRECTION=$1
+                ;;
+            -e | --earfcn)
+                shift
+                EARFCN=$1
+                ;;
+            -c | --config)
+                shift
+                STARTUPCFG_SRC=$1
+                ;;
+            -b | --band)
+                shift
+                GET_BAND=1
+                ;;
+            -* | --*)
+                echo "$0 - No option: $1"
+                >&2 usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+#################  Check and Get Arguments  #####################
+if [ -z "$LINK_DIRECTION" ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+fi
+
+if [ -z $EARFCN ] ; then
+        #############  Check startup.cfg file  ##################
+    if [ ! -z $STARTUPCFG_SRC ] ; then
+		#########  Get DL Earfcn from startup.cfg file  #########
+        EARFCN=$(bb-getearfcn -d $LINK_DIRECTION -c $STARTUPCFG_SRC)
+		if [ $? -ne 0 ] ; then
+            echo "$0 - Error Get Earfcn: $EARFCN"
+            exit 1
+        fi
+	else
+		EARFCN=$(bb-getearfcn -d $LINK_DIRECTION)
+		if [ $? -ne 0 ] ; then
+            echo "$0 - Error Get Earfcn: $EARFCN"
+            exit 1
+        fi
+    fi
+fi
+
+#####  Convert DL Earfcn to TX Frequency and DL Band  #######
+if earfcn2freq $EARFCN -f 1>/dev/null 2>&1 ; then
+	if [ ! -z $GET_BAND ] ; then
+	    BAND=$(earfcn2freq $EARFCN -b)
+		echo ${BAND}
+    else
+	    FREQ=$(earfcn2freq $EARFCN -f)
+		echo ${FREQ}
+	fi
+else
+	echo "$0 - Warning: EARFCN to FREQ convertion failed"
+	exit 1
+fi

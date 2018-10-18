@@ -1,0 +1,47 @@
+#!/bin/sh
+
+source FE_Env
+
+usage()
+{
+    echo "Usage: $0 <ANT> <ATT>"
+    echo ""
+    echo "    Set Front-End TX attenuation"
+    echo ""
+    echo "    <ANT>     Antenna selection [1,2]"
+    echo "    <ATT>     Attenuation in quarter of dB [0..127]"
+    exit 1
+}
+
+if [ "$#" -ne 2 ]; then
+    >&2 usage
+fi
+
+if [ $1 -ne "1" ] && [ $1 -ne "2" ]; then
+    echo "$0 - Invalid antenna selection."
+    >&2 usage
+fi
+
+if [ $2 -lt "0" ] || [ $2 -gt "127" ]; then
+    echo "$0 - Attenuation out of range."
+    >&2 usage
+fi   
+
+
+if [ $1 -eq "1" ]; then
+	if [ -r ${TX0_PA_ATT} ]; then
+		echo $2 > ${TX0_PA_ATT}
+	else
+		echo "$0 - ERROR : TX0 PA ATT ${TX0_PA_ATT} is not detected"
+		exit 1
+	fi
+else
+	if [ -r ${TX1_PA_ATT} ]; then
+		echo $2 > ${TX1_PA_ATT}
+	else
+		echo "$0 - ERROR : TX1 PA ATT ${TX1_PA_ATT} is not detected"
+		exit 1
+	fi
+fi
+
+exit 0

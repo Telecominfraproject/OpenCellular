@@ -1,0 +1,107 @@
+#!/bin/sh
+
+STARTUPCFG_SRC_DEFAULT=/etc/startup.cfg
+
+usage(){
+  echo "Usage
+        $0 - Get Uplink or Downlink Earfcn from startup.cfg
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-d ul] [-c /mnt/app] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -d, --direction
+                Link direction [ul, dl]
+
+        -c, --config
+                (optional) Directory to get startup.cfg
+                Default directory /etc
+"
+    exit 1
+}
+
+#####  Get Variable Function from startup.cfg file  #####
+get_var(){
+	#echo result:
+	# 1. empty string
+	# 2. value or string
+	# 3. multiple line matched.
+
+	if [ $(grep "$1" $STARTUPCFG | sed -e "s/$1//" | wc -l) -le 1 ] ; then
+		echo $(grep "$1" $STARTUPCFG | sed -e "s/$1//" -e 's/\r//')
+	else
+		echo $1: multiple lines match
+		return 1
+	fi
+}
+
+if [ $# -le 0 ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -d | --direct)
+                shift
+                LINK_DIRECTION=$1
+                ;;
+            -c | --config)
+                shift
+                STARTUPCFG_SRC=$1/startup.cfg
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                >&2 usage
+                exit 1
+                ;;
+            * )
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+#################  Check and Get Arguments  #####################
+if [ -z "$LINK_DIRECTION" ]; then
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+fi
+
+#############  Check startup.cfg file  ##################
+if [ -z $STARTUPCFG_SRC ] ; then
+	STARTUPCFG_SRC=$STARTUPCFG_SRC_DEFAULT
+fi
+
+if [ ! -f $STARTUPCFG_SRC ] ; then
+	echo "$0 - Error: $STARTUPCFG_SRC not exist, exited..."
+	>&2 usage
+	exit 1
+fi
+
+STARTUPCFG=${STARTUPCFG_SRC}.tmp
+
+cp $STARTUPCFG_SRC $STARTUPCFG -v
+sed -i $STARTUPCFG -e 's/  */ /g' -e 's/\r//' -e's/ *$//g'  -e '/^ *$/d'
+
+if [ $LINK_DIRECTION == "dl" ]; then
+    #########  Get DL Earfcn from startup.cfg file  #########
+    EARFCN=$(get_var "configure cell u16dlcarrierfreq 0")
+
+elif [ $LINK_DIRECTION == "ul" ]; then
+    #########  Get UL Earfcn from startup.cfg file  #########
+    EARFCN=$(get_var "configure cell freq u16ulcarrierfreq 0")
+else
+    echo "$0 - Invalid link direction argument"
+    >&2 usage
+fi
+
+echo $EARFCN

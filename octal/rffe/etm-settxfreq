@@ -1,0 +1,31 @@
+#!/bin/sh
+
+source /tmp/system.conf
+
+B3_FREQ_MIN=$(expr 1805 + ${BW} / 2)
+B3_FREQ_MAX=$(expr 1880 - ${BW} / 2)
+
+usage()
+{
+	echo "usage: $0 <freq>"
+	echo "  <freq>     TX Frequency in MHz"
+	exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+	usage
+fi
+
+if [ $1 -lt ${B3_FREQ_MIN} ]; then
+	echo "Frequency is too low"
+	exit 1
+elif [ $1 -gt ${B3_FREQ_MAX} ]; then
+	echo "Frequency is too high"
+	exit 1
+fi
+
+oncpu 0 /usr/bin/cn_rfdriver << eof > /dev/null
+d
+$1
+q
+eof

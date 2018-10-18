@@ -1,0 +1,91 @@
+#!/bin/sh
+
+FREQ_LINE=1
+OUTPUT_POWER_LINE=2
+CAL_OFFSET_LINE=3
+CALIBRATION_FOLDER_DEFAULT="/tmp"
+
+source /tmp/system.conf
+
+usage()
+{
+    echo "Usage: $0 <ANT> <FRE> <POWER> <CAL_FOLDER(optional)>"
+    echo ""
+    echo "    Extract the Front-End RF-PAL Feedback attenuation settings from the calibration files."
+    echo ""
+    echo "    BW            BandWidth"
+    echo "    ANT           Antenna selection [1,2]"
+    echo "    FREQ          Frequency of BB TX"
+    echo "    POWER         TX Power (dBm)"
+    echo "    CAL_FOLDER    (optional)Calibration folder, default folder: /tmp"
+    exit 1
+}
+
+#################  Check and Get Arguments  #####################
+if [ "$#" -eq 5 ]; then
+    BW=$1
+    ANT=$2
+    TX_FREQ=$3
+    TX_POWER=$4
+    CAL_FOLDER=$5
+elif [ "$#" -eq 4 ]; then
+    BW=$1
+    ANT=$2
+    TX_FREQ=$3
+    TX_POWER=$4
+    CAL_FOLDER=$CALIBRATION_FOLDER_DEFAULT
+else
+    echo "$0 - Invalid number of argument $#"
+    >&2 usage
+fi
+
+##################  Get Calibaration file  ######################
+CAL_FNAME="$CAL_FOLDER/fefbatten_b3_${BW}_ant${ANT}.cal"
+
+#################  Check Calibaration file  #####################
+if [ ! -e ${CAL_FNAME} ]; then
+    echo "$0 - The file $CAL_FNAME not found!"
+    exit 1
+fi
+
+#################  Check Antenna Arguments  #####################
+if [ ${ANT} -ne "1" ] && [ ${ANT} -ne "2" ]; then
+    echo "$0 - Invalid antenna selection."
+    >&2 usage
+fi
+
+#####  Get supported Frequency from Calibration file  ###########
+FREQ_MIN=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 1)
+FREQ_STP=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 2)
+FREQ_MAX=$(sed -n ${FREQ_LINE}p $CAL_FNAME | cut -d " " -f 3)
+
+###############  Convert Decimal to Integer  ####################
+TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+
+###############  Check Frequency argument  ######################
+if [ ${TX_FREQ} -lt ${FREQ_MIN} ] || [ ${TX_FREQ} -gt ${FREQ_MAX} ]; then
+    echo "$0 - Invalid frequency, out of range."
+    >&2 usage
+fi
+
+#######  Get supported TX Power from Calibration file  ##########
+POWER_MIN=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 1)
+POWER_STP=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 2)
+POWER_MAX=$(sed -n ${OUTPUT_POWER_LINE}p $CAL_FNAME | cut -d " " -f 3)
+
+#################  Check TX Power argument  #####################
+if [ ${TX_POWER} -lt ${POWER_MIN} ] || [ ${TX_POWER} -gt ${POWER_MAX} ]; then
+    echo "$0 - Invalid TX Power, out of range."
+    >&2 usage
+fi
+
+##### Get Attenuation value postion from Frequency Axe  #########
+FRE_ARRAY_INDEX=$(expr $(expr $(expr ${TX_FREQ} - ${FREQ_MIN}) / ${FREQ_STP}) + 1)
+
+##### Get Attenuation value postion from TX Power Axe  ##########
+TX_POWER_ARRAY_INDEX=$(expr $(expr $(expr ${TX_POWER} - ${POWER_MIN}) / ${POWER_STP}) + ${CAL_OFFSET_LINE})
+
+################### Get Attenuation value########################
+ATT_TO_SET=$(sed -n "${TX_POWER_ARRAY_INDEX}"p $CAL_FNAME | cut -d " " -f ${FRE_ARRAY_INDEX})
+
+echo $ATT_TO_SET

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+source FE_Env
+
+usage()
+{
+    echo "Usage: $0 <ANT>"
+    echo ""
+    echo "    Get Front-End TX attenuation"
+    echo ""
+    echo "    <ANT>     Antenna selection [1,2]"
+    exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+    >&2 usage
+fi
+
+if [ $1 -ne "1" ] && [ $1 -ne "2" ]; then
+    echo "$0 - Invalid antenna selection."
+    >&2 usage
+fi
+
+
+if [ $1 -eq "1" ]; then
+    echo $(cat ${TX0_PA_ATT})
+else
+    echo $(cat ${TX1_PA_ATT})
+fi

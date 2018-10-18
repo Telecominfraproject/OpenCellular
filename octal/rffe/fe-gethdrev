@@ -1,0 +1,32 @@
+#!/bin/sh
+
+usage()
+{
+	echo "Usage: $0"
+	echo ""
+	echo "    Return the hardware revision"
+	echo ""
+	exit 1
+}
+
+if [ "$#" -gt 0 ]; then
+	case $1 in
+		-h | --help )
+			usage
+			exit
+			;;
+		* )
+			usage
+			exit 1
+	esac
+	shift
+fi
+
+if [ -r /sys/devices/soc.0/0.tip/fe_version_code ]; then
+	echo $(cat /sys/devices/soc.0/0.tip/fe_version_code);
+else
+	echo "$0 - ERROR hardware revision code is not detected"
+	exit 1
+fi
+
+exit 0

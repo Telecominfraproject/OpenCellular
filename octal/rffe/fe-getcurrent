@@ -1,0 +1,68 @@
+#!/bin/sh
+
+source FE_Env
+
+HW_REVISION=""
+DEVICE=""
+DEVICE_FILE=""
+
+usage()
+{
+	echo "Usage: $0 <Current Sensor>"
+	echo ""
+	echo "    Return the selected device current sensor value as mA"
+	echo ""
+	echo "    <Current Sensor>    Current Sensor selection [pa1, pa2]"
+	exit 1
+}
+
+if [ "$#" -ne 1 ]; then
+	>&2 usage
+	exit 1
+else
+	case $1 in
+		-h | --help )
+			usage
+			exit
+			;;
+		-r | --hdrev)
+			echo "Hardware revision support:"
+			for hdrev in $TX_PA_CURRENT_SENSOR_HW_REVISION_SUPPORT ; do
+				echo " Rev$hdrev"
+			done
+			exit
+			;;
+		pa1 | PA1)
+			DEVICE="TX0"
+			;;
+		pa2 | PA2)
+			DEVICE="TX1"
+			;;
+		* )
+			usage
+			exit 1
+	esac
+	shift
+fi
+
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+fi
+
+eval DEVICE_FILE=\$"REV${HW_REVISION}_${DEVICE}_PA_CURRENT_SENSOR_FILE"
+
+if [ -z $DEVICE_FILE ] ; then
+	echo "Hardware Rev $HW_REVISION is not supported."
+	exit 1
+fi
+
+if [ -r $DEVICE_FILE ]; then
+	echo $(cat $DEVICE_FILE);
+else
+	echo "$0 - ERROR : ${DEVICE} current sensor is not detected"
+	exit 1
+fi
+
+exit 0

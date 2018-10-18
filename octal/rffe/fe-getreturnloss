@@ -1,0 +1,191 @@
+#!/bin/sh
+
+
+
+STEP_CHANNEL_A_DEFAULT=15.7
+INTERCEPT_CHANNEL_A_DEFAULT=0
+
+STEP_CHANNEL_B_DEFAULT=15.7
+INTERCEPT_CHANNEL_B_DEFAULT=0
+
+RETURN_LOSS_MINIMUM=0.5
+
+RESULT_FORMAT="VSWR"
+
+usage(){
+  echo "Usage
+        $0 - Get return loss
+
+SYNOPSIS
+        $0 [OPTIONS Value] [-t 30] [-d] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -t, --tx
+                Channel of TX [1, 2]
+
+        -n, --number
+                Average sample number of ADC reading
+
+        -f, --format
+                Format of result
+                [VSWR] return VSWR
+                [VSWRm] return VSWR in milli (* 1000)
+                [RL]   return Return Loss in dB
+                [RLm]   return Return Loss in dB * 1000
+"
+    exit 1
+}
+
+if [ $# -le 0 ]; then
+    echo "Invalid number of argument $#"
+    >&2 usage
+else
+    while [ $# -gt 0 ] ; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 1
+                ;;
+            -t | --tx)
+                shift
+                TX_CHANNEL=$1
+                ;;
+            -n | --number)
+                shift
+                AVG_NUMBER=$1
+                ;;
+            -f | --format)
+                shift
+                RESULT_FORMAT=$1
+                ;;
+            -* | --*)
+                echo "No option: $1"
+                >&2 usage
+                exit 1
+                ;;
+            * )
+                >&2 usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+fi
+
+if [ -z $TX_CHANNEL ]; then
+    echo "Please set TX channel."
+    >&2 usage
+elif [ $TX_CHANNEL -ne "1" ] && [ $TX_CHANNEL -ne "2" ]; then
+    echo "Invalid TX channel parameter!"
+	exit 1
+fi
+
+if [ -z $AVG_NUMBER ]; then
+	AVG_NUMBER=1;
+fi
+
+somA=0
+somP=0
+somN=0
+somB=0
+number=$AVG_NUMBER
+i=1
+while [ "$i" -le "$number" ]; do
+	A=$(fe-getreversvalue -t $TX_CHANNEL -c A)
+	if [ $? -ne 0 ] ; then
+		echo "$0 - Error Get channel A revers value"
+		exit 1
+	fi
+	P=$(fe-getreversvalue -t $TX_CHANNEL -c P)
+	if [ $? -ne 0 ] ; then
+		echo "$0 - Error Get channel P revers value"
+		exit 1
+	fi
+	N=$(fe-getreversvalue -t $TX_CHANNEL -c N)
+	if [ $? -ne 0 ] ; then
+		echo "$0 - Error Get channel N revers value"
+		exit 1
+	fi
+	B=$(fe-getreversvalue -t $TX_CHANNEL -c B)
+	if [ $? -ne 0 ] ; then
+		echo "$0 - Error Get channel B revers value"
+		exit 1
+	fi
+	i=$(($i + 1))
+	somA=$(($somA+$A))
+	somP=$(($somP+$P))
+	somN=$(($somN+$N))
+	somB=$(($somB+$B))
+	sleep 0.1
+done
+
+meanA=$(echo ${somA} ${number} | awk '{mean=($1/$2); printf"%0.02f\n", mean }')
+meanP=$(echo ${somP} ${number} | awk '{mean=($1/$2); printf"%0.02f\n", mean }')
+meanN=$(echo ${somN} ${number} | awk '{mean=($1/$2); printf"%0.02f\n", mean }')
+meanB=$(echo ${somB} ${number} | awk '{mean=($1/$2); printf"%0.02f\n", mean }')
+
+#echo "A: $meanA; P: $meanP; N: $meanN; B: $meanB"
+
+stepA=${STEP_CHANNEL_A_DEFAULT}
+stepB=${STEP_CHANNEL_B_DEFAULT}
+intA=${INTERCEPT_CHANNEL_A_DEFAULT}
+intB=${INTERCEPT_CHANNEL_B_DEFAULT}
+
+meanAdb=$(echo ${meanA} ${intA} ${stepA}  | awk '{mean=(($1-$2)/$3); printf"%0.02f\n", mean }')
+meanBdb=$(echo ${meanB} ${intB} ${stepB}  | awk '{mean=(($1-$2)/$3); printf"%0.02f\n", mean }')
+MEAN_RETURN_LOSS=$(echo ${meanAdb} ${meanBdb} | awk '{diff=($1-$2); printf"%0.02f\n", diff }')
+
+MEAN_VSWR=$(echo ${MEAN_RETURN_LOSS} ${RETURN_LOSS_MINIMUM} | awk '{
+	if ($1 < $2)
+		$1 = $2;
+	vswr=((1+10^(-$1/20))/(1-10^(-$1/20)));
+	printf"%0.02f\n", vswr;}')
+
+
+if [ $RESULT_FORMAT == "test" ]; then
+
+	Adb=$(echo ${A} ${intA} ${stepA}  | awk '{mean=(($1-$2)/$3); printf"%0.02f\n", mean }')
+	Bdb=$(echo ${B} ${intB} ${stepB}  | awk '{mean=(($1-$2)/$3); printf"%0.02f\n", mean }')
+	LAST_RETURN_LOSS=$(echo ${Adb} ${Bdb} | awk '{diff=($1-$2); printf"%0.02f\n", diff }')
+	LAST_VSWR=$(echo ${LAST_RETURN_LOSS} ${RETURN_LOSS_MINIMUM} | awk '{
+	if ($1 < $2)
+		$1 = $2;
+	vswr=((1+10^(-$1/20))/(1-10^(-$1/20)));
+	printf"%0.02f\n", vswr;}')
+
+	echo "Last read value:
+	Channel A	: ${A}
+	Channel P	: ${P}
+	Channel N	: ${N}
+	Channel B	: ${B}
+
+	Return Loss	: ${LAST_RETURN_LOSS} dB
+	VSWR		: ${LAST_VSWR}
+
+Average Value: (number = ${AVG_NUMBER}):
+	Channel A	: ${meanA}
+	Channel P	: ${meanP}
+	Channel N	: ${meanN}
+	Channel B	: ${meanB}
+
+	Return Loss	: ${MEAN_RETURN_LOSS} dB
+	VSWR		: ${MEAN_VSWR}"
+elif [ $RESULT_FORMAT == "VSWR" ] || [ $RESULT_FORMAT == "vswr" ]; then
+	echo "${MEAN_VSWR}"
+elif [ $RESULT_FORMAT == "VSWRm" ] || [ $RESULT_FORMAT == "vswrm" ]; then
+	MEAN_VSWRm=$(echo ${MEAN_VSWR} | awk '{VSWRm=$1*1000; printf"%d\n", VSWRm }')
+	echo "${MEAN_VSWRm}"
+elif [ $RESULT_FORMAT == "RL" ] || [ $RESULT_FORMAT == "rl" ]; then
+	echo "${MEAN_RETURN_LOSS}"
+elif [ $RESULT_FORMAT == "RLm" ] || [ $RESULT_FORMAT == "rlm" ]; then
+	MEAN_RETURN_LOSS_m=$(echo ${MEAN_RETURN_LOSS} | awk '{RLm=$1*1000; printf"%d\n", RLm }')
+	echo "${MEAN_RETURN_LOSS_m}"
+else
+	echo "Result format not support!"
+	exit 1
+fi
+
+

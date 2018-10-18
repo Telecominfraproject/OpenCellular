@@ -1,0 +1,601 @@
+#!/bin/sh
+
+VERSION=1.3
+
+HW_REVISION_SUPPORTED="A D E"
+
+periodCheckAlert=15 #seconds,  period to check alert
+periodReadjustTx=300 #seconds, period to readjust tx attenuation
+PERIOD_CHECK_CELL_STATE=300 #seconds, period to readjust tx attenuation
+
+EEPROM="/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051/eeprom"
+
+##########Optional Function##########
+checkVswrTx1=0	# 1 to enable, 0 to disable
+checkVswrTx2=0	# 1 to enable, 0 to disable
+
+########## Threshold       ##########
+tempPa1Max=85000	# mC
+tempPa1Min=1000	# mC
+tempPa2Max=85000	# mC
+tempPa2Min=1000	# mC
+tempFeMax=85000		# mC
+tempFeMin=1000		# mC
+tempLedMax=85000	# mC
+tempLedMin=1000	# mC
+
+currentPa1Max=400	#mA
+currentPa2Max=400	#mA
+
+txPowerActiveLevelAdcValueMin=500	# 20dBm
+
+vswrWarningLevelMin=4500	#4.50 * 1000 = 4500
+vswrOpenLevelMin=7000		#7.00 * 1000 = 7000
+
+##########  Private Value  ##########
+STATE_TX_IDLE=0
+STATE_TX_ACTIVE=1
+VSWR_TX_OK=0
+VSWR_TX_WARNING=1
+VSWR_TX_OPEN=2
+ALERT_CODE_OK=0
+ALERT_CODE_HIGHT_TEMP=1
+ALERT_CODE_LOW_TEMP=2
+ALERT_CODE_HIGHT_CURRENT=3
+CELL_STATE_UP=0
+CELL_STATE_IDLE=1
+CELL_STATE_UNKNOWN=2
+LED_COLOR_OFF=0
+LED_COLOR_GREEN=1
+LED_COLOR_RED=2
+LED_COLOR_ORANGE=3
+
+flagStateTx1=$STATE_TX_IDLE
+flagStateTx2=$STATE_TX_IDLE
+flagVswrTx1=$VSWR_TX_OK
+flagVswrTx2=$VSWR_TX_OK
+flagAlertPa1=$ALERT_CODE_OK
+flagAlertPa2=$ALERT_CODE_OK
+flagAlertFe=$ALERT_CODE_OK
+flagAlertLed=$ALERT_CODE_OK
+
+flagAlerts=$ALERT_CODE_OK
+stateCell=$CELL_STATE_IDLE
+
+ledboardColor=$LED_COLOR_OFF
+
+counterReadjustTxPower=0
+counterCellStateCheck=0
+
+
+SYSCFG_FILE_NAME=system.conf
+SYSCFG_DIR=
+SYSCFG_DIR_DEFAULT=/tmp
+CALFILES_DIR=
+CALFILES_DIR_DEFAULT=/tmp
+
+TX_POWER=
+TX_BW=
+TX_POWER_DEFAULT=30
+
+OP_MODE=
+
+LOG_LEVEL_EMERGENCY=0
+LOG_LEVEL_ALERT=1
+LOG_LEVEL_CRITICAL=2
+LOG_LEVEL_ERROR=3
+LOG_LEVEL_WARNING=4
+LOG_LEVEL_NOTICE=5
+LOG_LEVEL_INFORMATIONAL=6
+LOG_LEVEL_DEBUG=7
+
+
+##########  LOG Variable  ###########
+LOG_PATH="/var/log/fe.log"
+LOG_SIZE_MAX=10000		# Max log file size in byte
+LOG_LEVEL_MAX=$LOG_LEVEL_NOTICE
+LOG_MESSAGE_SHOW_STDOUT=YES		#YES or NO
+
+# log (Severity Level, Message)
+# Severity Level: EMERGENCY, ALERT, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFORMATIONAL, DEBUG
+log(){
+	if [ $1 -gt $LOG_LEVEL_MAX ]; then
+		continue
+	else
+		case "$1" in
+		$LOG_LEVEL_EMERGENCY)
+		   log_level="EMERGENCY"
+		   ;;
+		$LOG_LEVEL_ALERT)
+		   log_level="ALERT"
+		   ;;
+		$LOG_LEVEL_CRITICAL)
+		   log_level="CRITICAL"
+		   ;;
+		$LOG_LEVEL_ERROR)
+		   log_level="ERROR"
+		   ;;
+		$LOG_LEVEL_WARNING)
+		   log_level="WARNING"
+		   ;;
+		$LOG_LEVEL_NOTICE)
+		   log_level="NOTICE"
+		   ;;
+		$LOG_LEVEL_INFORMATIONAL)
+		   log_level="INFORMATIONAL"
+		   ;;
+		$LOG_LEVEL_DEBUG)
+		   log_level="DEBUG"
+		   ;;
+		*)
+			echo "`date '+%Y-%m-%d %H:%M:%S'` "."FE.ERROR : $0 - Log Level Error. Message - $2" >> $LOG_PATH
+
+			if [ "$LOG_MESSAGE_SHOW_STDOUT" == "YES" ]; then
+				printf "`date '+%Y-%m-%d %H:%M:%S'` "."FE.ERROR : $0 - Log Level Error. Message - $2\n\r"
+			fi
+
+			exit 1
+			;;
+		esac
+
+		echo "`date '+%Y-%m-%d %H:%M:%S'` "."FE.$log_level : $0 - $2" >> $LOG_PATH
+
+		if [ "$LOG_MESSAGE_SHOW_STDOUT" == "YES" ]; then
+			printf "`date '+%Y-%m-%d %H:%M:%S'` "."FE.$log_level : $0 - $2\n\r"
+		fi
+
+		size_byte=$(stat -c%s $LOG_PATH)
+		if [ $size_byte -gt $LOG_SIZE_MAX ]; then
+			sed -i '1d;' $LOG_PATH
+		fi
+	fi
+}
+
+usage(){
+	echo "Usage
+        $0 - FE control daemon Verson $VERSION
+
+SYNOPSIS
+        $0 [OPTIONS] [OPTIONS Value] [-b 10] [-c /etc] ...
+
+DESCRIPTION
+        -h, --help
+                Print this messages
+
+        -m MODE, --mode MODE
+                (optional)Support mode :	e2e (default mode)
+											pltd
+
+        -t FREQ, --txfreq FREQ
+                (pltd Mode only) TX Frequency
+
+        -p POW, --txpower POW
+                (pltd Mode only) TX Power (dBm)
+                Default power : 30dBm
+
+        -s FILE, --syscofig FILE
+                (pltd Mode only, optional) Directory to get system.conf
+                Default directory /tmp
+
+        -c PATH, --calfiles PATH
+                (pltd Mode only, optional) Specify directory to get calibration files
+
+        -v, --version
+                Return fe-manager script version
+
+        -r, --hdrev
+                Return hardware revision supported
+"
+	exit 1
+}
+
+log $LOG_LEVEL_NOTICE "fe-manger V$VERSION start"
+
+while [ $# -gt 0 ] ; do
+	case "$1" in
+	-h | --help)
+		usage
+		exit 1
+		;;
+	-m | --mode)
+		shift;
+		OP_MODE="$1"
+		;;
+	-t | --txfreq)
+		shift;
+		TX_FREQ="$1"
+		;;
+	-p | --txpower)
+		shift;
+		TX_POWER="$1"
+		;;
+	-s | --sysconfig)
+		shift
+		SYSCFG_DIR=$1
+		;;
+	-c | --calfiles)
+		shift
+		CALFILES_DIR=$1
+		;;
+	-v | --version)
+		echo "fe-manager version $VERSION"
+		exit
+		;;
+	-r | --hdrev)
+		echo "Hardware revision support:"
+		for hdrev in $HW_REVISION_SUPPORTED ; do
+			echo " Rev$hdrev"
+		done
+		exit
+		;;
+	-* | --*)
+		echo "$0 - No option: $1"
+		>&2 usage
+		log $LOG_LEVEL_ERROR "No option: $1"
+		exit 1
+		;;
+	*)
+		usage
+		exit 1
+		;;
+	esac
+	shift
+done
+
+
+
+####################  Source system.conf  #######################
+if [ ! -z $SYSCFG_DIR ] ; then
+	if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
+		source "$SYSCFG_DIR/$SYSCFG_FILE_NAME"
+	else
+		log $LOG_LEVEL_EMERGENCY "can't stat system.conf file : No such file or directory"
+		exit 1
+	fi
+elif [ -f $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME ] ; then
+	source $SYSCFG_DIR_DEFAULT/$SYSCFG_FILE_NAME
+else
+	log $LOG_LEVEL_EMERGENCY "can't stat system.conf file : No such file or directory"
+	exit 1
+fi
+
+####################  Check System Mode  ########################
+if [ -z $OP_MODE ] ; then
+	OP_MODE=${MODE}
+fi
+
+####################  VSWR Check Option  ########################
+if [ ! -z ${FE_MANAGER_CHECK_VSWR_TX1} ] ; then
+	if [ ${FE_MANAGER_CHECK_VSWR_TX1} -eq 0 ] ; then
+		checkVswrTx1=0
+	else
+		checkVswrTx1=1
+	fi
+fi
+
+if [ ! -z ${FE_MANAGER_CHECK_VSWR_TX2} ] ; then
+	if [ ${FE_MANAGER_CHECK_VSWR_TX2} -eq 0 ] ; then
+		checkVswrTx2=0
+	else
+		checkVswrTx2=1
+	fi
+fi
+
+#######################  Check TX Power  ########################
+if [ -z $TX_POWER ] ; then
+	TX_POWER=${TX_POWER_DEFAULT}
+fi
+
+loop()
+{
+	while [ true ]
+	do
+		#########  Get Stat  ################
+		if [ ${OP_MODE} == "e2e" ] ; then
+			STATE=$(get_stat.sh state)
+			if [ $? = 0 ];then
+				if [ "$STATE" == "ENABLE" ];then
+					PERIOD_CHECK_CELL_STATE=0
+					stateCell=$CELL_STATE_UP;
+				elif [ "$STATE" == "IDLE" ];then
+					PERIOD_CHECK_CELL_STATE=0
+					stateCell=$CELL_STATE_IDLE
+				else
+					counterCellStateCheck=$(expr $counterCellStateCheck + $periodCheckAlert)
+					if [ $counterCellStateCheck -ge $PERIOD_CHECK_CELL_STATE ]; then
+						PERIOD_CHECK_CELL_STATE=0
+						stateCell=$CELL_STATE_UNKNOWN
+					fi
+				fi
+			else
+				log $LOG_LEVEL_CRITICAL "could not get cell stats. Check that another ccli is not running"
+				stateCell=0
+			fi
+		elif [ ${OP_MODE} == "pltd" ] ; then
+			stateCell=$CELL_STATE_UP;
+		fi
+
+		########## Get Temperature ##########
+		tempPa1=$(fe-gettemperature  pa1)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get PA 1 temperature"
+			exit 1
+		fi
+		tempPa2=$(fe-gettemperature  pa2)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get PA 2 temperature"
+			exit 1
+		fi
+		tempFe=$(fe-gettemperature  fe)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get Front-End temperature"
+			exit 1
+		fi
+		tempLed=$(fe-gettemperature  led)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get LED Board temperature"
+			exit 1
+		fi
+
+		########## Get Current ##############
+		currentPa1=$(fe-getcurrent  pa1)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get PA1 current"
+			exit 1
+		fi
+		currentPa2=$(fe-getcurrent  pa2)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get PA2 current"
+			exit 1
+		fi
+
+
+		########## Get TX ADC Value ##############
+		adcValueTx1=$(fe-gettxpower -t 1 -f ADC)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get TX 1 ADC value"
+			exit 1
+		fi
+		adcValueTx2=$(fe-gettxpower -t 2 -f ADC)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get TX 2 ADC value"
+			exit 1
+		fi
+
+		########## Get TX VSWR ##############
+		vswrmValueTx1=$(fe-getreturnloss -t 1 -n 2 -f vswrm)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get TX 1 return loss"
+			exit 1
+		fi
+		vswrmValueTx2=$(fe-getreturnloss -t 2 -n 2 -f vswrm)
+		if [ $? -ne 0 ] ; then
+			log $LOG_LEVEL_EMERGENCY "could not get TX 2 return loss"
+			exit 1
+		fi
+
+
+		#####################################
+		#########    Update Flag	#########
+		#####################################
+
+		#********		PA 1		********#
+		if [ $tempPa1 -gt $tempPa1Max ]; then
+			flagAlertPa1=$ALERT_CODE_HIGHT_TEMP
+			log $LOG_LEVEL_ALERT "PA 1 High Temp : $tempPa1 mC"
+		elif [ $tempPa1 -lt $tempPa1Min ]; then
+			flagAlertPa1=$ALERT_CODE_LOW_TEMP
+			log $LOG_LEVEL_ALERT "PA 1 Low Temp : $tempPa1 mC"
+		elif [ $currentPa1 -gt $currentPa1Max ]; then
+			flagAlertPa1=$ALERT_CODE_HIGHT_CURRENT
+			log $LOG_LEVEL_ALERT "PA 1 High Current : $currentPa1 mA"
+		else
+			flagAlertPa1=$ALERT_CODE_OK
+		fi
+
+		#********		PA 2		********#
+		if [ $tempPa2 -gt $tempPa2Max ]; then
+			flagAlertPa2=$ALERT_CODE_HIGHT_TEMP
+			log $LOG_LEVEL_ALERT "PA 2 High Temp : $tempPa2 mC "
+		elif [ $tempPa2 -lt $tempPa2Min ]; then
+			flagAlertPa2=$ALERT_CODE_LOW_TEMP
+			log $LOG_LEVEL_ALERT "PA 2 Low Temp : $tempPa2 mC"
+		elif [ $currentPa2 -gt $currentPa2Max ]; then
+			flagAlertPa2=$ALERT_CODE_HIGHT_CURRENT
+			log $LOG_LEVEL_ALERT "PA 2 High Current : $currentPa2 mA"
+		else
+			flagAlertPa2=$ALERT_CODE_OK
+		fi
+		#********		TX 1		********#
+		if [ $adcValueTx1 -gt $txPowerActiveLevelAdcValueMin ]; then
+			flagStateTx1=$STATE_TX_ACTIVE
+		else
+			flagStateTx1=$STATE_TX_IDLE
+		fi
+
+		if [ $vswrmValueTx1 -gt $vswrOpenLevelMin ]; then
+			flagVswrTx1=$VSWR_TX_OPEN
+		elif [ $vswrmValueTx1 -gt $vswrWarningLevelMin ]; then
+			flagVswrTx1=$VSWR_TX_WARNING
+		else
+			flagVswrTx1=$VSWR_TX_OK
+		fi
+
+
+		#********		TX 2		********#
+		if [ $adcValueTx2 -gt $txPowerActiveLevelAdcValueMin ]; then
+			flagStateTx2=$STATE_TX_ACTIVE
+		else
+			flagStateTx2=$STATE_TX_IDLE
+		fi
+
+		if [ $vswrmValueTx2 -gt $vswrOpenLevelMin ]; then
+			flagVswrTx2=$VSWR_TX_OPEN
+		elif [ $vswrmValueTx2 -gt $vswrWarningLevelMin ]; then
+			flagVswrTx2=$VSWR_TX_WARNING
+		else
+			flagVswrTx2=$VSWR_TX_OK
+		fi
+
+		#********		FE		********#
+		if [ $tempFe -gt $tempFeMax ]; then
+			flagAlertFe=$ALERT_CODE_HIGHT_TEMP
+			log $LOG_LEVEL_ALERT "FE High Temp : $tempFe mC"
+		elif [ $tempFe -lt $tempFeMin ]; then
+			flagAlertFe=$ALERT_CODE_LOW_TEMP
+			log $LOG_LEVEL_ALERT "FE Low Temp : $tempFe mC"
+		else
+			flagAlertFe=$ALERT_CODE_OK
+		fi
+
+		#********		LED		********#
+		if [ $tempLed -gt $tempLedMax ]; then
+			flagAlertLed=$ALERT_CODE_HIGHT_TEMP
+			log $LOG_LEVEL_ALERT "LED High Temp : $tempLed mC"
+		elif [ $tempLed -lt $tempLedMin ]; then
+			flagAlertLed=$ALERT_CODE_LOW_TEMP
+			log $LOG_LEVEL_ALERT "LED Low Temp : $tempLed mC"
+		else
+			flagAlertLed=$ALERT_CODE_OK
+		fi
+
+		#********	ALERT Flag	********#
+		if [ $flagAlertPa1 -ne 0 -o $flagAlertPa2 -ne 0 -o $flagAlertFe -ne 0 -o $flagAlertLed -ne 0 ] ; then
+			flagAlerts=$ALERT_CODE_HIGHT_TEMP
+		else
+			flagAlerts=$ALERT_CODE_OK
+		fi
+
+
+		#####################################
+		#########    Flag Action    #########
+		#####################################
+
+		#********	  Cell State	********#
+		if [ $stateCell -ne $CELL_STATE_UP ] ; then
+			log $LOG_LEVEL_WARNING "Cell is Down! Turn on Red LED!"
+			ledboardColor=$LED_COLOR_RED
+		else
+			ledboardColor=$LED_COLOR_GREEN
+		fi
+		#********		Alert		********#
+		if [ $flagAlerts -ne $ALERT_CODE_OK ] ; then
+			log $LOG_LEVEL_WARNING "Alert! Turn on Orange LED!"
+			ledboardColor=$LED_COLOR_ORANGE
+
+			if [ $flagAlertPa1 -eq $ALERT_CODE_HIGHT_CURRENT ] ; then
+				fe-devicecontrol -PA1 off
+				if [ $? -ne 0 ] ; then
+					log $LOG_LEVEL_CRITICAL "Could not turn off PA1 : fe-devicecontrol faillure"
+					exit 1
+				fi
+				log $LOG_LEVEL_ALERT "PA1 Turn off"
+			fi
+
+			if [ $flagAlertPa2 -eq $ALERT_CODE_HIGHT_CURRENT ] ; then
+				fe-devicecontrol -PA2 off
+				if [ $? -ne 0 ] ; then
+					log $LOG_LEVEL_CRITICAL "Could not turn off PA2 : fe-devicecontrol faillure"
+					exit 1
+				fi
+				log $LOG_LEVEL_ALERT "PA2 Turn off"
+			fi
+		fi
+
+		#********	  	VSWR		********#
+		if [ $checkVswrTx1 -eq 1 ] ; then
+			if [ $flagStateTx1 -eq $STATE_TX_ACTIVE ] ; then
+				if [ $flagVswrTx1 -eq $VSWR_TX_WARNING ] ; then
+					log $LOG_LEVEL_WARNING "TX 1 VSWR High : $flagVswrTx1"
+				elif [ $flagVswrTx1 -eq $VSWR_TX_OPEN ] ; then
+					ledboardColor=$LED_COLOR_ORANGE
+					log $LOG_LEVEL_ALERT "TX 1 lost antenna, VSWR : $flagVswrTx1"
+				fi
+			fi
+		fi
+		if [ $checkVswrTx2 -eq 1 ] ; then
+			if [ $flagStateTx2 -eq $STATE_TX_ACTIVE ] ; then
+				if [ $flagVswrTx2 -eq $VSWR_TX_WARNING ] ; then
+					log $LOG_LEVEL_WARNING "TX 2 VSWR High : $flagVswrTx1"
+				elif [ $flagVswrTx2 -eq $VSWR_TX_OPEN ] ; then
+					ledboardColor=$LED_COLOR_ORANGE
+					log $LOG_LEVEL_ALERT "TX 2 lost antenna, VSWR : $flagVswrTx1"
+				fi
+			fi
+		fi
+
+		#********	Set LED Color	********#
+		if [ ${ledboardColor} -eq ${LED_COLOR_ORANGE} ]; then
+			fe-setled orange on
+			if [ $? -ne 0 ] ; then
+				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set orange color"
+				exit 1
+			fi
+		elif [ ${ledboardColor} -eq ${LED_COLOR_RED} ]; then
+			fe-setled red on
+			if [ $? -ne 0 ] ; then
+				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set red color"
+				exit 1
+			fi
+		elif [ ${ledboardColor} -eq ${LED_COLOR_GREEN} ]; then
+			fe-setled green on
+			if [ $? -ne 0 ] ; then
+				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set green color"
+				exit 1
+			fi
+		fi
+
+		#********	  Readjust TX	********#
+		if [ $counterReadjustTxPower -ge $periodReadjustTx ]; then
+			counterReadjustTxPower=0
+			if [ ${OP_MODE} == "e2e" ] ; then
+				fe-readjusttxatt
+			elif [ ${OP_MODE} == "pltd" ] ; then
+				fe-readjusttxatt --txfreq ${TX_FREQ} --calfiles $CALFILES_DIR
+			fi
+			if [ $? -ne 0 ] ; then
+				log $LOG_LEVEL_CRITICAL "fe-readjusttxatt faillure"
+				exit 1
+			fi
+			log $LOG_LEVEL_INFORMATIONAL "Readjust TX Att"
+		fi
+
+		#########  Sleep 15 Seconds #########
+		sleep $periodCheckAlert
+		counterReadjustTxPower=$(expr $counterReadjustTxPower + $periodCheckAlert)
+
+
+		#########  Restart          #########
+	done
+}
+if [ ${OP_MODE} == "e2e" ] || [ -z $CALFILES_DIR ]; then
+	CALFILES_DIR=$CALFILES_DIR_DEFAULT
+	caleepromtool -E $EEPROM -p $CALFILES_DIR -l ERROR -r -b ${BW} > /dev/null
+	if [ $? -ne 0 ] ; then
+		log $LOG_LEVEL_CRITICAL "Could not extract FE calibration files"
+		exit 1
+	fi
+fi
+
+
+if [ ${OP_MODE} == "e2e" ] ; then
+	e2e-enablefe
+	if [ $? -ne 0 ] ; then
+		log $LOG_LEVEL_CRITICAL "Could not start e2e-enablefe"
+		exit 1
+	fi
+elif [ ${OP_MODE} == "pltd" ] ; then
+	if [ -z $TX_FREQ ] ; then
+		log $LOG_LEVEL_ERROR "Could not start pltd-enablefe. Please set TX Frequency"
+		exit 1
+	fi
+	TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+	pltd-enablefe -t ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR
+	if [ $? -ne 0 ] ; then
+		echo "$0 - Error start pltd-enablefe"
+		log $LOG_LEVEL_CRITICAL "Could not start pltd-enablefe"
+		exit 1
+	fi
+fi
+
+loop
