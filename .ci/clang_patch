@@ -8,7 +8,6 @@ git diff > clang_format.patch
 # Delete if 0 size and exit with 0
 if [ ! -s clang_format.patch ]
 then
-    rm clang_format.patch
     exit 0
 fi
 

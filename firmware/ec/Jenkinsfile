@@ -1,28 +1,40 @@
 node {
   currentBuild.result = 'SUCCESS'
-    withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi"]) {
-      try {
-          stage('Checkout') {
-            step([$class: 'WsCleanup'])
-            echo 'Checking out SCM'
-            checkout scm
-          }
+    withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi", "OCWARE_DIR=./"]) {
+      stage('Checkout') {
+        step([$class: 'WsCleanup'])
+        echo 'Checking out SCM'
+        checkout scm
+      }
 
+      try {
           stage('Static Analysis') {
-              sh 'bash .ci/clang_patch'
+              dir ('firmware/ec') { sh 'bash ../../.ci/clang_patch' }
           }
+      } catch (err) {
+          currentBuild.result = 'ERROR'
+      } finally {
+        archiveArtifacts '**/clang_format.patch'
+      }
             
+      try {
           stage('Unit Test') {
               dir ("firmware/ec/test"){ sh 'make ci' }
           }
+      } catch (err) {
+          currentBuild.result = 'FAILURE'
+      } finally {
+        junit 'firmware/ec/test/build/results/unit-test-results.xml'
+      }
           
+      try {
           stage('Firmware Build') {
-            dir ('firmware/ec') { sh 'make all' }
+            dir ('firmware/ec') { sh 'make clean all' }
           }
-
       } catch (err) {
         currentBuild.result = 'FAILURE'
-        throw err
-      }
+      } finally {
+        warnings consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']]
+      } 
     }
 }
