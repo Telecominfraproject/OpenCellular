@@ -5,7 +5,8 @@ VERSION=1.3
 HW_REVISION_SUPPORTED="A D E"
 
 periodCheckAlert=15 #seconds,  period to check alert
-periodReadjustTx=300 #seconds, period to readjust tx attenuation
+#FIXME periodReadjustTx default is 300, changed to 10 for testing
+periodReadjustTx=10 #seconds, period to readjust tx attenuation
 PERIOD_CHECK_CELL_STATE=300 #seconds, period to readjust tx attenuation
 
 EEPROM="/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051/eeprom"
@@ -244,6 +245,7 @@ done
 
 
 
+TX_FREQ_ARG=${TX_FREQ}
 ####################  Source system.conf  #######################
 if [ ! -z $SYSCFG_DIR ] ; then
 	if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
@@ -259,6 +261,9 @@ else
 	exit 1
 fi
 
+if [ ! -z ${TX_FREQ_ARG} ] ; then
+	TX_FREQ=${TX_FREQ_ARG}
+fi
 ####################  Check System Mode  ########################
 if [ -z $OP_MODE ] ; then
 	OP_MODE=${MODE}
@@ -332,10 +337,11 @@ loop()
 			exit 1
 		fi
 		tempLed=$(fe-gettemperature  led)
-		if [ $? -ne 0 ] ; then
-			log $LOG_LEVEL_EMERGENCY "could not get LED Board temperature"
-			exit 1
-		fi
+		#FIXME commenting out LED for now
+		#if [ $? -ne 0 ] ; then
+		#	log $LOG_LEVEL_EMERGENCY "could not get LED Board temperature, NO EXIT"
+		#	#exit 1
+		#fi
 
 		########## Get Current ##############
 		currentPa1=$(fe-getcurrent  pa1)
@@ -448,16 +454,17 @@ loop()
 			flagAlertFe=$ALERT_CODE_OK
 		fi
 
+		#FIXME commenting out LED for now
 		#********		LED		********#
-		if [ $tempLed -gt $tempLedMax ]; then
-			flagAlertLed=$ALERT_CODE_HIGHT_TEMP
-			log $LOG_LEVEL_ALERT "LED High Temp : $tempLed mC"
-		elif [ $tempLed -lt $tempLedMin ]; then
-			flagAlertLed=$ALERT_CODE_LOW_TEMP
-			log $LOG_LEVEL_ALERT "LED Low Temp : $tempLed mC"
-		else
-			flagAlertLed=$ALERT_CODE_OK
-		fi
+		#if [ $tempLed -gt $tempLedMax ]; then
+		#	flagAlertLed=$ALERT_CODE_HIGHT_TEMP
+		#	log $LOG_LEVEL_ALERT "LED High Temp : $tempLed mC"
+		#elif [ $tempLed -lt $tempLedMin ]; then
+		#	flagAlertLed=$ALERT_CODE_LOW_TEMP
+		#	log $LOG_LEVEL_ALERT "LED Low Temp : $tempLed mC"
+		#else
+		#	flagAlertLed=$ALERT_CODE_OK
+		#fi
 
 		#********	ALERT Flag	********#
 		if [ $flagAlertPa1 -ne 0 -o $flagAlertPa2 -ne 0 -o $flagAlertFe -ne 0 -o $flagAlertLed -ne 0 ] ; then
@@ -474,14 +481,16 @@ loop()
 		#********	  Cell State	********#
 		if [ $stateCell -ne $CELL_STATE_UP ] ; then
 			log $LOG_LEVEL_WARNING "Cell is Down! Turn on Red LED!"
-			ledboardColor=$LED_COLOR_RED
-		else
-			ledboardColor=$LED_COLOR_GREEN
+		#FIXME commenting out LED for now
+		#	ledboardColor=$LED_COLOR_RED
+		#else
+		#	ledboardColor=$LED_COLOR_GREEN
 		fi
 		#********		Alert		********#
 		if [ $flagAlerts -ne $ALERT_CODE_OK ] ; then
 			log $LOG_LEVEL_WARNING "Alert! Turn on Orange LED!"
-			ledboardColor=$LED_COLOR_ORANGE
+		#FIXME commenting out LED for now
+		#	ledboardColor=$LED_COLOR_ORANGE
 
 			if [ $flagAlertPa1 -eq $ALERT_CODE_HIGHT_CURRENT ] ; then
 				fe-devicecontrol -PA1 off
@@ -508,7 +517,8 @@ loop()
 				if [ $flagVswrTx1 -eq $VSWR_TX_WARNING ] ; then
 					log $LOG_LEVEL_WARNING "TX 1 VSWR High : $flagVswrTx1"
 				elif [ $flagVswrTx1 -eq $VSWR_TX_OPEN ] ; then
-					ledboardColor=$LED_COLOR_ORANGE
+					#FIXME commenting out LED for now
+					#ledboardColor=$LED_COLOR_ORANGE
 					log $LOG_LEVEL_ALERT "TX 1 lost antenna, VSWR : $flagVswrTx1"
 				fi
 			fi
@@ -518,32 +528,34 @@ loop()
 				if [ $flagVswrTx2 -eq $VSWR_TX_WARNING ] ; then
 					log $LOG_LEVEL_WARNING "TX 2 VSWR High : $flagVswrTx1"
 				elif [ $flagVswrTx2 -eq $VSWR_TX_OPEN ] ; then
-					ledboardColor=$LED_COLOR_ORANGE
+					#FIXME commenting out LED for now
+					#ledboardColor=$LED_COLOR_ORANGE
 					log $LOG_LEVEL_ALERT "TX 2 lost antenna, VSWR : $flagVswrTx1"
 				fi
 			fi
 		fi
 
+		#FIXME commenting out LED for now
 		#********	Set LED Color	********#
-		if [ ${ledboardColor} -eq ${LED_COLOR_ORANGE} ]; then
-			fe-setled orange on
-			if [ $? -ne 0 ] ; then
-				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set orange color"
-				exit 1
-			fi
-		elif [ ${ledboardColor} -eq ${LED_COLOR_RED} ]; then
-			fe-setled red on
-			if [ $? -ne 0 ] ; then
-				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set red color"
-				exit 1
-			fi
-		elif [ ${ledboardColor} -eq ${LED_COLOR_GREEN} ]; then
-			fe-setled green on
-			if [ $? -ne 0 ] ; then
-				log $LOG_LEVEL_CRITICAL "fe-setled faillure to set green color"
-				exit 1
-			fi
-		fi
+		#if [ ${ledboardColor} -eq ${LED_COLOR_ORANGE} ]; then
+		#	fe-setled orange on
+		#	if [ $? -ne 0 ] ; then
+		#		log $LOG_LEVEL_CRITICAL "fe-setled faillure to set orange color"
+		#		exit 1
+		#	fi
+		#elif [ ${ledboardColor} -eq ${LED_COLOR_RED} ]; then
+		#	fe-setled red on
+		#	if [ $? -ne 0 ] ; then
+		#		log $LOG_LEVEL_CRITICAL "fe-setled faillure to set red color"
+		#		exit 1
+		#	fi
+		#elif [ ${ledboardColor} -eq ${LED_COLOR_GREEN} ]; then
+		#	fe-setled green on
+		#	if [ $? -ne 0 ] ; then
+		#		log $LOG_LEVEL_CRITICAL "fe-setled faillure to set green color"
+		#		exit 1
+		#	fi
+		#fi
 
 		#********	  Readjust TX	********#
 		if [ $counterReadjustTxPower -ge $periodReadjustTx ]; then

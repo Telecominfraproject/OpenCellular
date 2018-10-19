@@ -107,6 +107,7 @@ while [ $# -gt 0 ] ; do
     shift
 done
 
+TX_FREQ_ARG=${TX_FREQ}
 ####################  Source system.conf  #######################
 if [ ! -z $SYSCFG_DIR ] ; then
     if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
@@ -156,6 +157,9 @@ fi
 
 TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
 
+if [ ! -z ${TX_FREQ_ARG} ] ; then
+	TX_FREQ=${TX_FREQ_ARG}
+fi
 #######################  Check BandWidth  #######################
 if [ -z $TX_BW ] ; then
     TX_BW=${BW}
