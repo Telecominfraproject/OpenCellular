@@ -177,7 +177,9 @@ clean:
 .PHONY: FORCE
 
 ci: CFLAGS += -Werror
-ci: clean test
+ci: CFLAGS += -ftest-coverage -fprofile-arcs -fprofile-dir=$(PATHC)$*/
+ci: COV_CMDS = @mkdir -p $(PATHC)$* && mv *.gcno $(PATHC)$*
+ci: clean junit coverage
 
 # Add flags and create extra commands to execute after compiler iff coverage is being done. 
 cov: CFLAGS += -ftest-coverage -fprofile-arcs -fprofile-dir=$(PATHC)$*/
