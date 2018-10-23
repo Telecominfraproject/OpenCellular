@@ -82,7 +82,8 @@ void watchdog_reset_ap(void)
 
     OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
 
-    //  OCMPMessageFrame * pWatchdogMsg = (OCMPMessageFrame *) malloc(sizeof(32));
+    //  OCMPMessageFrame * pWatchdogMsg = (OCMPMessageFrame *)
+    //  malloc(sizeof(32));
     /* For now only AP reset is being applied directly to see the effect*/
     return;
 }
@@ -147,7 +148,7 @@ Void watchdog_call(UArg arg0)
 void watchdog_process_msg(OCMPMessageFrame *pWatchdogMsg)
 {
     if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_CONFIG) {
-        //set_config_watchdog(pWatchdogMsg);
+        // set_config_watchdog(pWatchdogMsg);
         pWatchdogMsg->message.action = OCMP_AXN_TYPE_REPLY;
         watchdog_send_messages(pWatchdogMsg);
     } else if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_STATUS) {
@@ -165,13 +166,13 @@ void watchdog_task_init(void)
     watchdogSem = Semaphore_create(0, NULL, NULL);
     if (watchdogSem == NULL)
         LOGGER_DEBUG(
-                "WATCHDOG:ERROR:: Failed in Creating Watchdog Semaphore.\n");
+            "WATCHDOG:ERROR:: Failed in Creating Watchdog Semaphore.\n");
 
     /* Create Wathcdog control Queue used by Big brother */
     watchdogMsgQueue = Queue_create(NULL, NULL);
     if (watchdogMsgQueue == NULL)
         LOGGER_DEBUG(
-                "WATCHDOG:ERROR:: Failed in Constructing Watchdog Message Queue.\n");
+            "WATCHDOG:ERROR:: Failed in Constructing Watchdog Message Queue.\n");
 }
 
 /*****************************************************************************
@@ -187,7 +188,7 @@ void watchdog_task_fxn(UArg a0, UArg a1)
         if (Semaphore_pend(watchdogSem, BIOS_WAIT_FOREVER)) {
             if (!Queue_empty(watchdogMsgQueue)) {
                 OCMPMessageFrame *pWatchdogMsg =
-                        (OCMPMessageFrame *)Util_dequeueMsg(watchdogMsgQueue);
+                    (OCMPMessageFrame *)Util_dequeueMsg(watchdogMsgQueue);
 
                 if (pWatchdogMsg) {
                     watchdog_process_msg(pWatchdogMsg);

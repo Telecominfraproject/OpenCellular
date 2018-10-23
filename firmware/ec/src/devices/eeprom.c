@@ -18,7 +18,7 @@
 
 #include <ti/drivers/I2C.h>
 #ifndef UT_FRAMEWORK
-#include <driverlib/emac.h> /* TODO: for htons - clean up this random include */
+#    include <driverlib/emac.h> /* TODO: for htons - clean up this random include */
 #endif
 #include <string.h>
 
@@ -164,13 +164,13 @@ static ReturnStatus i2c_eeprom_write(I2C_Handle i2cHandle, uint8_t slaveAddress,
     i2cTransaction.readCount = 0;
     if (I2C_transfer(i2cHandle, &i2cTransaction)) {
         LOGGER_DEBUG(
-                "EEPROM:INFO:: I2C write success for device: 0x%x reg Addr: 0x%x\n",
-                slaveAddress, memAddress);
+            "EEPROM:INFO:: I2C write success for device: 0x%x reg Addr: 0x%x\n",
+            slaveAddress, memAddress);
         status = RETURN_OK;
     } else {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x\n",
-                slaveAddress, memAddress);
+            "EEPROM:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x\n",
+            slaveAddress, memAddress);
         status = RETURN_NOTOK;
     }
     return status;
@@ -201,13 +201,13 @@ static ReturnStatus i2c_eeprom_read(I2C_Handle i2cHandle, uint16_t slaveAddress,
     i2cTransaction.readCount = numofbytes;
     if (I2C_transfer(i2cHandle, &i2cTransaction)) {
         LOGGER_DEBUG(
-                "EEPROM:INFO:: I2C read success for device: 0x%x reg Addr: 0x%x\n",
-                slaveAddress, memAddress);
+            "EEPROM:INFO:: I2C read success for device: 0x%x reg Addr: 0x%x\n",
+            slaveAddress, memAddress);
         status = RETURN_OK;
     } else {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x\n",
-                slaveAddress, memAddress);
+            "EEPROM:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x\n",
+            slaveAddress, memAddress);
         status = RETURN_NOTOK;
     }
     return status;
@@ -256,7 +256,8 @@ ReturnStatus eeprom_enable_write(Eeprom_Cfg *cfg)
 /*****************************************************************************
  **    FUNCTION NAME   : eeprom_read_oc_info
  **
- **    DESCRIPTION     : Read the info about OC connect1 box from the EEPROM register.
+ **    DESCRIPTION     : Read the info about OC connect1 box from the EEPROM
+ *register.
  **
  **    ARGUMENTS       : EEPROM (Slave) address, Register address and
  **                      pointer to value read.
@@ -271,7 +272,7 @@ ReturnStatus eeprom_read_oc_info(uint8_t *oc_serial)
                          OC_CONNECT1_SERIAL_SIZE);
     if (status != RETURN_OK) {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: Failed to get I2C Bus for GBC serial ID EEPROM.\n");
+            "EEPROM:ERROR:: Failed to get I2C Bus for GBC serial ID EEPROM.\n");
     } else {
         LOGGER_ERROR("EEPROM:Info:: OC Connect1 %d.\n", *oc_serial);
     }
@@ -281,7 +282,8 @@ ReturnStatus eeprom_read_oc_info(uint8_t *oc_serial)
 /*****************************************************************************
  **    FUNCTION NAME   : eeprom_read_board_info
  **
- **    DESCRIPTION     : Read the info about various board from the EEPROM register.
+ **    DESCRIPTION     : Read the info about various board from the EEPROM
+ *register.
  **
  **    ARGUMENTS       : EEPROM (Slave) address, Register address and
  **                      pointer to value read.
@@ -317,8 +319,8 @@ ReturnStatus eeprom_read_board_info(const Eeprom_Cfg *cfg, uint8_t *rom_info)
     status = eeprom_read(cfg, eepromOffset, rom_info, info_size);
     if (status != RETURN_OK) {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
-                cfg->i2c_dev.slave_addr);
+            "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
+            cfg->i2c_dev.slave_addr);
     } else {
         LOGGER_ERROR("EEPROM:Info:: OC Connect1 %s.\n", rom_info);
     }
@@ -363,8 +365,8 @@ ReturnStatus eeprom_read_device_info_record(const Eeprom_Cfg *cfg,
     status = eeprom_read(cfg, eepromOffset, device_info, info_size);
     if (status != RETURN_OK) {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
-                cfg->i2c_dev.slave_addr);
+            "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
+            cfg->i2c_dev.slave_addr);
     } else {
         LOGGER_ERROR("EEPROM:Info:: Record read for  0x%x.\n",
                      cfg->i2c_dev.slave_addr);
@@ -410,8 +412,8 @@ ReturnStatus eeprom_write_device_info_record(Eeprom_Cfg *cfg, uint8_t recordNo,
     status = eeprom_write(cfg, eepromOffset, device_info, info_size);
     if (status != RETURN_OK) {
         LOGGER_ERROR(
-                "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
-                cfg->i2c_dev.slave_addr);
+            "EEPROM:ERROR:: Failed to get I2C Bus for EEPROM device 0x%x.\n",
+            cfg->i2c_dev.slave_addr);
     } else {
         LOGGER_ERROR("EEPROM:Info:: Record written for  0x%x.\n",
                      cfg->i2c_dev.slave_addr);

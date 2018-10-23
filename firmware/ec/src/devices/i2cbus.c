@@ -98,13 +98,14 @@ ReturnStatus i2c_reg_write(I2C_Handle i2cHandle, uint8_t deviceAddress,
     i2cTransaction.readBuf = NULL;
     i2cTransaction.readCount = 0;
     if (I2C_transfer(i2cHandle, &i2cTransaction)) {
-        //LOGGER_DEBUG("I2CBUS:INFO:: I2C write success for device: 0x%x reg Addr: 0x%x value: 0x%x.\n",
+        // LOGGER_DEBUG("I2CBUS:INFO:: I2C write success for device: 0x%x reg
+        // Addr: 0x%x value: 0x%x.\n",
         //              deviceAddress, regAddress, value);
         status = RETURN_OK;
     } else {
         LOGGER_ERROR(
-                "I2CBUS:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x value: 0x%x.\n",
-                deviceAddress, regAddress, value);
+            "I2CBUS:ERROR:: I2C write failed for for device: 0x%x reg Addr: 0x%x value: 0x%x.\n",
+            deviceAddress, regAddress, value);
         status = RETURN_NOTOK;
     }
     return status;
@@ -136,13 +137,14 @@ ReturnStatus i2c_reg_read(I2C_Handle i2cHandle, uint8_t deviceAddress,
     i2cTransaction.readCount = numofBytes;
     if (I2C_transfer(i2cHandle, &i2cTransaction)) {
         memcpy(value, rxBuffer, numofBytes);
-        //LOGGER_DEBUG("I2CBUS:INFO:: I2C read success for device: 0x%x reg Addr: 0x%x value : 0x%x.\n",
+        // LOGGER_DEBUG("I2CBUS:INFO:: I2C read success for device: 0x%x reg
+        // Addr: 0x%x value : 0x%x.\n",
         //              deviceAddress, regAddress, *value);
         status = RETURN_OK;
     } else {
         LOGGER_ERROR(
-                "I2CBUS:ERROR:: I2C read failed for for device: 0x%x reg Addr: 0x%x.\n",
-                deviceAddress, regAddress);
+            "I2CBUS:ERROR:: I2C read failed for for device: 0x%x reg Addr: 0x%x.\n",
+            deviceAddress, regAddress);
         status = RETURN_NOTOK;
     }
     return status;

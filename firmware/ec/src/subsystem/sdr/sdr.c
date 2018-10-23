@@ -119,7 +119,8 @@ static void sdr_control_reset(Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
  *****************************************************************************/
 static ReturnStatus sdr_fx3_reset(Sdr_gpioCfg *fx3_cfg)
 {
-    /*TODO: We need to figure out a way for configuring PCA pins on Intel reset.*/
+    /*TODO: We need to figure out a way for configuring PCA pins on Intel
+     * reset.*/
     OcGpio_configure(&fx3_cfg->pin_fx3_reset, OCGPIO_CFG_OUTPUT);
 
     if (OcGpio_write(&fx3_cfg->pin_fx3_reset, false) < OCGPIO_SUCCESS) {

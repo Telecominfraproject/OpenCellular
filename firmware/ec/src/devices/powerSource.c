@@ -41,9 +41,9 @@ static void pwr_update_source_info(ePowerSource powerSrc,
     for (; itr < PWR_SRC_MAX; itr++) {
         if (Power_SourceInfo[itr].powerSource == powerSrc) {
             Power_SourceInfo[itr].state = pwrState;
-            LOGGER("POWER:INFO:: Power State updated for Power Source %d with %d.\n",
-                   Power_SourceInfo[itr].powerSource,
-                   Power_SourceInfo[itr].state);
+            LOGGER(
+                "POWER:INFO:: Power State updated for Power Source %d with %d.\n",
+                Power_SourceInfo[itr].powerSource, Power_SourceInfo[itr].state);
         }
     }
 }
@@ -74,7 +74,7 @@ static ReturnStatus pwr_source_inuse(ePowerSource *inUse)
 
 void pwr_source_config(PWRSRC_Dev *driver)
 {
-    //Configuring GPIOS
+    // Configuring GPIOS
     OcGpio_configure(&driver->cfg.pin_solar_aux_prsnt_n, OCGPIO_CFG_INPUT);
     OcGpio_configure(&driver->cfg.pin_poe_prsnt_n, OCGPIO_CFG_INPUT);
     OcGpio_configure(&driver->cfg.pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
@@ -113,7 +113,7 @@ static ReturnStatus pwr_check_aux_or_solar(PWRSRC_Dev *pwrSrcDev)
 {
     ReturnStatus ret = RETURN_NOTOK;
     ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
-    //For Checking SOLAR POWER SOURCE
+    // For Checking SOLAR POWER SOURCE
     uint8_t value = 0;
     value = OcGpio_read(&pwrSrcDev->cfg.pin_solar_aux_prsnt_n);
     if (value == 0) {
@@ -138,7 +138,7 @@ static ReturnStatus pwr_check_poe(PWRSRC_Dev *pwrSrcDev)
     ReturnStatus ret = RETURN_NOTOK;
     uint8_t value = 0;
     ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
-    //For Checking POE POWER SOURCE
+    // For Checking POE POWER SOURCE
     value = OcGpio_read(&pwrSrcDev->cfg.pin_poe_prsnt_n);
     if (value == 0) {
         status = PWR_SRC_AVAILABLE;
@@ -163,7 +163,7 @@ static ReturnStatus pwr_check_int_batt(PWRSRC_Dev *pwrSrcDev)
     uint8_t value = 0;
     ePowerSourceState status = PWR_SRC_NON_AVAILABLE;
 
-    //For Checking INTERNAL BATTERY SOURCE
+    // For Checking INTERNAL BATTERY SOURCE
     value = OcGpio_read(&pwrSrcDev->cfg.pin_int_bat_prsnt);
     if (value == 0) { /* If read fails, we'll get a negative value */
         status = PWR_SRC_AVAILABLE;

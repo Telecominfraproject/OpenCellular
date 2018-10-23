@@ -101,7 +101,7 @@ ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
     }
 
     /* Get the RF Band Configuration for the requested RF Channel */
-    //status = rffe_ctrl_get_band(rfchannel, &band);
+    // status = rffe_ctrl_get_band(rfchannel, &band);
 
     /* TODO: not ideal, but it's ultimately hardcoded. this makes our lives
      * a bit easier for now */

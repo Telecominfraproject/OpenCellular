@@ -222,7 +222,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         task_Tx_Params.arg0 = (UArg)clientfd;
         task_Tx_Params.stackSize = 1280;
         task_Tx_Handle =
-                Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
+            Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
         if (task_Tx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
@@ -233,7 +233,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         task_Rx_Params.arg0 = (UArg)clientfd;
         task_Rx_Params.stackSize = 1280;
         task_Rx_Handle =
-                Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
+            Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
         if (task_Rx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);

@@ -129,7 +129,8 @@ static tPower_PSEStatus_Info PSEStatus_Info;
  *
  * @brief      Write to PSE register
  *
- * @args       I2C device, Slave address, register address and value to be written.
+ * @args       I2C device, Slave address, register address and value to be
+ * written.
  *
  * @return     ReturnStatus
  */
@@ -170,8 +171,8 @@ ReturnStatus ltc4274_read(const I2C_Dev *i2c_dev, uint8_t regAddress,
     } else {
         /* TODO: refactor i2c_reg_read to not require uint16 */
         uint16_t value;
-        status = i2c_reg_read(pseHandle, i2c_dev->slave_addr, regAddress,
-                              &value, 1);
+        status =
+            i2c_reg_read(pseHandle, i2c_dev->slave_addr, regAddress, &value, 1);
         *regValue = (uint8_t)value;
     }
     return status;
@@ -192,7 +193,8 @@ ReturnStatus ltc4274_set_cfg_operation_mode(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     status = ltc4274_write(i2c_dev, LTC4274_REG_OPERATION_MODE, operatingMode);
     if (status != RETURN_OK) {
-        LOGGER("LTC4274:ERROR:: Write failed to the Operation mode register of PSE.\n");
+        LOGGER(
+            "LTC4274:ERROR:: Write failed to the Operation mode register of PSE.\n");
     }
     return status;
 }
@@ -212,7 +214,8 @@ ReturnStatus ltc4274_get_operation_mode(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     status = ltc4274_read(i2c_dev, LTC4274_REG_OPERATION_MODE, operatingMode);
     if (status != RETURN_OK) {
-        LOGGER("LTC4274:ERROR:: Read failed from the Operation mode register of PSE.\n");
+        LOGGER(
+            "LTC4274:ERROR:: Read failed from the Operation mode register of PSE.\n");
     }
     return status;
 }
@@ -231,9 +234,9 @@ ReturnStatus ltc4274_set_cfg_detect_enable(const I2C_Dev *i2c_dev,
 {
     ReturnStatus status = RETURN_OK;
 
-    //Enable detect and classfication of PD
-    status = ltc4274_write(i2c_dev, LTC4274_REG_DETECT_CLASS_ENABLE,
-                           detectEnable);
+    // Enable detect and classfication of PD
+    status =
+        ltc4274_write(i2c_dev, LTC4274_REG_DETECT_CLASS_ENABLE, detectEnable);
     if (status != RETURN_OK) {
         LOGGER("LTC4274:ERROR:: PSE detect enable setting failed.\n");
     }
@@ -253,7 +256,7 @@ ReturnStatus ltc4274_get_detect_enable(const I2C_Dev *i2c_dev,
                                        uint8_t *detectVal)
 {
     ReturnStatus status = RETURN_OK;
-    //Enable detect and classfication of PD
+    // Enable detect and classfication of PD
     uint8_t val = 0;
     status = ltc4274_read(i2c_dev, LTC4274_REG_DETECT_CLASS_ENABLE, &val);
     if (status != RETURN_OK) {
@@ -646,8 +649,9 @@ ReturnStatus ltc4274_clear_interrupt(const I2C_Dev *i2c_dev, uint8_t *pwrEvent,
     }
 
     /*Bit 4 for power good and bit 0 for power event*/
-    LOGGER("PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
-           *pwrEvent);
+    LOGGER(
+        "PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
+        *pwrEvent);
 
     /* if it is due to over current*/
     status = ltc4274_read(i2c_dev, LTC4274_REG_START_EVENT_COR, overCurrent);
@@ -655,8 +659,9 @@ ReturnStatus ltc4274_clear_interrupt(const I2C_Dev *i2c_dev, uint8_t *pwrEvent,
         LOGGER("LTC4274:ERROR::Reading power good for PSE failed.\n");
     }
 
-    LOGGER("PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
-           *overCurrent);
+    LOGGER(
+        "PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
+        *overCurrent);
 
     /* if its due to supply */
     status = ltc4274_read(i2c_dev, LTC4274_REG_SUPPLY_EVENT_COR, supply);
@@ -664,8 +669,9 @@ ReturnStatus ltc4274_clear_interrupt(const I2C_Dev *i2c_dev, uint8_t *pwrEvent,
         LOGGER("LTC4274:ERROR::Reading power good for PSE failed.\n");
     }
 
-    LOGGER("PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
-           *supply);
+    LOGGER(
+        "PSELTC4274::INFO:: PSE power Good Info and Power ecent info is read with 0x%x.\n",
+        *supply);
 
     return status;
 }
@@ -818,7 +824,7 @@ void ltc4274_config(LTC4274_Dev *dev)
 {
     OcGpio_configure(&dev->cfg.reset_pin,
                      OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
-    //Enable PSE device.
+    // Enable PSE device.
     ltc4274_enable(dev, true);
 }
 
@@ -893,7 +899,8 @@ ReturnStatus ltc4274_default_cfg(const I2C_Dev *i2c_dev, uint8_t operatingMode,
 
     ret = ltc4274_set_cfg_detect_enable(i2c_dev, detectEnable);
     if (ret != RETURN_OK) {
-        LOGGER("LTC4274::ERROR: PSE detection and classification enable failed.\n");
+        LOGGER(
+            "LTC4274::ERROR: PSE detection and classification enable failed.\n");
         return ret;
     }
 
@@ -980,7 +987,7 @@ void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev)
 {
     ReturnStatus status = RETURN_OK;
     status = ltc4274_get_powergood_status(
-            i2c_dev, &PSEStatus_Info.pseStatus.powerGoodStatus);
+        i2c_dev, &PSEStatus_Info.pseStatus.powerGoodStatus);
     if (status != RETURN_OK) {
         LOGGER("PDLTC4275::ERROR: Power good signal read failed.\n");
         PSEStatus_Info.pseStatus.detectStatus = LTC4274_DETECT_UNKOWN;
@@ -990,7 +997,7 @@ void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev)
     }
     if (PSEStatus_Info.pseStatus.powerGoodStatus == LTC4274_POWERGOOD) {
         status = ltc4274_get_detection_status(
-                i2c_dev, &PSEStatus_Info.pseStatus.detectStatus);
+            i2c_dev, &PSEStatus_Info.pseStatus.detectStatus);
         if (status != RETURN_OK) {
             LOGGER("PDLTC4275::ERROR: Reading PSE detection failed.\n");
             PSEStatus_Info.pseStatus.detectStatus = LTC4274_DETECT_UNKOWN;
@@ -999,7 +1006,7 @@ void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev)
             return;
         }
         status = ltc4274_get_class_status(
-                i2c_dev, &PSEStatus_Info.pseStatus.classStatus);
+            i2c_dev, &PSEStatus_Info.pseStatus.classStatus);
         if (status != RETURN_OK) {
             LOGGER("PDLTC4275::ERROR: Reading PSE classification failed.\n");
             PSEStatus_Info.pseStatus.detectStatus = LTC4274_DETECT_UNKOWN;
@@ -1008,7 +1015,7 @@ void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev)
             return;
         }
         status =
-                ltc4274_get_interrupt_status(i2c_dev, &PSEStatus_Info.psealert);
+            ltc4274_get_interrupt_status(i2c_dev, &PSEStatus_Info.psealert);
         if (status != RETURN_OK) {
             LOGGER("PDLTC4275::ERROR: Reading PSE detection failed.\n");
             PSEStatus_Info.pseStatus.detectStatus = LTC4274_DETECT_UNKOWN;

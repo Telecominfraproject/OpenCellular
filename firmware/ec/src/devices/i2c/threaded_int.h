@@ -10,9 +10,9 @@
 #pragma once
 
 #ifndef DEVICES_I2C_THREADED_INT_H_
-#define DEVICES_I2C_THREADED_INT_H_
+#    define DEVICES_I2C_THREADED_INT_H_
 
-#include "drivers/OcGpio.h"
+#    include "drivers/OcGpio.h"
 
 typedef void (*ThreadedInt_Callback)(void *context);
 

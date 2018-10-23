@@ -20,12 +20,12 @@ static const Driver OC_MDIO = {
                               { .name = "reg_values", .type = TYPE_UINT16 },
                               {} },
     .commands = (Command[]){ {
-                                     .name = "get",
-                                     .cb_cmd = mdio_read,
+                                 .name = "get",
+                                 .cb_cmd = mdio_read,
                              },
                              {
-                                     .name = "set",
-                                     .cb_cmd = mdio_write,
+                                 .name = "set",
+                                 .cb_cmd = mdio_write,
                              },
                              {} },
 };

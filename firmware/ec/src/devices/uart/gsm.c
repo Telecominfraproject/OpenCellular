@@ -127,43 +127,43 @@ static const AT_UnsolicitedRes unsolicitedList[] = {
     { // TODO: I have no idea what this is, but it's undocumented and annoying
       .fmt = "^STN:" },
     {
-            .fmt = "+CREG:",
-            .cb = creg,
+        .fmt = "+CREG:",
+        .cb = creg,
     },
     {
-            .fmt = "+SIM READY",
-            .cb = simReady,
+        .fmt = "+SIM READY",
+        .cb = simReady,
     },
     {
-            .fmt = "+SIM DROP",
+        .fmt = "+SIM DROP",
     },
     {
-            .fmt = "+CMTI:",
-            .cb = cmti,
+        .fmt = "+CMTI:",
+        .cb = cmti,
     },
     {
-            .fmt = "+CMGR:",
-            .cb = cmgr,
+        .fmt = "+CMGR:",
+        .cb = cmgr,
     },
     {
-            .fmt = "RING",
-            .cb = ring,
+        .fmt = "RING",
+        .cb = ring,
     },
     {
-            .fmt = "NO CARRIER",
+        .fmt = "NO CARRIER",
     },
     {
-            .fmt = "BUSY",
+        .fmt = "BUSY",
     },
     {
-            .fmt = "CONNECT",
+        .fmt = "CONNECT",
     },
     {
-            .fmt = "NO ANSWER",
+        .fmt = "NO ANSWER",
     },
     {
-            .fmt = "+CLCC",
-            .cb = clcc,
+        .fmt = "+CLCC",
+        .cb = clcc,
     },
     {}
 };

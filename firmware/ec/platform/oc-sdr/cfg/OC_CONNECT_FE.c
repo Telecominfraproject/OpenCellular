@@ -43,54 +43,52 @@ Eeprom_Cfg eeprom_fe_inv = {
 INA226_Dev fe_ch1_ps_5_7v = {
     /* CH1 5.7V Sensor */
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = OC_CONNECT1_I2C4,
-                                    .slave_addr = RFFE_INA226_CH1_5_7V_ADDR,
-                            },
-                    .pin_alert =
-                            &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
-            },
+        {
+            .dev =
+                {
+                    .bus = OC_CONNECT1_I2C4,
+                    .slave_addr = RFFE_INA226_CH1_5_7V_ADDR,
+                },
+            .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
+        },
 };
 
-//FE Channel 2 Power sensor.
+// FE Channel 2 Power sensor.
 INA226_Dev fe_ch2_ps_5_7v = {
     /* CH2 5.7V Sensor */
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = OC_CONNECT1_I2C4,
-                                    .slave_addr = RFFE_INA226_CH2_5_7V_ADDR,
-                            },
-                    .pin_alert =
-                            &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
-            },
+        {
+            .dev =
+                {
+                    .bus = OC_CONNECT1_I2C4,
+                    .slave_addr = RFFE_INA226_CH2_5_7V_ADDR,
+                },
+            .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_RFFE_TEMP_INA_ALERT },
+        },
 };
 
-//FE Channel 1 temperature sensor.
+// FE Channel 1 temperature sensor.
 I2C_Dev fe_ch1_ts = {
     .bus = OC_CONNECT1_I2C4,
     .slave_addr = RFFE_CH1_TEMP_SENSOR_ADDR,
 };
 
-//FE Channel 2 temperature sensor.
+// FE Channel 2 temperature sensor.
 I2C_Dev fe_ch2_ts = (I2C_Dev){
     .bus = OC_CONNECT1_I2C4,
     .slave_addr = RFFE_CH2_TEMP_SENSOR_ADDR,
 };
 
-//FE EEPROM inventory
+// FE EEPROM inventory
 void *fe_eeprom_inventory = &eeprom_fe_inv;
 
-//FE Channel 1 ADC
+// FE Channel 1 ADC
 I2C_Dev fe_ch1_ads7830 = {
     .bus = OC_CONNECT1_I2C4,
     .slave_addr = RFFE_CHANNEL1_ADC_ADDR,
 };
 
-//FE Channel 2 ADC
+// FE Channel 2 ADC
 I2C_Dev fe_ch2_ads7830 = {
     .bus = OC_CONNECT1_I2C4,
     .slave_addr = RFFE_CHANNEL2_ADC_ADDR,
@@ -160,7 +158,7 @@ Fe_Lna_Cfg fe_ch2_lna = {
     .pin_rx_attn_enb = { &fe_ch2_lna_io, 7 },
 };
 
-//FE watch dog
+// FE watch dog
 Fe_Watchdog_Cfg fe_watchdog_cfg = {
     /* AOSEL_FPGA */
     .pin_aosel_fpga = { &fe_watchdog_io, 0 },
@@ -188,24 +186,24 @@ Fe_gpioCfg fe_gpiocfg = {
     .pin_trxfe_conn_reset = { &ec_io, OC_EC_FE_TRXFE_CONN_RESET },
 };
 
-//FE Ch1 TX Gain control
+// FE Ch1 TX Gain control
 Fe_Ch1_Gain_Cfg fe_ch1_tx_gain_cfg = (Fe_Ch1_Gain_Cfg){
     .fe_gain_cfg = &fe_ch1_gain,
 };
 
-//FE Ch2 TX Gain control
+// FE Ch2 TX Gain control
 Fe_Ch2_Gain_Cfg fe_ch2_tx_gain_cfg = (Fe_Ch2_Gain_Cfg){
     /* CH1_2G_LB_BAND_SEL_L */
     .pin_ch1_2g_lb_band_sel_l = { &fe_ch2_gain_io, 0 },
     .fe_gain_cfg = &fe_ch2_gain,
 };
 
-//FE Ch1 LNA config
+// FE Ch1 LNA config
 Fe_Ch1_Lna_Cfg fe_ch1_rx_gain_cfg = (Fe_Ch1_Lna_Cfg){
     .fe_lna_cfg = &fe_ch1_lna,
 };
 
-//FE Ch2 LNA config
+// FE Ch2 LNA config
 Fe_Ch2_Lna_Cfg fe_ch2_rx_gain_cfg = (Fe_Ch2_Lna_Cfg){
     /* CH1_RF_PWR_OFF */
     .pin_ch1_rf_pwr_off = { &fe_ch2_lna_io, 1 },
@@ -253,17 +251,17 @@ Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = { .channel = RFFE_CHANNEL2,
 // TestModule
 TestMod_Cfg testModuleCfg = (TestMod_Cfg){
     .g510_cfg =
-            {
-                    .uart = OC_CONNECT1_UART4,
-                    /* 2G_SIM_PRESENCE */
-                    .pin_sim_present = { &gbc_io_1, 0, OCGPIO_CFG_IN_PU },
+        {
+            .uart = OC_CONNECT1_UART4,
+            /* 2G_SIM_PRESENCE */
+            .pin_sim_present = { &gbc_io_1, 0, OCGPIO_CFG_IN_PU },
 
-                    /* NOTE: enable & power go through MOSFETs, inverting them */
-                    /* 2GMODULE_POWEROFF  */
-                    .pin_enable = { &gbc_io_1, 2, OCGPIO_CFG_INVERT },
-                    /* EC_2GMODULE_PWR_ON  */
-                    .pin_pwr_en = { &gbc_io_1, 1, OCGPIO_CFG_INVERT },
-            },
+            /* NOTE: enable & power go through MOSFETs, inverting them */
+            /* 2GMODULE_POWEROFF  */
+            .pin_enable = { &gbc_io_1, 2, OCGPIO_CFG_INVERT },
+            /* EC_2GMODULE_PWR_ON  */
+            .pin_pwr_en = { &gbc_io_1, 1, OCGPIO_CFG_INVERT },
+        },
     .pin_ant_sw = {},
 };
 
@@ -288,7 +286,7 @@ S_OCGPIO_Cfg debug_fe_ioexpanderx1D = {
     .port = &fe_ch2_lna_io,
 };
 
-//FE  Factory config
+// FE  Factory config
 const ADT7481_Config fact_fe_ch1_adt7481_cfg = {
     .lowlimit = -20,
     .highlimit = 80,

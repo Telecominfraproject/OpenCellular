@@ -57,7 +57,8 @@ static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
         case LTC7274_STATUS_DETECT: {
             if (ltc4274_get_detection_status(driver, res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: Reading PSE detection and classification failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: Reading PSE detection and classification failed.\n");
             }
             break;
         }
@@ -92,14 +93,16 @@ static bool _set_config(void *driver, unsigned int param_id, const void *data)
         case LTC4274_CONFIG_OPERATING_MODE: {
             if (ltc4274_set_cfg_operation_mode(driver, *res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE operational mode setting mode failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE operational mode setting mode failed.\n");
             }
             break;
         }
         case LTC4274_CONFIG_DETECT_ENABLE: {
             if (ltc4274_set_cfg_detect_enable(driver, *res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE detection and classification enable failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE detection and classification enable failed.\n");
             }
             break;
         }
@@ -120,7 +123,8 @@ static bool _set_config(void *driver, unsigned int param_id, const void *data)
         case LTC4274_CONFIG_HP_ENABLE: {
             if (ltc4274_set_cfg_pshp_feature(driver, *res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE configuration for LTEPOE++ failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE configuration for LTEPOE++ failed.\n");
             }
             break;
         }
@@ -140,14 +144,16 @@ static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
         case LTC4274_CONFIG_OPERATING_MODE: {
             if (ltc4274_get_operation_mode(driver, res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE operational mode setting mode failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE operational mode setting mode failed.\n");
             }
             break;
         }
         case LTC4274_CONFIG_DETECT_ENABLE: {
             if (ltc4274_get_detect_enable(driver, res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE detection and classification enable failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE detection and classification enable failed.\n");
             }
             break;
         }
@@ -168,7 +174,8 @@ static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
         case LTC4274_CONFIG_HP_ENABLE: {
             if (ltc4274_get_pshp_feature(driver, res) != RETURN_OK) {
                 ret = false;
-                LOGGER("LTC4274:ERROR:: PSE configuration for LTEPOE++ failed.\n");
+                LOGGER(
+                    "LTC4274:ERROR:: PSE configuration for LTEPOE++ failed.\n");
             }
             break;
         }
@@ -249,7 +256,7 @@ static ePostCode _init(void *driver, const void *config,
         return POST_DEV_CFG_FAIL;
     }
     ltc4274_set_alert_handler(driver, _alert_handler, (void *)alert_token);
-    //TODO: SET enable or disable.
+    // TODO: SET enable or disable.
     if (ltc4274_cfg_interrupt_enable(driver, LTC7274_config->interruptEnable) !=
         RETURN_OK) {
         return POST_DEV_CFG_FAIL;

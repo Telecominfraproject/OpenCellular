@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #ifndef _OCMP_LED_H
 #define _OCMP_LED_H
 
@@ -19,8 +19,8 @@ static const Driver HCI_LED = {
     .config = NULL,
     .alerts = NULL,
     .commands = (Command[]){ {
-                                     .name = "set",
-                                     .cb_cmd = led_testpattern_control,
+                                 .name = "set",
+                                 .cb_cmd = led_testpattern_control,
                              },
                              {} },
     .fxnTable = &LED_fxnTable,

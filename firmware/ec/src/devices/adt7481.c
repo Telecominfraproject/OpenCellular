@@ -110,21 +110,22 @@
  * binary data format are offset by +64.
  */
 #ifdef ADT7481_EXTENDED_FLAG
-#define TEMP_TO_REG_U8(x) (x + 64)
-#define TEMP_TO_REG_U16(x) ((x + 64) << 8)
-#define REG_U8_TO_TEMP(y) (y - 64)
-#define REG_U16_TO_TEMP(y) (y - 64)
+#    define TEMP_TO_REG_U8(x) (x + 64)
+#    define TEMP_TO_REG_U16(x) ((x + 64) << 8)
+#    define REG_U8_TO_TEMP(y) (y - 64)
+#    define REG_U16_TO_TEMP(y) (y - 64)
 #else
-#define TEMP_TO_REG_U8(x) (x)
-#define TEMP_TO_REG_U16(x) (x << 8)
-#define REG_U8_TO_TEMP(y) (y)
-#define REG_U16_TO_TEMP(y) (y)
+#    define TEMP_TO_REG_U8(x) (x)
+#    define TEMP_TO_REG_U16(x) (x << 8)
+#    define REG_U8_TO_TEMP(y) (y)
+#    define REG_U16_TO_TEMP(y) (y)
 #endif
 
 /*****************************************************************************
  **    FUNCTION NAME   : adt7481_raw_read
  **
- **    DESCRIPTION     : Read the register value from Temperature sensor ADT7481.
+ **    DESCRIPTION     : Read the register value from Temperature sensor
+ *ADT7481.
  **
  **    ARGUMENTS       : OCSubsystem, Slave address, Register address and
  **                      pointer to value read.
@@ -151,7 +152,8 @@ static ReturnStatus adt7481_raw_read(const I2C_Dev *i2c_dev, uint8_t regAddress,
 /*****************************************************************************
  **    FUNCTION NAME   : adt7481_raw_write
  **
- **    DESCRIPTION     : Write the register value into Temperature sensor ADT7481.
+ **    DESCRIPTION     : Write the register value into Temperature sensor
+ *ADT7481.
  **
  **    ARGUMENTS       : OCSubsystem, Slave address, Register address and value
  **                      to be written.
@@ -199,7 +201,8 @@ ReturnStatus adt7481_get_dev_id(const I2C_Dev *i2c_dev, uint8_t *devID)
 /*****************************************************************************
  **    FUNCTION NAME   : adt7481_get_mfg_id
  **
- **    DESCRIPTION     : Read the Manufacturer ID from Temperature sensor ADT7481.
+ **    DESCRIPTION     : Read the Manufacturer ID from Temperature sensor
+ *ADT7481.
  **
  **    ARGUMENTS       : OCSubsystem, Slave address and pointer to manufacturing
  **                      id.
@@ -220,7 +223,8 @@ ReturnStatus adt7481_get_mfg_id(const I2C_Dev *i2c_dev, uint8_t *mfgID)
 /*****************************************************************************
  **    FUNCTION NAME   : adt7481_probe
  **
- **    DESCRIPTION     : Read the Manufacturer ID from Temperature sensor ADT7481.
+ **    DESCRIPTION     : Read the Manufacturer ID from Temperature sensor
+ *ADT7481.
  **
  **    ARGUMENTS       : I2C driver config and POST Data struct
  **                      id.
@@ -252,9 +256,11 @@ ePostCode adt7481_probe(const I2C_Dev *i2c_dev, POSTData *postData)
 /******************************************************************************
  * @fn          adt7481_get_config1
  *
- * @brief       Read configuration 1 register value of temperature sensor ADT7481.
+ * @brief       Read configuration 1 register value of temperature sensor
+ *ADT7481.
  *
- * @args        OCSubsystem, Slave address and pointer to the configuation value.
+ * @args        OCSubsystem, Slave address and pointer to the configuation
+ *value.
  *
  * @return      ReturnStatus
  *****************************************************************************/
@@ -271,7 +277,8 @@ ReturnStatus adt7481_get_config1(const I2C_Dev *i2c_dev, uint8_t *configValue)
 /******************************************************************************
  * @fn          adt7481_set_config1
  *
- * @brief       Configure configuration 1 register of temperature sensor ADT7481.
+ * @brief       Configure configuration 1 register of temperature sensor
+ *ADT7481.
  *
  * @args        OCSubsystem, Slave address and configuration register value.
  *
@@ -299,8 +306,8 @@ ReturnStatus adt7481_get_conv_rate(const I2C_Dev *i2c_dev,
                                    uint8_t *convRateValue)
 {
     ReturnStatus status = RETURN_OK;
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_CONVERSION_RATE,
-                              convRateValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_CONVERSION_RATE, convRateValue);
     if (status != RETURN_OK) {
         convRateValue = NULL;
     }
@@ -331,7 +338,8 @@ ReturnStatus adt7481_set_conv_rate(const I2C_Dev *i2c_dev,
  *
  * @brief       Read status 1 register value of temperature sensor ADT7481.
  *
- * @args        OCSubsystem, Slave address and pointer to the configuation value.
+ * @args        OCSubsystem, Slave address and pointer to the configuation
+ *value.
  *
  * @return      ReturnStatus
  *****************************************************************************/
@@ -350,7 +358,8 @@ ReturnStatus adt7481_get_status1(const I2C_Dev *i2c_dev, uint8_t *statusValue)
  *
  * @brief       Read status 2 register value of temperature sensor ADT7481.
  *
- * @args        OCSubsystem, Slave address and pointer to the configuation value.
+ * @args        OCSubsystem, Slave address and pointer to the configuation
+ *value.
  *
  * @return      ReturnStatus
  *****************************************************************************/
@@ -403,12 +412,12 @@ ReturnStatus adt7481_get_remote1_temp_val(const I2C_Dev *i2c_dev,
     uint8_t lRegValue = 0x00;
     uint8_t hRegValue = 0x00;
     status =
-            adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_TEMP_L, &lRegValue);
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_TEMP_L, &lRegValue);
     if (status != RETURN_OK) {
         tempValue = NULL;
     } else {
-        status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_TEMP_H,
-                                  &hRegValue);
+        status =
+            adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_TEMP_H, &hRegValue);
         if (status != RETURN_OK) {
             tempValue = NULL;
         } else {
@@ -434,12 +443,12 @@ ReturnStatus adt7481_get_remote2_temp_val(const I2C_Dev *i2c_dev,
     uint8_t lRegValue = 0x00;
     uint8_t hRegValue = 0x00;
     status =
-            adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_TEMP_L, &lRegValue);
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_TEMP_L, &lRegValue);
     if (status != RETURN_OK) {
         tempValue = NULL;
     } else {
-        status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_TEMP_H,
-                                  &hRegValue);
+        status =
+            adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_TEMP_H, &hRegValue);
         if (status != RETURN_OK) {
             tempValue = NULL;
         } else {
@@ -558,8 +567,8 @@ ReturnStatus adt7481_get_remote1_temp_low_limit(const I2C_Dev *i2c_dev,
     uint8_t hRegValue = 0x00;
 
     /* Read LSB data */
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_LOWLIMIT_L,
-                              &lRegValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_LOWLIMIT_L, &lRegValue);
     if (status != RETURN_OK) {
         tempLimitValue = NULL;
     } else {
@@ -626,8 +635,8 @@ ReturnStatus adt7481_get_remote1_temp_therm_limit(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_NOTOK;
     uint8_t regValue = 0x00;
 
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_THERMLIMIT,
-                              &regValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_THERMLIMIT, &regValue);
     if (status != RETURN_OK) {
         tempLimitValue = NULL;
     } else {
@@ -658,17 +667,17 @@ adt7481_get_remote1_temp_limit(const I2C_Dev *i2c_dev,
     switch (limitToConfig) {
         case CONF_TEMP_ADT7481_LOW_LIMIT_REG: {
             status =
-                    adt7481_get_remote1_temp_low_limit(i2c_dev, tempLimitValue);
+                adt7481_get_remote1_temp_low_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_HIGH_LIMIT_REG: {
-            status = adt7481_get_remote1_temp_high_limit(i2c_dev,
-                                                         tempLimitValue);
+            status =
+                adt7481_get_remote1_temp_high_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_THERM_LIMIT_REG: {
-            status = adt7481_get_remote1_temp_therm_limit(i2c_dev,
-                                                          tempLimitValue);
+            status =
+                adt7481_get_remote1_temp_therm_limit(i2c_dev, tempLimitValue);
             break;
         }
         default: {
@@ -757,8 +766,8 @@ ReturnStatus adt7481_set_remote1_temp_therm_limit(const I2C_Dev *i2c_dev,
     /* Converting Temp limit into the register value */
     regValue = TEMP_TO_REG_U8(tempLimitValue);
 
-    status = adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE1_THERMLIMIT,
-                               regValue);
+    status =
+        adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE1_THERMLIMIT, regValue);
     return status;
 }
 
@@ -782,17 +791,17 @@ adt7481_set_remote1_temp_limit(const I2C_Dev *i2c_dev,
     switch (limitToConfig) {
         case CONF_TEMP_ADT7481_LOW_LIMIT_REG: {
             status =
-                    adt7481_set_remote1_temp_low_limit(i2c_dev, tempLimitValue);
+                adt7481_set_remote1_temp_low_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_HIGH_LIMIT_REG: {
-            status = adt7481_set_remote1_temp_high_limit(i2c_dev,
-                                                         tempLimitValue);
+            status =
+                adt7481_set_remote1_temp_high_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_THERM_LIMIT_REG: {
-            status = adt7481_set_remote1_temp_therm_limit(i2c_dev,
-                                                          tempLimitValue);
+            status =
+                adt7481_set_remote1_temp_therm_limit(i2c_dev, tempLimitValue);
             break;
         }
         default: {
@@ -820,8 +829,8 @@ ReturnStatus adt7481_get_remote2_temp_low_limit(const I2C_Dev *i2c_dev,
     uint8_t hRegValue = 0x00;
 
     /* Read LSB data */
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_LOWLIMIT_L,
-                              &lRegValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_LOWLIMIT_L, &lRegValue);
     if (status != RETURN_OK) {
         tempLimitValue = NULL;
     } else {
@@ -888,8 +897,8 @@ ReturnStatus adt7481_get_remote2_temp_therm_limit(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_NOTOK;
     uint8_t regValue = 0x00;
 
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_THERMLIMIT,
-                              &regValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_THERMLIMIT, &regValue);
     if (status != RETURN_OK) {
         tempLimitValue = NULL;
     } else {
@@ -920,17 +929,17 @@ adt7481_get_remote2_temp_limit(const I2C_Dev *i2c_dev,
     switch (limitToConfig) {
         case CONF_TEMP_ADT7481_LOW_LIMIT_REG: {
             status =
-                    adt7481_get_remote2_temp_low_limit(i2c_dev, tempLimitValue);
+                adt7481_get_remote2_temp_low_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_HIGH_LIMIT_REG: {
-            status = adt7481_get_remote2_temp_high_limit(i2c_dev,
-                                                         tempLimitValue);
+            status =
+                adt7481_get_remote2_temp_high_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_THERM_LIMIT_REG: {
-            status = adt7481_get_remote2_temp_therm_limit(i2c_dev,
-                                                          tempLimitValue);
+            status =
+                adt7481_get_remote2_temp_therm_limit(i2c_dev, tempLimitValue);
             break;
         }
         default: {
@@ -1019,8 +1028,8 @@ ReturnStatus adt7481_set_remote2_temp_therm_limit(const I2C_Dev *i2c_dev,
     /* Converting Temp limit into the register value */
     regValue = TEMP_TO_REG_U8(tempLimitValue);
 
-    status = adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE2_THERMLIMIT,
-                               regValue);
+    status =
+        adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE2_THERMLIMIT, regValue);
     return status;
 }
 
@@ -1044,17 +1053,17 @@ adt7481_set_remote2_temp_limit(const I2C_Dev *i2c_dev,
     switch (limitToConfig) {
         case CONF_TEMP_ADT7481_LOW_LIMIT_REG: {
             status =
-                    adt7481_set_remote2_temp_low_limit(i2c_dev, tempLimitValue);
+                adt7481_set_remote2_temp_low_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_HIGH_LIMIT_REG: {
-            status = adt7481_set_remote2_temp_high_limit(i2c_dev,
-                                                         tempLimitValue);
+            status =
+                adt7481_set_remote2_temp_high_limit(i2c_dev, tempLimitValue);
             break;
         }
         case CONF_TEMP_ADT7481_THERM_LIMIT_REG: {
-            status = adt7481_set_remote2_temp_therm_limit(i2c_dev,
-                                                          tempLimitValue);
+            status =
+                adt7481_set_remote2_temp_therm_limit(i2c_dev, tempLimitValue);
             break;
         }
         default: {
@@ -1082,8 +1091,8 @@ ReturnStatus adt7481_get_remote1_temp_offset(const I2C_Dev *i2c_dev,
     uint8_t hRegValue = 0x00;
 
     /* Read LSB data */
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_OFFSET_L,
-                              &lRegValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE1_OFFSET_L, &lRegValue);
     if (status != RETURN_OK) {
         tempOffsetValue = NULL;
     } else {
@@ -1147,8 +1156,8 @@ ReturnStatus adt7481_get_remote2_temp_offset(const I2C_Dev *i2c_dev,
     uint8_t hRegValue = 0x00;
 
     /* Read LSB data */
-    status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_OFFSET_L,
-                              &lRegValue);
+    status =
+        adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_OFFSET_L, &lRegValue);
     if (status != RETURN_OK) {
         tempOffsetValue = NULL;
     } else {

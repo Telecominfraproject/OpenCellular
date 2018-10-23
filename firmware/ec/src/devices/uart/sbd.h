@@ -75,7 +75,7 @@ typedef struct SbdsxInfo {
     SbdsInfo sbdsInfo; //!< Regular SBD status info
     int raFlag; //!< Ring alert still needs to be answered
     int msgWaiting; //!< Number of MT messages at gateway
-            //!< (updated every SBD session)
+                    //!< (updated every SBD session)
 } SbdsxInfo;
 
 typedef enum SbdCiev {

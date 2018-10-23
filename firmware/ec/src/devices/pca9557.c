@@ -86,7 +86,7 @@ static ReturnStatus PCA9557_regWrite(const I2C_Dev *i2c_dev, uint8_t regAddress,
 ReturnStatus PCA9557_getInput(const I2C_Dev *i2c_dev, uint8_t *inputRegValue)
 {
     ReturnStatus status =
-            PCA9557_regRead(i2c_dev, PCA9557_INPUT_PORT_REG, inputRegValue);
+        PCA9557_regRead(i2c_dev, PCA9557_INPUT_PORT_REG, inputRegValue);
     if (status == RETURN_OK) {
         LOGGER_DEBUG("IOEXP:INFO:: IO Expander 0x%x on bus 0x%x is "
                      "reporting Input Port Reg value of 0x%x.\n",
@@ -107,7 +107,7 @@ ReturnStatus PCA9557_getInput(const I2C_Dev *i2c_dev, uint8_t *inputRegValue)
 ReturnStatus PCA9557_getOutput(const I2C_Dev *i2c_dev, uint8_t *outputRegValue)
 {
     ReturnStatus status =
-            PCA9557_regRead(i2c_dev, PCA9557_OUTPUT_PORT_REG, outputRegValue);
+        PCA9557_regRead(i2c_dev, PCA9557_OUTPUT_PORT_REG, outputRegValue);
     if (status == RETURN_OK) {
         LOGGER_DEBUG("IOEXP:INFO:: IO Expander 0x%x on bus 0x%x is "
                      "reporting Output Port Reg value of 0x%x.\n",

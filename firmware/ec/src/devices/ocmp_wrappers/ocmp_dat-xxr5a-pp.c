@@ -121,9 +121,8 @@ static ePostCode _init(void *driver, const void *config,
     if (OcGpio_configure(&cfg->pin_le, OCGPIO_CFG_OUTPUT) < OCGPIO_SUCCESS) {
         return POST_DEV_CFG_FAIL;
     }
-    if (PinGroup_configure(&pin_group,
-                           OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH) !=
-        RETURN_OK) {
+    if (PinGroup_configure(&pin_group, OCGPIO_CFG_OUTPUT |
+                                           OCGPIO_CFG_OUT_HIGH) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
 

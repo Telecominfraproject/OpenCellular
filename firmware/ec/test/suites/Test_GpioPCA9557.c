@@ -31,18 +31,18 @@ static uint8_t PCA9557_regs[] = {
 static const OcGpio_Port s_pca9557_ioexp = {
     .fn_table = &GpioPCA9557_fnTable,
     .cfg =
-            &(PCA9557_Cfg){
-                    .i2c_dev = { I2C_BUS, I2C_ADDR },
-            },
+        &(PCA9557_Cfg){
+            .i2c_dev = { I2C_BUS, I2C_ADDR },
+        },
     .object_data = &(PCA9557_Obj){},
 };
 
 static const OcGpio_Port s_invalid_ioexp = {
     .fn_table = &GpioPCA9557_fnTable,
     .cfg =
-            &(PCA9557_Cfg){
-                    .i2c_dev = { I2C_BUS, 0x01 },
-            },
+        &(PCA9557_Cfg){
+            .i2c_dev = { I2C_BUS, 0x01 },
+        },
     .object_data = &(PCA9557_Obj){},
 };
 
@@ -105,9 +105,9 @@ void test_OcGpio_configure(void)
 
     /* Test some arbitrary outputs - check cfg & output default value*/
     TEST_ASSERT_EQUAL(
-            OCGPIO_SUCCESS,
-            OcGpio_configure(&s_test_pins[0],
-                             OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH));
+        OCGPIO_SUCCESS,
+        OcGpio_configure(&s_test_pins[0],
+                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH));
     TEST_ASSERT_EQUAL_HEX8(0xFE, PCA9557_regs[0x03]);
     TEST_ASSERT_EQUAL_HEX8(0x01, PCA9557_regs[0x01]);
 

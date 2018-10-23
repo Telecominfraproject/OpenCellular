@@ -190,8 +190,8 @@ void mdiobb_write_by_paging(int smi_device, int reg_addr, int data)
 
     mdiobb_write(0x7, 0x19, data);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
-                reg_addr;
+    write_reg =
+        (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) | reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {
@@ -216,7 +216,7 @@ int mdiobb_read_by_paging(int smi_device, int reg_addr)
     } while (1);
 
     write_reg =
-            (1 << 15) | (1 << 12) | (0x2 << 10) | (smi_device << 5) | reg_addr;
+        (1 << 15) | (1 << 12) | (0x2 << 10) | (smi_device << 5) | reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     /*
@@ -420,8 +420,8 @@ void mdiobb_set_bits(int smi_device, int reg_addr, int datamask)
 
     mdiobb_write(0x7, 0x19, datamask);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
-                reg_addr;
+    write_reg =
+        (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) | reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {
@@ -453,8 +453,8 @@ void mdiobb_clear_bits(int smi_device, int reg_addr, int datamask)
 
     mdiobb_write(0x7, 0x19, datamask);
 
-    write_reg = (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) |
-                reg_addr;
+    write_reg =
+        (0x1 << 15) | (0x1 << 12) | (0x1 << 10) | (smi_device << 5) | reg_addr;
     mdiobb_write(0x7, 0x18, write_reg);
 
     do {

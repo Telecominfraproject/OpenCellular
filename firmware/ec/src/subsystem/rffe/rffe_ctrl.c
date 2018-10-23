@@ -44,7 +44,7 @@ ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *pwrCfg,
     rffeBand band = RFFE_SHUTDOWN;
     rffeChannel channel = pwrCfg->channel;
     const Fe_Ch2_Gain_Cfg *fe_ch1_rf_band_sel =
-            pwrCfg->fe_Rffecfg->fe_ch2_gain_cfg;
+        pwrCfg->fe_Rffecfg->fe_ch2_gain_cfg;
     const Fe_Ch2_Lna_Cfg *fe_ch1_rf_pwr = pwrCfg->fe_Rffecfg->fe_ch2_lna_cfg;
     const Fe_Watchdog_Cfg *fe_ch2_rf_pwr = pwrCfg->fe_Rffecfg->fe_watchdog_cfg;
 

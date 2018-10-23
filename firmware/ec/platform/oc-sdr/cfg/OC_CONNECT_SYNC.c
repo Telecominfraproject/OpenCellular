@@ -18,7 +18,7 @@ SCHEMA_IMPORT OcGpio_Port sync_io;
  *                               SYSTEM CONFIG
  *****************************************************************************/
 /* OBC Subsystem Config.*/
-//Irridium
+// Irridium
 Iridium_Cfg obc_irridium = {
     .uart = OC_CONNECT1_UARTXR0,
     /* IRIDIUM_RSTIOEXP */
@@ -28,7 +28,7 @@ Iridium_Cfg obc_irridium = {
 };
 
 /* Sync Subsystem Config.*/
-//Temperature sensor.
+// Temperature sensor.
 I2C_Dev sync_gps_ts = {
     .bus = OC_CONNECT1_I2C7,
     .slave_addr = SYNC_TEMP_SENSOR_ADDR,
@@ -44,7 +44,7 @@ S_OCGPIO_Cfg debug_sync_ioexpanderx71 = {
     .port = &sync_io,
 };
 
-//Sync Factory config
+// Sync Factory config
 const ADT7481_Config fact_sync_ts_cfg = {
     .lowlimit = -20,
     .highlimit = 80,

@@ -19,10 +19,11 @@ POSTData PostResult[POST_RECORDS] = { { 0 } };
 
 #ifdef UT_POST
 /*
- * TODO:  Duplicating the definition of the following three functions from post.c for the UT framework 
- * If we include post.c in the UT framework , we are exposing a lot of OS dependent APIs like create_task ,
- * util_queue etc to the Windows Cygwin environment which will create linking issues. 
- * This will get fixed as part of #419 
+ * TODO:  Duplicating the definition of the following three functions from
+ * post.c for the UT framework If we include post.c in the UT framework , we are
+ * exposing a lot of OS dependent APIs like create_task , util_queue etc to the
+ * Windows Cygwin environment which will create linking issues. This will get
+ * fixed as part of #419
  */
 
 void post_update_POSTStatus(POSTData *pData, ePostCode status)
@@ -58,11 +59,11 @@ static ePostCode _postDriver(const Component *subsystem, const Component *dev,
                              const AlertData *alert_data, POSTData *postData,
                              OCSubsystem *ss)
 {
-#if 0
+#    if 0
     if (!dev->driver) {
         return POST_DEV_NO_DRIVER_EXIST;
     }
-#endif
+#    endif
     ePostCode postcode = POST_DEV_FOUND;
     if (dev->driver->fxnTable->cb_probe) {
         postcode = dev->driver->fxnTable->cb_probe(dev->driver_cfg, postData);
@@ -78,7 +79,7 @@ static ePostCode _postDriver(const Component *subsystem, const Component *dev,
                 AlertData *alert_data_cp = malloc(sizeof(AlertData));
                 *alert_data_cp = *alert_data;
                 postcode = dev->driver->fxnTable->cb_init(
-                        dev->driver_cfg, dev->factory_config, alert_data_cp);
+                    dev->driver_cfg, dev->factory_config, alert_data_cp);
             } else {
                 postcode = POST_DEV_NO_CFG_REQ;
             }
@@ -86,10 +87,10 @@ static ePostCode _postDriver(const Component *subsystem, const Component *dev,
             LOGGER_DEBUG("%s:INFO:: Configuration for %s (%s) is %s\n",
                          subsystem->name, dev->name, dev->driver->name,
                          (postcode == POST_DEV_CFG_DONE) ?
-                                 "ok" :
-                                 (postcode == POST_DEV_NO_CFG_REQ) ?
-                                 "not required." :
-                                 "failed.");
+                             "ok" :
+                             (postcode == POST_DEV_NO_CFG_REQ) ?
+                             "not required." :
+                             "failed.");
         }
     }
 }
@@ -134,7 +135,8 @@ ReturnStatus _execPost(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
             }
             devSno++;
             post_init_POSTData(&postData, subsystem_id, devSno);
-            //TODO: If postcode is configuration failure what should beth recovery action.
+            // TODO: If postcode is configuration failure what should beth
+            // recovery action.
             if (_postDriver(subsystem, comp, &alert_data, &postData, ss) ==
                 POST_DEV_NO_DRIVER_EXIST) {
                 devSno--;
@@ -204,7 +206,8 @@ void post_update_POSTresult(POSTData *postData)
     } else {
         deviceCount++;
     }
-    //LOGGER_DEBUG("POST:INFO:: Updating POST results for the Subsystem %d , Device Serial offset %d , Total Number of records %d.\n",
+    // LOGGER_DEBUG("POST:INFO:: Updating POST results for the Subsystem %d ,
+    // Device Serial offset %d , Total Number of records %d.\n",
     //             postData->subsystem,postData->devSno,deviceCount+1);
     memcpy(&PostResult[deviceCount], postData, sizeof(POSTData));
 }

@@ -30,10 +30,9 @@ static uint8_t PCA9557_regs[] = {
 OcGpio_Port fe_ch1_gain_io = {
     .fn_table = &GpioPCA9557_fnTable,
     .cfg =
-            &(PCA9557_Cfg){
-                    .i2c_dev = { OC_CONNECT1_I2C2,
-                                 RFFE_CHANNEL1_IO_TX_ATTEN_ADDR },
-            },
+        &(PCA9557_Cfg){
+            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL1_IO_TX_ATTEN_ADDR },
+        },
     .object_data = &(PCA9557_Obj){},
 };
 
@@ -89,10 +88,9 @@ void test_PinGroup_configure(void)
     PCA9557_regs[2] = 0xFF; /* Polarity */
     PCA9557_regs[3] = 0xFF; /* Dir Config */
 
-    TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            PinGroup_configure(&pin_group,
-                               OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH));
+    TEST_ASSERT_EQUAL(RETURN_OK,
+                      PinGroup_configure(&pin_group, OCGPIO_CFG_OUTPUT |
+                                                         OCGPIO_CFG_OUT_HIGH));
 
     TEST_ASSERT_EQUAL_HEX8(0x7E, PCA9557_regs[0x01]);
     TEST_ASSERT_EQUAL_HEX8(0x00, PCA9557_regs[0x02]);

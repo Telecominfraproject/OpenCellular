@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "SSRegistry.h"
 
 #include "common/inc/global/Framework.h"
@@ -94,7 +94,7 @@ void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
 
     const Component *subsystem = &sys_schema[alert_data->subsystem];
     const Component *component =
-            &subsystem->components[alert_data->componentId];
+        &subsystem->components[alert_data->componentId];
     const Driver *driver = component->components[alert_data->deviceId].driver;
     const Parameter *param = &driver->alerts[alert_id];
 
@@ -113,10 +113,9 @@ void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
     size_t param_size = (_paramSize(param) + 3) & ~0x03;
 
     OCMPMessageFrame *pMsg = create_ocmp_msg_frame(
-            alert_data->subsystem, OCMP_MSG_TYPE_ALERT, OCMP_AXN_TYPE_ACTIVE,
-            alert_data->componentId +
-                    1, /* TODO: inconsistency indexing in host */
-            parameters, param_size);
+        alert_data->subsystem, OCMP_MSG_TYPE_ALERT, OCMP_AXN_TYPE_ACTIVE,
+        alert_data->componentId + 1, /* TODO: inconsistency indexing in host */
+        parameters, param_size);
     if (pMsg) {
         memcpy(pMsg->message.ocmp_data, data, _paramSize(param));
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
@@ -246,7 +245,7 @@ static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
             Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t *)buffer);
         }
     }
-    pMsg->message.ocmp_data[0] = !(ret); //RETURN_OK =0;
+    pMsg->message.ocmp_data[0] = !(ret); // RETURN_OK =0;
     return ret;
 }
 
@@ -334,7 +333,7 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
         return false;
     }
     const Component *comp =
-            &subsystem->components[(pMsg->message.componentID) - 1];
+        &subsystem->components[(pMsg->message.componentID) - 1];
     /* TODO: clean up special handling for commands */
     bool dev_handled = false;
     switch (pMsg->message.msgtype) {
@@ -347,8 +346,8 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
             break;
         case OCMP_MSG_TYPE_POST:
             dev_handled = _handleMsgTypePOST(pMsg, comp, subsystem_id);
-            //pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
-            //Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
+            // pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
+            // Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
             break;
         default:
             break;
@@ -379,13 +378,13 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
         return;
     }
 
-    //const Component *component = &sys_schema[a1];
+    // const Component *component = &sys_schema[a1];
 
     while (1) {
         if (Semaphore_pend(ss->sem, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(ss->msgQueue)) {
                 OCMPMessageFrame *pMsg =
-                        (OCMPMessageFrame *)Util_dequeueMsg(ss->msgQueue);
+                    (OCMPMessageFrame *)Util_dequeueMsg(ss->msgQueue);
 
                 if (pMsg) {
                     /* Attempt to route the message to the correct driver
@@ -430,8 +429,8 @@ static void subsystem_init(OCMPSubsystem ss_id)
     Task_Params taskParams;
     Task_Params_init(&taskParams);
     taskParams.stack = OC_task_stack[ss_id]; // ss->taskStack;
-    taskParams.stackSize = OC_TASK_STACK_SIZE; //ss->taskStackSize;
-    taskParams.priority = OC_TASK_PRIORITY; //ss->taskPriority;
+    taskParams.stackSize = OC_TASK_STACK_SIZE; // ss->taskStackSize;
+    taskParams.priority = OC_TASK_PRIORITY; // ss->taskPriority;
     taskParams.arg0 = (UArg)ss;
     taskParams.arg1 = ss_id;
 

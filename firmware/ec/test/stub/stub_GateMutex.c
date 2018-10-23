@@ -12,8 +12,8 @@
 #include <ti/sysbios/gates/GateMutex.h>
 
 ti_sysbios_gates_GateMutex_Handle ti_sysbios_gates_GateMutex_create(
-        const ti_sysbios_gates_GateMutex_Params *__paramsPtr,
-        xdc_runtime_Error_Block *__eb)
+    const ti_sysbios_gates_GateMutex_Params *__paramsPtr,
+    xdc_runtime_Error_Block *__eb)
 {
     UNUSED(__paramsPtr);
     UNUSED(__eb);

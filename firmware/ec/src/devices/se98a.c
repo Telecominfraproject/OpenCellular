@@ -329,7 +329,7 @@ ReturnStatus se98a_init(SE98A_Dev *dev)
     }
 
     /* Make sure we're talking to the right device */
-    //if (se98a_probe(dev) != POST_DEV_FOUND) {
+    // if (se98a_probe(dev) != POST_DEV_FOUND) {
     //    return RETURN_NOTOK;
     //}
 

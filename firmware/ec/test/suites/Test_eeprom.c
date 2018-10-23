@@ -46,10 +46,10 @@ static const I2C_Dev I2C_DEV_1 = {
 };
 static Eeprom_Cfg s_dev = {
     .i2c_dev =
-            {
-                    .bus = 6,
-                    .slave_addr = 0x50,
-            },
+        {
+            .bus = 6,
+            .slave_addr = 0x50,
+        },
 };
 
 static uint16_t EEPROM_regs[] = {
@@ -189,10 +189,10 @@ extern const OcGpio_FnTable GpioSX1509_fnTable;
 OcGpio_Port s_fake_io_exp = {
     .fn_table = &GpioSX1509_fnTable,
     .cfg =
-            &(SX1509_Cfg){
-                    .i2c_dev = { 6, 0x45 },
-                    .pin_irq = NULL,
-            },
+        &(SX1509_Cfg){
+            .i2c_dev = { 6, 0x45 },
+            .pin_irq = NULL,
+        },
     .object_data = &(SX1509_Obj){},
 };
 
@@ -394,7 +394,7 @@ void test_eeprom_read_device_info_record(void)
     };
     memset(deviceinfo, 0, 10);
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
-                                         &c1_dev, recordno, deviceinfo));
+                                     &c1_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo);
 
     uint8_t recordno1 = 1;
@@ -409,7 +409,7 @@ void test_eeprom_read_device_info_record(void)
     };
     memset(deviceinfo1, 0, 10);
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
-                                         &c2_dev, recordno1, deviceinfo1));
+                                     &c2_dev, recordno1, deviceinfo1));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo1);
 
     uint8_t recordno2 = 1;
@@ -424,7 +424,7 @@ void test_eeprom_read_device_info_record(void)
     };
     memset(deviceinfo2, 0, 10);
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_device_info_record(
-                                         &c3_dev, recordno2, deviceinfo2));
+                                     &c3_dev, recordno2, deviceinfo2));
     TEST_ASSERT_EQUAL_STRING("SA", deviceinfo2);
 }
 
@@ -444,7 +444,7 @@ void test_eeprom_write_device_info_record(void)
     };
 
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
-                                         &d1_dev, recordno, deviceinfo));
+                                     &d1_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4153, EEPROM_regs[0x0A01]);
     strcpy(deviceinfo, "SB");
 
@@ -456,7 +456,7 @@ void test_eeprom_write_device_info_record(void)
     };
 
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
-                                         &d2_dev, recordno, deviceinfo));
+                                     &d2_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4253, EEPROM_regs[0x0A01]);
 
     strcpy(deviceinfo, "SC");
@@ -468,6 +468,6 @@ void test_eeprom_write_device_info_record(void)
     };
 
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_write_device_info_record(
-                                         &d3_dev, recordno, deviceinfo));
+                                     &d3_dev, recordno, deviceinfo));
     TEST_ASSERT_EQUAL(0x4353, EEPROM_regs[0x0A01]);
 }

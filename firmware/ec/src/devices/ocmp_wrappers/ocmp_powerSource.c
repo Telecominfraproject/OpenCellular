@@ -15,8 +15,9 @@
 static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
 {
     bool ret = false;
-    /* TODO: As of now using pwr_get_sourc_info as it is for Power source Update.
-     * Once we change the handing of the powersource status #298 this will also changed. */
+    /* TODO: As of now using pwr_get_sourc_info as it is for Power source
+     * Update. Once we change the handing of the powersource status #298 this
+     * will also changed. */
     pwr_get_source_info(driver);
     if (pwr_process_get_status_parameters_data(param_id, return_buf) ==
         RETURN_OK) {

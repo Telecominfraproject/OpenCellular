@@ -63,7 +63,7 @@ ReturnStatus LTC4015_cfg_icharge(LTC4015_Dev *dev,
     /* Maximum charge current target = (ICHARGE_TARGET + 1) * 1mV/RSNSB
      => ICHARGE_TARGET = (target*RSNSB/1mV)-1 */
     int icharge_target =
-            round((max_chargeCurrent * dev->cfg.r_snsb) / 1000.0) - 1;
+        round((max_chargeCurrent * dev->cfg.r_snsb) / 1000.0) - 1;
     icharge_target = MAX(0, icharge_target);
     return LTC4015_reg_write(dev, LTC4015_ICHARGE_TARGET_SUBADDR,
                              icharge_target);
@@ -74,8 +74,8 @@ ReturnStatus LTC4015_get_cfg_icharge(LTC4015_Dev *dev,
 {
     /* Maximum charge current target = (ICHARGE_TARGET + 1) * 1mV/RSNSB */
     uint16_t ichargeCurrent = 0x0000;
-    ReturnStatus status = LTC4015_reg_read(dev, LTC4015_ICHARGE_TARGET_SUBADDR,
-                                           &ichargeCurrent);
+    ReturnStatus status =
+        LTC4015_reg_read(dev, LTC4015_ICHARGE_TARGET_SUBADDR, &ichargeCurrent);
     *max_chargeCurrent = (ichargeCurrent + 1) * 1000 / dev->cfg.r_snsb;
     return status;
 }
@@ -111,8 +111,8 @@ LTC4015_get_cfg_vcharge(LTC4015_Dev *dev,
 {
     /* See datasheet, page 61:VCHARGE_SETTING */
     uint16_t vchargeSetting = 0x0000;
-    ReturnStatus status = LTC4015_reg_read(dev, LTC4015_VCHARGE_SETTING_SUBADDR,
-                                           &vchargeSetting);
+    ReturnStatus status =
+        LTC4015_reg_read(dev, LTC4015_VCHARGE_SETTING_SUBADDR, &vchargeSetting);
     switch (dev->cfg.chem) {
         case LTC4015_CHEM_LEAD_ACID:
             *charge_voltageLevel = round(((vchargeSetting / 105.0) + 2.0) *
@@ -152,7 +152,7 @@ static uint16_t voltage_to_vbat_reg(LTC4015_Dev *dev, int16_t voltage)
 }
 
 ReturnStatus LTC4015_cfg_battery_voltage_low(LTC4015_Dev *dev,
-                                             int16_t underVoltage) //millivolts
+                                             int16_t underVoltage) // millivolts
 {
     /* See datasheet, page 56:VBAT_LO_ALERT_LIMIT
      under voltage limit = [VBAT_*_ALERT_LIMIT] • x(uV) */
@@ -180,18 +180,18 @@ static int16_t vbat_reg_to_voltage(LTC4015_Dev *dev, uint16_t vbat_reg)
 
 ReturnStatus
 LTC4015_get_cfg_battery_voltage_low(LTC4015_Dev *dev,
-                                    int16_t *underVolatage) //millivolts
+                                    int16_t *underVolatage) // millivolts
 {
     /* See datasheet, page 56 */
     uint16_t vbatLoLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_VBAT_LO_ALERT_LIMIT_SUBADDR, &vbatLoLimit);
+        dev, LTC4015_VBAT_LO_ALERT_LIMIT_SUBADDR, &vbatLoLimit);
     *underVolatage = vbat_reg_to_voltage(dev, vbatLoLimit);
     return status;
 }
 
 ReturnStatus LTC4015_cfg_battery_voltage_high(LTC4015_Dev *dev,
-                                              int16_t overVoltage) //millivolts
+                                              int16_t overVoltage) // millivolts
 {
     /* See datasheet, page 56:VBAT_HI_ALERT_LIMIT
      under voltage limit = [VBAT_*_ALERT_LIMIT] • x(uV) */
@@ -201,12 +201,12 @@ ReturnStatus LTC4015_cfg_battery_voltage_high(LTC4015_Dev *dev,
 
 ReturnStatus
 LTC4015_get_cfg_battery_voltage_high(LTC4015_Dev *dev,
-                                     int16_t *overVoltage) //millivolts
+                                     int16_t *overVoltage) // millivolts
 {
     /* See datasheet, page 56 */
     uint16_t vbatHiLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_VBAT_HI_ALERT_LIMIT_SUBADDR, &vbatHiLimit);
+        dev, LTC4015_VBAT_HI_ALERT_LIMIT_SUBADDR, &vbatHiLimit);
     *overVoltage = vbat_reg_to_voltage(dev, vbatHiLimit);
     return status;
 }
@@ -224,13 +224,13 @@ LTC4015_cfg_input_voltage_low(LTC4015_Dev *dev,
 
 ReturnStatus
 LTC4015_get_cfg_input_voltage_low(LTC4015_Dev *dev,
-                                  int16_t *inpUnderVoltage) //millivolts
+                                  int16_t *inpUnderVoltage) // millivolts
 {
     /* See datasheet, page 56
      * VIN_LO_ALERT_LIMIT = (inpUnderVoltage/(1.648)) */
     uint16_t vInLoAlertLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_VIN_LO_ALERT_LIMIT_SUBADDR, &vInLoAlertLimit);
+        dev, LTC4015_VIN_LO_ALERT_LIMIT_SUBADDR, &vInLoAlertLimit);
     *inpUnderVoltage = (int16_t)vInLoAlertLimit * 1.648;
     return status;
 }
@@ -253,7 +253,7 @@ ReturnStatus LTC4015_get_cfg_input_current_high(LTC4015_Dev *dev,
      * IIN_HI_ALERT_LIMIT = ((inpOverCurrent*PWR_INT_BATT_RSNSI)/(1.46487)) */
     uint16_t iInHiALertLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_IIN_HI_ALERT_LIMIT_SUBADDR, &iInHiALertLimit);
+        dev, LTC4015_IIN_HI_ALERT_LIMIT_SUBADDR, &iInHiALertLimit);
     *inpOverCurrent = ((int16_t)iInHiALertLimit * 1.46487) / dev->cfg.r_snsi;
     return status;
 }
@@ -275,7 +275,7 @@ ReturnStatus LTC4015_get_cfg_battery_current_low(LTC4015_Dev *dev,
      * IBAT_LO_ALERT_LIMIT = ((current*PWR_INT_BATT_RSNSB)/(1.46487)) */
     uint16_t iBatLoAlertLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_IBAT_LO_ALERT_LIMIT_SUBADDR, &iBatLoAlertLimit);
+        dev, LTC4015_IBAT_LO_ALERT_LIMIT_SUBADDR, &iBatLoAlertLimit);
     *lowbattCurrent = ((int16_t)iBatLoAlertLimit * 1.46487) / dev->cfg.r_snsb;
     return status;
 }
@@ -297,7 +297,7 @@ ReturnStatus LTC4015_get_cfg_die_temperature_high(LTC4015_Dev *dev,
      * DIE_TEMP_HI_ALERT_LIMIT = (dieTemp • 12010)/45.6°C */
     uint16_t dieTempAlertLimit = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_DIE_TEMP_HI_ALERT_LIMIT_SUBADDR, &dieTempAlertLimit);
+        dev, LTC4015_DIE_TEMP_HI_ALERT_LIMIT_SUBADDR, &dieTempAlertLimit);
     *dieTemp = (((int16_t)dieTempAlertLimit - 12010) / 45.6);
     return status;
 }
@@ -310,20 +310,20 @@ LTC4015_cfg_input_current_limit(LTC4015_Dev *dev,
      IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
     /* TODO: range check? this is only a 6-bit register */
     uint16_t iInLimitSetting =
-            ((inputCurrentLimit * dev->cfg.r_snsi) / 500) - 1;
+        ((inputCurrentLimit * dev->cfg.r_snsi) / 500) - 1;
     return LTC4015_reg_write(dev, LTC4015_IIN_LIMIT_SETTING_SUBADDR,
                              iInLimitSetting);
 }
 
 ReturnStatus
 LTC4015_get_cfg_input_current_limit(LTC4015_Dev *dev,
-                                    uint16_t *currentLimit) //milli Amps
+                                    uint16_t *currentLimit) // milli Amps
 {
     /* See datasheet, page 56
      * Input current limit setting = (IIN_LIMIT_SETTING + 1) • 500uV / RSNSI */
     uint16_t iInlimitSetting = 0x0000;
     ReturnStatus status = LTC4015_reg_read(
-            dev, LTC4015_IIN_LIMIT_SETTING_SUBADDR, &iInlimitSetting);
+        dev, LTC4015_IIN_LIMIT_SETTING_SUBADDR, &iInlimitSetting);
     *currentLimit = ((iInlimitSetting + 1) * 500.0) / dev->cfg.r_snsi;
     return status;
 }
@@ -334,73 +334,73 @@ ReturnStatus LTC4015_get_die_temperature(LTC4015_Dev *dev,
     /* Datasheet page 71: temperature = (DIE_TEMP • 12010)/45.6°C */
     uint16_t dieTemperature = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_DIE_TEMP_SUBADDR, &dieTemperature);
+        LTC4015_reg_read(dev, LTC4015_DIE_TEMP_SUBADDR, &dieTemperature);
     *dieTemp = (((int16_t)dieTemperature - 12010) / 45.6);
     return status;
 }
 
 ReturnStatus LTC4015_get_battery_current(LTC4015_Dev *dev,
-                                         int16_t *iBatt) //milliAmps
+                                         int16_t *iBatt) // milliAmps
 {
     /* Page 70: Battery current = [IBAT] * 1.46487uV/Rsnsb */
     uint16_t batteryCurrent = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_IBAT_SUBADDR, &batteryCurrent);
+        LTC4015_reg_read(dev, LTC4015_IBAT_SUBADDR, &batteryCurrent);
     *iBatt = ((float)((int16_t)batteryCurrent * 1.46487)) / (dev->cfg.r_snsb);
     return status;
 }
 
 ReturnStatus LTC4015_get_input_current(LTC4015_Dev *dev,
-                                       int16_t *iIn) //milliAmps
+                                       int16_t *iIn) // milliAmps
 {
     /* Page 71: Input current = [IIN] • 1.46487uV/Rsnsi */
     uint16_t inputCurrent = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_IIN_SUBADDR, &inputCurrent);
+        LTC4015_reg_read(dev, LTC4015_IIN_SUBADDR, &inputCurrent);
     *iIn = ((float)((int16_t)inputCurrent * 1.46487)) / (dev->cfg.r_snsi);
     return status;
 }
 
 ReturnStatus LTC4015_get_battery_voltage(LTC4015_Dev *dev,
-                                         int16_t *vbat) //milliVolts
+                                         int16_t *vbat) // milliVolts
 {
     /* Page 71: 2's compliment VBATSENS/cellcount = [VBAT] • [x]uV */
     uint16_t batteryVoltage = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_VBAT_SUBADDR, &batteryVoltage);
+        LTC4015_reg_read(dev, LTC4015_VBAT_SUBADDR, &batteryVoltage);
     *vbat = vbat_reg_to_voltage(dev, batteryVoltage);
     return status;
 }
 
 ReturnStatus LTC4015_get_input_voltage(LTC4015_Dev *dev,
-                                       int16_t *vIn) //milliVolts
+                                       int16_t *vIn) // milliVolts
 {
     /* Page 71: 2's compliment Input voltage = [VIN] • 1.648mV */
     uint16_t inputVoltage = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_VIN_SUBADDR, &inputVoltage);
+        LTC4015_reg_read(dev, LTC4015_VIN_SUBADDR, &inputVoltage);
     *vIn = (int16_t)inputVoltage * 1.648;
     return status;
 }
 
 ReturnStatus LTC4015_get_system_voltage(LTC4015_Dev *dev,
-                                        int16_t *vSys) //milliVolts
+                                        int16_t *vSys) // milliVolts
 {
     /* Page 71: 2's compliment system voltage = [VSYS] • 1.648mV */
     uint16_t sysVoltage = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_VSYS_SUBADDR, &sysVoltage);
+        LTC4015_reg_read(dev, LTC4015_VSYS_SUBADDR, &sysVoltage);
     *vSys = (int16_t)sysVoltage * 1.648;
     return status;
 }
 
 ReturnStatus LTC4015_get_icharge_dac(LTC4015_Dev *dev,
-                                     int16_t *icharge) //milliAmps
+                                     int16_t *icharge) // milliAmps
 {
     /* Page 72: (ICHARGE_DAC + 1) • 1mV/RSNSB */
     uint16_t ichargeDAC = 0x0000;
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_ICHARGE_DAC_SUBADDR, &ichargeDAC);
+        LTC4015_reg_read(dev, LTC4015_ICHARGE_DAC_SUBADDR, &ichargeDAC);
     *icharge = (int16_t)((ichargeDAC + 1) / dev->cfg.r_snsb);
     return status;
 }
@@ -445,7 +445,7 @@ static ReturnStatus _read_charger_state_alerts(LTC4015_Dev *dev,
 static ReturnStatus _read_system_status(LTC4015_Dev *dev, uint16_t *regValue)
 {
     ReturnStatus status =
-            LTC4015_reg_read(dev, LTC4015_SYSTEM_STATUS_SUBADDR, regValue);
+        LTC4015_reg_read(dev, LTC4015_SYSTEM_STATUS_SUBADDR, regValue);
     return status;
 }
 

@@ -15,12 +15,12 @@
 #pragma once
 
 #ifndef XR20M1170_REGISTERS_H_
-#define XR20M1170_REGISTERS_H_
+#    define XR20M1170_REGISTERS_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+#    include <stdbool.h>
+#    include <stdint.h>
 
-#include "helpers/attribute.h"
+#    include "helpers/attribute.h"
 
 typedef enum XrRegister {
     XR_REG_RHR = 0x00, // LCR[7] = 0 (read only)
@@ -224,7 +224,8 @@ typedef enum ISR_SRC {
 
 typedef struct PACKED XrRegIsr {
     ISR_SRC source : 6;
-    uint8_t fifo_en : 2; // TODO: not sure why there's 2...datasheet doesn't elaborate - possibly TX vs RX, but it doesn't say
+    uint8_t fifo_en : 2; // TODO: not sure why there's 2...datasheet doesn't
+                         // elaborate - possibly TX vs RX, but it doesn't say
 } XrRegIsr;
 
 // General struct for configuring gpio pins

@@ -16,7 +16,8 @@
 
 static int GpioPCA9557_probe(const OcGpio_Port *port)
 {
-    /* if we are able to read configuration register this means PCA device is accessible*/
+    /* if we are able to read configuration register this means PCA device is
+     * accessible*/
     const PCA9557_Cfg *pca_cfg = port->cfg;
     PCA9557_Obj *obj = port->object_data;
     if (PCA9557_getConfig(&pca_cfg->i2c_dev, &obj->reg_config) != RETURN_OK) {
@@ -44,7 +45,7 @@ static int GpioPCA9557_init(const OcGpio_Port *port)
     /* Just in case, we'll read the true values */
     if (PCA9557_getOutput(&pca_cfg->i2c_dev, &obj->reg_output) != RETURN_OK ||
         PCA9557_getPolarity(&pca_cfg->i2c_dev, &obj->reg_polarity) !=
-                RETURN_OK ||
+            RETURN_OK ||
         PCA9557_getConfig(&pca_cfg->i2c_dev, &obj->reg_config) != RETURN_OK) {
         return OCGPIO_FAILURE;
     }

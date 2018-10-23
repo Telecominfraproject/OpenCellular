@@ -20,7 +20,7 @@ static GateMutex_Handle s_cb_data_mutex;
 
 static int GpioNative_probe(void)
 {
-    //This probe function is just a dummy as we are all ready accessing EC.
+    // This probe function is just a dummy as we are all ready accessing EC.
     return OCGPIO_SUCCESS;
 }
 void GpioNative_init(void)
@@ -92,7 +92,7 @@ static int GpioNative_configure(const OcGpio_Pin *pin, uint32_t cfg)
     } else {
         ti_cfg |= GPIO_CFG_OUTPUT;
         ti_cfg |=
-                (hw_cfg.out_cfg << GPIO_CFG_IO_LSB); /* Include od/pu/pd cfg */
+            (hw_cfg.out_cfg << GPIO_CFG_IO_LSB); /* Include od/pu/pd cfg */
         ti_cfg |= (hw_cfg.out_str << GPIO_CFG_OUT_STRENGTH_LSB);
         ti_cfg |= (io_cfg.default_val << GPIO_CFG_OUT_BIT);
     }

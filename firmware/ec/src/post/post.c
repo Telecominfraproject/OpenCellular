@@ -87,22 +87,22 @@ void _post_complete()
     uint8_t iter = 0;
     LOGGER_DEBUG("POST:INFO::POST test is completed.\n");
     LOGGER_DEBUG(
-            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+        "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG(
-            "|||||||||||||||||||||||||||||||||||||||||||||||||||||||POST TABLE|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+        "|||||||||||||||||||||||||||||||||||||||||||||||||||||||POST TABLE|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     /* POST results */
     for (iter = 0; iter < POST_RECORDS; iter++) {
         LOGGER_DEBUG(
-                "\t POST:INFO:: POSTRESULT SS: 0x%x Device S.No: 0x%x I2C Bus: 0x%x Device Addr: 0x%x Device Id: 0x%x Manufacture Id: 0x%x Status: 0x%x.\n",
-                PostResult[iter].subsystem, PostResult[iter].devSno,
-                PostResult[iter].i2cBus, PostResult[iter].devAddr,
-                PostResult[iter].devId, PostResult[iter].manId,
-                PostResult[iter].status);
+            "\t POST:INFO:: POSTRESULT SS: 0x%x Device S.No: 0x%x I2C Bus: 0x%x Device Addr: 0x%x Device Id: 0x%x Manufacture Id: 0x%x Status: 0x%x.\n",
+            PostResult[iter].subsystem, PostResult[iter].devSno,
+            PostResult[iter].i2cBus, PostResult[iter].devAddr,
+            PostResult[iter].devId, PostResult[iter].manId,
+            PostResult[iter].status);
     }
     LOGGER_DEBUG(
-            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+        "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG(
-            "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+        "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 }
 
 /*****************************************************************************
@@ -130,8 +130,10 @@ void post_init_POSTData(POSTData *pData, OCMPSubsystem subsystem,
 /*****************************************************************************
  **    FUNCTION NAME   : post_update_deviceInfo
  **
- **    DESCRIPTION     : Update bus, device address, manufacturing ID and device ID in  post struct.\
- **                      if no I2C bus is associated with device than it will be updated to 0xFF.
+ **    DESCRIPTION     : Update bus, device address, manufacturing ID and device
+ *ID in  post struct.\
+ **                      if no I2C bus is associated with device than it will be
+ *updated to 0xFF.
  **
  **    ARGUMENTS       : I2C Bus, Address, man Id, device Id.
  **
@@ -192,8 +194,8 @@ static void post_move_to_next_subsystem()
  *****************************************************************************/
 static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg)
 {
-    pPOSTMsg->message.subsystem =
-            OC_SS_SYS; //OC_SUBSYSTEM_MAX_LIMIT subsystem number taken for bigbrother
+    pPOSTMsg->message.subsystem = OC_SS_SYS; // OC_SUBSYSTEM_MAX_LIMIT subsystem
+                                             // number taken for bigbrother
     memcpy((pPOSTMsg->message.ocmp_data), &postState, 1);
     Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
                     (uint8_t *)pPOSTMsg);
@@ -243,9 +245,8 @@ static ReturnStatus post_process_msg(OCMPSubsystem OC_subSystem)
 static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem)
 {
     LOGGER_DEBUG("POST:INFO::Activation POST for SS %d.", OC_subSystem);
-    OCMPMessageFrame *postExeMsg =
-            create_ocmp_msg_frame(OC_subSystem, OCMP_MSG_TYPE_POST,
-                                  OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
+    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
+        OC_subSystem, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     return postExeMsg;
 }
 
@@ -271,7 +272,7 @@ static OCMPMessageFrame *post_create_enable_msg(OCMPSubsystem OC_subSystem)
         actionType = OCMP_AXN_TYPE_ENABLE;
     }
     OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
-            OC_subSystem, OCMP_MSG_TYPE_POST, actionType, 0x00, 0x00, 1);
+        OC_subSystem, OCMP_MSG_TYPE_POST, actionType, 0x00, 0x00, 1);
     return postExeMsg;
 }
 
@@ -292,8 +293,8 @@ static void post_activate(OCMPMessageFrame *pPOSTMsg)
                  "Subsystem %d.\n",
                  POST_subSystem);
     System_flush();
-    //Do the casting for the pMsg
-    //POSTAckstatus = (ReturnStatus) (pPOSTMsg->message.ocmp_data);
+    // Do the casting for the pMsg
+    // POSTAckstatus = (ReturnStatus) (pPOSTMsg->message.ocmp_data);
     memcpy(&POSTAckstatus, pPOSTMsg->message.ocmp_data, 1);
     if ((pPOSTMsg->message.subsystem == OC_SS_SYS) &&
         (pPOSTMsg->message.action == OCMP_AXN_TYPE_ACTIVE)) {
@@ -360,14 +361,14 @@ static void post_task_init(void)
     /*Creating RX Message Queue*/
     postRxMsgQueue = Util_constructQueue(&postRxMsg);
     LOGGER_DEBUG(
-            "POST:INFO::Constructing message Queue for 0x%x POST RX Messages.\n",
-            postRxMsgQueue);
+        "POST:INFO::Constructing message Queue for 0x%x POST RX Messages.\n",
+        postRxMsgQueue);
 
     /* Reset POST state to fail */
     postState = 0;
     POST_subSystem = OC_SS_SYS;
     OCMPMessageFrame *postEnableMsg = create_ocmp_msg_frame(
-            OC_SS_SYS, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
+        OC_SS_SYS, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     /*Ask for activate permission from BB system*/
     if (postEnableMsg) {
         Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
@@ -392,7 +393,7 @@ static void post_taskfxn(UArg a0, UArg a1)
         if (Semaphore_pend(semPOSTMsg, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(postRxMsgQueue)) {
                 OCMPMessageFrame *pWrite =
-                        (OCMPMessageFrame *)Util_dequeueMsg(postRxMsgQueue);
+                    (OCMPMessageFrame *)Util_dequeueMsg(postRxMsgQueue);
                 if (pWrite) {
                     post_process_rx_msg(pWrite);
                 }

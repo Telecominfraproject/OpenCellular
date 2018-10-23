@@ -21,14 +21,16 @@
 
 /* For enabling schema sharing between host and firmware we need to import the
  * factory config and driver config to schema.c as weak attribute from
- * OC_CONNECT1.C. This helps host compilation as it doesn't need to know symbol definition for the configs
- * and schema sharing can be achived with limited common files.
+ * OC_CONNECT1.C. This helps host compilation as it doesn't need to know symbol
+ * definition for the configs and schema sharing can be achived with limited
+ * common files.
  */
 #define SCHEMA_IMPORT extern __attribute__((weak))
 
 /* DriverStruct acts as a generic datatype.
- * In schema we are more intreseted in the address of structure so we use this datatype DriverStruct
- * to avoid the include header for the devices in the system.
+ * In schema we are more intreseted in the address of structure so we use this
+ * datatype DriverStruct to avoid the include header for the devices in the
+ * system.
  */
 typedef char DriverStruct;
 
@@ -78,9 +80,10 @@ typedef struct Post {
     const CB_POST cb_postCmd;
 } Post;
 
-// To avoid the awkward situation of not knowing how much to allocate for the return value (think
-// string returns), we instead rely on the 'get' and 'set' functions to allocate and return a
-// pointer to the value it wants to return via OCMP
+// To avoid the awkward situation of not knowing how much to allocate for the
+// return value (think string returns), we instead rely on the 'get' and 'set'
+// functions to allocate and return a pointer to the value it wants to return
+// via OCMP
 typedef bool (*StatusGet_Cb)(void *driver, unsigned int param_id,
                              void *return_buf);
 typedef bool (*ConfigGet_Cb)(void *driver, unsigned int param_id,
@@ -95,8 +98,8 @@ typedef ePostCode (*CB_Init)(void *driver, const void *config,
 typedef bool (*ssHook_Cb)(void *driver, void *return_buf);
 
 typedef struct Driver_fxnTable {
-    // TODO: These callbacks are a bit rough. They'll get the job done, but we should revisit other
-    // options (per-parameter callbacks for example)
+    // TODO: These callbacks are a bit rough. They'll get the job done, but we
+    // should revisit other options (per-parameter callbacks for example)
     StatusGet_Cb cb_get_status;
     ConfigGet_Cb cb_get_config;
     ConfigSet_Cb cb_set_config;
@@ -128,13 +131,14 @@ typedef struct Component {
     const char *name;
     const struct Component *components;
     const Driver *driver;
-    void *driver_cfg; // TODO: this could be turned into a standard polymorphism struct to hold the
-            // driver, hw config & driver object data (like we did for GPIO)
+    void *driver_cfg; // TODO: this could be turned into a standard polymorphism
+    // struct to hold the driver, hw config & driver object data (like we did
+    // for GPIO)
     const void *factory_config; /* Factory defaults for the device */
     const Command
-            *commands; /* TODO: super gross hack to fit into current CLI */
+        *commands; /* TODO: super gross hack to fit into current CLI */
     const SSHookSet *ssHookSet;
-    bool postDisabled; //Flag for POST execution.
+    bool postDisabled; // Flag for POST execution.
     void *ss;
 } Component;
 

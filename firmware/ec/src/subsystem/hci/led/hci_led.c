@@ -47,7 +47,7 @@ static void HCI_LedTaskFxn(UArg a0, UArg a1)
 {
     while (true) {
         if (s_ledState == SYSTEM_BOOT) {
-            //hci_led_system_boot();
+            // hci_led_system_boot();
         } else if ((s_ledState == SYSTEM_RUNNING) ||
                    (s_ledState == SYSTEM_FAILURE)) {
             OcGpio_write(&HCI->pin_ec_gpio, false);

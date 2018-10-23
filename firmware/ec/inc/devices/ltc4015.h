@@ -85,7 +85,7 @@ typedef struct LTC4015_HWCfg {
 
     /* TODO: this can be read from the IC itself */
     LTC4015_Chem
-            chem; /* Battery chemistry we're controlling (verified during init) */
+        chem; /* Battery chemistry we're controlling (verified during init) */
     uint8_t r_snsb; /* Value of SNSB resistor in milli-ohms */
     uint8_t r_snsi; /* Value of SNSI resistor in milli-ohms */
 

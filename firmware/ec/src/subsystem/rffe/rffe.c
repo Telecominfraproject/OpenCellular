@@ -82,7 +82,7 @@ bool rffe_pre_init(void *driver, void *returnValue)
     Fe_Ch2_Gain_Cfg *feCh2GainCfg = (Fe_Ch2_Gain_Cfg *)(feCfg->fe_ch2_gain_cfg);
     Fe_Ch2_Lna_Cfg *feCh2LnaCfg = (Fe_Ch2_Lna_Cfg *)(feCfg->fe_ch2_lna_cfg);
     Fe_Watchdog_Cfg *feWatchDogCfg =
-            (Fe_Watchdog_Cfg *)(feCfg->fe_watchdog_cfg);
+        (Fe_Watchdog_Cfg *)(feCfg->fe_watchdog_cfg);
     OcGpio_configure(&feCh2GainCfg->pin_ch1_2g_lb_band_sel_l,
                      OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&feCh2LnaCfg->pin_ch1_rf_pwr_off,
@@ -110,13 +110,13 @@ bool rffe_post_init(void *driver, void *ssState)
     Fe_Ch_Pwr_Cfg fe_ch2_pwrcfg = { .channel = RFFE_CHANNEL2,
                                     .fe_Rffecfg = (Fe_Cfg *)driver };
 
-    status |= rffe_ctrl_configure_power_amplifier(&fe_ch1_pwrcfg,
-                                                  RFFE_ACTIVATE_PA);
+    status |=
+        rffe_ctrl_configure_power_amplifier(&fe_ch1_pwrcfg, RFFE_ACTIVATE_PA);
 
-    status |= rffe_ctrl_configure_power_amplifier(&fe_ch2_pwrcfg,
-                                                  RFFE_ACTIVATE_PA);
+    status |=
+        rffe_ctrl_configure_power_amplifier(&fe_ch2_pwrcfg, RFFE_ACTIVATE_PA);
 
-    //rffe_powermonitor_createtask();
+    // rffe_powermonitor_createtask();
 
     /*Updating subsystem sate info*/
     LOGGER_DEBUG("RFFE:INFO:: Subsystem device check and configuration is %s\n",

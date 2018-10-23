@@ -60,7 +60,8 @@ static void HandleIRQ(void *context)
 
 static int GpioSX1509_probe(const OcGpio_Port *port)
 {
-    /* if we are able to read configuration register this means PCA device is accessible*/
+    /* if we are able to read configuration register this means PCA device is
+     * accessible*/
     const SX1509_Cfg *sx_cfg = port->cfg;
     uint8_t input_reg;
     if (ioexp_led_get_data(&sx_cfg->i2c_dev, 0, &input_reg) != RETURN_OK) {
@@ -118,7 +119,7 @@ static int GpioSX1509_write(const OcGpio_Pin *pin, bool value)
         const sx1509RegType bank = GetBank(pin->idx);
         const uint8_t pin_idx = RelativePinIdx(pin->idx);
         const uint8_t new_reg_value =
-                set_bit8(obj->regs[bank].data, pin_idx, value);
+            set_bit8(obj->regs[bank].data, pin_idx, value);
         if (ioexp_led_set_data(&sx_cfg->i2c_dev, bank, new_reg_value, 0x00) !=
             RETURN_OK) {
             goto cleanup;
@@ -173,8 +174,8 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
     const IArg mutexKey = GateMutex_enter(obj->mutex);
     {
         /* Invert the polarity (1) if necessary */
-        reg->polarity = set_bit8(reg->polarity, pin_idx,
-                                 pin->hw_cfg & OCGPIO_CFG_INVERT);
+        reg->polarity =
+            set_bit8(reg->polarity, pin_idx, pin->hw_cfg & OCGPIO_CFG_INVERT);
         if (ioexp_led_config_polarity(&sx_cfg->i2c_dev, bank, reg->polarity,
                                       0x00) != RETURN_OK) {
             goto cleanup;
@@ -197,7 +198,7 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
 
             /* Disable (1) the input buffer */
             reg->input_buf_disable =
-                    set_bit8(reg->input_buf_disable, pin_idx, 1);
+                set_bit8(reg->input_buf_disable, pin_idx, 1);
             if (ioexp_led_config_inputbuffer(&sx_cfg->i2c_dev, bank,
                                              reg->input_buf_disable,
                                              0x00) != RETURN_OK) {
@@ -216,7 +217,7 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
         } else {
             /* Enable (0) the input buffer */
             reg->input_buf_disable =
-                    set_bit8(reg->input_buf_disable, pin_idx, 0);
+                set_bit8(reg->input_buf_disable, pin_idx, 0);
             if (ioexp_led_config_inputbuffer(&sx_cfg->i2c_dev, bank,
                                              reg->input_buf_disable,
                                              0x00) != RETURN_OK) {
@@ -232,19 +233,17 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
             switch (bank) {
                 case SX1509_REG_A:
                     if (ioexp_led_config_edge_sense_A(
-                                &sx_cfg->i2c_dev,
-                                SX1509_EDGE_SENSE_REG_LOW_HIGH,
-                                LOBYTE(reg->edge_sense),
-                                HIBYTE(reg->edge_sense)) != RETURN_OK) {
+                            &sx_cfg->i2c_dev, SX1509_EDGE_SENSE_REG_LOW_HIGH,
+                            LOBYTE(reg->edge_sense),
+                            HIBYTE(reg->edge_sense)) != RETURN_OK) {
                         goto cleanup;
                     }
                     break;
                 case SX1509_REG_B:
                     if (ioexp_led_config_edge_sense_B(
-                                &sx_cfg->i2c_dev,
-                                SX1509_EDGE_SENSE_REG_LOW_HIGH,
-                                LOBYTE(reg->edge_sense),
-                                HIBYTE(reg->edge_sense)) != RETURN_OK) {
+                            &sx_cfg->i2c_dev, SX1509_EDGE_SENSE_REG_LOW_HIGH,
+                            LOBYTE(reg->edge_sense),
+                            HIBYTE(reg->edge_sense)) != RETURN_OK) {
                         goto cleanup;
                     }
                     break;
@@ -253,10 +252,10 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
                     goto cleanup;
             }
 
-            pu_en = ((pin->hw_cfg & OCGPIO_CFG_IN_PULL_MASK) ==
-                     OCGPIO_CFG_IN_PU);
-            pd_en = ((pin->hw_cfg & OCGPIO_CFG_IN_PULL_MASK) ==
-                     OCGPIO_CFG_IN_PD);
+            pu_en =
+                ((pin->hw_cfg & OCGPIO_CFG_IN_PULL_MASK) == OCGPIO_CFG_IN_PU);
+            pd_en =
+                ((pin->hw_cfg & OCGPIO_CFG_IN_PULL_MASK) == OCGPIO_CFG_IN_PD);
         }
 
         /* Set pull-up/down registers */
@@ -274,9 +273,8 @@ static int GpioSX1509_configure(const OcGpio_Pin *pin, uint32_t cfg)
 
         /* Set pin direction (0 output, 1 input) */
         reg->direction = set_bit8(reg->direction, pin_idx, io_cfg.dir);
-        if (ioexp_led_config_data_direction(&sx_cfg->i2c_dev, bank,
-                                            reg->direction,
-                                            0x00) != RETURN_OK) {
+        if (ioexp_led_config_data_direction(
+                &sx_cfg->i2c_dev, bank, reg->direction, 0x00) != RETURN_OK) {
             goto cleanup;
         }
 

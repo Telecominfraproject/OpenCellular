@@ -160,7 +160,7 @@ bool sbd9603_get_model(OBC_Iridium_Status_Data *pIridiumStatusData)
         ret = false;
     }
     /* Model string is verbose - if it's 9600 fam, replace with shorter
-	 * model number since we only have 4 characters */
+     * model number since we only have 4 characters */
     char *model = cgmmInfo.model;
     const char fam_str[] = "IRIDIUM 9600 Family";
     if (strncmp(model, fam_str, STATIC_STRLEN(fam_str)) == 0) {

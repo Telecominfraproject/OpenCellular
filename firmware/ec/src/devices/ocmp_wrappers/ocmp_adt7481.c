@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "common/inc/ocmp_wrappers/ocmp_adt7481.h"
 
 #include "helpers/array.h"
@@ -102,11 +102,11 @@ static ePostCode _init(void *driver, const void *config,
     }
     for (size_t i = 0; i < ARRAY_SIZE(adt7481_config->limits); ++i) {
         if (adt7481_set_local_temp_limit(
-                    driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
+                driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
             adt7481_set_remote1_temp_limit(
-                    driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
+                driver, i + 1, adt7481_config->limits[i]) != RETURN_OK ||
             adt7481_set_remote2_temp_limit(
-                    driver, i + 1, adt7481_config->limits[i]) != RETURN_OK) {
+                driver, i + 1, adt7481_config->limits[i]) != RETURN_OK) {
             return POST_DEV_CFG_FAIL;
         }
     }

@@ -17,8 +17,8 @@ bool I2C_write(I2C_Handle handle, uint8_t reg, unsigned char slaveAddress,
                const void *buffer, size_t size)
 {
     const size_t msg_size = sizeof(I2C_Message) + size;
-    uint8_t data
-            [msg_size]; // TODO: should probably use malloc instead of using stack
+    uint8_t data[msg_size]; // TODO: should probably use malloc instead of using
+                            // stack
     I2C_Message *msg = (I2C_Message *)data;
     msg->subAddr = reg;
     memcpy(&msg->data, buffer, size);

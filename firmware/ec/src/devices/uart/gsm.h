@@ -9,12 +9,12 @@
 #pragma once
 
 #ifndef GSM_H_
-#define GSM_H_
+#    define GSM_H_
 
-#include <ti/drivers/UART.h>
+#    include <ti/drivers/UART.h>
 
-#include <stdbool.h>
-#include <inttypes.h>
+#    include <stdbool.h>
+#    include <inttypes.h>
 
 typedef struct AT_Info *AT_Handle;
 typedef AT_Handle GSM_Handle;
@@ -113,8 +113,8 @@ bool GSM_cnmi(GSM_Handle handle, int mode, int mt, int bm, int ds, int bfr);
 typedef struct GsmCmgrInfo {
     char stat[12];
     char oa[15];
-    char alpha
-            [5]; // TODO: this isn't present with our module, what should it be?
+    char alpha[5]; // TODO: this isn't present with our module, what should it
+                   // be?
     char scts[16]; // service center timestamp
 } GsmCmgrInfo;
 bool GSM_cmgr(GSM_Handle handle, unsigned int index, char *sms_out,

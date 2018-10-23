@@ -227,7 +227,7 @@ static ePostCode _init(void *driver, const void *config,
 {
     ePostCode ret = POST_DEV_CFG_FAIL;
     ret = eth_sw_init(driver);
-    //TODO: Enabling of the ethernet interrupts requires soem more work.
+    // TODO: Enabling of the ethernet interrupts requires soem more work.
     /*
     eth_sw_setAlertHandler(driver,_alert_handler,(void *)alert_token);
     eth_enable_interrupt();*/

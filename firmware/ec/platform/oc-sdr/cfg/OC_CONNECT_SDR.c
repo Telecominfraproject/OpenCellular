@@ -31,37 +31,36 @@ Eeprom_Cfg eeprom_sdr_inv = {
 // SDR FPGA power sensor.
 INA226_Dev sdr_fpga_ps = {
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = OC_CONNECT1_I2C3,
-                                    .slave_addr = SDR_FPGA_CURRENT_SENSOR_ADDR,
-                            },
-                    .pin_alert = &(OcGpio_Pin){ &ec_io,
-                                                OC_EC_SDR_FPGA_TEMP_INA_ALERT },
-            },
+        {
+            .dev =
+                {
+                    .bus = OC_CONNECT1_I2C3,
+                    .slave_addr = SDR_FPGA_CURRENT_SENSOR_ADDR,
+                },
+            .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_SDR_FPGA_TEMP_INA_ALERT },
+        },
 };
 
-//SDR FPGA temperature sensor
+// SDR FPGA temperature sensor
 I2C_Dev sdr_fpga_ts = {
     .bus = OC_CONNECT1_I2C3,
     .slave_addr = SDR_FPGA_TEMP_SENSOR_ADDR,
 };
 
-//SDR EEPROM
+// SDR EEPROM
 void *sdr_eeprom_inventory = &eeprom_sdr_inv;
 
-//SDR Power sensor
+// SDR Power sensor
 INA226_Dev sdr_ps = {
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = OC_CONNECT1_I2C6,
-                                    .slave_addr = SDR_CURRENT_SENSOR_ADDR,
-                            },
-                    .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_SDR_INA_ALERT },
-            },
+        {
+            .dev =
+                {
+                    .bus = OC_CONNECT1_I2C6,
+                    .slave_addr = SDR_CURRENT_SENSOR_ADDR,
+                },
+            .pin_alert = &(OcGpio_Pin){ &ec_io, OC_EC_SDR_INA_ALERT },
+        },
 };
 
 // SDR IO EXPANDERS
@@ -69,7 +68,7 @@ S_OCGPIO_Cfg debug_sdr_ioexpanderx1E = {
     .port = &sdr_fx3_io,
 };
 
-//SDR Factory config
+// SDR Factory config
 const INA226_Config fact_sdr_3v_ps_cfg = {
     .current_lim = 3000,
 };

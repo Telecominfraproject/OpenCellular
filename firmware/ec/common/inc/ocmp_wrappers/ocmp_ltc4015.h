@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #ifndef _OCMP_LTC4015_H
 #define _OCMP_LTC4015_H
 
@@ -35,16 +35,16 @@ static const Driver LTC4015 = {
                              { .name = "ichargeDAC", .type = TYPE_INT16 },
                              {} },
     .config =
-            (Parameter[]){ { .name = "batteryVoltageLow", .type = TYPE_INT16 },
-                           { .name = "batteryVoltageHigh", .type = TYPE_INT16 },
-                           { .name = "batteryCurrentLow", .type = TYPE_INT16 },
-                           { .name = "inputVoltageLow", .type = TYPE_INT16 },
-                           { .name = "inputCurrentHigh", .type = TYPE_INT16 },
-                           { .name = "inputCurrentLimit", .type = TYPE_UINT16 },
-                           { .name = "icharge", .type = TYPE_UINT16 },
-                           { .name = "vcharge", .type = TYPE_UINT16 },
-                           { .name = "dieTemperature", .type = TYPE_INT16 },
-                           {} },
+        (Parameter[]){ { .name = "batteryVoltageLow", .type = TYPE_INT16 },
+                       { .name = "batteryVoltageHigh", .type = TYPE_INT16 },
+                       { .name = "batteryCurrentLow", .type = TYPE_INT16 },
+                       { .name = "inputVoltageLow", .type = TYPE_INT16 },
+                       { .name = "inputCurrentHigh", .type = TYPE_INT16 },
+                       { .name = "inputCurrentLimit", .type = TYPE_UINT16 },
+                       { .name = "icharge", .type = TYPE_UINT16 },
+                       { .name = "vcharge", .type = TYPE_UINT16 },
+                       { .name = "dieTemperature", .type = TYPE_INT16 },
+                       {} },
     .alerts = (Parameter[]){ { .name = "BVL", .type = TYPE_INT16 },
                              { .name = "BVH", .type = TYPE_INT16 },
                              { .name = "BCL", .type = TYPE_INT16 },

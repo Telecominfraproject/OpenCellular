@@ -32,8 +32,10 @@
     0x05 /* Output buffer low drive register I/O[7..0] (Bank A) */
 #define SX1509_REG_PULL_UP_B 0x06 /* Pull_up register I/O[15..8] (Bank B) */
 #define SX1509_REG_PULL_UP_A 0x07 /* Pull_up register I/O[7..0] (Bank A) */
-#define SX1509_REG_PULL_DOWN_B 0x08 /* Pull_down register I/O[15..8] (Bank B) */
-#define SX1509_REG_PULL_DOWN_A 0x09 /* Pull_down register I/O[7..0] (Bank A) */
+#define SX1509_REG_PULL_DOWN_B 0x08 /* Pull_down register I/O[15..8] (Bank B) \
+                                     */
+#define SX1509_REG_PULL_DOWN_A 0x09 /* Pull_down register I/O[7..0] (Bank A) \
+                                     */
 #define SX1509_REG_OPEN_DRAIN_B \
     0x0A /* Open drain register I/O[15..8] (Bank B) */
 #define SX1509_REG_OPEN_DRAIN_A \
@@ -50,8 +52,10 @@
     0x13 /* Interrupt mask register I/O[7..0] (Bank A) */
 #define SX1509_REG_SENSE_HIGH_B \
     0x14 /* Sense register for I/O[15:12] (Bank B) */
-#define SX1509_REG_SENSE_LOW_B 0x15 /* Sense register for I/O[11:8] (Bank B) */
-#define SX1509_REG_SENSE_HIGH_A 0x16 /* Sense register for I/O[7:4] (Bank A) */
+#define SX1509_REG_SENSE_LOW_B 0x15 /* Sense register for I/O[11:8] (Bank B) \
+                                     */
+#define SX1509_REG_SENSE_HIGH_A 0x16 /* Sense register for I/O[7:4] (Bank A) \
+                                      */
 #define SX1509_REG_SENSE_LOW_A 0x17 /* Sense register for I/O[3:0] (Bank A) */
 #define SX1509_REG_INTERRUPT_SOURCE_B \
     0x18 /* Interrupt source register I/O[15..8] (Bank B) */
@@ -258,8 +262,8 @@ ReturnStatus ioexp_led_get_data(const I2C_Dev *i2c_dev, sx1509RegType regType,
                                 uint8_t *regValue)
 {
     ReturnStatus status = RETURN_OK;
-    uint8_t regAddress = (regType == SX1509_REG_A) ? (SX1509_REG_DATA_A) :
-                                                     (SX1509_REG_DATA_B);
+    uint8_t regAddress =
+        (regType == SX1509_REG_A) ? (SX1509_REG_DATA_A) : (SX1509_REG_DATA_B);
     status = ioexp_led_raw_read(i2c_dev, regAddress, regValue);
     return status;
 }
@@ -281,8 +285,8 @@ ReturnStatus ioexp_led_set_data(const I2C_Dev *i2c_dev, sx1509RegType regType,
 {
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
-    uint8_t regAddress = (regType == SX1509_REG_A) ? (SX1509_REG_DATA_A) :
-                                                     (SX1509_REG_DATA_B);
+    uint8_t regAddress =
+        (regType == SX1509_REG_A) ? (SX1509_REG_DATA_A) : (SX1509_REG_DATA_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -308,8 +312,8 @@ ReturnStatus ioexp_led_set_on_time(const I2C_Dev *i2c_dev, uint8_t index,
                                    uint8_t tOnRegValue)
 {
     ReturnStatus status = RETURN_OK;
-    status = ioexp_led_raw_write(i2c_dev, SX1509_REG_T_ON[index], tOnRegValue,
-                                 0, 1);
+    status =
+        ioexp_led_raw_write(i2c_dev, SX1509_REG_T_ON[index], tOnRegValue, 0, 1);
     return status;
 }
 
@@ -329,8 +333,8 @@ ReturnStatus ioexp_led_set_off_time(const I2C_Dev *i2c_dev, uint8_t index,
                                     uint8_t tOffRegValue)
 {
     ReturnStatus status = RETURN_OK;
-    status = ioexp_led_raw_write(i2c_dev, SX1509_REG_OFF[index], tOffRegValue,
-                                 0, 1);
+    status =
+        ioexp_led_raw_write(i2c_dev, SX1509_REG_OFF[index], tOffRegValue, 0, 1);
     return status;
 }
 
@@ -378,8 +382,8 @@ ReturnStatus ioexp_led_config_inputbuffer(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_REG_A) ?
-                                 (SX1509_REG_INPUT_DISABLE_A) :
-                                 (SX1509_REG_INPUT_DISABLE_B);
+                             (SX1509_REG_INPUT_DISABLE_A) :
+                             (SX1509_REG_INPUT_DISABLE_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -499,7 +503,7 @@ ReturnStatus ioexp_led_config_data_direction(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress =
-            (regType == SX1509_REG_A) ? (SX1509_REG_DIR_A) : (SX1509_REG_DIR_B);
+        (regType == SX1509_REG_A) ? (SX1509_REG_DIR_A) : (SX1509_REG_DIR_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -609,8 +613,8 @@ ReturnStatus ioexp_led_enable_leddriver(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_REG_A) ?
-                                 (SX1509_REG_LED_DRIVER_ENABLE_A) :
-                                 (SX1509_REG_LED_DRIVER_ENABLE_B);
+                             (SX1509_REG_LED_DRIVER_ENABLE_A) :
+                             (SX1509_REG_LED_DRIVER_ENABLE_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -659,8 +663,8 @@ ReturnStatus ioexp_led_config_interrupt(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_REG_A) ?
-                                 (SX1509_REG_INTERRUPT_MASK_A) :
-                                 (SX1509_REG_INTERRUPT_MASK_B);
+                             (SX1509_REG_INTERRUPT_MASK_A) :
+                             (SX1509_REG_INTERRUPT_MASK_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -696,8 +700,8 @@ ReturnStatus ioexp_led_config_edge_sense_A(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_EDGE_SENSE_REG_LOW) ?
-                                 (SX1509_REG_SENSE_LOW_A) :
-                                 (SX1509_REG_SENSE_HIGH_A);
+                             (SX1509_REG_SENSE_LOW_A) :
+                             (SX1509_REG_SENSE_HIGH_A);
     if (regType == SX1509_EDGE_SENSE_REG_LOW_HIGH) {
         noOfBytes = 2;
     }
@@ -727,8 +731,8 @@ ReturnStatus ioexp_led_config_edge_sense_B(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_EDGE_SENSE_REG_LOW) ?
-                                 (SX1509_REG_SENSE_LOW_B) :
-                                 (SX1509_REG_SENSE_HIGH_B);
+                             (SX1509_REG_SENSE_LOW_B) :
+                             (SX1509_REG_SENSE_HIGH_B);
     if (regType == SX1509_EDGE_SENSE_REG_LOW_HIGH) {
         noOfBytes = 2;
     }
@@ -795,8 +799,8 @@ ReturnStatus ioexp_led_enable_debounce(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t noOfBytes = 1;
     uint8_t regAddress = (regType == SX1509_REG_A) ?
-                                 (SX1509_REG_DEBOUNCE_ENABLE_A) :
-                                 (SX1509_REG_DEBOUNCE_ENABLE_B);
+                             (SX1509_REG_DEBOUNCE_ENABLE_A) :
+                             (SX1509_REG_DEBOUNCE_ENABLE_B);
     if (regType == SX1509_REG_AB) {
         noOfBytes = 2;
     }
@@ -825,13 +829,13 @@ ReturnStatus ioexp_led_get_interrupt_source(const I2C_Dev *i2c_dev,
     uint8_t regValueA = 0;
     uint8_t regValueB = 0;
 
-    status = ioexp_led_raw_read(i2c_dev, SX1509_REG_INTERRUPT_SOURCE_A,
-                                &regValueA);
+    status =
+        ioexp_led_raw_read(i2c_dev, SX1509_REG_INTERRUPT_SOURCE_A, &regValueA);
     if (status != RETURN_OK) {
         return status;
     }
-    status = ioexp_led_raw_read(i2c_dev, SX1509_REG_INTERRUPT_SOURCE_B,
-                                &regValueB);
+    status =
+        ioexp_led_raw_read(i2c_dev, SX1509_REG_INTERRUPT_SOURCE_B, &regValueB);
     *intPins = (uint16_t)((regValueB << 8) | regValueA);
     return status;
 }

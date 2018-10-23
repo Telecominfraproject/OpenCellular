@@ -63,7 +63,7 @@
 #if defined(TIVAWARE)
 typedef uint32_t USBCDCDEventType;
 #else
-#define eUSBModeForceDevice USB_MODE_FORCE_DEVICE
+#    define eUSBModeForceDevice USB_MODE_FORCE_DEVICE
 typedef unsigned long USBCDCDEventType;
 #endif
 

@@ -24,23 +24,23 @@ static OcGpio_Port s_fake_io_port = {
 
 static SE98A_Dev s_dev = {
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = 3,
-                                    .slave_addr = 0x1A,
-                            },
-            },
+        {
+            .dev =
+                {
+                    .bus = 3,
+                    .slave_addr = 0x1A,
+                },
+        },
 };
 static SE98A_Dev s_invalid = {
     .cfg =
-            {
-                    .dev =
-                            {
-                                    .bus = 3,
-                                    .slave_addr = 0xFF,
-                            },
-            },
+        {
+            .dev =
+                {
+                    .bus = 3,
+                    .slave_addr = 0xFF,
+                },
+        },
 };
 
 static uint16_t SE98A_regs[] = {
@@ -119,10 +119,10 @@ void test_se98a_init(void)
     /* Now try to init with a pin associated */
     SE98A_Dev alerted_dev = {
         .cfg =
-                {
-                        .dev = s_dev.cfg.dev,
-                        .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-                },
+            {
+                .dev = s_dev.cfg.dev,
+                .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+            },
     };
     TEST_ASSERT_EQUAL(RETURN_OK, se98a_init(&alerted_dev));
 }
@@ -169,22 +169,22 @@ void test_se98a_alerts(void)
     /* Now try to init with a pin associated */
     SE98A_Dev alerted_dev = {
         .cfg =
-                {
-                        .dev = s_dev.cfg.dev,
-                        .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 5 },
-                },
+            {
+                .dev = s_dev.cfg.dev,
+                .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 5 },
+            },
     };
     TEST_ASSERT_EQUAL(RETURN_OK, se98a_init(&alerted_dev));
 
     TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            se98a_set_limit(&alerted_dev, CONF_TEMP_SE98A_LOW_LIMIT_REG, -10));
+        RETURN_OK,
+        se98a_set_limit(&alerted_dev, CONF_TEMP_SE98A_LOW_LIMIT_REG, -10));
     TEST_ASSERT_EQUAL(
-            RETURN_OK,
-            se98a_set_limit(&alerted_dev, CONF_TEMP_SE98A_HIGH_LIMIT_REG, 75));
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      se98a_set_limit(&alerted_dev,
-                                      CONF_TEMP_SE98A_CRITICAL_LIMIT_REG, 80));
+        RETURN_OK,
+        se98a_set_limit(&alerted_dev, CONF_TEMP_SE98A_HIGH_LIMIT_REG, 75));
+    TEST_ASSERT_EQUAL(
+        RETURN_OK,
+        se98a_set_limit(&alerted_dev, CONF_TEMP_SE98A_CRITICAL_LIMIT_REG, 80));
     se98a_set_alert_handler(&alerted_dev, alert_handler, NULL);
     s_task_sleep_ticks = 0;
     TEST_ASSERT_EQUAL(RETURN_OK, se98a_enable_alerts(&alerted_dev));

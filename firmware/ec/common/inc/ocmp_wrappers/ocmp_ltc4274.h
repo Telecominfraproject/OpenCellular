@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #ifndef _OCMP_LTC4274_H_
 #define _OCMP_LTC4274_H_
 
@@ -51,8 +51,8 @@ static const Driver LTC4274 = {
                              { .name = "SupplyAlert", .type = TYPE_UINT8 },
                              {} },
     .commands = (Command[]){ {
-                                     .name = "reset",
-                                     .cb_cmd = LTC4274_reset,
+                                 .name = "reset",
+                                 .cb_cmd = LTC4274_reset,
                              },
                              {} },
     .fxnTable = &LTC4274_fxnTable,

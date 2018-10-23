@@ -22,12 +22,12 @@ static const Driver OC_I2C = {
                               { .name = "reg_values", .type = TYPE_UINT16 },
                               {} },
     .commands = (Command[]){ {
-                                     .name = "get",
-                                     .cb_cmd = i2c_read,
+                                 .name = "get",
+                                 .cb_cmd = i2c_read,
                              },
                              {
-                                     .name = "set",
-                                     .cb_cmd = i2c_write,
+                                 .name = "set",
+                                 .cb_cmd = i2c_write,
                              },
                              {} },
 };

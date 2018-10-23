@@ -73,12 +73,12 @@ typedef struct AtResultString {
 // These are AT standard - we want to do a full string match
 static const AtResultString AtResultStringMap[] = {
     {
-            .str = "OK",
-            .code = AT_RESULT_CODE_OK,
+        .str = "OK",
+        .code = AT_RESULT_CODE_OK,
     },
     {
-            .str = "ERROR",
-            .code = AT_RESULT_CODE_ERROR,
+        .str = "ERROR",
+        .code = AT_RESULT_CODE_ERROR,
     },
 };
 
@@ -86,12 +86,12 @@ static const AtResultString AtResultStringMap[] = {
 // TODO: these probably shouldn't be hardcoded in this module
 static const AtResultString AtCustomResultStrings[] = {
     {
-            .str = "+CMS ERROR:",
-            .code = AT_RESULT_CODE_ERROR_CUSTOM,
+        .str = "+CMS ERROR:",
+        .code = AT_RESULT_CODE_ERROR_CUSTOM,
     },
     {
-            .str = "+CME ERROR:",
-            .code = AT_RESULT_CODE_ERROR_CUSTOM,
+        .str = "+CME ERROR:",
+        .code = AT_RESULT_CODE_ERROR_CUSTOM,
     },
 };
 
@@ -104,11 +104,11 @@ bool AT_cmd_write_data(AT_Handle handle, const void *data, size_t data_len)
         return false;
     }
 
-    //DEBUG("Write: ");
+    // DEBUG("Write: ");
     for (int i = 0; i < data_len; ++i) {
         //    DEBUG("%x ", ((uint8_t *)data)[i]);
     }
-    //DEBUG("\n");
+    // DEBUG("\n");
     return (UART_write(handle->uartHandle, data, data_len) == data_len);
 }
 
@@ -212,10 +212,10 @@ typedef struct At_RawResponse {
 static const DefLineType LINE_TYPES[COUNT_AT_LINE_TYPE] = {
     [AT_LINE_TYPE_RESPONSE] = { .pfx = RES_PREFIX, .sfx = RES_SUFFIX },
     [AT_LINE_TYPE_CMD_ECHO] =
-            {
-                    .pfx = CMD_PREFIX,
-                    .sfx = CMD_SUFFIX,
-            },
+        {
+            .pfx = CMD_PREFIX,
+            .sfx = CMD_SUFFIX,
+        },
 };
 
 static AtLineType get_line_type(AT_Handle handle, char *buf, size_t buf_size,
@@ -273,8 +273,8 @@ static bool AT_cmd_read_line(AT_Handle handle, At_RawResponse *res)
 {
     // Figure out what type of response this is
     int lineLen = 0;
-    res->type = get_line_type(handle, handle->s_buf, sizeof(handle->s_buf),
-                              &lineLen);
+    res->type =
+        get_line_type(handle, handle->s_buf, sizeof(handle->s_buf), &lineLen);
 
     if (res->type == AT_LINE_TYPE_INVALID) {
         return false;
@@ -286,8 +286,8 @@ static bool AT_cmd_read_line(AT_Handle handle, At_RawResponse *res)
         case AT_LINE_TYPE_BINARY:
             if (handle->binaryReadHandler) {
                 handle->s_bufLen =
-                        lineLen +
-                        1; // TODO: this is dumb, get_line_type should just know about the temp buf
+                    lineLen + 1; // TODO: this is dumb, get_line_type should
+                                 // just know about the temp buf
                 res->size = handle->binaryReadHandler(handle, res->data);
                 handle->binaryReadHandler = NULL;
                 return (res->size >= 0);
@@ -379,7 +379,8 @@ static bool check_unsolicited(AT_Handle handle, At_RawResponse *rawRes)
     const char *str = (char *)rawRes->data;
     while (handle->unsolicitedResponses[i].fmt) {
         const AT_UnsolicitedRes *curItem = &handle->unsolicitedResponses[i];
-        // TODO: can probably clean up a bit to avoid strlen, but I'm not worried
+        // TODO: can probably clean up a bit to avoid strlen, but I'm not
+        // worried
         if (strncmp(curItem->fmt, str, strlen(curItem->fmt)) == 0) {
             if (curItem->cb) {
                 // See if there's more than just the prefix (did we get data?)
@@ -425,7 +426,7 @@ AT_Handle AT_cmd_init(UART_Handle hCom, const AT_UnsolicitedRes *resList,
 
     // Flush the UART as best we can
     // TODO: this might cause morebugs than it fixes
-    //AT_cmd_clear_buf(handle, 0);
+    // AT_cmd_clear_buf(handle, 0);
 
     handle->inbox = Mailbox_create(sizeof(At_RawResponse), 10, NULL, NULL);
 
@@ -490,7 +491,8 @@ bool AT_cmd_parse_response(const char *str, const char *cmd,
     // Make sure this is from the command we expect
     if (cmd) {
         int cmd_len = (cur - str);
-        // TODO: double-check the strncmp's here - can probably use memcmp instead
+        // TODO: double-check the strncmp's here - can probably use memcmp
+        // instead
         if ((strlen(cmd) < cmd_len) || (strncmp(str, cmd, cmd_len) != 0)) {
             DEBUG("Response %.*s is not for %s\n", cmd_len, str, cmd);
             return false;
@@ -588,7 +590,8 @@ static bool v_write_command(AT_Handle handle, const char *cmd_fmt, va_list argv)
            AT_cmd_write_data(handle, CMD_SUFFIX, strlen(CMD_SUFFIX));
 }
 
-// TODO: should probably ensure rx buffer is empty before sending new command, in case parser messed up
+// TODO: should probably ensure rx buffer is empty before sending new command,
+// in case parser messed up
 // TODO: I think this is dead code now
 bool AT_cmd_write_command(AT_Handle handle, const char *cmd_fmt, ...)
 {
@@ -679,10 +682,12 @@ bool AT_cmd_get_response(AT_Handle handle, void *res_buf, size_t res_len)
 
             if (res_buf) {
                 // TODO: bounds checking
-                // TODO: I probably shouldn't copy in data for a response I'm not expecting (eg unhandled unsolicited response)
+                // TODO: I probably shouldn't copy in data for a response I'm
+                // not expecting (eg unhandled unsolicited response)
                 memcpy(res_buf, res.data, MIN(res_len, res.size));
             } else {
-                DEBUG("Wasn't expecting information response but got one anyway\n");
+                DEBUG(
+                    "Wasn't expecting information response but got one anyway\n");
             }
             continue;
         }
@@ -695,7 +700,8 @@ bool AT_cmd_get_response(AT_Handle handle, void *res_buf, size_t res_len)
                 return false;
             case AT_RESULT_CODE_OK:
                 if (res_buf && !info_resp) {
-                    DEBUG("was expecting information response but didn't get one\n");
+                    DEBUG(
+                        "was expecting information response but didn't get one\n");
                 }
                 DEBUG("%s: OK\n", res.data);
                 return true;

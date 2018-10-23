@@ -142,9 +142,9 @@ static uint8_t SX1509_regs[] = {
 static const OcGpio_Port s_sx1509_ioexp = {
     .fn_table = &GpioSX1509_fnTable,
     .cfg =
-            &(SX1509_Cfg){
-                    .i2c_dev = { I2C_BUS, I2C_ADDR },
-            },
+        &(SX1509_Cfg){
+            .i2c_dev = { I2C_BUS, I2C_ADDR },
+        },
     .object_data = &(SX1509_Obj){},
 };
 

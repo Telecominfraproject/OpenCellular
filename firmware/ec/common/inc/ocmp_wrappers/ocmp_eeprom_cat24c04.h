@@ -21,10 +21,10 @@ SCHEMA_IMPORT const Driver_fxnTable CAT24C04_fe_inv_fxnTable;
 static const Driver CAT24C04_gbc_sid = {
     .name = "EEPROM",
     .status =
-            (Parameter[]){
-                    { .name = "ocserialinfo", .type = TYPE_STR, .size = 21 },
-                    { .name = "gbcboardinfo", .type = TYPE_STR, .size = 21 },
-            },
+        (Parameter[]){
+            { .name = "ocserialinfo", .type = TYPE_STR, .size = 21 },
+            { .name = "gbcboardinfo", .type = TYPE_STR, .size = 21 },
+        },
     .fxnTable = &CAT24C04_gbc_sid_fxnTable,
 };
 
@@ -34,32 +34,31 @@ static const Driver CAT24C04_gbc_inv = {
 };
 static const Driver CAT24C04_sdr_inv = {
     .name = "Inventory",
-    .status = (Parameter[]){ { .name = "dev_id", .type = TYPE_STR, .size = 19 },
-                             {} },
+    .status =
+        (Parameter[]){ { .name = "dev_id", .type = TYPE_STR, .size = 19 }, {} },
     .fxnTable = &CAT24C04_sdr_inv_fxnTable,
 };
 
 static const Driver CAT24C04_fe_inv = {
     .name = "Inventory",
-    .status = (Parameter[]){ { .name = "dev_id", .type = TYPE_STR, .size = 18 },
-                             {} },
+    .status =
+        (Parameter[]){ { .name = "dev_id", .type = TYPE_STR, .size = 18 }, {} },
     .fxnTable = &CAT24C04_fe_inv_fxnTable,
 };
 
-static const Driver SYSTEMDRV = {
-    .name = "SYSTEMDRV",
-    .status = (Parameter[]){ {} },
-    .config = (Parameter[]){ {} },
-    .alerts = (Parameter[]){ {} },
-    .post = (Post[]){ {
-                              .name = "results",
-                              .cb_postCmd = SYS_post_get_results,
-                      },
-                      {
-                              .name = "enable",
-                              .cb_postCmd = SYS_post_enable,
-                      },
-                      {} }
-};
+static const Driver SYSTEMDRV = { .name = "SYSTEMDRV",
+                                  .status = (Parameter[]){ {} },
+                                  .config = (Parameter[]){ {} },
+                                  .alerts = (Parameter[]){ {} },
+                                  .post = (Post[]){
+                                      {
+                                          .name = "results",
+                                          .cb_postCmd = SYS_post_get_results,
+                                      },
+                                      {
+                                          .name = "enable",
+                                          .cb_postCmd = SYS_post_enable,
+                                      },
+                                      {} } };
 
 #endif /* INC_DEVICES_OCMP_EEPROM_H_ */

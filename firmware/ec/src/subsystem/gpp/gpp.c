@@ -59,17 +59,17 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
         SysCtlDelay(1000);
         /* Embedded Boot Management Protocol (EBMP)for Application processor(AP)
          * EBMP tells EC firmware about the boot process stages of the AP to the
-         * Embedded Controller(EC) by toggling two GPIO's.ebmp_init is a function
-         * where we register the required GPIO's for interrupts if AP move from one boot
-         * process state to other.*/
+         * Embedded Controller(EC) by toggling two GPIO's.ebmp_init is a
+         * function where we register the required GPIO's for interrupts if AP
+         * move from one boot process state to other.*/
         ebmp_init(driver);
         SysCtlDelay(100);
         OcGpio_write(&driver->pin_ap_12v_onoff, true);
         SysCtlDelay(100);
 
         if (gpp_check_core_power(driver)) {
-            //OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
-            //SysCtlDelay(10);
+            // OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
+            // SysCtlDelay(10);
             if (gpp_check_processor_reset(driver)) {
                 ret = true;
                 LOGGER_DEBUG("GPP:INFO:: Processor out of reset.\n");
@@ -127,12 +127,12 @@ bool gpp_post_init(void *driver, void *ssState)
     eSubSystemStates *newState = (eSubSystemStates *)ssState;
     if (!gpp_pwrgd_protection(driver)) {
         LOGGER_DEBUG(
-                "GPP:INFO:: LT4256 EC power good is for genration of 12V ok.\n");
+            "GPP:INFO:: LT4256 EC power good is for genration of 12V ok.\n");
     } else {
         *newState = SS_STATE_FAULTY;
         return ret;
     }
-    //Power on processor.
+    // Power on processor.
     if (gpp_pmic_control(driver, OC_PMIC_ENABLE)) {
         *newState = SS_STATE_CFG;
         ret = true;
@@ -142,7 +142,8 @@ bool gpp_post_init(void *driver, void *ssState)
     /*mSATA DAS not helping with anything as of now.*/
     //        if (!gpp_msata_das()) {
     //            returnValue = SS_STATE_FAULTY;
-    //            LOGGER_ERROR("GPP:ERROR:: GPP mSATA device activity failure.\n");
+    //            LOGGER_ERROR("GPP:ERROR:: GPP mSATA device activity
+    //            failure.\n");
     //        }
     return ret;
 }

@@ -57,7 +57,8 @@
  *      1 : Enable thermistor ratio high (cold battery) alert
  *      0 : Enable thermistor ratio low (hot battery) alert
  */
-//  Enable limit monitoring and alert notification via SMBALERT - BITS[15:0] 0x0000
+//  Enable limit monitoring and alert notification via SMBALERT - BITS[15:0]
+//  0x0000
 #define LTC4015_EN_LIMIT_ALERTS_SUBADDR 0x0D
 
 /*  Bit fields:
@@ -89,13 +90,17 @@
 //  Enable charge status alert notification via SMBALERT - BITS[15:0] 0x0000
 #define LTC4015_EN_CHARGE_STATUS_ALERTS_SUBADDR 0x0F
 
-// Coulomb counter QCOUNT low alert limit, same format as QCOUNT (0x13)  - BITS[15:0] : 0x0000
+// Coulomb counter QCOUNT low alert limit, same format as QCOUNT (0x13)  -
+// BITS[15:0] : 0x0000
 #define LTC4015_QCOUNT_LO_ALERT_LIMIT_SUBADDR 0x10
-// Coulomb counter QCOUNT high alert limit, same format as QCOUNT (0x13) - BITS[15:0] : 0x0000
+// Coulomb counter QCOUNT high alert limit, same format as QCOUNT (0x13) -
+// BITS[15:0] : 0x0000
 #define LTC4015_QCOUNT_HI_ALERT_LIMIT_SUBADDR 0x11
-// Coulomb counter prescale factor                                       - BITS[15:0] : 0x0200
+// Coulomb counter prescale factor                                       -
+// BITS[15:0] : 0x0200
 #define LTC4015_QCOUNT_PRESCALE_FACTOR_SUBADDR 0x12
-// Coulomb counter value                                                 - BITS[15:0] : 0x8000
+// Coulomb counter value                                                 -
+// BITS[15:0] : 0x8000
 #define LTC4015_QCOUNT_SUBADDR 0x13
 
 /*  Bit fields:
@@ -112,19 +117,24 @@
 // Configuration Settings  - BITS[15:0] : 0x0000
 #define LTC4015_CONFIG_BITS_SUBADDR 0x14
 
-// Input current limit setting = (IIN_LIMIT_SETTING + 1) • 500uV / RSNSI - BITS[5:0] : 0x3F
+// Input current limit setting = (IIN_LIMIT_SETTING + 1) • 500uV / RSNSI -
+// BITS[5:0] : 0x3F
 #define LTC4015_IIN_LIMIT_SETTING_SUBADDR 0x15
-// UVCLFB input undervoltage limit = (VIN_UVCL_SETTING + 1) • 4.6875mV   - BITS[7:0] : 0xFF
+// UVCLFB input undervoltage limit = (VIN_UVCL_SETTING + 1) • 4.6875mV   -
+// BITS[7:0] : 0xFF
 #define LTC4015_VIN_UVCL_SETTING_SUBADDR 0x16
 #define LTC4015_RESERVED_0X17_SUBADDR 0x17
 #define LTC4015_RESERVED_0X18_SUBADDR 0x18
 // Write 0x534D to arm ship mode. Once armed, ship mode cannot be disarmed.
 #define LTC4015_ARM_SHIP_MODE_SUBADDR 0x19
-// Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB      - BITS[4:0]
+// Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB      -
+// BITS[4:0]
 #define LTC4015_ICHARGE_TARGET_SUBADDR 0x1A
-// Charge voltage target                                                 - BITS[5:0]
+// Charge voltage target                                                 -
+// BITS[5:0]
 #define LTC4015_VCHARGE_SETTING_SUBADDR 0x1B
-// Two’s complement Low IBAT threshold for C/x termination               - BITS[15:0]
+// Two’s complement Low IBAT threshold for C/x termination               -
+// BITS[15:0]
 #define LTC4015_C_OVER_X_THRESHOLD_SUBADDR 0x1C
 // Time in seconds with battery charger in the CV state before timer termination
 // occurs (lithium chemistries only)
@@ -132,17 +142,23 @@
 // Time in seconds before a max_charge_time fault is declared. Set to zero to
 // disable max_charge_time fault
 #define LTC4015_MAX_CHARGE_TIME_SUBADDR 0x1E
-// Value of NTC_RATIO for transition between JEITA regions 2 and 1 (off) - BITS[15:0] : 0x3F00
+// Value of NTC_RATIO for transition between JEITA regions 2 and 1 (off) -
+// BITS[15:0] : 0x3F00
 #define LTC4015_JEITA_T1_SUBADDR 0x1F
-// Value of NTC_RATIO for transition between JEITA regions 3 and 2       - BITS[15:0] : 0x372A
+// Value of NTC_RATIO for transition between JEITA regions 3 and 2       -
+// BITS[15:0] : 0x372A
 #define LTC4015_JEITA_T2_SUBADDR 0x20
-// Value of NTC_RATIO for transition between JEITA regions 4 and 3       - BITS[15:0] : 0x1F27
+// Value of NTC_RATIO for transition between JEITA regions 4 and 3       -
+// BITS[15:0] : 0x1F27
 #define LTC4015_JEITA_T3_SUBADDR 0x21
-// Value of NTC_RATIO for transition between JEITA regions 5 and 4       - BITS[15:0] : 0x1BCC
+// Value of NTC_RATIO for transition between JEITA regions 5 and 4       -
+// BITS[15:0] : 0x1BCC
 #define LTC4015_JEITA_T4_SUBADDR 0x22
-// Value of NTC_RATIO for transition between JEITA regions 6 and 5       - BITS[15:0] : 0x18B9
+// Value of NTC_RATIO for transition between JEITA regions 6 and 5       -
+// BITS[15:0] : 0x18B9
 #define LTC4015_JEITA_T5_SUBADDR 0x23
-// Value of NTC_RATIO for transition between JEITA regions 7 (off) and 6 - BITS[15:0] : 0x136D
+// Value of NTC_RATIO for transition between JEITA regions 7 (off) and 6 -
+// BITS[15:0] : 0x136D
 #define LTC4015_JEITA_T6_SUBADDR 0x24
 
 /*  Bit Fields:
@@ -170,7 +186,8 @@
  *    9:5  : icharge_jeita_6
  *    4:0  : icharge_jeita_5
  */
-// ICHARGE_TARGET values for JEITA temperature regions 6 and 5      - BITS[15:0] : 0x01EF
+// ICHARGE_TARGET values for JEITA temperature regions 6 and 5      - BITS[15:0]
+// : 0x01EF
 #define LTC4015_ICHARGE_JEITA_6_5_SUBADDR 0x27
 
 /*  Bit Fields:
@@ -180,7 +197,8 @@
  *    9:5  : icharge_jeita_3
  *    4:0  : icharge_jeita_4
  */
-// ICHARGE_TARGET value for JEITA temperature regions 4, 3, and 2   - BITS[15:0] : 0x7FEF
+// ICHARGE_TARGET value for JEITA temperature regions 4, 3, and 2   - BITS[15:0]
+// : 0x7FEF
 #define LTC4015_ICHARGE_JEITA_4_3_2_SUBADDR 0x28
 
 /*  Bit Fields:
@@ -197,11 +215,14 @@
 #define LTC4015_VABSORB_DELTA_SUBADDR 0x2A
 // Maximum time for LiFePO4/lead-acid absorb charge
 #define LTC4015_MAX_ABSORB_TIME_SUBADDR 0x2B
-// Lead-acid equalize charge voltage adder, bits 15:6 are reserved - BITS[15:0] : 0x002A
+// Lead-acid equalize charge voltage adder, bits 15:6 are reserved - BITS[15:0]
+// : 0x002A
 #define LTC4015_VEQUALIZE_DELTA_SUBADDR 0x2C
-// Lead-acid equalization time                                     - BITS[15:0] : 0x0E10
+// Lead-acid equalization time                                     - BITS[15:0]
+// : 0x0E10
 #define LTC4015_EQUALIZE_TIME_SUBADDR 0x2D
-// LiFeP04 recharge threshold                                      - BITS[15:0] : 0x4410
+// LiFeP04 recharge threshold                                      - BITS[15:0]
+// : 0x4410
 #define LTC4015_LIFEPO4_RECHARGE_THRESHOLD_SUBADDR 0x2E
 #define LTC4015_RESERVED_0X2F_SUBADDR 0x2F
 // For lithium chemistries, indicates the time (in sec) that the battery has
@@ -291,7 +312,8 @@
  *       1 : Alert indicates battery missing fault has occurred
  *       0 : Alert indicates battery short fault has occurred
  */
-// Charger state alert register. Individual bits are enabled by EN_CHARGER_STATE_ALERTS (0x0E).
+// Charger state alert register. Individual bits are enabled by
+// EN_CHARGER_STATE_ALERTS (0x0E).
 #define LTC4015_CHARGER_STATE_ALERTS_SUBADDR 0x37
 
 /*  Bit Fields:
@@ -311,8 +333,8 @@
  *   15:14 : N/A
  *      13 : Indicates that the battery charger is active
  *      12 : N/A
- *      11 : Indicates the MPPT pin is set to enable Maximum Power Point Tracking
- *      10 : Indicates a rising edge has been detected at the EQ pin, and an
+ *      11 : Indicates the MPPT pin is set to enable Maximum Power Point
+ * Tracking 10 : Indicates a rising edge has been detected at the EQ pin, and an
  *           equalize charge is queued
  *       9 : Indicates DRVCC voltage is above switching regulator undervoltage
  *           lockout level (4.3V typ)
@@ -389,9 +411,11 @@
 #define LTC4015_VCHARGE_DAC_SUBADDR 0x45
 // Input current limit control DAC control word (Only Bits[5:0] used)
 #define LTC4015_IIN_LIMIT_DAC_SUBADDR 0x46
-// Digitally filtered two’s complement ADC measurement result for battery voltage
+// Digitally filtered two’s complement ADC measurement result for battery
+// voltage
 #define LTC4015_VBAT_FILT_SUBADDR 0x47
-// This 16-bit two's complement word is the value of IBAT (0x3D) used in calculating BSR.
+// This 16-bit two's complement word is the value of IBAT (0x3D) used in
+// calculating BSR.
 #define LTC4015_ICHARGE_BSR_SUBADDR 0x48
 #define LTC4015_RESERVED_0X49_SUBADDR 0x49
 // Measurement valid bit, bit 0 is a 1 when the telemetry(ADC) system is ready

@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #ifndef OCMP_ETH_SW_H_
 #define OCMP_ETH_SW_H_
 #include "common/inc/global/Framework.h"
@@ -44,28 +44,28 @@ static const Driver ETH_SW = {
                              { .name = "jabber_det", .type = TYPE_UINT8 },
                              {} },
     .commands = (Command[]){ {
-                                     .name = "reset",
-                                     .cb_cmd = ETHERNET_reset,
+                                 .name = "reset",
+                                 .cb_cmd = ETHERNET_reset,
                              },
                              {
-                                     .name = "en_loopBk",
-                                     .cb_cmd = ETHERNET_enLoopBk,
+                                 .name = "en_loopBk",
+                                 .cb_cmd = ETHERNET_enLoopBk,
                              },
                              {
-                                     .name = "dis_loopBk",
-                                     .cb_cmd = ETHERNET_disLoopBk,
+                                 .name = "dis_loopBk",
+                                 .cb_cmd = ETHERNET_disLoopBk,
                              },
                              {
-                                     .name = "en_pktGen",
-                                     .cb_cmd = ETHERNET_enPktGen,
+                                 .name = "en_pktGen",
+                                 .cb_cmd = ETHERNET_enPktGen,
                              },
                              {
-                                     .name = "dis_pktGen",
-                                     .cb_cmd = ETHERNET_disPktGen,
+                                 .name = "dis_pktGen",
+                                 .cb_cmd = ETHERNET_disPktGen,
                              },
                              {
-                                     .name = "en_tivaClient",
-                                     .cb_cmd = ETHERNET_tivaClient,
+                                 .name = "en_tivaClient",
+                                 .cb_cmd = ETHERNET_tivaClient,
                              },
                              {} },
     .fxnTable = &eth_fxnTable,

@@ -256,27 +256,27 @@ static ePostCode _init(void *driver, const void *config,
     const LTC4015_Config *ltc4015_config = config;
 
     if (LTC4015_cfg_battery_voltage_low(
-                driver, ltc4015_config->batteryVoltageLow) != RETURN_OK) {
+            driver, ltc4015_config->batteryVoltageLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (LTC4015_cfg_battery_voltage_high(
-                driver, ltc4015_config->batteryVoltageHigh) != RETURN_OK) {
+            driver, ltc4015_config->batteryVoltageHigh) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (LTC4015_cfg_battery_current_low(
-                driver, ltc4015_config->batteryCurrentLow) != RETURN_OK) {
+            driver, ltc4015_config->batteryCurrentLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (LTC4015_cfg_input_voltage_low(
-                driver, ltc4015_config->inputVoltageLow) != RETURN_OK) {
+            driver, ltc4015_config->inputVoltageLow) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (LTC4015_cfg_input_current_high(
-                driver, ltc4015_config->inputCurrentHigh) != RETURN_OK) {
+            driver, ltc4015_config->inputCurrentHigh) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (LTC4015_cfg_input_current_limit(
-                driver, ltc4015_config->inputCurrentLimit) != RETURN_OK) {
+            driver, ltc4015_config->inputCurrentLimit) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (ltc4015_config->icharge) {
@@ -291,10 +291,9 @@ static ePostCode _init(void *driver, const void *config,
     }
 
     LTC4015_setAlertHandler(driver, _alert_handler, (void *)alert_token);
-    if (LTC4015_enableLimitAlerts(driver,
-                                  LTC4015_EVT_BVL | LTC4015_EVT_BVH |
-                                          LTC4015_EVT_IVL | LTC4015_EVT_ICH |
-                                          LTC4015_EVT_BCL) != RETURN_OK) {
+    if (LTC4015_enableLimitAlerts(
+            driver, LTC4015_EVT_BVL | LTC4015_EVT_BVH | LTC4015_EVT_IVL |
+                        LTC4015_EVT_ICH | LTC4015_EVT_BCL) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
 

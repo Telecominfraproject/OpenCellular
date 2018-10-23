@@ -106,7 +106,7 @@
 /*
  * PHY Register fields SMI Device address 0x0 to 0x4
  */
-//REG_PHY_CONTROL - 0x0
+// REG_PHY_CONTROL - 0x0
 #define SOFT_RESET (1 << 0xF)
 #define LOOPBACK_EN (1 << 0xE)
 #define SPEED (1 << 0xD)
@@ -115,15 +115,15 @@
 #define RESTART_AUTONEG (1 << 0xA)
 #define DUPLEX (1 << 0x8)
 
-//REG_PHY_STATUS - 0x1
+// REG_PHY_STATUS - 0x1
 #define AUTONEG_DONE (1 << 0x5)
 #define LINK_UP (1 << 0x2)
 
-//REG_MMD_ACCESS_CNTRL - 0xD
+// REG_MMD_ACCESS_CNTRL - 0xD
 #define DEVADDR (0x1F << 0x0)
 #define FUNCTION (0x03 << 0xD)
 
-//REG_PHY_SPEC_CONTROL - 0x10
+// REG_PHY_SPEC_CONTROL - 0x10
 #define ENERGY_DET (1 << 0xE)
 #define DIS_NLP_CHECK (1 << 0xD)
 #define EXT_DISTANCE (1 << 0x7)
@@ -131,7 +131,7 @@
 #define AUTOMDI_CROSSOVER (0x03 << 0x4)
 #define AUTOPOL_REVERSE (1 << 0x1)
 
-//REG_PHY_SPEC_STATUS - 0x11
+// REG_PHY_SPEC_STATUS - 0x11
 #define RES_SPEED (1 << 0xE)
 #define RES_DUPLEX (1 << 0xD)
 #define RT_LINK (1 << 0xA)
@@ -140,7 +140,7 @@
 #define POLARITY (1 << 0x1)
 #define JABBER_DET (1 << 0x0)
 
-//REG_PHY_INTERRUPT_EN - 0x12
+// REG_PHY_INTERRUPT_EN - 0x12
 #define SPEED_INT_EN (1 << 0xE)
 #define DUPLEX_INT_EN (1 << 0xD)
 #define PAGE_RX_INT_STATUS_EN (1 << 0xC)
@@ -151,7 +151,7 @@
 #define POLARITY_INT_EN (1 << 0x1)
 #define JABBER_INT_EN (1 << 0x0)
 
-//REG_PHY_INTERRUPT_STATUS - 0x13
+// REG_PHY_INTERRUPT_STATUS - 0x13
 #define SPEED_INT_STATUS (1 << 0xE)
 #define DUPLEX_INT_STATUS (1 << 0xD)
 #define PAGE_RX_INT_STATUS (1 << 0xC)
@@ -192,7 +192,7 @@
 /*
  * GLOBAL - 2 Register fields (SMI Device address 0x7)
  */
-//REG_INTERRUPT_SOURCE      0x0
+// REG_INTERRUPT_SOURCE      0x0
 #define WATCHDOG_INT (1 << 15)
 #define JAM_INT (1 << 14)
 #define WAKE_EVENT_INT (1 << 12)
@@ -202,7 +202,7 @@
 #define PHY_1_INT (1 << 1)
 #define PHY_0_INT (1 << 0)
 
-//REG_INTERRUPT_MASK        0x1
+// REG_INTERRUPT_MASK        0x1
 #define WATCHDOG_INT_EN (1 << 15)
 #define JAM_INT_EN (1 << 14)
 #define WAKE_EVENT_INT_EN (1 << 12)
@@ -212,7 +212,7 @@
 #define PHY_1_INT_EN (1 << 1)
 #define PHY_0_INT_EN (1 << 0)
 
-//REG_C45_PACKET_GEN        0x8030
+// REG_C45_PACKET_GEN        0x8030
 #define CRC_ENABLE (1 << 6)
 #define FRAME_COUNT_EN (1 << 5)
 #define FORCE_BURST_STOP (1 << 4)

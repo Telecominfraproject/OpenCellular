@@ -107,7 +107,7 @@ static void call_state_cb(const GsmClccInfo *info, void *context)
 /* Configures the various IO pins associated with this subsystem */
 static bool configure_io(TestMod_Cfg *testmod_cfg)
 {
-    //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
+    // const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
     G510_Cfg *cfg = &testmod_cfg->g510_cfg;
 
     OcGpio_configure(&cfg->pin_sim_present, OCGPIO_CFG_INPUT);
@@ -119,7 +119,7 @@ static bool configure_io(TestMod_Cfg *testmod_cfg)
 
 static UART_Handle open_comm(TestMod_Cfg *testmod_cfg)
 {
-    //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
+    // const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
 
     // Open GSM UART
     UART_Params uartParams;
@@ -139,7 +139,7 @@ static UART_Handle open_comm(TestMod_Cfg *testmod_cfg)
 
 static bool g510_reset(TestMod_Cfg *testmod_cfg)
 {
-    //const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
+    // const TestMod_Cfg *testmod_cfg = (TestMod_Cfg *)testModuleCfg;
     const G510_Cfg *cfg = &testmod_cfg->g510_cfg;
 
     /* Ensure the enable line is high (deasserted) so the module doesn't
@@ -275,7 +275,7 @@ static void testModule_task(UArg a0, UArg a1)
             GSM_cmgd(s_hGsm, sms_idx, GSM_CMGD_DELETE_AT_INDEX);
             sms_idx = -1;
 
-            //if (GSM_cmgs(s_hGsm, "29913", "Hello from GSM :)") < 0) {
+            // if (GSM_cmgs(s_hGsm, "29913", "Hello from GSM :)") < 0) {
             //  LOGGER_ERROR("TESTMOD:Error sending SMS\n");
             //}
         }

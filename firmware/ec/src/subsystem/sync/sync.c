@@ -125,8 +125,8 @@ static void SYNC_GpsTaskInit(void)
     clkParams.startFlag = FALSE;
     /* Create a periodic Clock Instance with initial timeout= 10000(10 Secs)
      * and period = 10000(10 Secs) system time units */
-    Clock_Handle clk = Clock_create((Clock_FuncPtr)SYNC_GpsClkFxn, 10000,
-                                    &clkParams, NULL);
+    Clock_Handle clk =
+        Clock_create((Clock_FuncPtr)SYNC_GpsClkFxn, 10000, &clkParams, NULL);
     if (!clk) {
         DEBUG("SYNC::Can't create GPS Polling clock\n");
         Semaphore_delete(&gpsSem);

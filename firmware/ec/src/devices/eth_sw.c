@@ -46,7 +46,7 @@ void eth_sw_configure(Eth_cfg *ethCfg)
     if (!s_eth_sw_linkup) {
         OcGpio_configure(&ethCfg->eth_sw_cfg->pin_ec_ethsw_reset,
                          OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
-        SysCtlDelay(16000000); //400ms delay
+        SysCtlDelay(16000000); // 400ms delay
     }
     read_val = mdiobb_read_by_paging(PHY_PORT_0, REG_PHY_SPEC_STATUS);
     link_up = (RT_LINK & read_val) ? 1 : 0;
@@ -110,16 +110,16 @@ static void _ethernet_sw_isr(void *context)
     uint16_t read_val = mdiobb_read(GLOBAL_2, REG_INTERRUPT_MASK);
     read_val = mdiobb_read(GLOBAL_2, REG_INTERRUPT_SOURCE);
     LOGGER_DEBUG(
-            "ETHSW::INFO:: Ethernet switch Interrupt mask register shows 0x%x.\n",
-            read_val);
+        "ETHSW::INFO:: Ethernet switch Interrupt mask register shows 0x%x.\n",
+        read_val);
     if (read_val & 0x1F) {
         while (!((read_val >> port) & 1)) {
             port++;
         }
     }
     LOGGER_DEBUG(
-            "ETHSW::INFO:: Ethernet switch context report interrupt from 0x%x.\n",
-            ethCfg->eth_sw_port);
+        "ETHSW::INFO:: Ethernet switch context report interrupt from 0x%x.\n",
+        ethCfg->eth_sw_port);
     uint16_t interrupt_status = 0;
     uint16_t i = 0;
     Eth_Sw_Events eth_Evt;
@@ -129,32 +129,30 @@ static void _ethernet_sw_isr(void *context)
                 case SPEED_INT_STATUS: {
                     if (mdiobb_read_by_paging(port, REG_PHY_CONTROL) &
                         AUTONEG_EN) {
-                        value = (RES_SPEED &
-                                 mdiobb_read_by_paging(port,
-                                                       REG_PHY_SPEC_STATUS)) ?
-                                        SPEED_100M :
-                                        SPEED_10M;
+                        value = (RES_SPEED & mdiobb_read_by_paging(
+                                                 port, REG_PHY_SPEC_STATUS)) ?
+                                    SPEED_100M :
+                                    SPEED_10M;
                     } else {
                         value = (SPEED &
                                  mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ?
-                                        SPEED_100M :
-                                        SPEED_10M;
+                                    SPEED_100M :
+                                    SPEED_10M;
                     }
                     eth_Evt = ETH_EVT_SPEED;
                 } break;
                 case DUPLEX_INT_STATUS: {
                     if (mdiobb_read_by_paging(port, REG_PHY_CONTROL) &
                         AUTONEG_EN) {
-                        value = (RES_DUPLEX &
-                                 mdiobb_read_by_paging(port,
-                                                       REG_PHY_SPEC_STATUS)) ?
-                                        FULL_DUPLEX :
-                                        HALF_DUPLEX;
+                        value = (RES_DUPLEX & mdiobb_read_by_paging(
+                                                  port, REG_PHY_SPEC_STATUS)) ?
+                                    FULL_DUPLEX :
+                                    HALF_DUPLEX;
                     } else {
                         value = (DUPLEX &
                                  mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ?
-                                        FULL_DUPLEX :
-                                        HALF_DUPLEX;
+                                    FULL_DUPLEX :
+                                    HALF_DUPLEX;
                     }
                     eth_Evt = ETH_EVT_DUPLEX;
                 } break;
@@ -195,8 +193,7 @@ static void _ethernet_sw_isr(void *context)
                 }
             }
             ethCfg->eth_sw_cfg->eth_switch.obj.alert_cb(
-                    eth_Evt, value,
-                    ethCfg->eth_sw_cfg->eth_switch.obj.cb_context);
+                eth_Evt, value, ethCfg->eth_sw_cfg->eth_switch.obj.cb_context);
         }
     }
 }
@@ -213,15 +210,15 @@ void eth_sw_setAlertHandler(Eth_cfg *ethCfg, Eth_Sw_CallbackFn alert_cb,
 ePostCode eth_sw_init(Eth_cfg *ethCfg)
 {
     ePostCode ret = POST_DEV_CFG_DONE;
-    //TODO: Enabling of the ethernet interrupts requires some more work.
+    // TODO: Enabling of the ethernet interrupts requires some more work.
     /*
     if (ethCfg->eth_sw_cfg.pin_evt) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING;
-        if (OcGpio_configure(ethCfg->eth_sw_cfg.pin_evt, pin_evt_cfg) < OCGPIO_SUCCESS) {
-            ret = POST_DEV_CFG_FAIL;
-        } else {
+        if (OcGpio_configure(ethCfg->eth_sw_cfg.pin_evt, pin_evt_cfg) <
+    OCGPIO_SUCCESS) { ret = POST_DEV_CFG_FAIL; } else {
             // Use a threaded interrupt to handle IRQ
-            ThreadedInt_Init(ethCfg->eth_sw_cfg.pin_evt, _ethernet_sw_isr, (void *)ethCfg);
+            ThreadedInt_Init(ethCfg->eth_sw_cfg.pin_evt, _ethernet_sw_isr, (void
+    *)ethCfg);
         }
     }
     */
@@ -233,13 +230,13 @@ ReturnStatus eth_sw_get_status_speed(uint8_t port, port_speed *speed)
     ReturnStatus ret = RETURN_OK;
     if (mdiobb_read_by_paging(port, REG_PHY_CONTROL) & AUTONEG_EN)
         *speed =
-                (RES_SPEED & mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ?
-                        SPEED_100M :
-                        SPEED_10M;
+            (RES_SPEED & mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ?
+                SPEED_100M :
+                SPEED_10M;
     else
         *speed = (SPEED & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ?
-                         SPEED_100M :
-                         SPEED_10M;
+                     SPEED_100M :
+                     SPEED_10M;
     return ret;
 }
 
@@ -247,14 +244,14 @@ ReturnStatus eth_sw_get_status_duplex(uint8_t port, port_duplex *duplex)
 {
     ReturnStatus ret = RETURN_OK;
     if (mdiobb_read_by_paging(port, REG_PHY_CONTROL) & AUTONEG_EN)
-        *duplex = (RES_DUPLEX &
-                   mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ?
-                          FULL_DUPLEX :
-                          HALF_DUPLEX;
+        *duplex =
+            (RES_DUPLEX & mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ?
+                FULL_DUPLEX :
+                HALF_DUPLEX;
     else
         *duplex = (DUPLEX & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ?
-                          FULL_DUPLEX :
-                          HALF_DUPLEX;
+                      FULL_DUPLEX :
+                      HALF_DUPLEX;
     return ret;
 }
 
@@ -262,7 +259,7 @@ ReturnStatus eth_sw_get_status_auto_neg(uint8_t port, uint8_t *autoneg_on)
 {
     ReturnStatus ret = RETURN_OK;
     *autoneg_on =
-            (AUTONEG_EN & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ? 1 : 0;
+        (AUTONEG_EN & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ? 1 : 0;
     return ret;
 }
 
@@ -270,9 +267,7 @@ ReturnStatus eth_sw_get_status_sleep_mode(uint8_t port, uint8_t *sleep_mode_en)
 {
     ReturnStatus ret = RETURN_OK;
     *sleep_mode_en =
-            (SLEEP_MODE & mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ?
-                    1 :
-                    0;
+        (SLEEP_MODE & mdiobb_read_by_paging(port, REG_PHY_SPEC_STATUS)) ? 1 : 0;
     return ret;
 }
 
@@ -281,8 +276,7 @@ ReturnStatus eth_sw_get_status_auto_neg_complete(uint8_t port,
 {
     ReturnStatus ret = RETURN_OK;
     *autoneg_complete =
-            (AUTONEG_DONE & mdiobb_read_by_paging(port, REG_PHY_STATUS)) ? 1 :
-                                                                           0;
+        (AUTONEG_DONE & mdiobb_read_by_paging(port, REG_PHY_STATUS)) ? 1 : 0;
     return ret;
 }
 
@@ -396,43 +390,43 @@ ReturnStatus eth_sw_set_config_interrupt_enable(uint8_t port,
         switch ((1 << i)) {
             case ETH_ALERT_SPEED_CHANGE:
                 (*interrupt_mask & ETH_ALERT_SPEED_CHANGE) ?
-                        (write_val |= SPEED_INT_EN) :
-                        (write_val &= ~SPEED_INT_EN);
+                    (write_val |= SPEED_INT_EN) :
+                    (write_val &= ~SPEED_INT_EN);
                 break;
             case ETH_ALERT_DUPLEX_CHANGE:
                 (*interrupt_mask & ETH_ALERT_DUPLEX_CHANGE) ?
-                        (write_val |= DUPLEX_INT_EN) :
-                        (write_val &= ~DUPLEX_INT_EN);
+                    (write_val |= DUPLEX_INT_EN) :
+                    (write_val &= ~DUPLEX_INT_EN);
                 break;
             case ETH_ALERT_AUTONEG_DONE:
                 (*interrupt_mask & ETH_ALERT_AUTONEG_DONE) ?
-                        (write_val |= AUTONEG_COMPLETE_INT_EN) :
-                        (write_val &= ~AUTONEG_COMPLETE_INT_EN);
+                    (write_val |= AUTONEG_COMPLETE_INT_EN) :
+                    (write_val &= ~AUTONEG_COMPLETE_INT_EN);
                 break;
             case ETH_ALERT_LINK_CHANGE:
                 (*interrupt_mask & ETH_ALERT_LINK_CHANGE) ?
-                        (write_val |= LINK_CHANGE_INT_EN) :
-                        (write_val &= ~LINK_CHANGE_INT_EN);
+                    (write_val |= LINK_CHANGE_INT_EN) :
+                    (write_val &= ~LINK_CHANGE_INT_EN);
                 break;
             case ETH_ALERT_CROSSOVER_DET:
                 (*interrupt_mask & ETH_ALERT_CROSSOVER_DET) ?
-                        (write_val |= MDI_CROSSOVER_INT_EN) :
-                        (write_val &= ~MDI_CROSSOVER_INT_EN);
+                    (write_val |= MDI_CROSSOVER_INT_EN) :
+                    (write_val &= ~MDI_CROSSOVER_INT_EN);
                 break;
             case ETH_ALERT_ENERGY_DET:
                 (*interrupt_mask & ETH_ALERT_ENERGY_DET) ?
-                        (write_val |= ENERGY_DET_INT_EN) :
-                        (write_val &= ~ENERGY_DET_INT_EN);
+                    (write_val |= ENERGY_DET_INT_EN) :
+                    (write_val &= ~ENERGY_DET_INT_EN);
                 break;
             case ETH_ALERT_POLARITY_DET:
                 (*interrupt_mask & ETH_ALERT_POLARITY_DET) ?
-                        (write_val |= POLARITY_INT_EN) :
-                        (write_val &= ~POLARITY_INT_EN);
+                    (write_val |= POLARITY_INT_EN) :
+                    (write_val &= ~POLARITY_INT_EN);
                 break;
             case ETH_ALERT_JABBER_DET:
                 (*interrupt_mask & ETH_ALERT_JABBER_DET) ?
-                        (write_val |= JABBER_INT_EN) :
-                        (write_val &= ~JABBER_INT_EN);
+                    (write_val |= JABBER_INT_EN) :
+                    (write_val &= ~JABBER_INT_EN);
             default:
                 DEBUG("Interrupt not supported");
                 return RETURN_NOTOK;
@@ -508,7 +502,8 @@ ReturnStatus eth_sw_enable_packet_gen(void *driver, void *params)
     ReturnStatus ret = RETURN_OK;
     Eth_cfg *s_eth_cfg = (Eth_cfg *)driver;
     Eth_PacketGen_Params *s_eth_packetParams = (Eth_PacketGen_Params *)params;
-    /*Packet generator params such as packet length, payload type, frame count etc are set in REG_C45_PACKET_GEN*/
+    /*Packet generator params such as packet length, payload type, frame count
+     * etc are set in REG_C45_PACKET_GEN*/
     mdiobb_write_by_paging_c45(s_eth_cfg->eth_sw_port, REG_C45_PACKET_GEN,
                                s_eth_packetParams->reg_value);
     return ret;
@@ -566,7 +561,7 @@ ReturnStatus eth_sw_config_tiva_client(void *driver, void *params)
     taskParams.arg0 = s_eth_tcpParams->tcpPort;
 
     taskHandle_client =
-            Task_create((Task_FuncPtr)tcpHandler_client, &taskParams, &eb);
+        Task_create((Task_FuncPtr)tcpHandler_client, &taskParams, &eb);
     if (taskHandle_client == NULL) {
         System_printf("Failed to create taskHandle_client Task\n");
     }
@@ -590,8 +585,8 @@ ReturnStatus eth_sw_get_config_speed(uint8_t port, port_speed *speed)
         *speed = SPEED_AUTONEG;
     else
         *speed = SPEED & mdiobb_read_by_paging(port, REG_PHY_CONTROL) ?
-                         SPEED_100M :
-                         SPEED_10M;
+                     SPEED_100M :
+                     SPEED_10M;
     return ret;
 }
 
@@ -602,8 +597,8 @@ ReturnStatus eth_sw_get_config_duplex(uint8_t port, port_duplex *duplex)
         *duplex = DUPLEX_AUTONEG;
     else
         *duplex = (DUPLEX & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ?
-                          FULL_DUPLEX :
-                          HALF_DUPLEX;
+                      FULL_DUPLEX :
+                      HALF_DUPLEX;
     return ret;
 }
 
@@ -611,7 +606,7 @@ ReturnStatus eth_sw_get_config_power_down(uint8_t port, uint8_t *power_dwn)
 {
     ReturnStatus ret = RETURN_OK;
     *power_dwn =
-            (PWR_DOWN & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ? 1 : 0;
+        (PWR_DOWN & mdiobb_read_by_paging(port, REG_PHY_CONTROL)) ? 1 : 0;
     return ret;
 }
 
@@ -619,9 +614,8 @@ ReturnStatus eth_sw_get_config_sleep_mode(uint8_t port, uint8_t *sleep_mode)
 {
     ReturnStatus ret = RETURN_OK;
     *sleep_mode =
-            (ENERGY_DET & mdiobb_read_by_paging(port, REG_PHY_SPEC_CONTROL)) ?
-                    1 :
-                    0;
+        (ENERGY_DET & mdiobb_read_by_paging(port, REG_PHY_SPEC_CONTROL)) ? 1 :
+                                                                           0;
     return ret;
 }
 

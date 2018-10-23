@@ -187,18 +187,19 @@ extern OcGpio_Port gbc_io_0;
 /* These pins aren't properly referenced in a subsystem yet, so we'll define
  * them here for now */
 
-//OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
-//OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1, OCGPIO_CFG_OUT_OD_NOPULL };
-//OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
+// OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
+// OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1,
+// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0,
+// 2, OCGPIO_CFG_OUT_OD_NOPULL };
 OcGpio_Pin pin_uart_sel = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
-//OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
-//OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
-//OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
-//OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
-//OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
-//OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10, OCGPIO_CFG_OUT_OD_NOPULL };
-//OcGpio_Pin pin_int_bat_prsnt        = { &gbc_io_0, 11 };
-//OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
+// OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
+// OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
+// OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
+// OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
+// OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
+// OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10,
+// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_int_bat_prsnt        = { &gbc_io_0,
+// 11 }; OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
 OcGpio_Pin pin_ec_syncconn_gpio1 = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
 OcGpio_Pin pin_eth_sw_ec_intn = { &gbc_io_0, 14 };
 
@@ -234,7 +235,7 @@ ReturnStatus bigbrother_ioexp_init(void)
      * IO13 - NA
      * IO14 - NA
      * IO15 - NA
-    */
+     */
 
     /* TODO: we need a better spot to init. our IO expanders, but this works
      * for now
@@ -272,18 +273,18 @@ ReturnStatus bigbrother_ioexp_init(void)
      */
     OcGpio_init(&gbc_io_0);
 
-    //OcGpio_configure(&pin_r_irq_intrpt, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_inven_eeprom_wp, OCGPIO_CFG_OUTPUT);
-    //OcGpio_configure(&pin_s_id_eeprom_wp, OCGPIO_CFG_OUTPUT);
+    // OcGpio_configure(&pin_r_irq_intrpt, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_inven_eeprom_wp, OCGPIO_CFG_OUTPUT);
+    // OcGpio_configure(&pin_s_id_eeprom_wp, OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&pin_uart_sel, OCGPIO_CFG_OUTPUT);
-    //OcGpio_configure(&pin_tempsen_evt1, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_tempsen_evt2, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_tempsen_evt3, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_tempsen_evt4, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_tempsen_evt5, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_buzzer_on, OCGPIO_CFG_OUTPUT);
-    //OcGpio_configure(&pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
-    //OcGpio_configure(&pin_ext_bat_prsnt, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_tempsen_evt1, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_tempsen_evt2, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_tempsen_evt3, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_tempsen_evt4, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_tempsen_evt5, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_buzzer_on, OCGPIO_CFG_OUTPUT);
+    // OcGpio_configure(&pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
+    // OcGpio_configure(&pin_ext_bat_prsnt, OCGPIO_CFG_INPUT);
     OcGpio_configure(&pin_ec_syncconn_gpio1, OCGPIO_CFG_OUTPUT);
     OcGpio_configure(&pin_eth_sw_ec_intn, OCGPIO_CFG_INPUT);
 
@@ -334,19 +335,19 @@ static void bigbrother_init(void)
     semBigBrotherMsg = Semaphore_create(0, NULL, NULL);
     if (semBigBrotherMsg == NULL) {
         LOGGER_ERROR(
-                "BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
+            "BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
     }
     /*Creating RX Message Queue*/
     bigBrotherRxMsgQueue = Util_constructQueue(&bigBrotherRxMsg);
     LOGGER_DEBUG(
-            "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-            bigBrotherRxMsgQueue);
+        "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+        bigBrotherRxMsgQueue);
 
     /*Creating TX Message Queue*/
     bigBrotherTxMsgQueue = Util_constructQueue(&bigBrotherTxMsg);
     LOGGER_DEBUG(
-            "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-            bigBrotherTxMsgQueue);
+        "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+        bigBrotherTxMsgQueue);
 }
 
 /*****************************************************************************
@@ -367,22 +368,22 @@ static void bigbrother_taskfxn(UArg a0, UArg a1)
     bigbrother_ioexp_init();
     hci_buzzer_beep(1);
 
-    //Create Tasks.
+    // Create Tasks.
     bigborther_spwan_task();
-    //Perform POST
+    // Perform POST
     bigborther_initiate_post();
     while (true) {
         if (Semaphore_pend(semBigBrotherMsg, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(bigBrotherRxMsgQueue)) {
                 uint8_t *pWrite =
-                        (uint8_t *)Util_dequeueMsg(bigBrotherRxMsgQueue);
+                    (uint8_t *)Util_dequeueMsg(bigBrotherRxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_rx_msg(pWrite);
                 }
             }
             while (!Queue_empty(bigBrotherTxMsgQueue)) {
                 uint8_t *pWrite =
-                        (uint8_t *)Util_dequeueMsg(bigBrotherTxMsgQueue);
+                    (uint8_t *)Util_dequeueMsg(bigBrotherTxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_tx_msg(pWrite);
                 }

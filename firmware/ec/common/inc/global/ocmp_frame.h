@@ -29,7 +29,7 @@
  *****************************************************************************/
 
 typedef enum {
-    OC_SS_BB = -1, //Hack around the fact that IPC reuses OCMP to allow us
+    OC_SS_BB = -1, // Hack around the fact that IPC reuses OCMP to allow us
     //  to split BB (internal) and SYS (CLI) message handling
     OC_SS_SYS = 0,
     OC_SS_PWR,
@@ -43,10 +43,10 @@ typedef enum {
     OC_SS_SYNC,
     OC_SS_TEST_MODULE,
     OC_SS_DEBUG,
-    OC_SS_MAX_LIMIT, //TODO:REV C Change
+    OC_SS_MAX_LIMIT, // TODO:REV C Change
     OC_SS_WD
-    //OC_SS_ALERT_MNGR,
-    //OC_SS_MAX_LIMIT
+    // OC_SS_ALERT_MNGR,
+    // OC_SS_MAX_LIMIT
 } OCMPSubsystem;
 
 typedef enum {
@@ -60,11 +60,15 @@ typedef enum {
  * OCMPMsgType - msg type specifies what is the communication all about.
  * It can be Configuration, Status, Alert, Command, Watchdog, Debug
  * OCMPMsgType 1 byte message.
- * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
- * ||     7     ||        6     ||        5     ||        4     ||        3     ||        2     ||        1     ||        0     ||
- * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-   ||                                                       Message Type                                                         ||
- * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ *
+ |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ * ||     7     ||        6     ||        5     ||        4     ||        3 ||
+ 2     ||        1     ||        0     ||
+ *
+ |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   ||                                                       Message Type ||
+ *
+ |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
  */
 typedef enum {
     OCMP_MSG_TYPE_CONFIG = 1,
@@ -127,14 +131,14 @@ typedef enum { OCMP_DEBUG_READ = 1, OCMP_DEBUG_WRITE } eOCMPDebugOperation;
 
 /* TODO::This OCWARE_HOST has to be removed with OCMP cleanUp*/
 #ifndef OCWARE_HOST
-#define OC_SS OCMPSubsystem
-#define OC_MSG_TYP OCMPMsgType
-#define OC_AXN_TYP OCMPActionType
+#    define OC_SS OCMPSubsystem
+#    define OC_MSG_TYP OCMPMsgType
+#    define OC_AXN_TYP OCMPActionType
 #else
-#define OC_SS uint8_t
-#define OC_MSG_TYP uint8_t
-#define OC_AXN_TYP uint8_t
-#define OC_IFACE_TYP uint8_t
+#    define OC_SS uint8_t
+#    define OC_MSG_TYP uint8_t
+#    define OC_AXN_TYP uint8_t
+#    define OC_IFACE_TYP uint8_t
 #endif
 /*
  * Header is the field which will be containing SOF, Framelen,
@@ -155,7 +159,7 @@ typedef struct __attribute__((packed, aligned(1))) {
     OC_SS subsystem; // RF/GPP/BMS/Watchdog etc..
     uint8_t componentID; // Compononent ID. Different for different subsystem.
     OCMPMsgType
-            msgtype; // Msg type is Config/Status/Alert/Command/Watchdog/Debug
+        msgtype; // Msg type is Config/Status/Alert/Command/Watchdog/Debug
     uint8_t action; // Action is - Get/Set/Reply.
     uint16_t parameters; // List of Parameters to be set or get.
 #ifndef OCWARE_HOST

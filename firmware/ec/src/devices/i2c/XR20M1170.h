@@ -11,17 +11,17 @@
 #pragma once
 
 #ifndef XR20M1170_H_
-#define XR20M1170_H_
+#    define XR20M1170_H_
 
-#include "drivers/OcGpio.h"
+#    include "drivers/OcGpio.h"
 
-#include <ti/drivers/I2C.h>
-#include <ti/drivers/UART.h>
-#include <ti/drivers/utils/RingBuf.h>
-#include <ti/sysbios/gates/GateMutex.h>
-#include <ti/sysbios/knl/Semaphore.h>
+#    include <ti/drivers/I2C.h>
+#    include <ti/drivers/UART.h>
+#    include <ti/drivers/utils/RingBuf.h>
+#    include <ti/sysbios/gates/GateMutex.h>
+#    include <ti/sysbios/knl/Semaphore.h>
 
-#include <stdbool.h>
+#    include <stdbool.h>
 
 typedef enum XR20M1170_FlowControl {
     XR20M1170_FLOWCONTROL_TX = 0x01, // Enable auto CTS
@@ -88,8 +88,8 @@ typedef struct XR20M1170_Object {
     I2C_Handle i2cHandle;
 
     //  TODO: these are from UART_Tiva - need to revise the struct members
-    //    Clock_Struct         timeoutClk;       /* Clock object to for timeouts */
-    //    uint32_t             baudRate;         /* Baud rate for UART */
+    //    Clock_Struct         timeoutClk;       /* Clock object to for timeouts
+    //    */ uint32_t             baudRate;         /* Baud rate for UART */
     //    UART_LEN             dataLength;       /* Data length for UART */
     //    UART_STOP            stopBits;         /* Stop bits for UART */
     //    UART_PAR             parityType;       /* Parity bit type for UART */
@@ -97,11 +97,11 @@ typedef struct XR20M1170_Object {
     //    /* UART read variables */
     RingBuf_Object ringBuffer; /* local circular buffer object */
     GateMutex_Handle ringBufMutex; // Mutex for accessing ring buffer
-    //    /* A complement pair of read functions for both the ISR and UART_read() */
-    //    UARTTiva_FxnSet      readFxns;
-    //    unsigned char       *readBuf;          /* Buffer data pointer */
-    //    size_t               readSize;         /* Desired number of bytes to read */
-    //    size_t               readCount;        /* Number of bytes left to read */
+    //    /* A complement pair of read functions for both the ISR and
+    //    UART_read() */ UARTTiva_FxnSet      readFxns; unsigned char *readBuf;
+    //    /* Buffer data pointer */ size_t               readSize;         /*
+    //    Desired number of bytes to read */ size_t               readCount; /*
+    //    Number of bytes left to read */
 
     Semaphore_Handle readSem; /* UART read semaphore */
     unsigned int readTimeout; /* Timeout for read semaphore */
@@ -109,8 +109,9 @@ typedef struct XR20M1170_Object {
     //
     //    /* UART write variables */
     //    const unsigned char *writeBuf;         /* Buffer data pointer */
-    //    size_t               writeSize;        /* Desired number of bytes to write*/
-    //    size_t               writeCount;       /* Number of bytes left to write */
+    //    size_t               writeSize;        /* Desired number of bytes to
+    //    write*/ size_t               writeCount;       /* Number of bytes left
+    //    to write */
     Semaphore_Handle writeSem; /* UART write semaphore*/
     unsigned int writeTimeout; /* Timeout for write semaphore */
     //    UART_Callback        writeCallback;    /* Pointer to write callback */

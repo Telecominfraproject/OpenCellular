@@ -81,11 +81,11 @@ void suite_tearDown(void)
 
 LTC4275_Dev l_dev = {
     .cfg =
-            {
-                    .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 0x60 },
-                    .pin_detect = &(OcGpio_Pin){ &s_fake_io_port, 0x40 },
+        {
+            .pin_evt = &(OcGpio_Pin){ &s_fake_io_port, 0x60 },
+            .pin_detect = &(OcGpio_Pin){ &s_fake_io_port, 0x40 },
 
-            },
+        },
 };
 
 /* ================================ Tests =================================== */

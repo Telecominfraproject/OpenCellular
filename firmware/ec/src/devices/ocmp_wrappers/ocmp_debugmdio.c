@@ -43,17 +43,19 @@ bool mdio_read(void *mdio_cfg, void *ocmdio)
     s_ocmdio->reg_value = 0xf00f;
 
     if (CLAUSE_45_REQUEST(reg_address))
-        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 45 registers*/
+        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access
+         * Clause 45 registers*/
         s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port,
                                                         s_ocmdio->reg_address);
     else if (PORT_REG_REQUEST(port))
-        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 22 registers*/
-        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port,
-                                                    s_ocmdio->reg_address);
+        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access
+         * Clause 22 registers*/
+        s_ocmdio->reg_value =
+            mdiobb_read_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     else
         /*GLOBAL and SWITCH registers can be accessed directly*/
         s_ocmdio->reg_value =
-                mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+            mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     return 0;
 }
 
@@ -63,23 +65,25 @@ bool mdio_write(void *mdio_cfg, void *ocmdio)
     S_OCMDIO *s_ocmdio = (S_OCMDIO *)ocmdio;
 
     if (CLAUSE_45_REQUEST(reg_address)) {
-        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 45 registers*/
+        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access
+         * Clause 45 registers*/
         mdiobb_write_by_paging_c45(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
                                    s_ocmdio->reg_value);
         s_ocmdio->reg_value = mdiobb_read_by_paging_c45(s_oc_mdio_cfg->port,
                                                         s_ocmdio->reg_address);
     } else if (PORT_REG_REQUEST(port)) {
-        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access Clause 22 registers*/
+        /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access
+         * Clause 22 registers*/
         mdiobb_write_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
                                s_ocmdio->reg_value);
-        s_ocmdio->reg_value = mdiobb_read_by_paging(s_oc_mdio_cfg->port,
-                                                    s_ocmdio->reg_address);
+        s_ocmdio->reg_value =
+            mdiobb_read_by_paging(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     } else {
         /*GLOBAL and SWITCH registers can be accessed directly*/
         mdiobb_write(s_oc_mdio_cfg->port, s_ocmdio->reg_address,
                      s_ocmdio->reg_value);
         s_ocmdio->reg_value =
-                mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
+            mdiobb_read(s_oc_mdio_cfg->port, s_ocmdio->reg_address);
     }
     return 0;
 }

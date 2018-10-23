@@ -219,7 +219,7 @@ bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
     /* TODO: what address do we read from if we also wrote data? */
     if (transaction->readCount > 0) {
         size_t read_size =
-                MIN(transaction->readCount, dev->tbl_size - reg_addr);
+            MIN(transaction->readCount, dev->tbl_size - reg_addr);
         for (size_t i = 0; i < read_size / dev->reg_size; i += 2) {
             endian_conversion(mem_addr + i, dev->reg_size, __BYTE_ORDER__,
                               read_buf + i, dev->reg_size, dev->endianness);

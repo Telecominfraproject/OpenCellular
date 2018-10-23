@@ -47,8 +47,9 @@
  */
 
 /* LED arrangements
- Left:   D8 => D17 => D18 => D19 => D20 => D21 => D22 ( From Left Bottom to Top Centre)
- Right: D23 => D31 => D24 => D25 => D26 => D27 => D28 ( From Top centre to Right Bottom)
+ Left:   D8 => D17 => D18 => D19 => D20 => D21 => D22 ( From Left Bottom to Top
+ Centre) Right: D23 => D31 => D24 => D25 => D26 => D27 => D28 ( From Top centre
+ to Right Bottom)
 
  Green from D8 to D28:
  Left:  IO5 => IO3 => IO13 => IO1 => IO7 => IO9  => IO11
@@ -64,117 +65,117 @@
  IO14 & IO15 = 1(Not connected IOs; Reg Data should be 11xxxxxx).
  */
 static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
-        { [HCI_LED_1] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_5, // IO5
-                          .ledRed = ~SX1509_IO_PIN_4, // IO4
-                          .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
-                  },
-          [HCI_LED_2] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_3, // IO3
-                          .ledRed = ~SX1509_IO_PIN_2, // IO2
-                          .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
-                  },
-          [HCI_LED_3] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_B,
-                          .ledGreen = ~SX1509_IO_PIN_13, // IO13
-                          .ledRed = ~SX1509_IO_PIN_12, // IO12
-                          .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
-                  },
-          [HCI_LED_4] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_1, // IO1
-                          .ledRed = ~SX1509_IO_PIN_0, // IO0
-                          .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
-                  },
-          [HCI_LED_5] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_7, // IO7
-                          .ledRed = ~SX1509_IO_PIN_6, // IO6
-                          .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
-                  },
-          [HCI_LED_6] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_B,
-                          .ledGreen = ~SX1509_IO_PIN_9, // IO9
-                          .ledRed = ~SX1509_IO_PIN_8, // IO8
-                          .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
-                  },
-          [HCI_LED_7] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_LEFT,
-                          .ledReg = SX1509_REG_B,
-                          .ledGreen = ~SX1509_IO_PIN_11, // IO11
-                          .ledRed = ~SX1509_IO_PIN_10, // I010
-                          .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
-                  },
-          [HCI_LED_8] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_5, // IO5
-                          .ledRed = ~SX1509_IO_PIN_4, // IO4
-                          .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
-                  },
-          [HCI_LED_9] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_3, // IO3
-                          .ledRed = ~SX1509_IO_PIN_2, // IO2
-                          .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
-                  },
-          [HCI_LED_10] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_1, // IO1
-                          .ledRed = ~SX1509_IO_PIN_0, // IO0
-                          .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
-                  },
-          [HCI_LED_11] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_A,
-                          .ledGreen = ~SX1509_IO_PIN_7, // IO7
-                          .ledRed = ~SX1509_IO_PIN_6, // IO6
-                          .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
-                  },
-          [HCI_LED_12] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_B,
-                          .ledGreen = ~SX1509_IO_PIN_9, // IO9
-                          .ledRed = ~SX1509_IO_PIN_8, // IO8
-                          .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
-                  },
-          [HCI_LED_13] =
-                  {
-                          .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                          .ledReg = SX1509_REG_B,
-                          .ledGreen = ~SX1509_IO_PIN_11, // IO11
-                          .ledRed = ~SX1509_IO_PIN_10, // IO10
-                          .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
-                  },
-          [HCI_LED_14] = {
-                  .ioexpDev = HCI_LED_DRIVER_RIGHT,
-                  .ledReg = SX1509_REG_B,
-                  .ledGreen = ~SX1509_IO_PIN_13, // IO13
-                  .ledRed = ~SX1509_IO_PIN_12, // IO12
-                  .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
-          } };
+    { [HCI_LED_1] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_5, // IO5
+              .ledRed = ~SX1509_IO_PIN_4, // IO4
+              .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
+          },
+      [HCI_LED_2] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_3, // IO3
+              .ledRed = ~SX1509_IO_PIN_2, // IO2
+              .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
+          },
+      [HCI_LED_3] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_B,
+              .ledGreen = ~SX1509_IO_PIN_13, // IO13
+              .ledRed = ~SX1509_IO_PIN_12, // IO12
+              .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
+          },
+      [HCI_LED_4] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_1, // IO1
+              .ledRed = ~SX1509_IO_PIN_0, // IO0
+              .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
+          },
+      [HCI_LED_5] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_7, // IO7
+              .ledRed = ~SX1509_IO_PIN_6, // IO6
+              .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
+          },
+      [HCI_LED_6] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_B,
+              .ledGreen = ~SX1509_IO_PIN_9, // IO9
+              .ledRed = ~SX1509_IO_PIN_8, // IO8
+              .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
+          },
+      [HCI_LED_7] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_LEFT,
+              .ledReg = SX1509_REG_B,
+              .ledGreen = ~SX1509_IO_PIN_11, // IO11
+              .ledRed = ~SX1509_IO_PIN_10, // I010
+              .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
+          },
+      [HCI_LED_8] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_5, // IO5
+              .ledRed = ~SX1509_IO_PIN_4, // IO4
+              .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
+          },
+      [HCI_LED_9] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_3, // IO3
+              .ledRed = ~SX1509_IO_PIN_2, // IO2
+              .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
+          },
+      [HCI_LED_10] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_1, // IO1
+              .ledRed = ~SX1509_IO_PIN_0, // IO0
+              .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
+          },
+      [HCI_LED_11] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_A,
+              .ledGreen = ~SX1509_IO_PIN_7, // IO7
+              .ledRed = ~SX1509_IO_PIN_6, // IO6
+              .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
+          },
+      [HCI_LED_12] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_B,
+              .ledGreen = ~SX1509_IO_PIN_9, // IO9
+              .ledRed = ~SX1509_IO_PIN_8, // IO8
+              .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
+          },
+      [HCI_LED_13] =
+          {
+              .ioexpDev = HCI_LED_DRIVER_RIGHT,
+              .ledReg = SX1509_REG_B,
+              .ledGreen = ~SX1509_IO_PIN_11, // IO11
+              .ledRed = ~SX1509_IO_PIN_10, // IO10
+              .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
+          },
+      [HCI_LED_14] = {
+          .ioexpDev = HCI_LED_DRIVER_RIGHT,
+          .ledReg = SX1509_REG_B,
+          .ledGreen = ~SX1509_IO_PIN_13, // IO13
+          .ledRed = ~SX1509_IO_PIN_12, // IO12
+          .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
+      } };
 
 /*****************************************************************************
  **    FUNCTION NAME   : hci_led_turnon_green
@@ -298,11 +299,12 @@ static ReturnStatus hci_led_configure_onofftime(const HciLedCfg *driver)
 
     /* Configure LED driver parameters(RegTOn, RegOff) for Left side LEDs */
     status = hci_led_configure_sx1509_onofftime(
-            &driver->sx1509_dev[HCI_LED_DRIVER_LEFT]);
+        &driver->sx1509_dev[HCI_LED_DRIVER_LEFT]);
     if (status == RETURN_OK) {
-        /* Configure LED driver parameters(RegTOn, RegOff) for Right side LEDs */
+        /* Configure LED driver parameters(RegTOn, RegOff) for Right side LEDs
+         */
         hci_led_configure_sx1509_onofftime(
-                &driver->sx1509_dev[HCI_LED_DRIVER_RIGHT]);
+            &driver->sx1509_dev[HCI_LED_DRIVER_RIGHT]);
     }
     return status;
 }
@@ -332,14 +334,14 @@ ReturnStatus hci_led_system_boot(const HciLedCfg *driver)
     /* Turn on the LEDs one by one from Left to Right of LED Board */
     for (index = 0; index < HCI_LED_TOTAL_NOS; index++) {
         status =
-                ioexp_led_get_data(&driver->sx1509_dev[ledData[index].ioexpDev],
-                                   ledData[index].ledReg, &regValue);
+            ioexp_led_get_data(&driver->sx1509_dev[ledData[index].ioexpDev],
+                               ledData[index].ledReg, &regValue);
 
         regValue &= ledData[index].ledGreen;
 
         status =
-                ioexp_led_set_data(&driver->sx1509_dev[ledData[index].ioexpDev],
-                                   ledData[index].ledReg, regValue, 0);
+            ioexp_led_set_data(&driver->sx1509_dev[ledData[index].ioexpDev],
+                               ledData[index].ledReg, regValue, 0);
         if (status != RETURN_OK) {
             break;
         }
@@ -434,8 +436,8 @@ ReturnStatus hci_led_radio_failure(const HciLedCfg *driver)
     status = hci_led_turnoff_all(driver);
     if (status == RETURN_OK) {
         /* Turn On Left side Red LEDs */
-        status = ioexp_led_set_data(HCI_LED_DRIVER_LEFT, SX1509_REG_AB, 0xAA,
-                                    0xAA);
+        status =
+            ioexp_led_set_data(HCI_LED_DRIVER_LEFT, SX1509_REG_AB, 0xAA, 0xAA);
     }
 
     return status;
@@ -486,11 +488,13 @@ ReturnStatus led_init(const HciLedCfg *driver)
      - Disable input buffer (RegInputDisable)
      - Disable pull-up (RegPullUp)
      - Enable open drain (RegOpenDrain)
-     - Set direction to output (RegDir) – by default RegData is set high => LED OFF
+     - Set direction to output (RegDir) – by default RegData is set high => LED
+     OFF
      - Enable oscillator (RegClock)
      - Configure LED driver clock and mode if relevant (RegMisc)
      - Enable LED driver operation (RegLEDDriverEnable)
-     - Configure LED driver parameters (RegTOn, RegIOn, RegOff, RegTRise, RegTFall)
+     - Configure LED driver parameters (RegTOn, RegIOn, RegOff, RegTRise,
+     RegTFall)
      - Set RegData bit low => LED driver started
      */
 
@@ -543,8 +547,8 @@ ReturnStatus led_init(const HciLedCfg *driver)
         }
 
         /* Configure LED driver clock and mode if relevant (RegMisc) */
-        status = ioexp_led_config_misc(&driver->sx1509_dev[index],
-                                       REG_MISC_VALUE);
+        status =
+            ioexp_led_config_misc(&driver->sx1509_dev[index], REG_MISC_VALUE);
         if (status != RETURN_OK) {
             return status;
         }
@@ -586,14 +590,15 @@ ePostCode led_probe(const HciLedCfg *driver, POSTData *postData)
 
     /* Read Test Register 1 of LED driver SX1509 of Left LED Module(RegTest1) */
     status = ioexp_led_read_testregister_1(
-            &driver->sx1509_dev[HCI_LED_DRIVER_LEFT], &regValue);
+        &driver->sx1509_dev[HCI_LED_DRIVER_LEFT], &regValue);
     if (status != RETURN_OK) {
         return POST_DEV_MISSING;
     }
 
-    /* Read Test Register 1 of LED driver SX1509 of Right LED Module(RegTest1) */
+    /* Read Test Register 1 of LED driver SX1509 of Right LED Module(RegTest1)
+     */
     status |= ioexp_led_read_testregister_1(
-            &driver->sx1509_dev[HCI_LED_DRIVER_RIGHT], &regValue);
+        &driver->sx1509_dev[HCI_LED_DRIVER_RIGHT], &regValue);
     if (status != RETURN_OK) {
         return POST_DEV_MISSING;
     }

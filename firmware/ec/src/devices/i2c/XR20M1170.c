@@ -209,7 +209,7 @@ static void processIrq(void *context)
                     for (int i = 0; i < bytesToRead; ++i) {
                         RingBuf_put(&object->ringBuffer, buf[i]);
                         Semaphore_post(
-                                object->readSem); // TODO: move out of mutex lock?
+                            object->readSem); // TODO: move out of mutex lock?
                     }
                 }
                 GateMutex_leave(object->ringBufMutex, mutexKey);
@@ -262,7 +262,8 @@ static bool register_config(UART_Handle handle, UART_Params *params)
 
     /* TODO: handle i2c failures better */
 
-    // Enable modifications to enhanced function registers and enable HW flow control (might as well)
+    // Enable modifications to enhanced function registers and enable HW flow
+    // control (might as well)
     uint8_t bf = 0xBF; // TODO: hack - required to modify this register
     if (!writeData(handle, XR_REG_LCR, &bf, 1)) {
         return false;
@@ -336,7 +337,7 @@ static bool register_config(UART_Handle handle, UART_Params *params)
         .op1 = true, /* Select access to TCR from MSR */
         .loopbackEn = false,
         .clkPrescaler =
-                ((prescaler > 1) ? XR_CLK_PRESCALER_4x : XR_CLK_PRESCALER_1x),
+            ((prescaler > 1) ? XR_CLK_PRESCALER_4x : XR_CLK_PRESCALER_1x),
     };
     writeData(handle, XR_REG_MCR, &mcr, sizeof(mcr));
 
@@ -390,7 +391,7 @@ UART_Handle XR20M1170_open(UART_Handle handle, UART_Params *params)
     const XR20M1170_HWAttrs *hwAttrs = handle->hwAttrs;
 
     if (object->state.opened == true) {
-        //Log_warning1("UART:(%p) already in use.", hwAttrs->baseAddr);
+        // Log_warning1("UART:(%p) already in use.", hwAttrs->baseAddr);
         return NULL;
     }
 

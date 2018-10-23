@@ -106,8 +106,8 @@ void UART4IntHandler(void)
     ui32Mode = uDMAChannelModeGet(UDMA_CHANNEL_TMR0A | UDMA_PRI_SELECT);
     if (ui32Mode == UDMA_MODE_STOP) {
         uDMAChannelTransferSet(
-                UDMA_CHANNEL_TMR0A | UDMA_PRI_SELECT, UDMA_MODE_PINGPONG,
-                (void *)(UART4_BASE + UART_O_DR), ui8RxBufA, sizeof(ui8RxBufA));
+            UDMA_CHANNEL_TMR0A | UDMA_PRI_SELECT, UDMA_MODE_PINGPONG,
+            (void *)(UART4_BASE + UART_O_DR), ui8RxBufA, sizeof(ui8RxBufA));
         /*Preparing message to send to UART RX Queue*/
         memset(ui8uartdmaRxBuf, '\0', UART_RXBUF_SIZE);
         memcpy(ui8uartdmaRxBuf, ui8RxBufA, sizeof(ui8RxBufA));
@@ -118,8 +118,8 @@ void UART4IntHandler(void)
     ui32Mode = uDMAChannelModeGet(UDMA_CHANNEL_TMR0A | UDMA_ALT_SELECT);
     if (ui32Mode == UDMA_MODE_STOP) {
         uDMAChannelTransferSet(
-                UDMA_CHANNEL_TMR0A | UDMA_ALT_SELECT, UDMA_MODE_PINGPONG,
-                (void *)(UART4_BASE + UART_O_DR), ui8RxBufB, sizeof(ui8RxBufB));
+            UDMA_CHANNEL_TMR0A | UDMA_ALT_SELECT, UDMA_MODE_PINGPONG,
+            (void *)(UART4_BASE + UART_O_DR), ui8RxBufB, sizeof(ui8RxBufB));
         /*Preparing message to send to UART RX Queue*/
         memset(ui8uartdmaRxBuf, '\0', UART_RXBUF_SIZE);
         memcpy(ui8uartdmaRxBuf, ui8RxBufB, sizeof(ui8RxBufB));
@@ -148,7 +148,7 @@ void resetUARTDMA(void)
 void ConfigureUART(void)
 {
     LOGGER_DEBUG(
-            "UARTDMACTR:INFO::Configuring UART interface for communication.\n");
+        "UARTDMACTR:INFO::Configuring UART interface for communication.\n");
 
     /* Enable the GPIO Peripheral used by the UART.*/
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
@@ -170,7 +170,7 @@ void ConfigureUART(void)
 void InitUART4Transfer(void)
 {
     LOGGER_DEBUG(
-            "UARTDMACTR:INFO::Configuring UART interrupt and uDMA channel for communication to GPP.\n");
+        "UARTDMACTR:INFO::Configuring UART interrupt and uDMA channel for communication to GPP.\n");
     uint_fast16_t ui16Idx;
     const uint32_t SysClock = 120000000;
 
@@ -188,7 +188,7 @@ void InitUART4Transfer(void)
 
     UARTConfigSetExpClk(UART4_BASE, SysClock, 115200,
                         UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-                                UART_CONFIG_PAR_NONE);
+                            UART_CONFIG_PAR_NONE);
 
     /* Set both the TX and RX trigger thresholds to 4.  */
     UARTFIFOLevelSet(UART4_BASE, UART_FIFO_TX4_8, UART_FIFO_RX4_8);
@@ -198,18 +198,17 @@ void InitUART4Transfer(void)
     UARTEnable(UART4_BASE);
     UARTDMAEnable(UART4_BASE, UART_DMA_RX | UART_DMA_TX);
 
-    uDMAChannelAttributeDisable(UDMA_CHANNEL_TMR0A,
-                                UDMA_ATTR_ALTSELECT | UDMA_ATTR_USEBURST |
-                                        UDMA_ATTR_HIGH_PRIORITY |
-                                        UDMA_ATTR_REQMASK);
+    uDMAChannelAttributeDisable(
+        UDMA_CHANNEL_TMR0A, UDMA_ATTR_ALTSELECT | UDMA_ATTR_USEBURST |
+                                UDMA_ATTR_HIGH_PRIORITY | UDMA_ATTR_REQMASK);
 
     uDMAChannelControlSet(UDMA_CHANNEL_TMR0A | UDMA_PRI_SELECT,
                           UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 |
-                                  UDMA_ARB_4);
+                              UDMA_ARB_4);
 
     uDMAChannelControlSet(UDMA_CHANNEL_TMR0A | UDMA_ALT_SELECT,
                           UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 |
-                                  UDMA_ARB_4);
+                              UDMA_ARB_4);
 
     uDMAChannelTransferSet(UDMA_CHANNEL_TMR0A | UDMA_PRI_SELECT,
                            UDMA_MODE_PINGPONG, (void *)(UART4_BASE + UART_O_DR),
@@ -221,13 +220,13 @@ void InitUART4Transfer(void)
 
     uDMAChannelAttributeDisable(UDMA_CHANNEL_TMR0B,
                                 UDMA_ATTR_ALTSELECT | UDMA_ATTR_HIGH_PRIORITY |
-                                        UDMA_ATTR_REQMASK);
+                                    UDMA_ATTR_REQMASK);
 
     uDMAChannelAttributeEnable(UDMA_CHANNEL_TMR0B, UDMA_ATTR_USEBURST);
 
     uDMAChannelControlSet(UDMA_CHANNEL_TMR0B | UDMA_PRI_SELECT,
                           UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE |
-                                  UDMA_ARB_4);
+                              UDMA_ARB_4);
 
     uDMAChannelTransferSet(UDMA_CHANNEL_TMR0B | UDMA_PRI_SELECT,
                            UDMA_MODE_BASIC, ui8TxBuf,
@@ -282,8 +281,8 @@ void uartDMAinterface_init(void)
     /*UART OCMP RX Message Queue*/
     uartRxMsgQueue = Util_constructQueue(&uartRxMsg);
     LOGGER_DEBUG(
-            "UARTDMACTR:INFO::Constructing message Queue 0x%x for UART RX OCMP Messages.\n",
-            uartRxMsgQueue);
+        "UARTDMACTR:INFO::Constructing message Queue 0x%x for UART RX OCMP Messages.\n",
+        uartRxMsgQueue);
 
     LOGGER_DEBUG("UARTDMACTR:INFO::Waiting for OCMP UART RX messgaes....!!!\n");
 }
@@ -322,8 +321,8 @@ static void uartdma_rx_taskfxn(UArg arg0, UArg arg1)
                     Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, pWrite);
                 } else {
                     LOGGER_ERROR(
-                            "UARTDMACTR:ERROR:: No memory left for Msg Length %d.\n",
-                            UART_RXBUF_SIZE);
+                        "UARTDMACTR:ERROR:: No memory left for Msg Length %d.\n",
+                        UART_RXBUF_SIZE);
                 }
             }
         }
@@ -346,8 +345,8 @@ void uartdma_tx_taskinit(void)
     /*UART OCMP TX Message Queue*/
     uartTxMsgQueue = Util_constructQueue(&uartTxMsg);
     LOGGER_DEBUG(
-            "UARTDMACTR:INFO::Constructing message Queue 0x%x for UART TX OCMP Messages.\n",
-            uartTxMsgQueue);
+        "UARTDMACTR:INFO::Constructing message Queue 0x%x for UART TX OCMP Messages.\n",
+        uartTxMsgQueue);
 }
 
 /*****************************************************************************
@@ -377,8 +376,8 @@ static ReturnStatus uartdma_process_tx_message(uint8_t *pMsg)
         LOGGER_DEBUG("\n");
 #endif
         uDMAChannelTransferSet(
-                UDMA_CHANNEL_TMR0B | UDMA_PRI_SELECT, UDMA_MODE_BASIC, ui8TxBuf,
-                (void *)(UART4_BASE + UART_O_DR), sizeof(ui8TxBuf));
+            UDMA_CHANNEL_TMR0B | UDMA_PRI_SELECT, UDMA_MODE_BASIC, ui8TxBuf,
+            (void *)(UART4_BASE + UART_O_DR), sizeof(ui8TxBuf));
         uDMAChannelEnable(UDMA_CHANNEL_TMR0B);
     } else {
         status = RETURN_NOTOK;

@@ -27,7 +27,8 @@ tPower_PDStatus_Info PDStatus_Info;
 /******************************************************************************
  * @fn          ltc4275_handle_irq
  *
- * @brief       Read the change in the PD state and callbacks the registerd function.
+ * @brief       Read the change in the PD state and callbacks the registerd
+ * function.
  *
  * @args        Alert Context
  *
@@ -145,7 +146,7 @@ ReturnStatus ltc4275_init(LTC4275_Dev *dev)
 
     if (dev->cfg.pin_evt) {
         const uint32_t pin_evt_cfg =
-                OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
+            OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
         if (OcGpio_configure(dev->cfg.pin_evt, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }

@@ -21,9 +21,8 @@
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
 /*
- * GPP states are define here. Where we define various states GPP or AP can be in.
- * S0_SC[059] and S5[09] are the inputs
- * T0: AP SOC under Reset.       (0,0)
+ * GPP states are define here. Where we define various states GPP or AP can be
+ * in. S0_SC[059] and S5[09] are the inputs T0: AP SOC under Reset.       (0,0)
  * T1: AP starts the booting.    (0,0)
  * T2: AP starts DDR init.       (0,1)
  * T3: PCIe and SPC init.           (1,1)

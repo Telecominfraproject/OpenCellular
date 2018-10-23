@@ -26,22 +26,22 @@
 #define INA_MSK_BOL (1 << 13) /* Bus over-voltage */
 #define INA_MSK_BUL (1 << 12) /* Bus under-voltage */
 #define INA_MSK_POL (1 << 11) /* Power over limit */
-#define INA_MSK_CNVR \
-    (1 << 10) /* Conversion ready - enable alert when
-                                 * CVRF is set (ready for next conversion) */
+#define INA_MSK_CNVR                                  \
+    (1 << 10) /* Conversion ready - enable alert when \
+               * CVRF is set (ready for next conversion) */
 
-#define INA_MSK_AFF \
-    (1 << 4) /* Alert Function Flag (caused by alert)
-                                 * In latch mode, cleared on mask read */
-#define INA_MSK_CVRF \
-    (1 << 3) /* Conversion Ready Flag, cleared when
-                                 * writing to cfg reg or mask read */
+#define INA_MSK_AFF                                   \
+    (1 << 4) /* Alert Function Flag (caused by alert) \
+              * In latch mode, cleared on mask read */
+#define INA_MSK_CVRF                                \
+    (1 << 3) /* Conversion Ready Flag, cleared when \
+              * writing to cfg reg or mask read */
 #define INA_MSK_OVF (1 << 2) /* Math Overflow Flag (data may be invalid) */
 #define INA_MSK_APOL (1 << 1) /* Alert Polarity (1 = invert, active high) */
-#define INA_MSK_LEN \
-    (1 << 0) /* Alert Latch Enable
-                                 * 1 Latch (alert only cleared by read to msk)
-                                 * 0 Transparent (auto-clear on fault clear) */
+#define INA_MSK_LEN                                         \
+    (1 << 0) /* Alert Latch Enable                          \
+              * 1 Latch (alert only cleared by read to msk) \
+              * 0 Transparent (auto-clear on fault clear) */
 
 #define INA_HYSTERESIS \
     30 /* 30mA TODO: need to make more robust, maybe percentage based */

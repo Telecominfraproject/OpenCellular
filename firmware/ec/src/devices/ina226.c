@@ -69,9 +69,9 @@
 
 /* Configure Calibration register with shunt resistor value and current LSB.
  Current_LSB = Maximum Expected Current/2^15
- Current_LSB = 2A/2^15 = 0.00006103515625 = 61uA ~ 100uA(Maximum Expected Current = 2A)
- Calibration Register(CAL) = 0.00512/(Current_LSB*RSHUNT)
- CAL = 0.00512/(100uA*2mOhm) =  = 25600 = 0x6400.(RSHUNT = 2mohm)
+ Current_LSB = 2A/2^15 = 0.00006103515625 = 61uA ~ 100uA(Maximum Expected
+ Current = 2A) Calibration Register(CAL) = 0.00512/(Current_LSB*RSHUNT) CAL =
+ 0.00512/(100uA*2mOhm) =  = 25600 = 0x6400.(RSHUNT = 2mohm)
  */
 #define INA226_CAL_REG_VALUE 0x6400
 
@@ -543,7 +543,8 @@ ReturnStatus ina226_enableAlert(INA226_Dev *dev, INA226_Event evt)
     }
 
     alert_mask &= (~INA_ALERT_EN_MASK); /* Wipe out previous alert EN bits */
-    //alert_mask |= (INA_MSK_LEN); /* Enable latch mode (never miss an alert) */
+    // alert_mask |= (INA_MSK_LEN); /* Enable latch mode (never miss an alert)
+    // */
     dev->obj.evt_to_monitor = evt;
     switch (evt) {
         case INA226_EVT_COL:

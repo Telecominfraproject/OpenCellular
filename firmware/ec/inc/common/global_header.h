@@ -21,59 +21,59 @@
 #include <xdc/runtime/System.h> /* For System_printf */
 
 #if 1
-#define DEBUG(...)                  \
-    {                               \
-        System_printf(__VA_ARGS__); \
-        System_flush();             \
-    }
+#    define DEBUG(...)                  \
+        {                               \
+            System_printf(__VA_ARGS__); \
+            System_flush();             \
+        }
 
-#define LOGGER(...)                 \
-    {                               \
-        System_printf(__VA_ARGS__); \
-        System_flush();             \
-    }
-#define LOGGER_WARNING(...)         \
-    {                               \
-        System_printf(__VA_ARGS__); \
-        System_flush();             \
-    }
-#define LOGGER_ERROR(...)           \
-    {                               \
-        System_printf(__VA_ARGS__); \
-        System_flush();             \
-    }
-#ifdef DEBUG_LOGS
-#define LOGGER_DEBUG(...)           \
-    {                               \
-        System_printf(__VA_ARGS__); \
-        System_flush();             \
-    }
+#    define LOGGER(...)                 \
+        {                               \
+            System_printf(__VA_ARGS__); \
+            System_flush();             \
+        }
+#    define LOGGER_WARNING(...)         \
+        {                               \
+            System_printf(__VA_ARGS__); \
+            System_flush();             \
+        }
+#    define LOGGER_ERROR(...)           \
+        {                               \
+            System_printf(__VA_ARGS__); \
+            System_flush();             \
+        }
+#    ifdef DEBUG_LOGS
+#        define LOGGER_DEBUG(...)           \
+            {                               \
+                System_printf(__VA_ARGS__); \
+                System_flush();             \
+            }
 
-#define NOP_DELAY()               \
-    {                             \
-        uint32_t delay = 7000000; \
-        while (delay--)           \
-            ;                     \
-    }
+#        define NOP_DELAY()               \
+            {                             \
+                uint32_t delay = 7000000; \
+                while (delay--)           \
+                    ;                     \
+            }
+#    else
+#        define LOGGER_DEBUG(...)
+#        define NOP_DELAY()
+#    endif
 #else
-#define LOGGER_DEBUG(...)
-#define NOP_DELAY()
-#endif
-#else
-#define DEBUG(...) //
+#    define DEBUG(...) //
 
-#define LOGGER(...) //
-#define LOGGER_WARNING(...) //
-#define LOGGER_ERROR(...) //
-#ifdef DEBUG_LOGS
-#define LOGGER_DEBUG(...) //
-#endif
-#define NOP_DELAY()               \
-    {                             \
-        uint32_t delay = 7000000; \
-        while (delay--)           \
-            ;                     \
-    }
+#    define LOGGER(...) //
+#    define LOGGER_WARNING(...) //
+#    define LOGGER_ERROR(...) //
+#    ifdef DEBUG_LOGS
+#        define LOGGER_DEBUG(...) //
+#    endif
+#    define NOP_DELAY()               \
+        {                             \
+            uint32_t delay = 7000000; \
+            while (delay--)           \
+                ;                     \
+        }
 #endif
 #define RET_OK 0
 #define RET_NOT_OK 1

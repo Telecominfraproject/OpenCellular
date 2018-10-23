@@ -41,15 +41,14 @@
  *     Setting this bit to 1 configures Pin 8 as the THERM2 pin.
  * 4 - (Reserved) - Reserved for future use.
  * 3 - (Remote 1/2)- Setting this bit to 1 enables the user to read the Remote 2
- *     values from the Remote 1 registers. When default = 0, Remote 1 temperature
- *     values and limits are read from these registers.
- * 2 - (Temp Range) - Setting this bit to 1 enables the extended temperature
- *     measurement range of -64°C to +191°C. When using the default = 0, the
- *     temperature range is 0°C to +127°C.
- * 1 - (Mask R1) - 1 - Setting this bit to 1 masks ALERTs due to the Remote 1
- *     temperature exceeding a programmed limit. Default = 0.
- * 0 - (Mask R2) - 0 - Setting this bit to 1 masks ALERTs due to the Remote 2
- *     temperature exceeding a programmed limit. Default = 0.
+ *     values from the Remote 1 registers. When default = 0, Remote 1
+ * temperature values and limits are read from these registers. 2 - (Temp Range)
+ * - Setting this bit to 1 enables the extended temperature measurement range of
+ * -64°C to +191°C. When using the default = 0, the temperature range is 0°C to
+ * +127°C. 1 - (Mask R1) - 1 - Setting this bit to 1 masks ALERTs due to the
+ * Remote 1 temperature exceeding a programmed limit. Default = 0. 0 - (Mask R2)
+ * - 0 - Setting this bit to 1 masks ALERTs due to the Remote 2 temperature
+ * exceeding a programmed limit. Default = 0.
  */
 #define ADT7481_CONFIGURATION_REG_VALUE \
     (ADT7481_EXTENDED_FLAG << 2) /* Set/Clear Only Temp Range bit */

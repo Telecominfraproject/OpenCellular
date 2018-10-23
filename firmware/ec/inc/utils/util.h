@@ -55,8 +55,8 @@ extern "C" {
 #include <ti/sysbios/knl/Semaphore.h>
 
 /*********************************************************************
-*  EXTERNAL VARIABLES
-*/
+ *  EXTERNAL VARIABLES
+ */
 
 /*********************************************************************
  * CONSTANTS

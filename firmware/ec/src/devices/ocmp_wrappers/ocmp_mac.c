@@ -1,11 +1,11 @@
 /**
-* Copyright (c) 2017-present, Facebook, Inc.
-* All rights reserved.
-*
-* This source code is licensed under the BSD-style license found in the
-* LICENSE file in the root directory of this source tree. An additional grant
-* of patent rights can be found in the PATENTS file in the same directory.
-*/
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "common/inc/ocmp_wrappers/ocmp_mac.h"
 
 #include "inc/common/global_header.h"
@@ -182,10 +182,10 @@ static ePostCode _probe_mac(void *driver, const void *config,
 
     if ((ulUser0 != 0xffffffff) && (ulUser1 != 0xffffffff)) {
         /*
-             *  Convert the 24/24 split MAC address from NV ram into a 32/16 split
-             *  MAC address needed to program the hardware registers, then program
-             *  the MAC address into the Ethernet Controller registers.
-             */
+         *  Convert the 24/24 split MAC address from NV ram into a 32/16 split
+         *  MAC address needed to program the hardware registers, then program
+         *  the MAC address into the Ethernet Controller registers.
+         */
         temp[0] = ((ulUser0 >> 0) & 0xff);
         temp[1] = ((ulUser0 >> 8) & 0xff);
         temp[2] = ((ulUser0 >> 16) & 0xff);

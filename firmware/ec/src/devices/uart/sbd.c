@@ -67,12 +67,12 @@ static bool ciev(AT_Response *res, void *context)
 }
 
 static const AT_UnsolicitedRes unsolicitedList[] = { {
-                                                             .fmt = "SBDRING",
-                                                             .cb = sbdring,
+                                                         .fmt = "SBDRING",
+                                                         .cb = sbdring,
                                                      },
                                                      {
-                                                             .fmt = "+CIEV:",
-                                                             .cb = ciev,
+                                                         .fmt = "+CIEV:",
+                                                         .cb = ciev,
                                                      },
                                                      {} };
 
@@ -97,9 +97,9 @@ bool SBD_sbdix(SBD_Handle handle, SbdixInfo *info_out, bool alert_response)
 {
     const char *cmd_fmt = (alert_response) ? "+SBDIXA" : "+SBDIX";
     AT_cmd_set_timeout(handle, SBDIX_TIMEOUT);
-    bool res = AT_cmd(handle, &s_AtRes, cmd_fmt) &&
-               copy_int_responses(&s_AtRes, (int *)info_out,
-                                  NUM_RESPONSES(info_out));
+    bool res =
+        AT_cmd(handle, &s_AtRes, cmd_fmt) &&
+        copy_int_responses(&s_AtRes, (int *)info_out, NUM_RESPONSES(info_out));
     AT_cmd_set_timeout(handle, AT_RES_DEFAULT_TIMEOUT);
     return res;
 }
@@ -144,8 +144,8 @@ bool SBD_k(SBD_Handle handle, SbdFlowControl flowControl)
 bool SBD_sbdd(SBD_Handle handle, SbdDeleteType deleteType)
 {
     char resCode;
-    bool res = AT_cmd_raw(handle, &resCode, sizeof(resCode), "+SBDD%u",
-                          deleteType);
+    bool res =
+        AT_cmd_raw(handle, &resCode, sizeof(resCode), "+SBDD%u", deleteType);
     return (res && resCode == '0');
 }
 
@@ -258,7 +258,7 @@ static int read_binary_data(AT_Handle handle, void *buf)
 
     // Read length (2B)
     AT_cmd_read16(handle, &res->size);
-    //DEBUG("Payload len: %d\n", res->size);
+    // DEBUG("Payload len: %d\n", res->size);
 
     // TODO: sanity check the payload length
     res->data = malloc(res->size);

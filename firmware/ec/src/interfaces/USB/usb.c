@@ -37,7 +37,7 @@
 //*****************************************************************************
 //                             HANDLES DEFINITION
 //*****************************************************************************
-//Semaphore
+// Semaphore
 Semaphore_Handle semUSBRX;
 Semaphore_Handle semUSBTX;
 
@@ -87,11 +87,11 @@ void usb_tx_taskinit(void)
     usbTxMsgQueue = Util_constructQueue(&usbtTxMsg);
     if (usbTxMsgQueue == NULL) {
         LOGGER_DEBUG(
-                "USBTX:ERROR:: Failed in Constructing USB TX Message Queue for TX Messages.\n");
+            "USBTX:ERROR:: Failed in Constructing USB TX Message Queue for TX Messages.\n");
     } else {
         LOGGER_DEBUG(
-                "USBTX:INFO:: Constructing message Queue for 0x%x USB TX Messages.\n",
-                usbTxMsgQueue);
+            "USBTX:INFO:: Constructing message Queue for 0x%x USB TX Messages.\n",
+            usbTxMsgQueue);
     }
 }
 
@@ -117,11 +117,11 @@ void usb_rx_taskinit(void)
     usbRxMsgQueue = Util_constructQueue(&usbRxMsg);
     if (usbRxMsgQueue == NULL) {
         LOGGER_DEBUG(
-                "USBRX:ERROR:: Failed in Constructing USB RX Message Queue for RX Messages.\n");
+            "USBRX:ERROR:: Failed in Constructing USB RX Message Queue for RX Messages.\n");
     } else {
         LOGGER_DEBUG(
-                "USBRX:INFO:: Constructing message Queue for 0x%x USB RX Messages.\n",
-                usbRxMsgQueue);
+            "USBRX:INFO:: Constructing message Queue for 0x%x USB RX Messages.\n",
+            usbRxMsgQueue);
     }
 }
 
@@ -195,8 +195,8 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
         /* Block while the device is NOT connected to the USB */
         USBCDCD_waitForConnect(BIOS_WAIT_FOREVER);
 
-        received = USBCDCD_receiveData(ui8RxBuf, USB_FRAME_LENGTH,
-                                       BIOS_WAIT_FOREVER);
+        received =
+            USBCDCD_receiveData(ui8RxBuf, USB_FRAME_LENGTH, BIOS_WAIT_FOREVER);
         ui8RxBuf[received] = '\0';
         if (received && (ui8RxBuf[0] == 0x55)) {
             /* OCMP USB RX Messgaes */
@@ -218,8 +218,8 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
                 Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, pWrite);
             } else {
                 LOGGER_ERROR(
-                        "USBRX:ERROR:: No memory left for Msg Length %d.\n",
-                        USB_FRAME_LENGTH);
+                    "USBRX:ERROR:: No memory left for Msg Length %d.\n",
+                    USB_FRAME_LENGTH);
             }
         }
     }

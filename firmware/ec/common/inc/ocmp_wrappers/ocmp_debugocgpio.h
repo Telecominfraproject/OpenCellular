@@ -22,12 +22,12 @@ static const Driver OC_GPIO = {
                               { .name = "value", .type = TYPE_UINT8 },
                               {} },
     .commands = (Command[]){ {
-                                     .name = "get",
-                                     .cb_cmd = ocgpio_get,
+                                 .name = "get",
+                                 .cb_cmd = ocgpio_get,
                              },
                              {
-                                     .name = "set",
-                                     .cb_cmd = ocgpio_set,
+                                 .name = "set",
+                                 .cb_cmd = ocgpio_set,
                              },
                              {} },
     .fxnTable = &DEBUG_OCGPIO_fxnTable,

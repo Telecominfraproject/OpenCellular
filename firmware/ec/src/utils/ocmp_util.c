@@ -33,8 +33,8 @@ OCMPMessageFrame *OCMP_mallocFrame(uint16_t len)
         // Assign pData to first byte of payload
         // Pointer arithmetic of + 1 is equal to sizeof(OCMPMessageFrame) bytes
         // then cast to unsigned char * for pData
-        //pMsg->message.ocmp_data = (unsigned char *)(pMsg + 1);
-        //pMsg->message.ocmp_data = (unsigned char *)(pMsg + 2);
+        // pMsg->message.ocmp_data = (unsigned char *)(pMsg + 1);
+        // pMsg->message.ocmp_data = (unsigned char *)(pMsg + 2);
     }
     return pMsg;
 }
@@ -60,25 +60,25 @@ create_ocmp_msg_frame(OCMPSubsystem subSystem, OCMPMsgType msgtype,
                       uint16_t parameters, uint8_t payloadSize)
 {
     OCMPMessageFrame *ocmp_msg =
-            (OCMPMessageFrame *)OCMP_mallocFrame(payloadSize);
+        (OCMPMessageFrame *)OCMP_mallocFrame(payloadSize);
     if (ocmp_msg) {
         *ocmp_msg = (OCMPMessageFrame){
             .header =
-                    {
-                            .ocmpSof = OCMP_MSG_SOF,
-                            .ocmpInterface = OCMP_COMM_IFACE_USB,
-                            .ocmpFrameLen = payloadSize,
-                            //.ocmp_seqNumber = 0x00;
-                            //.ocmp_timestamp = 0x00; //Get RTC TimeStamp
-                    },
+                {
+                    .ocmpSof = OCMP_MSG_SOF,
+                    .ocmpInterface = OCMP_COMM_IFACE_USB,
+                    .ocmpFrameLen = payloadSize,
+                    //.ocmp_seqNumber = 0x00;
+                    //.ocmp_timestamp = 0x00; //Get RTC TimeStamp
+                },
             .message =
-                    {
-                            .subsystem = subSystem,
-                            .componentID = componentId,
-                            .parameters = parameters,
-                            .msgtype = msgtype,
-                            .action = actionType,
-                    }
+                {
+                    .subsystem = subSystem,
+                    .componentID = componentId,
+                    .parameters = parameters,
+                    .msgtype = msgtype,
+                    .action = actionType,
+                }
         };
         memset(&(ocmp_msg->message.ocmp_data[0]), 0x00, payloadSize);
     }
