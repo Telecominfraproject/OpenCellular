@@ -59,13 +59,13 @@ typedef struct XR20M1170_HWAttrs {
 typedef struct XR20M1170_Object {
     /* UART state variable */
     struct {
-        bool opened : 1; /* Has the obj been opened */
-        UART_Mode readMode : 1; /* Mode for all read calls */
-        UART_Mode writeMode : 1; /* Mode for all write calls */
-        UART_DataMode readDataMode : 1; /* Type of data being read */
-        UART_DataMode writeDataMode : 1; /* Type of data being written */
+        bool opened : 1;                    /* Has the obj been opened */
+        UART_Mode readMode : 1;             /* Mode for all read calls */
+        UART_Mode writeMode : 1;            /* Mode for all write calls */
+        UART_DataMode readDataMode : 1;     /* Type of data being read */
+        UART_DataMode writeDataMode : 1;    /* Type of data being written */
         UART_ReturnMode readReturnMode : 1; /* Receive return mode */
-        UART_Echo readEcho : 1; /* Echo received data back */
+        UART_Echo readEcho : 1;             /* Echo received data back */
         /*
          * Flag to determine if a timeout has occurred when the user called
          * UART_read(). This flag is set by the timeoutClk clock object.
@@ -95,7 +95,7 @@ typedef struct XR20M1170_Object {
     //    UART_PAR             parityType;       /* Parity bit type for UART */
     //
     //    /* UART read variables */
-    RingBuf_Object ringBuffer; /* local circular buffer object */
+    RingBuf_Object ringBuffer;     /* local circular buffer object */
     GateMutex_Handle ringBufMutex; // Mutex for accessing ring buffer
     //    /* A complement pair of read functions for both the ISR and
     //    UART_read() */ UARTTiva_FxnSet      readFxns; unsigned char *readBuf;

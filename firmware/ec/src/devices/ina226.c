@@ -56,10 +56,10 @@
  *                           CONSTANTS DEFINITIONS
  *****************************************************************************/
 /* INA226 LSB Values */
-#define INA226_VSHUNT_LSB 2.5 /* 2.5uV or 2500nV  (uV default) */
-#define INA226_VBUS_LSB 1.25 /* 1.25mV or 1250uV (mV default) */
+#define INA226_VSHUNT_LSB 2.5  /* 2.5uV or 2500nV  (uV default) */
+#define INA226_VBUS_LSB 1.25   /* 1.25mV or 1250uV (mV default) */
 #define INA226_CURRENT_LSB 0.1 /* 0.100mA 0r 100uA (mA default) */
-#define INA226_POWER_LSB 2.5 /* 2.5mW or 2500uW  (mW default) */
+#define INA226_POWER_LSB 2.5   /* 2.5mW or 2500uW  (mW default) */
 
 /* Configure the Configuration register with Number of Samples and Conversion
  * Time for Shunt and Bus Voltage.

@@ -27,8 +27,8 @@ typedef enum {
 } ePowerSource;
 
 typedef enum {
-    PWR_SRC_ACTIVE = 0, /* If source is primary source */
-    PWR_SRC_AVAILABLE, /* If source is available */
+    PWR_SRC_ACTIVE = 0,   /* If source is primary source */
+    PWR_SRC_AVAILABLE,    /* If source is available */
     PWR_SRC_NON_AVAILABLE /* If source is not connected */
 } ePowerSourceState;
 

@@ -47,8 +47,8 @@ typedef struct Eeprom_Cfg {
     I2C_Dev i2c_dev;
     OcGpio_Pin *pin_wp;
     EepromDev_Cfg type; /*!< Device specific config (page size, etc) */
-    OCMPSubsystem ss; /* TODO: The HW config need not know about the subsytem
-    to be fixed later */
+    OCMPSubsystem ss;   /* TODO: The HW config need not know about the subsytem
+      to be fixed later */
 } Eeprom_Cfg, *Eeprom_Handle;
 
 typedef enum {

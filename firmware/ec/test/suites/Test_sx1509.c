@@ -229,7 +229,7 @@ void test_ioexp_led_inputbuffer(void)
     /* Test setting input buffer values */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_inputbuffer(
                                      &s_sx1509_dev, SX1509_REG_AB, 0x55,
-                                     0xAA)); // LSB(Reg A), LSB(Reg B)
+                                     0xAA));         // LSB(Reg A), LSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x01]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x00]); // Reg B
 
@@ -244,7 +244,7 @@ void test_ioexp_led_pullup(void)
     /* Test setting pull up values */
     TEST_ASSERT_EQUAL(
         RETURN_OK, ioexp_led_config_pullup(&s_sx1509_dev, SX1509_REG_AB, 0x27,
-                                           0x82)); // LSB(Reg A), MSB(Reg B)
+                                           0x82));   // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x27, SX1509_regs[0x07]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x82, SX1509_regs[0x06]); // Reg B
 
@@ -274,7 +274,7 @@ void test_ioexp_led_opendrain(void)
     /* Test setting open drain values */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_opendrain(
                                      &s_sx1509_dev, SX1509_REG_AB, 0x45,
-                                     0x54)); // LSB(Reg A), MSB(Reg B)
+                                     0x54));         // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x45, SX1509_regs[0x0B]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x54, SX1509_regs[0x0A]); // Reg B
 
@@ -289,7 +289,7 @@ void test_ioexp_led_data_direction(void)
     /* Test setting data direction values */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_data_direction(
                                      &s_sx1509_dev, SX1509_REG_AB, 0xAB,
-                                     0xD9)); // LSB(Reg A), MSB(Reg B)
+                                     0xD9));         // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0xAB, SX1509_regs[0x0F]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xD9, SX1509_regs[0x0E]); // Reg B
 
@@ -364,7 +364,7 @@ void test_ioexp_led_enable_leddriver(void)
     /* Test setting led driver values */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_enable_leddriver(
                                      &s_sx1509_dev, SX1509_REG_AB, 0x52,
-                                     0xF8)); // LSB(Reg A), MSB(Reg B)
+                                     0xF8));         // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x52, SX1509_regs[0x21]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0xF8, SX1509_regs[0x20]); // Reg B
 
@@ -395,7 +395,7 @@ void test_ioexp_led_interrupt(void)
     /* Test setting interrupt values */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_interrupt(
                                      &s_sx1509_dev, SX1509_REG_AB, 0x27,
-                                     0x28)); // LSB(Reg A), MSB(Reg B)
+                                     0x28));         // LSB(Reg A), MSB(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0x27, SX1509_regs[0x13]); // Reg A
     TEST_ASSERT_EQUAL_HEX8(0x28, SX1509_regs[0x12]); // Reg B
 
@@ -411,7 +411,7 @@ void test_ioexp_led_edge_sense_A(void)
     /* Rising edge */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_edge_sense_A(
                                      &s_sx1509_dev, SX1509_REG_AB, 0x55,
-                                     0x55)); // Low(Reg A), High(Reg A)
+                                     0x55));         // Low(Reg A), High(Reg A)
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x17]); // Low Reg A
     TEST_ASSERT_EQUAL_HEX8(0x55, SX1509_regs[0x16]); // High Reg A
 
@@ -434,7 +434,7 @@ void test_ioexp_led_edge_sense_B(void)
     /* Falling edge */
     TEST_ASSERT_EQUAL(RETURN_OK, ioexp_led_config_edge_sense_B(
                                      &s_sx1509_dev, SX1509_REG_AB, 0xAA,
-                                     0xAA)); // Low(Reg B), High(Reg B)
+                                     0xAA));         // Low(Reg B), High(Reg B)
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x15]); // Low Reg B
     TEST_ASSERT_EQUAL_HEX8(0xAA, SX1509_regs[0x14]); // High Reg B
 

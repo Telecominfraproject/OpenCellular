@@ -55,7 +55,7 @@ static UART_Handle open_comm(const Iridium_Cfg *iridium)
 
     /* reset - for proper reset, Iridium should be disabled for ~2s */
     OcGpio_write(&iridium->pin_enable, false); /* Just to be sure it's low */
-    Task_sleep(2100); // TODO: should be ~2s
+    Task_sleep(2100);                          // TODO: should be ~2s
     OcGpio_write(&iridium->pin_enable, true);
     Task_sleep(200); // TODO: idk...probably doesn't need to be long
 
@@ -92,8 +92,8 @@ ReturnStatus sbd_init(const Iridium_Cfg *iridium)
     }
 
     /* TODO: module verification? */
-    if (!SBD_k(s_hSbd, SBD_FLOW_CONTROL_HW) /* Enable HW flow control */
-        || !SBD_sbdmta(s_hSbd, true) /* Ring indication enable */
+    if (!SBD_k(s_hSbd, SBD_FLOW_CONTROL_HW)         /* Enable HW flow control */
+        || !SBD_sbdmta(s_hSbd, true)                /* Ring indication enable */
         || !SBD_sbdareg(s_hSbd, SBD_AREG_MODE_AUTO) /* Auto registration */
         || !SBD_cier(s_hSbd, true, false, true, false,
                      false)) { /* Service change indications */

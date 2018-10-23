@@ -52,8 +52,8 @@ typedef enum {
 typedef enum {
     OCMP_COMM_IFACE_UART = 1, // Uart             - 1
     OCMP_COMM_IFACE_ETHERNET, // Ethernet         - 2
-    OCMP_COMM_IFACE_SBD, // SBD(Satellite)   - 3
-    OCMP_COMM_IFACE_USB // Usb              - 4
+    OCMP_COMM_IFACE_SBD,      // SBD(Satellite)   - 3
+    OCMP_COMM_IFACE_USB       // Usb              - 4
 } OCMPInterface;
 
 /*
@@ -145,21 +145,21 @@ typedef enum { OCMP_DEBUG_READ = 1, OCMP_DEBUG_WRITE } eOCMPDebugOperation;
  * Source Interface, Sequence number, and timestamp.
  */
 typedef struct __attribute__((packed, aligned(1))) {
-    uint8_t ocmpSof; // SOF - It must be 0x55
+    uint8_t ocmpSof;      // SOF - It must be 0x55
     uint8_t ocmpFrameLen; // Framelen - tells about the configuration size ONLY.
     OCMPInterface ocmpInterface; // Interface - UART/Ethernet/SBD
-    uint32_t ocmpSeqNumber; // SeqNo - Don't know!!!
-    uint32_t ocmpTimestamp; // Timestamp - When AP sent the command?
+    uint32_t ocmpSeqNumber;      // SeqNo - Don't know!!!
+    uint32_t ocmpTimestamp;      // Timestamp - When AP sent the command?
 } OCMPHeader;
 
 /*
  * This is the Message structure for Subsystem level information
  */
 typedef struct __attribute__((packed, aligned(1))) {
-    OC_SS subsystem; // RF/GPP/BMS/Watchdog etc..
+    OC_SS subsystem;     // RF/GPP/BMS/Watchdog etc..
     uint8_t componentID; // Compononent ID. Different for different subsystem.
     OCMPMsgType
-        msgtype; // Msg type is Config/Status/Alert/Command/Watchdog/Debug
+        msgtype;    // Msg type is Config/Status/Alert/Command/Watchdog/Debug
     uint8_t action; // Action is - Get/Set/Reply.
     uint16_t parameters; // List of Parameters to be set or get.
 #ifndef OCWARE_HOST

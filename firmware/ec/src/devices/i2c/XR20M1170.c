@@ -357,7 +357,7 @@ static bool register_config(UART_Handle handle, UART_Params *params)
     /* Set halt/resume levels - these can be relatively low since data should
      * normally be cleared quite quickly */
     XrRegTcr tcr = {
-        .rxHaltLvl = 40 / 4, /* 0-60, multiple of 4 */
+        .rxHaltLvl = 40 / 4,   /* 0-60, multiple of 4 */
         .rxResumeLvl = 12 / 4, /* 0-60, multiple of 4 */
     };
     writeData(handle, XR_REG_TCR, &tcr, sizeof(tcr));

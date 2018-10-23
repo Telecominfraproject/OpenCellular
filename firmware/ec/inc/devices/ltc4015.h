@@ -25,20 +25,20 @@
 #define LTC4015_ALERT_EN_MASK \
     0xFFFF /* Bits 15-0 are the enable bits(except bit 14) */
 #define LTC4015_MSK_MSRV (1 << 15) /* Measurement system results valid */
-#define LTC4015_MSK_QCL (1 << 13) /* QCOUNT Low alert */
-#define LTC4015_MSK_QCH (1 << 12) /* QCOUNT High alert */
-#define LTC4015_MSK_BVL (1 << 11) /* Battery voltage Low alert */
-#define LTC4015_MSK_BVH (1 << 10) /* Battery voltage High alert */
-#define LTC4015_MSK_IVL (1 << 9) /* Input voltage Low alert */
-#define LTC4015_MSK_IVH (1 << 8) /* Input voltage High alert */
-#define LTC4015_MSK_SVL (1 << 7) /* System voltage Low alert */
-#define LTC4015_MSK_SVH (1 << 6) /* System voltage High alert */
-#define LTC4015_MSK_ICH (1 << 5) /* Input current High alert */
-#define LTC4015_MSK_BCL (1 << 4) /* Battery current Low alert */
-#define LTC4015_MSK_DTH (1 << 3) /* Die temperature High alert */
-#define LTC4015_MSK_BSRH (1 << 2) /* BSR High alert */
-#define LTC4015_MSK_NTCH (1 << 1) /* NTC ratio High alert */
-#define LTC4015_MSK_NTCL (1 << 0) /* NTC ratio Low alert */
+#define LTC4015_MSK_QCL (1 << 13)  /* QCOUNT Low alert */
+#define LTC4015_MSK_QCH (1 << 12)  /* QCOUNT High alert */
+#define LTC4015_MSK_BVL (1 << 11)  /* Battery voltage Low alert */
+#define LTC4015_MSK_BVH (1 << 10)  /* Battery voltage High alert */
+#define LTC4015_MSK_IVL (1 << 9)   /* Input voltage Low alert */
+#define LTC4015_MSK_IVH (1 << 8)   /* Input voltage High alert */
+#define LTC4015_MSK_SVL (1 << 7)   /* System voltage Low alert */
+#define LTC4015_MSK_SVH (1 << 6)   /* System voltage High alert */
+#define LTC4015_MSK_ICH (1 << 5)   /* Input current High alert */
+#define LTC4015_MSK_BCL (1 << 4)   /* Battery current Low alert */
+#define LTC4015_MSK_DTH (1 << 3)   /* Die temperature High alert */
+#define LTC4015_MSK_BSRH (1 << 2)  /* BSR High alert */
+#define LTC4015_MSK_NTCH (1 << 1)  /* NTC ratio High alert */
+#define LTC4015_MSK_NTCL (1 << 0)  /* NTC ratio Low alert */
 
 #define LTC4015_MSK_BMFA (1 << 1) /* Battery Missing Fault alert */
 
@@ -59,17 +59,17 @@ typedef enum LTC4015_Chem {
 
 typedef enum LTC4015_Event {
     LTC4015_EVT_MSRV = LTC4015_MSK_MSRV, /* Measurement system results valid */
-    LTC4015_EVT_QCL = LTC4015_MSK_QCL, /* QCOUNT Low alert */
-    LTC4015_EVT_QCH = LTC4015_MSK_QCH, /* QCOUNT High alert */
-    LTC4015_EVT_BVL = LTC4015_MSK_BVL, /* Battery voltage Low alert */
-    LTC4015_EVT_BVH = LTC4015_MSK_BVH, /* Battery voltage High alert */
-    LTC4015_EVT_IVL = LTC4015_MSK_IVL, /* Input voltage Low alert */
-    LTC4015_EVT_IVH = LTC4015_MSK_IVH, /* Input voltage High alert */
-    LTC4015_EVT_SVL = LTC4015_MSK_SVL, /* System voltage Low alert */
-    LTC4015_EVT_SVH = LTC4015_MSK_SVH, /* System voltage High alert */
-    LTC4015_EVT_ICH = LTC4015_MSK_ICH, /* Input current High alert */
-    LTC4015_EVT_BCL = LTC4015_MSK_BCL, /* Battery current Low alert */
-    LTC4015_EVT_DTH = LTC4015_MSK_DTH, /* Die temperature High alert */
+    LTC4015_EVT_QCL = LTC4015_MSK_QCL,   /* QCOUNT Low alert */
+    LTC4015_EVT_QCH = LTC4015_MSK_QCH,   /* QCOUNT High alert */
+    LTC4015_EVT_BVL = LTC4015_MSK_BVL,   /* Battery voltage Low alert */
+    LTC4015_EVT_BVH = LTC4015_MSK_BVH,   /* Battery voltage High alert */
+    LTC4015_EVT_IVL = LTC4015_MSK_IVL,   /* Input voltage Low alert */
+    LTC4015_EVT_IVH = LTC4015_MSK_IVH,   /* Input voltage High alert */
+    LTC4015_EVT_SVL = LTC4015_MSK_SVL,   /* System voltage Low alert */
+    LTC4015_EVT_SVH = LTC4015_MSK_SVH,   /* System voltage High alert */
+    LTC4015_EVT_ICH = LTC4015_MSK_ICH,   /* Input current High alert */
+    LTC4015_EVT_BCL = LTC4015_MSK_BCL,   /* Battery current Low alert */
+    LTC4015_EVT_DTH = LTC4015_MSK_DTH,   /* Die temperature High alert */
     LTC4015_EVT_BSRH = LTC4015_MSK_BSRH, /* BSR High alert */
     LTC4015_EVT_NTCL = LTC4015_MSK_NTCL, /* NTC ratio High alert */
     LTC4015_EVT_NTCH = LTC4015_MSK_NTCH, /* NTC ratio Low alert */

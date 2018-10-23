@@ -35,18 +35,18 @@
 
 /* Configuration Bits */
 #define SE98A_CFG_HEN_H (1 << 10) /* Hysteresis Enable High Bit */
-#define SE98A_CFG_HEN_L (1 << 9) /* Hysteresis Enable Low Bit */
-#define SE98A_CFG_SHMD (1 << 8) /* Shutdown Mode */
+#define SE98A_CFG_HEN_L (1 << 9)  /* Hysteresis Enable Low Bit */
+#define SE98A_CFG_SHMD (1 << 8)   /* Shutdown Mode */
 
-#define SE98A_CFG_CTLB (1 << 7) /* Critical Trip Lock Bit */
-#define SE98A_CFG_AWLB (1 << 6) /* Alarm Window Lock Bit */
+#define SE98A_CFG_CTLB (1 << 7)   /* Critical Trip Lock Bit */
+#define SE98A_CFG_AWLB (1 << 6)   /* Alarm Window Lock Bit */
 #define SE98A_CFG_CEVENT (1 << 5) /* (WO) Clear EVENT */
-#define SE98A_CFG_ESTAT (1 << 4) /* (RO) EVENT Status */
+#define SE98A_CFG_ESTAT (1 << 4)  /* (RO) EVENT Status */
 
 #define SE98A_CFG_EOCTL (1 << 3) /* EVENT Output Control */
-#define SE98A_CFG_CVO (1 << 2) /* Critical Event Only */
-#define SE98A_CFG_EP (1 << 1) /* EVENT Polarity */
-#define SE98A_CFG_EMD (1 << 0) /* EVENT Mode */
+#define SE98A_CFG_CVO (1 << 2)   /* Critical Event Only */
+#define SE98A_CFG_EP (1 << 1)    /* EVENT Polarity */
+#define SE98A_CFG_EMD (1 << 0)   /* EVENT Mode */
 
 #define SE98A_CFG_HYS_0 (0x0 << 9)
 #define SE98A_CFG_HYS_1P5 (0x1 << 9)

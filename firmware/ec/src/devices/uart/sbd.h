@@ -65,17 +65,17 @@ typedef struct SbdixInfo {
 
 typedef struct SbdsInfo {
     int moFlag; //!< Message in mobile originated buffer
-    int moMsn; //!< MO message sequence number
+    int moMsn;  //!< MO message sequence number
 
     int mtFlag; //!< Message in mobile terminated buffer
-    int mtMsn; //!< MT Message sequence number
+    int mtMsn;  //!< MT Message sequence number
 } SbdsInfo;
 
 typedef struct SbdsxInfo {
     SbdsInfo sbdsInfo; //!< Regular SBD status info
-    int raFlag; //!< Ring alert still needs to be answered
-    int msgWaiting; //!< Number of MT messages at gateway
-                    //!< (updated every SBD session)
+    int raFlag;        //!< Ring alert still needs to be answered
+    int msgWaiting;    //!< Number of MT messages at gateway
+                       //!< (updated every SBD session)
 } SbdsxInfo;
 
 typedef enum SbdCiev {

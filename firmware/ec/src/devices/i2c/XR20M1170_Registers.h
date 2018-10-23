@@ -45,17 +45,17 @@ typedef enum XrRegister {
     XR_REG_TCR = 0x06, /* EFR[4] == 1 && MCR[2] == 1 */
     XR_REG_TLR = 0x07, /* EFR[4] == 1 && MCR[2] == 1 */
 
-    XR_REG_TXLVL = 0x08, // LCR[7] = 0
-    XR_REG_RXLVL = 0x09, // LCR[7] = 0
-    XR_REG_IODIR = 0x0A, // LCR[7] = 0
-    XR_REG_IOSTATE = 0x0B, // LCR[7] = 0
+    XR_REG_TXLVL = 0x08,    // LCR[7] = 0
+    XR_REG_RXLVL = 0x09,    // LCR[7] = 0
+    XR_REG_IODIR = 0x0A,    // LCR[7] = 0
+    XR_REG_IOSTATE = 0x0B,  // LCR[7] = 0
     XR_REG_IOINTENA = 0x0C, // LCR[7] = 0
-    XR_REG_IOCTRL = 0x0E, // LCR[7] = 0
-    XR_REG_EFCR = 0x0F, // LCR[7] = 0
+    XR_REG_IOCTRL = 0x0E,   // LCR[7] = 0
+    XR_REG_EFCR = 0x0F,     // LCR[7] = 0
 
-    XR_REG_EFR = 0x02, // LCR = 0xBF
-    XR_REG_XON1 = 0x04, // LCR = 0xBF
-    XR_REG_XON2 = 0x05, // LCR = 0xBF
+    XR_REG_EFR = 0x02,   // LCR = 0xBF
+    XR_REG_XON1 = 0x04,  // LCR = 0xBF
+    XR_REG_XON2 = 0x05,  // LCR = 0xBF
     XR_REG_XOFF1 = 0x06, // LCR = 0xBF
     XR_REG_XOFF2 = 0x07, // LCR = 0xBF
 } XrRegister;
@@ -104,19 +104,19 @@ typedef enum XrStopBit {
 
 typedef enum XrParity {
     XR_PARITY_NONE = 0x0, //!< No parity
-    XR_PARITY_ODD = 0x1, //!< Parity bit is odd
+    XR_PARITY_ODD = 0x1,  //!< Parity bit is odd
     XR_PARITY_EVEN = 0x3, //!< Parity bit is even
-    XR_PARITY_ONE = 0x5, //!< Parity bit is always one
+    XR_PARITY_ONE = 0x5,  //!< Parity bit is always one
     XR_PARITY_ZERO = 0x7, //!< Parity bit is always zero
 } XrParity;
 
 // TODO: a lot of these should be enums
 typedef struct PACKED XrRegLcr {
-    XrWordLen wordLen : 2; // Word length to be transmitted or received
+    XrWordLen wordLen : 2;  // Word length to be transmitted or received
     XrStopBit stopBits : 1; // Length of stop bit
-    XrParity parity : 3; // Parity format
-    bool txBreak : 1; // Causes a break condition to be transmitted
-    bool divisorEn : 1; // Baud rate generator divisor (DLL, DLM and DLD)
+    XrParity parity : 3;    // Parity format
+    bool txBreak : 1;       // Causes a break condition to be transmitted
+    bool divisorEn : 1;     // Baud rate generator divisor (DLL, DLM and DLD)
 } XrRegLcr;
 
 typedef struct PACKED XrRegDld {
@@ -178,7 +178,7 @@ typedef struct PACKED XrRegFcr {
 
 /* Transmission Control Register (TCR) */
 typedef struct PACKED XrRegTcr {
-    uint8_t rxHaltLvl : 4; /*!< x4, 0-60 - RTS goes high after this level */
+    uint8_t rxHaltLvl : 4;   /*!< x4, 0-60 - RTS goes high after this level */
     uint8_t rxResumeLvl : 4; /*!< x4, 0-60 - RTS returns low below this level */
 } XrRegTcr;
 
@@ -203,9 +203,9 @@ typedef struct PACKED XrRegIer {
     bool lsrIntEn : 1;
     bool msrIntEn : 1;
     bool sleepModeEn : 1; //!< EFR[4] = 1 to modify
-    bool xoffIntEn : 1; //!< EFR[4] = 1 to modify
-    bool rtsIntEn : 1; //!< EFR[4] = 1 to modify
-    bool ctsIntEn : 1; //!< EFR[4] = 1 to modify
+    bool xoffIntEn : 1;   //!< EFR[4] = 1 to modify
+    bool rtsIntEn : 1;    //!< EFR[4] = 1 to modify
+    bool ctsIntEn : 1;    //!< EFR[4] = 1 to modify
 } XrRegIer;
 
 // Note: in order of priority

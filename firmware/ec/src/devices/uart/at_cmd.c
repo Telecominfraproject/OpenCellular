@@ -287,7 +287,7 @@ static bool AT_cmd_read_line(AT_Handle handle, At_RawResponse *res)
             if (handle->binaryReadHandler) {
                 handle->s_bufLen =
                     lineLen + 1; // TODO: this is dumb, get_line_type should
-                                 // just know about the temp buf
+                // just know about the temp buf
                 res->size = handle->binaryReadHandler(handle, res->data);
                 handle->binaryReadHandler = NULL;
                 return (res->size >= 0);

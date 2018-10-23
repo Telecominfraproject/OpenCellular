@@ -42,8 +42,8 @@ typedef enum {
 } ePDAlert;
 
 typedef enum {
-    LTC4275_CONNECT_EVT = 1 << 2, /* PD device Connected. */
-    LTC4275_DISCONNECT_EVT = 1 << 1, /* PD device removed.   */
+    LTC4275_CONNECT_EVT = 1 << 2,      /* PD device Connected. */
+    LTC4275_DISCONNECT_EVT = 1 << 1,   /* PD device removed.   */
     LTC4275_INCOMPATIBLE_EVT = 1 << 0, /* Incomaptible device  */
 } LTC4275_Event;
 

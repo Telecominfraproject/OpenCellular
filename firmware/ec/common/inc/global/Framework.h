@@ -121,7 +121,7 @@ typedef struct Driver {
 } Driver;
 
 typedef struct SSHookSet {
-    ssHook_Cb preInitFxn; /* Function will run before post is executed */
+    ssHook_Cb preInitFxn;  /* Function will run before post is executed */
     ssHook_Cb postInitFxn; /* Function will run after post is executed */
 } SSHookSet;
 

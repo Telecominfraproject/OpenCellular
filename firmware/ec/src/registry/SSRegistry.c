@@ -428,9 +428,9 @@ static void subsystem_init(OCMPSubsystem ss_id)
     /* Spin up the task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
-    taskParams.stack = OC_task_stack[ss_id]; // ss->taskStack;
+    taskParams.stack = OC_task_stack[ss_id];   // ss->taskStack;
     taskParams.stackSize = OC_TASK_STACK_SIZE; // ss->taskStackSize;
-    taskParams.priority = OC_TASK_PRIORITY; // ss->taskPriority;
+    taskParams.priority = OC_TASK_PRIORITY;    // ss->taskPriority;
     taskParams.arg0 = (UArg)ss;
     taskParams.arg1 = ss_id;
 

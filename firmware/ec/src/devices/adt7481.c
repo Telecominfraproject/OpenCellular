@@ -20,26 +20,26 @@
  *****************************************************************************/
 #define ADT7481_REG_R_LOCAL_TEMP 0x00 /* Local Temperature Value */
 #define ADT7481_REG_R_REMOTE1_TEMP_H \
-    0x01 /* Remote 1 Temperature Value High Byte */
+    0x01                           /* Remote 1 Temperature Value High Byte */
 #define ADT7481_REG_R_STATUS1 0x02 /* Status Register 1 */
 #define ADT7481_REG_R_CONFIG1 0x03 /* Configuration Register 1 */
 #define ADT7481_REG_R_CONVERSION_RATE \
     0x04 /* Conversion Rate/Channel Selector */
 #define ADT7481_REG_R_LOCAL_HIGHLIMIT 0x05 /* Local Temperature High Limit */
-#define ADT7481_REG_R_LOCAL_LOWLIMIT 0x06 /* Local Temperature Low Limit */
+#define ADT7481_REG_R_LOCAL_LOWLIMIT 0x06  /* Local Temperature Low Limit */
 #define ADT7481_REG_R_REMOTE1_HIGHLIMIT_H \
     0x07 /* Remote 1 Temp High Limit High Byte */
 #define ADT7481_REG_R_REMOTE1_LOWLIMIT_H \
-    0x08 /* Remote 1 Temp Low Limit High Byte */
+    0x08                           /* Remote 1 Temp Low Limit High Byte */
 #define ADT7481_REG_W_CONFIG1 0x09 /* Configuration Register */
 #define ADT7481_REG_W_CONVERSION_RATE \
     0x0A /* Conversion Rate/Channel Selector */
 #define ADT7481_REG_W_LOCAL_HIGHLIMIT 0x0B /* Local Temperature High Limit */
-#define ADT7481_REG_W_LOCAL_LOWLIMIT 0x0C /* Local Temperature Low Limit */
+#define ADT7481_REG_W_LOCAL_LOWLIMIT 0x0C  /* Local Temperature Low Limit */
 #define ADT7481_REG_W_REMOTE1_HIGHLIMIT_H \
     0x0D /* Remote 1 Temp High Limit High Byte */
 #define ADT7481_REG_W_REMOTE1_LOWLIMIT_H \
-    0x0E /* Remote 1 Temp Low Limit High Byte */
+    0x0E                            /* Remote 1 Temp Low Limit High Byte */
 #define ADT7481_REG_W_ONE_SHOT 0x0F /* One-Shot */
 #define ADT7481_REG_R_REMOTE1_TEMP_L \
     0x10 /* Remote 1 Temperature Value Low Byte */
@@ -61,15 +61,15 @@
     0x14 /* Remote 1 Temp Low Limit Low Byte */
 #define ADT7481_REG_R_REMOTE1_THERMLIMIT 0x19 /* Remote 1 THERM Limit */
 #define ADT7481_REG_W_REMOTE1_THERMLIMIT 0x19 /* Remote 1 THERM Limit */
-#define ADT7481_REG_R_LOCAL_THERMLIMIT 0x20 /* Local THERM Limit */
-#define ADT7481_REG_W_LOCAL_THERMLIMIT 0x20 /* Local THERM Limit */
-#define ADT7481_REG_R_THERM_HYST 0x21 /* THERM Hysteresis */
-#define ADT7481_REG_W_THERM_HYST 0x21 /* THERM Hysteresis */
-#define ADT7481_REG_R_CONECUTIVE_ALERT 0x22 /* Consecutive ALERT */
-#define ADT7481_REG_W_CONECUTIVE_ALERT 0x22 /* Consecutive ALERT */
-#define ADT7481_REG_R_STATUS2 0x23 /* Status Register 2 */
-#define ADT7481_REG_R_CONFIG2 0x24 /* Configuration 2 Register */
-#define ADT7481_REG_W_CONFIG2 0x24 /* Configuration 2 Register */
+#define ADT7481_REG_R_LOCAL_THERMLIMIT 0x20   /* Local THERM Limit */
+#define ADT7481_REG_W_LOCAL_THERMLIMIT 0x20   /* Local THERM Limit */
+#define ADT7481_REG_R_THERM_HYST 0x21         /* THERM Hysteresis */
+#define ADT7481_REG_W_THERM_HYST 0x21         /* THERM Hysteresis */
+#define ADT7481_REG_R_CONECUTIVE_ALERT 0x22   /* Consecutive ALERT */
+#define ADT7481_REG_W_CONECUTIVE_ALERT 0x22   /* Consecutive ALERT */
+#define ADT7481_REG_R_STATUS2 0x23            /* Status Register 2 */
+#define ADT7481_REG_R_CONFIG2 0x24            /* Configuration 2 Register */
+#define ADT7481_REG_W_CONFIG2 0x24            /* Configuration 2 Register */
 #define ADT7481_REG_R_REMOTE2_TEMP_H \
     0x30 /* Remote 2 Temperature Value High Byte */
 #define ADT7481_REG_R_REMOTE2_HIGHLIMIT_H \
@@ -100,8 +100,8 @@
     0x37 /* Remote 2 Temp Low Limit Low Byte */
 #define ADT7481_REG_R_REMOTE2_THERMLIMIT 0x39 /* Remote 2 THERM Limit */
 #define ADT7481_REG_W_REMOTE2_THERMLIMIT 0x39 /* Remote 2 THERM Limit */
-#define ADT7481_REG_R_CHIP_ID 0x3D /* Device ID */
-#define ADT7481_REG_R_MAN_ID 0x3E /* Manufacturer ID */
+#define ADT7481_REG_R_CHIP_ID 0x3D            /* Device ID */
+#define ADT7481_REG_R_MAN_ID 0x3E             /* Manufacturer ID */
 
 /*
  * Macros to convert temperature values to register values and vice versa.

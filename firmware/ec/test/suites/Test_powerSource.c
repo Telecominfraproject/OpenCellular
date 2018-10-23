@@ -211,7 +211,7 @@ static PWRSRC_Dev p_dev = {
 void test_pwr_process_get_status_parameters_data_poeavailable(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x00; // PoE Availability
+    uint8_t index = 0x00;     // PoE Availability
     PWR_GpioPins[0x55] = 0x0; // PoE Enable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x18; // Int/Ext Battery Disable
@@ -227,7 +227,7 @@ void test_pwr_process_get_status_parameters_data_poeavailable(void)
 void test_pwr_process_get_status_parameters_data_poeaccessible(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x01; // PoE Accessibility
+    uint8_t index = 0x01;     // PoE Accessibility
     PWR_GpioPins[0x55] = 0x0; // PoE Enable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x18; // Int/Ext Battery Disable
@@ -243,7 +243,7 @@ void test_pwr_process_get_status_parameters_data_poeaccessible(void)
 void test_pwr_process_get_status_parameters_data_solaravailable(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x02; // SOLAR Availability
+    uint8_t index = 0x02;     // SOLAR Availability
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x0; // Aux/solar Enable
     SX1509_regs[0x10] = 0x18; // Int/Ext Battery Disable
@@ -259,7 +259,7 @@ void test_pwr_process_get_status_parameters_data_solaravailable(void)
 void test_pwr_process_get_status_parameters_data_solaraccessible(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x03; // SOLAR Accessibility
+    uint8_t index = 0x03;     // SOLAR Accessibility
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x0; // Aux/solar Enable
     SX1509_regs[0x10] = 0x18; // Int/Ext Battery Disable
@@ -275,7 +275,7 @@ void test_pwr_process_get_status_parameters_data_solaraccessible(void)
 void test_pwr_process_get_status_parameters_data_extavailable(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x04; // Ext Batt availability
+    uint8_t index = 0x04;     // Ext Batt availability
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x08; // Int Batt OFF, Ext batt ON
@@ -291,7 +291,7 @@ void test_pwr_process_get_status_parameters_data_extavailable(void)
 void test_pwr_process_get_status_parameters_data_extaccessible(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x05; // Ext Batt accessibility
+    uint8_t index = 0x05;     // Ext Batt accessibility
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x08; // Int Batt OFF, Ext batt ON
@@ -307,7 +307,7 @@ void test_pwr_process_get_status_parameters_data_extaccessible(void)
 void test_pwr_process_get_status_parameters_data_intavailable(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x06; // Int Batt Availability
+    uint8_t index = 0x06;     // Int Batt Availability
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x10; // Ext Batt OFF, Int batt ON
@@ -323,7 +323,7 @@ void test_pwr_process_get_status_parameters_data_intavailable(void)
 void test_pwr_process_get_status_parameters_data_intaccessible(void)
 {
     uint8_t powerStatus = 0;
-    uint8_t index = 0x07; // Int Batt Accessibility
+    uint8_t index = 0x07;     // Int Batt Accessibility
     PWR_GpioPins[0x55] = 0x1; // PoE Disable
     PWR_GpioPins[0x1E] = 0x1; // Aux/solar Disable
     SX1509_regs[0x10] = 0x10; // Ext Batt OFF, Int batt ON

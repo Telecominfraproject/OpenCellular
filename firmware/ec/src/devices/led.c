@@ -70,7 +70,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_5, // IO5
-              .ledRed = ~SX1509_IO_PIN_4, // IO4
+              .ledRed = ~SX1509_IO_PIN_4,   // IO4
               .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
           },
       [HCI_LED_2] =
@@ -78,7 +78,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_3, // IO3
-              .ledRed = ~SX1509_IO_PIN_2, // IO2
+              .ledRed = ~SX1509_IO_PIN_2,   // IO2
               .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
           },
       [HCI_LED_3] =
@@ -86,7 +86,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_B,
               .ledGreen = ~SX1509_IO_PIN_13, // IO13
-              .ledRed = ~SX1509_IO_PIN_12, // IO12
+              .ledRed = ~SX1509_IO_PIN_12,   // IO12
               .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
           },
       [HCI_LED_4] =
@@ -94,7 +94,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_1, // IO1
-              .ledRed = ~SX1509_IO_PIN_0, // IO0
+              .ledRed = ~SX1509_IO_PIN_0,   // IO0
               .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
           },
       [HCI_LED_5] =
@@ -102,7 +102,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_7, // IO7
-              .ledRed = ~SX1509_IO_PIN_6, // IO6
+              .ledRed = ~SX1509_IO_PIN_6,   // IO6
               .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
           },
       [HCI_LED_6] =
@@ -110,7 +110,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_B,
               .ledGreen = ~SX1509_IO_PIN_9, // IO9
-              .ledRed = ~SX1509_IO_PIN_8, // IO8
+              .ledRed = ~SX1509_IO_PIN_8,   // IO8
               .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
           },
       [HCI_LED_7] =
@@ -118,7 +118,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_LEFT,
               .ledReg = SX1509_REG_B,
               .ledGreen = ~SX1509_IO_PIN_11, // IO11
-              .ledRed = ~SX1509_IO_PIN_10, // I010
+              .ledRed = ~SX1509_IO_PIN_10,   // I010
               .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
           },
       [HCI_LED_8] =
@@ -126,7 +126,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_5, // IO5
-              .ledRed = ~SX1509_IO_PIN_4, // IO4
+              .ledRed = ~SX1509_IO_PIN_4,   // IO4
               .ledOff = SX1509_IO_PIN_5 | SX1509_IO_PIN_4,
           },
       [HCI_LED_9] =
@@ -134,7 +134,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_3, // IO3
-              .ledRed = ~SX1509_IO_PIN_2, // IO2
+              .ledRed = ~SX1509_IO_PIN_2,   // IO2
               .ledOff = SX1509_IO_PIN_3 | SX1509_IO_PIN_2,
           },
       [HCI_LED_10] =
@@ -142,7 +142,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_1, // IO1
-              .ledRed = ~SX1509_IO_PIN_0, // IO0
+              .ledRed = ~SX1509_IO_PIN_0,   // IO0
               .ledOff = SX1509_IO_PIN_1 | SX1509_IO_PIN_0,
           },
       [HCI_LED_11] =
@@ -150,7 +150,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_A,
               .ledGreen = ~SX1509_IO_PIN_7, // IO7
-              .ledRed = ~SX1509_IO_PIN_6, // IO6
+              .ledRed = ~SX1509_IO_PIN_6,   // IO6
               .ledOff = SX1509_IO_PIN_7 | SX1509_IO_PIN_6,
           },
       [HCI_LED_12] =
@@ -158,7 +158,7 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_B,
               .ledGreen = ~SX1509_IO_PIN_9, // IO9
-              .ledRed = ~SX1509_IO_PIN_8, // IO8
+              .ledRed = ~SX1509_IO_PIN_8,   // IO8
               .ledOff = SX1509_IO_PIN_9 | SX1509_IO_PIN_8,
           },
       [HCI_LED_13] =
@@ -166,14 +166,14 @@ static const hciLedData ledData[HCI_LED_TOTAL_NOS] =
               .ioexpDev = HCI_LED_DRIVER_RIGHT,
               .ledReg = SX1509_REG_B,
               .ledGreen = ~SX1509_IO_PIN_11, // IO11
-              .ledRed = ~SX1509_IO_PIN_10, // IO10
+              .ledRed = ~SX1509_IO_PIN_10,   // IO10
               .ledOff = SX1509_IO_PIN_11 | SX1509_IO_PIN_10,
           },
       [HCI_LED_14] = {
           .ioexpDev = HCI_LED_DRIVER_RIGHT,
           .ledReg = SX1509_REG_B,
           .ledGreen = ~SX1509_IO_PIN_13, // IO13
-          .ledRed = ~SX1509_IO_PIN_12, // IO12
+          .ledRed = ~SX1509_IO_PIN_12,   // IO12
           .ledOff = SX1509_IO_PIN_13 | SX1509_IO_PIN_12,
       } };
 

@@ -253,10 +253,10 @@ static void testModule_task(UArg a0, UArg a1)
     GSM_clccSet(s_hGsm, true); /* Enable clcc (call state) msg */
 
     /* Finish device configuration */
-    if (!GSM_cnmi(s_hGsm, 2, 1, 0, 0, 0) || /* enable sms arrival notif */
+    if (!GSM_cnmi(s_hGsm, 2, 1, 0, 0, 0) ||    /* enable sms arrival notif */
         !GSM_cmgf(s_hGsm, GSM_MSG_FMT_TEXT) || /* set to text mode */
-        !GSM_csmp(s_hGsm, 17, 167, 0, 0) || /* text mode parameters */
-        !GSM_csdh(s_hGsm, true)) { /* display extra info for cgmr */
+        !GSM_csmp(s_hGsm, 17, 167, 0, 0) ||    /* text mode parameters */
+        !GSM_csdh(s_hGsm, true)) {             /* display extra info for cgmr */
         s_hGsm = NULL; /* TODO: proper teardown of handle */
     }
 

@@ -62,9 +62,9 @@
 #else
 #    define DEBUG(...) //
 
-#    define LOGGER(...) //
+#    define LOGGER(...)         //
 #    define LOGGER_WARNING(...) //
-#    define LOGGER_ERROR(...) //
+#    define LOGGER_ERROR(...)   //
 #    ifdef DEBUG_LOGS
 #        define LOGGER_DEBUG(...) //
 #    endif

@@ -35,7 +35,7 @@ ReturnStatus iridium_sw_reset(const Iridium_Cfg *iridium)
 
     /* reset - for proper reset, Iridium should be disabled for ~2s */
     OcGpio_write(&iridium->pin_enable, false); /* Just to be sure it's low */
-    Task_sleep(2100); // TODO: should be ~2s
+    Task_sleep(2100);                          // TODO: should be ~2s
     OcGpio_write(&iridium->pin_enable, true);
     Task_sleep(200); // TODO: idk...probably doesn't need to be lon
     return RETURN_OK;

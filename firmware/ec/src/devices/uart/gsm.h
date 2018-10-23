@@ -37,11 +37,11 @@ typedef enum GsmCallState {
     GSM_CALL_STATE_ACTIVE = 0,
     GSM_CALL_STATE_HELD = 1,
 
-    GSM_CALL_STATE_DIALING = 2, /* MO */
+    GSM_CALL_STATE_DIALING = 2,  /* MO */
     GSM_CALL_STATE_ALERTING = 3, /* MO */
 
     GSM_CALL_STATE_INCOMING = 4, /* MT */
-    GSM_CALL_STATE_WAITING = 5, /* MT */
+    GSM_CALL_STATE_WAITING = 5,  /* MT */
 
     GSM_CALL_STATE_RELEASED = 6,
 } GsmCallState;
@@ -194,10 +194,10 @@ typedef enum GsmCmgdFlag {
 bool GSM_cmgd(GSM_Handle handle, int index, GsmCmgdFlag flag);
 
 typedef enum GsmCFun {
-    GSM_CFUN_OFF = 0, /*!< Power off module */
-    GSM_CFUN_FULL = 1, /*!< Enable full radio functionality */
+    GSM_CFUN_OFF = 0,      /*!< Power off module */
+    GSM_CFUN_FULL = 1,     /*!< Enable full radio functionality */
     GSM_CFUN_AIRPLANE = 4, /*!< Turn off radio functionality */
-    GSM_CFUN_RESET = 15 /*!< Hardware reset */
+    GSM_CFUN_RESET = 15    /*!< Hardware reset */
 } GsmCFun;
 bool GSM_cfun(GSM_Handle handle, GsmCFun fun);
 

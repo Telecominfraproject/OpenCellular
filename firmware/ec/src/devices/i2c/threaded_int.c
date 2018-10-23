@@ -25,9 +25,9 @@
 
 // Config simply to map context to our GPIO interrupts
 typedef struct InterruptConfig {
-    Semaphore_Handle sem; //!< Semaphore to wake up INT thread
+    Semaphore_Handle sem;    //!< Semaphore to wake up INT thread
     ThreadedInt_Callback cb; //!< Callback to run when interrupt occurs
-    void *context; //!< Pointer to pass to cb function
+    void *context;           //!< Pointer to pass to cb function
 } InterruptConfig;
 static InterruptConfig s_intConfigs[MAX_DEVICES] = {};
 static int s_numDevices = 0;

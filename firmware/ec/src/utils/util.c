@@ -55,7 +55,7 @@
 // RTOS queue for profile/app messages.
 typedef struct _queueRec_ {
     Queue_Elem _elem; // queue element
-    uint8_t *pData; // pointer to app data
+    uint8_t *pData;   // pointer to app data
 } queueRec_t;
 
 /*********************************************************************

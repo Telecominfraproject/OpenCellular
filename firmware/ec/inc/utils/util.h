@@ -68,7 +68,7 @@ extern "C" {
 
 typedef struct {
     uint16_t event; // Event type.
-    uint8_t state; // Event state;
+    uint8_t state;  // Event state;
 } appEvtHdr_t;
 
 /*********************************************************************

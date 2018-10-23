@@ -163,7 +163,7 @@ static void _test_alert(INA226_Dev *dev, INA226_Event evt, uint16_t alert_mask,
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
     TEST_ASSERT_EQUAL(0, s_alert_data.triggered);
 
-    INA226_regs[0x06] |= (1 << 4); /* Fault caused alert */
+    INA226_regs[0x06] |= (1 << 4);  /* Fault caused alert */
     alert_mask = INA226_regs[0x06]; /* Store reg value for later comparison */
 
     FakeGpio_triggerInterrupt(dev->cfg.pin_alert);
@@ -239,7 +239,7 @@ void test_current_limit(void)
     TEST_ASSERT_EQUAL(1000, current_val); // 1000mA
 
     TEST_ASSERT_EQUAL(RETURN_OK, ina226_setCurrentLim(&s_dev, 3000)); // 3000mA
-    TEST_ASSERT_EQUAL_HEX16(0x0960, INA226_regs[0x07]); // 2400
+    TEST_ASSERT_EQUAL_HEX16(0x0960, INA226_regs[0x07]);               // 2400
 
     TEST_ASSERT_EQUAL(RETURN_OK, ina226_readCurrentLim(&s_dev, &current_val));
     TEST_ASSERT_EQUAL(3000, current_val); // 3000mA

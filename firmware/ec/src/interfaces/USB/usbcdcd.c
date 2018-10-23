@@ -235,27 +235,27 @@ tUSBBuffer rxBuffer;
 static tUSBDCDCDevice serialDevice;
 
 tUSBBuffer rxBuffer = {
-    false, /* This is a receive buffer. */
-    cbRxHandler, /* pfnCallback */
-    (void *)&serialDevice, /* Callback data is our device pointer. */
-    USBDCDCPacketRead, /* pfnTransfer */
+    false,                    /* This is a receive buffer. */
+    cbRxHandler,              /* pfnCallback */
+    (void *)&serialDevice,    /* Callback data is our device pointer. */
+    USBDCDCPacketRead,        /* pfnTransfer */
     USBDCDCRxPacketAvailable, /* pfnAvailable */
-    (void *)&serialDevice, /* pvHandle */
-    receiveBuffer, /* pcBuffer */
-    USBBUFFERSIZE, /* ulBufferSize */
-    { { 0, 0, 0, 0 }, 0, 0 } /* private data workspace */
+    (void *)&serialDevice,    /* pvHandle */
+    receiveBuffer,            /* pcBuffer */
+    USBBUFFERSIZE,            /* ulBufferSize */
+    { { 0, 0, 0, 0 }, 0, 0 }  /* private data workspace */
 };
 
 tUSBBuffer txBuffer = {
-    true, /* This is a transmit buffer. */
-    cbTxHandler, /* pfnCallback */
-    (void *)&serialDevice, /* Callback data is our device pointer. */
-    USBDCDCPacketWrite, /* pfnTransfer */
+    true,                     /* This is a transmit buffer. */
+    cbTxHandler,              /* pfnCallback */
+    (void *)&serialDevice,    /* Callback data is our device pointer. */
+    USBDCDCPacketWrite,       /* pfnTransfer */
     USBDCDCTxPacketAvailable, /* pfnAvailable */
-    (void *)&serialDevice, /* pvHandle */
-    transmitBuffer, /* pcBuffer */
-    USBBUFFERSIZE, /* ulBufferSize */
-    { { 0, 0, 0, 0 }, 0, 0 } /* private data workspace */
+    (void *)&serialDevice,    /* pvHandle */
+    transmitBuffer,           /* pcBuffer */
+    USBBUFFERSIZE,            /* ulBufferSize */
+    { { 0, 0, 0, 0 }, 0, 0 }  /* private data workspace */
 };
 
 static tUSBDCDCDevice serialDevice = { USB_VID_TI_1CBE,
@@ -284,27 +284,27 @@ static tCDCSerInstance serialInstance;
 const tUSBDCDCDevice serialDevice;
 
 const tUSBBuffer rxBuffer = {
-    false, /* This is a receive buffer. */
-    cbRxHandler, /* pfnCallback */
-    (void *)&serialDevice, /* Callback data is our device pointer. */
-    USBDCDCPacketRead, /* pfnTransfer */
+    false,                    /* This is a receive buffer. */
+    cbRxHandler,              /* pfnCallback */
+    (void *)&serialDevice,    /* Callback data is our device pointer. */
+    USBDCDCPacketRead,        /* pfnTransfer */
     USBDCDCRxPacketAvailable, /* pfnAvailable */
-    (void *)&serialDevice, /* pvHandle */
-    receiveBuffer, /* pcBuffer */
-    USBBUFFERSIZE, /* ulBufferSize */
-    receiveBufferWorkspace /* pvWorkspace */
+    (void *)&serialDevice,    /* pvHandle */
+    receiveBuffer,            /* pcBuffer */
+    USBBUFFERSIZE,            /* ulBufferSize */
+    receiveBufferWorkspace    /* pvWorkspace */
 };
 
 const tUSBBuffer txBuffer = {
-    true, /* This is a transmit buffer. */
-    cbTxHandler, /* pfnCallback */
-    (void *)&serialDevice, /* Callback data is our device pointer. */
-    USBDCDCPacketWrite, /* pfnTransfer */
+    true,                     /* This is a transmit buffer. */
+    cbTxHandler,              /* pfnCallback */
+    (void *)&serialDevice,    /* Callback data is our device pointer. */
+    USBDCDCPacketWrite,       /* pfnTransfer */
     USBDCDCTxPacketAvailable, /* pfnAvailable */
-    (void *)&serialDevice, /* pvHandle */
-    transmitBuffer, /* pcBuffer */
-    USBBUFFERSIZE, /* ulBufferSize */
-    transmitBufferWorkspace /* pvWorkspace */
+    (void *)&serialDevice,    /* pvHandle */
+    transmitBuffer,           /* pcBuffer */
+    USBBUFFERSIZE,            /* ulBufferSize */
+    transmitBufferWorkspace   /* pvWorkspace */
 };
 
 const tUSBDCDCDevice serialDevice = {
@@ -331,9 +331,9 @@ const tUSBDCDCDevice serialDevice = {
 
 static tLineCoding g_sLineCoding = {
     115200, /* 115200 baud rate. */
-    1, /* 1 Stop Bit. */
-    0, /* No Parity. */
-    8 /* 8 Bits of data. */
+    1,      /* 1 Stop Bit. */
+    0,      /* No Parity. */
+    8       /* 8 Bits of data. */
 };
 
 /*

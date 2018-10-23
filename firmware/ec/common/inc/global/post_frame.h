@@ -41,9 +41,9 @@ typedef struct __attribute__((packed, aligned(1))) {
 } POSTData;
 
 /*****************************************************************************
- *                         FUNCTION PROTOTYPES 
+ *                         FUNCTION PROTOTYPES
  *****************************************************************************/
-void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress, 
-                                 uint16_t manId, uint16_t devId);
+void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress,
+                          uint16_t manId, uint16_t devId);
 
 #endif /* POST_FRAME_H_ */

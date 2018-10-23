@@ -189,8 +189,8 @@ extern OcGpio_Port gbc_io_0;
 
 // OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
 // OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1,
-// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0,
-// 2, OCGPIO_CFG_OUT_OD_NOPULL };
+// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_s_id_eeprom_wp       = {
+// &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
 OcGpio_Pin pin_uart_sel = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
 // OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
 // OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
@@ -198,8 +198,8 @@ OcGpio_Pin pin_uart_sel = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
 // OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
 // OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
 // OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10,
-// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_int_bat_prsnt        = { &gbc_io_0,
-// 11 }; OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
+// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_int_bat_prsnt        = {
+// &gbc_io_0, 11 }; OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
 OcGpio_Pin pin_ec_syncconn_gpio1 = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
 OcGpio_Pin pin_eth_sw_ec_intn = { &gbc_io_0, 14 };
 
@@ -308,8 +308,8 @@ static void bigborther_spwan_task(void)
     /* Check the list for possible devices connected. */
 
     /* Launches other tasks */
-    usb_rx_createtask(); // P - 05
-    usb_tx_createtask(); // P - 04
+    usb_rx_createtask();   // P - 05
+    usb_tx_createtask();   // P - 04
     gossiper_createtask(); // P - 06
     ebmp_create_task();
     watchdog_create_task();

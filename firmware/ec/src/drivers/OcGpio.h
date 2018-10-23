@@ -45,8 +45,8 @@ typedef struct OcGpio_FnTable {
 /*! A port defines a specific driver instance to route through */
 struct OcGpio_Port {
     const OcGpio_FnTable *fn_table; /*!< virtual table for driver */
-    const void *cfg; /*!< driver-specific config settings */
-    void *object_data; /*!< driver-specific data (in RAM) */
+    const void *cfg;                /*!< driver-specific config settings */
+    void *object_data;              /*!< driver-specific data (in RAM) */
 };
 
 /*! A pin provides us with everything we need to route data to the appropriate
@@ -55,7 +55,7 @@ struct OcGpio_Port {
  */
 struct OcGpio_Pin {
     const OcGpio_Port *port; /*!< Pointer to IO driver instance */
-    uint16_t idx; /*!< Driver-specific index */
+    uint16_t idx;            /*!< Driver-specific index */
     uint16_t hw_cfg; /*!< Any special attributes for the pin (eg. invert) */
 };
 

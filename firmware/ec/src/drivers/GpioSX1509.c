@@ -150,9 +150,9 @@ static int GpioSX1509_read(const OcGpio_Pin *pin)
 
 /* TODO: this mapping is pretty gross with the shifts */
 static const uint8_t EDGE_SENSE_MAP[] = {
-    [OCGPIO_CFG_INT_NONE >> OCGPIO_CFG_INT_LSB] = 0x00, /* 00 */
-    [OCGPIO_CFG_INT_RISING >> OCGPIO_CFG_INT_LSB] = 0x01, /* 01 */
-    [OCGPIO_CFG_INT_FALLING >> OCGPIO_CFG_INT_LSB] = 0x02, /* 10 */
+    [OCGPIO_CFG_INT_NONE >> OCGPIO_CFG_INT_LSB] = 0x00,       /* 00 */
+    [OCGPIO_CFG_INT_RISING >> OCGPIO_CFG_INT_LSB] = 0x01,     /* 01 */
+    [OCGPIO_CFG_INT_FALLING >> OCGPIO_CFG_INT_LSB] = 0x02,    /* 10 */
     [OCGPIO_CFG_INT_BOTH_EDGES >> OCGPIO_CFG_INT_LSB] = 0x03, /* 11 */
 };
 

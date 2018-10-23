@@ -53,7 +53,7 @@ static Eeprom_Cfg s_dev = {
 };
 
 static uint16_t EEPROM_regs[] = {
-    [0x00] = 0x00, /* Init */
+    [0x00] = 0x00,   /* Init */
     [0xC601] = 0x00, /* SERIAL INFO */
     [0xAC01] = 0x00, /* BOARD INFO */
     [0x0A01] = 0x00, /* DEVICE INFO */
