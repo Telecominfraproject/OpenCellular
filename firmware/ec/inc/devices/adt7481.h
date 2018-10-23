@@ -103,6 +103,8 @@ ReturnStatus adt7481_get_dev_id(const I2C_Dev *i2c_dev,
                                 uint8_t *devID);
 ReturnStatus adt7481_get_mfg_id(const I2C_Dev *i2c_dev,
                                 uint8_t *mfgID);
+ePostCode adt7481_probe(const I2C_Dev *i2c_dev,
+                              POSTData *postData);
 ReturnStatus adt7481_get_config1(const I2C_Dev *i2c_dev,
                                  uint8_t *configValue);
 ReturnStatus adt7481_set_config1(const I2C_Dev *i2c_dev,

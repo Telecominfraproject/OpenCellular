@@ -58,7 +58,6 @@ static void HandleIRQ(void *context) {
 static int GpioSX1509_probe(const OcGpio_Port *port) {
     /* if we are able to read configuration register this means PCA device is accessible*/
     const SX1509_Cfg *sx_cfg = port->cfg;
-    SX1509_Obj *obj = port->object_data;
     uint8_t input_reg;
     if (ioexp_led_get_data(&sx_cfg->i2c_dev, 0, &input_reg) != RETURN_OK) {
         return OCGPIO_FAILURE;
