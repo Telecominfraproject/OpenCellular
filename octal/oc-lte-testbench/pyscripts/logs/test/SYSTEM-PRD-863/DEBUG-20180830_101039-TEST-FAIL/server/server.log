@@ -1,0 +1,15 @@
+2018-08-30 10:10:39,513: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpm_idwl
+2018-08-30 10:10:39,523: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,568: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,598: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,618: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,645: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,655: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,696: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,742: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,759: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,789: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-08-30 10:10:39,819: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmprkrmlq\server
+2018-08-30 10:10:42,267: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-08-30 10:10:42,279: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-08-30 10:10:42,292: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmprkrmlq\server

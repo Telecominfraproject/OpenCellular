@@ -1,0 +1,45 @@
+2018-09-05 17:29:44,734      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpiemwwh
+2018-09-05 17:29:44,760      INFO: tr.server: Loading services from config file
+2018-09-05 17:29:45,243      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 17:29:45,250      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 17:29:45,252      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 17:29:45,256      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 17:29:45,256      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131535] : PASS
+2018-09-05 17:29:45,256      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-33] : PASS
+2018-09-05 17:29:45,267      INFO: tr: ################### PreTestBBTestbench ###################
+2018-09-05 17:29:45,276      INFO: tr.BB_PRP000: -------------- [BB_PRP000] Setup unit --------------
+2018-09-05 17:29:45,279      INFO: tr.BB_PRP000: TESTER STEP:
+2018-09-05 17:29:45,279      INFO: tr.BB_PRP000: 
+Plug in the COM port USB cable
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the four TRX cables based on their identifications
+Place an SD card in the MMC card slot
+
+Slide in a golden Front-End board
+
+Plug in the 12V power header
+        
+2018-09-05 17:29:49,698      INFO: tr.BB_PRP000: Tester continued the test
+2018-09-05 17:29:49,706      INFO: tr: ####################### Preparation #######################
+2018-09-05 17:29:49,711      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 17:29:49,714      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 17:29:49,714      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 17:29:56,493      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 17:29:56,493      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 17:29:56,601      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 17:29:56,602      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 17:29:56,611      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 17:29:56,671     ERROR: tr.CM_PRP013: RemoteServerError: [500] NEW SERVICE call @comport: SerialException: could not open port u'COM11': WindowsError(5, 'Acc\xe8s refus\xe9.')
+2018-09-05 17:29:56,671     ERROR: tr.CM_PRP013: TEST FAILED
+2018-09-05 17:29:56,673  CRITICAL: tr.CM_PRP013: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-05 17:29:56,674  CRITICAL: tr: Execution interrupted
+2018-09-05 17:29:56,674  CRITICAL: tr: RemoteServerError: [500] NEW SERVICE call @comport: SerialException: could not open port u'COM11': WindowsError(5, 'Acc\xe8s refus\xe9.')
+2018-09-05 17:29:56,677      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 17:29:56,680      INFO: tr: ######################### Cleanup #########################
+2018-09-05 17:29:56,681      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 17:29:56,696   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 17:29:56,698      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 17:29:56,713   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 17:29:56,717      INFO: tr: All sections of batch file were executed
+2018-09-05 17:29:56,759      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpiemwwh\server

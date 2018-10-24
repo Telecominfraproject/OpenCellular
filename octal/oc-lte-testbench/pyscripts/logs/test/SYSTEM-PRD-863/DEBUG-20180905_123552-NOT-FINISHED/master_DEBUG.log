@@ -1,0 +1,166 @@
+2018-09-05 12:35:52,352      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpddnxjg
+2018-09-05 12:35:52,355     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x17FEDDD0>
+2018-09-05 12:35:52,355     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04DA83F0>
+2018-09-05 12:35:52,377      INFO: tr.server: Loading services from config file
+2018-09-05 12:35:52,388     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,401     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,421     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 12:35:52,440     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,457     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 12:35:52,480     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 12:35:52,493     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,510     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 12:35:52,526     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 12:35:52,538     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,559     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 12:35:52,586     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,601     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,619     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 12:35:52,637     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 12:35:52,651     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,673     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 12:35:52,687     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 12:35:52,826     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x185449B0>
+2018-09-05 12:35:52,831     DEBUG: tr: Next section
+2018-09-05 12:35:52,832      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 12:35:52,836      INFO: tr: ##################### SystemTestbench #####################
+2018-09-05 12:35:52,838      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-05 12:35:52,842      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-05 12:35:52,842      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-05 12:36:01,545      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-05 12:36:01,551      INFO: tr: ####################### Preparation #######################
+2018-09-05 12:36:01,558      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 12:36:01,561      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 12:36:01,561      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 12:36:08,339      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 12:36:08,341      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 12:36:08,440     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-05 12:36:08,441      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 12:36:08,443     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-05 12:36:08,443      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 12:36:08,444     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-05 12:36:08,457      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 12:36:08,503      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 12:36:08,516     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-05 12:36:09,556      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 12:36:15,678      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 12:36:15,690      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 12:36:15,694      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:36:25,918      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 12:36:25,954      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 12:36:36,111      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 12:36:36,117      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 12:36:36,161     DEBUG: tr.SY_PRP003: context.WAS_FINALENV= False
+2018-09-05 12:36:36,168      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 12:36:36,177      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 12:36:36,180      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 12:36:36,181     DEBUG: tr.CM_PRP042: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-05 12:36:36,289     DEBUG: tr.CM_PRP042: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-05 12:36:36,289     DEBUG: tr.CM_PRP042: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-05 12:36:37,683     DEBUG: tr.CM_PRP042: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 12:36:37,878      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 12:36:37,884      INFO: tr: ######################## LedBoard ########################
+2018-09-05 12:36:37,890      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-05 12:36:37,937      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-05 12:36:37,937      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-05 12:36:43,793      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-05 12:36:43,805      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-05 12:36:43,844      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-05 12:36:43,845      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-05 12:36:45,125      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-05 12:36:45,131      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-05 12:36:45,164      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-05 12:36:45,165      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-05 12:36:46,086      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-05 12:36:46,092      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-05 12:36:46,131      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-05 12:36:46,132      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-05 12:36:47,055      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-05 12:36:47,062      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 12:36:47,066      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 12:36:47,512      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 12:36:47,861      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 12:36:48,206      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 12:36:48,213     DEBUG: tr.FE_TSC013: Reset RFPAL
+2018-09-05 12:36:51,540      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 12:36:51,591      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 12:36:51,592      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 12:36:51,595      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 12:36:51,595      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 12:36:51,595      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 12:36:51,596      INFO: tr: ###################### BBPreparation ######################
+2018-09-05 12:36:51,602      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-05 12:36:51,638     DEBUG: tr.BB_PRP010: BB Attn 1 set to 20.00 dB
+2018-09-05 12:36:51,759     DEBUG: tr.BB_PRP010: PA 1 = (28.476 V, 0.0 A)
+2018-09-05 12:36:51,825     DEBUG: tr.BB_PRP010: TX Attn 1 set to 16.00 dB
+2018-09-05 12:36:51,947     DEBUG: tr.BB_PRP010: PA 1 = (28.478 V, 0.0 A)
+2018-09-05 12:36:52,006     DEBUG: tr.BB_PRP010: FB Attn 1 set to 14.00 dB
+2018-09-05 12:36:52,068     DEBUG: tr.BB_PRP010: BB Attn 2 set to 20.00 dB
+2018-09-05 12:36:52,190     DEBUG: tr.BB_PRP010: PA 2 = (28.478 V, 0.0 A)
+2018-09-05 12:36:52,255     DEBUG: tr.BB_PRP010: TX Attn 2 set to 16.00 dB
+2018-09-05 12:36:52,377     DEBUG: tr.BB_PRP010: PA 2 = (28.478 V, 0.0 A)
+2018-09-05 12:36:52,434     DEBUG: tr.BB_PRP010: FB Attn 2 set to 14.00 dB
+2018-09-05 12:36:52,434      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-05 12:36:54,032      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-05 12:36:58,038      INFO: tr: ################### PrepareCalibration ###################
+2018-09-05 12:36:58,043      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-05 12:36:58,046     DEBUG: tr.SY_PRP011: context.CALIBRATION_PREPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpddnxjg\\measures'
+2018-09-05 12:36:58,046     DEBUG: tr.SY_PRP011: context.CALIBRATION_POSTPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpddnxjg\\calib'
+2018-09-05 12:36:58,053      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-05 12:36:58,114     DEBUG: tr.SY_PRP012: 
+2018-09-05 12:37:07,138     DEBUG: tr.SY_PRP012: Spectrum linked with UUT_ANT0. 24.50 dB loss
+2018-09-05 12:37:09,681     DEBUG: tr.SY_PRP012: TX 1 Predriver1 set to 1
+2018-09-05 12:37:09,739     DEBUG: tr.SY_PRP012: TX 1 Predriver2 set to 1
+2018-09-05 12:37:09,796     DEBUG: tr.SY_PRP012: TX 1 PA set to 1
+2018-09-05 12:37:11,612      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-05 12:37:11,621      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-05 12:37:20,657     DEBUG: tr.BB_TSC020: Spectrum linked with UUT_ANT0. 24.50 dB loss
+2018-09-05 12:37:20,657     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-05 12:37:20,678     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-05 12:37:20,733     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-05 12:37:22,826     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-05 12:37:22,849     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-05 12:37:22,907     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-05 12:37:24,342      INFO: tr.BB_TSC020: Frequency error too high (-1463 Hz), calibrating OCXO
+2018-09-05 12:37:24,342     DEBUG: tr.BB_TSC020: Set PWM Low to 37376
+2018-09-05 12:37:24,401     DEBUG: tr.BB_TSC020: Set PWM High to 25000
+2018-09-05 12:37:24,470      INFO: tr.BB_TSC020.ocxo: Calibrating OCXO Freq
+2018-09-05 12:37:25,690     DEBUG: tr.BB_TSC020.ocxo: Freq error = -585
+2018-09-05 12:37:25,690     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 26529
+2018-09-05 12:37:26,677     DEBUG: tr.BB_TSC020.ocxo: Freq error = 610
+2018-09-05 12:37:26,677     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 25008
+2018-09-05 12:37:27,809     DEBUG: tr.BB_TSC020.ocxo: Freq error = 1039
+2018-09-05 12:37:27,809     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 22340
+2018-09-05 12:37:28,940     DEBUG: tr.BB_TSC020.ocxo: Freq error = -430
+2018-09-05 12:37:28,940     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 23444
+2018-09-05 12:37:30,023     DEBUG: tr.BB_TSC020.ocxo: Freq error = 198
+2018-09-05 12:37:30,023     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 22939
+2018-09-05 12:37:30,536     DEBUG: tr.BB_TSC020: context.CALIBRATION_OCXO_PWM_HIGH= 22939
+2018-09-05 12:37:30,536     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreglow=37376
+2018-09-05 12:37:33,092     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreghigh=22939
+2018-09-05 12:37:38,144     DEBUG: tr.BB_TSC020: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-05 12:37:43,148      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([423.7]) < 50 : FAIL
+2018-09-05 12:37:43,161  CRITICAL: tr: Execution interrupted
+2018-09-05 12:37:43,163  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 12:37:43,164     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-05 12:37:43,165     DEBUG: tr: Next section
+2018-09-05 12:37:43,165      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 12:37:43,167      INFO: tr: ######################### Cleanup #########################
+2018-09-05 12:37:43,168      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 12:37:43,171     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-05 12:37:53,204   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 12:37:53,209      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 12:37:53,397   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 12:37:53,401      INFO: tr: All sections of batch file were executed
+2018-09-05 12:37:53,443      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpddnxjg\server

@@ -1,0 +1,18 @@
+2018-09-04 14:14:08,227:DEBUG    
+
+
+2018-09-04 14:14:08,227:INFO     SERVICE INITIALIZED
+2018-09-04 14:14:27,145:DEBUG    LOG =DEBUG
+2018-09-04 14:14:27,147:DEBUG    DcDcConverter module imported
+2018-09-04 14:14:28,348:INFO     DCDCUsbLib DLL loaded successfully
+2018-09-04 14:14:28,348:DEBUG    Resource handle: <CDLL 'c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\dcsupply_dll\DCDCUsbLib.dll', handle 19200000 at 4b1d950>
+2018-09-04 14:14:28,351:INFO     Connected to DC-DC converter with devcount: 1
+2018-09-04 14:14:28,352:DEBUG    Device path: \\?\hid#vid_04d8&pid_d003&col02#8&5f770bb&0&0001#{4d1e55b2-f16f-11cf-88cb-001111000030}
+2018-09-04 14:14:28,453:DEBUG    SUCCESS
+2018-09-04 14:14:28,454:INFO     SERVICE CONFIGURATION - LOG =DEBUG - SUCCESS (1.31 s)
+2018-09-04 14:14:30,999:DEBUG    Vout=12.00
+2018-09-04 14:14:31,003:INFO     SERVICE HANDLING - Vout=12.00 (0.0 s)
+2018-09-04 14:14:31,009:DEBUG    Out ON=True
+2018-09-04 14:14:31,111:INFO     SERVICE HANDLING - Out ON=True (0.1 s)
+2018-09-04 14:14:39,430:DEBUG    Out ON=False
+2018-09-04 14:14:39,535:INFO     SERVICE HANDLING - Out ON=False (0.11 s)

@@ -1,0 +1,69 @@
+2018-08-29 13:41:41,884: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpszqiyc
+2018-08-29 13:41:41,907: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:41,944: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:41,976: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:41,994: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,023: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,032: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,062: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,111: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,121: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,161: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-08-29 13:41:42,200: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmptubxs4\server
+2018-08-29 13:42:00,901: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.1 s)
+2018-08-29 13:42:00,963: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM4, 115200 bps - SUCCESS (0.02 s)
+2018-08-29 13:42:01,013: server.service.VISAService@generator              : INFO    All parameters present
+2018-08-29 13:42:01,013: server.service.VISAService@generator              : INFO    Connecting to instrument [USB0::0x0957::0x1F01::MY51350362::INSTR]
+2018-08-29 13:42:01,038: server.service.VISAService@generator              : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.03 s)
+2018-08-29 13:42:01,045: server.service.VISAService@generator              : INFO    Sending command: *RST
+2018-08-29 13:42:01,161: server.service.VISAService@generator              : INFO    SERVICE HANDLING -  (0.12 s)
+2018-08-29 13:42:01,167: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-08-29 13:42:01,167: server.service.VISAService@spectrum               : INFO    Connecting to instrument [USB0::0x2A8D::0x0B0B::US47520105::INSTR]
+2018-08-29 13:42:01,198: server.service.VISAService@spectrum               : ERROR   Server error [VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.]
+2018-08-29 13:42:01,200: server.service.VISAService@spectrum               : ERROR   Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 60, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 69, in connect
+    self.instr = resource_manager.open_resource(self.instr_name, open_timeout=self.open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1724, in open_resource
+    res.open(access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\resources\resource.py", line 209, in open
+    self.session, status = self._resource_manager.open_bare_resource(self._resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1681, in open_bare_resource
+    return self.visalib.open(self.session, resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\functions.py", line 1213, in open
+    ret = library.viOpen(session, resource_name, access_mode, open_timeout, byref(out_session))
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\highlevel.py", line 188, in _return_handler
+    raise errors.VisaIOError(ret_value)
+VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+
+2018-08-29 13:42:10,351: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-08-29 13:42:10,352: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (9.11 s)
+2018-08-29 13:42:10,394: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-08-29 13:42:10,397: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-08-29 13:42:12,392: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-08-29 13:42:12,394: server.service.DCSupplyService@dcsupply           : WARNING Retrying (2 retries left)
+2018-08-29 13:42:12,394: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-08-29 13:42:12,397: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-08-29 13:42:14,392: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-08-29 13:42:14,392: server.service.DCSupplyService@dcsupply           : WARNING Retrying (1 retries left)
+2018-08-29 13:42:14,394: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-08-29 13:42:14,395: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-08-29 13:42:16,392: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-08-29 13:42:16,392: server.service.DCSupplyService@dcsupply           : ERROR   Max retries reached
+2018-08-29 13:42:16,397: server.service.DCSupplyService@dcsupply           : WARNING Client error [No DC-DC converter found; closing device]
+2018-08-29 13:42:16,444: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-08-29 13:42:16,464: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-08-29 13:42:16,497: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmptubxs4\server

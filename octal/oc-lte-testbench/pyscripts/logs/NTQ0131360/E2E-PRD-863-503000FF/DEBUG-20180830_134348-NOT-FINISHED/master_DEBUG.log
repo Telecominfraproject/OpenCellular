@@ -1,0 +1,81 @@
+2018-08-30 13:43:47,578      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp05d7rc
+2018-08-30 13:43:47,581     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x1795CE50>
+2018-08-30 13:43:47,582     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x17921E70>
+2018-08-30 13:43:47,627      INFO: tr.server: Loading services from config file
+2018-08-30 13:43:47,638     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:47,667     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:47,721     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-08-30 13:43:47,763     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:47,822     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-08-30 13:43:47,881     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-08-30 13:43:47,953     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,035     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-08-30 13:43:48,114     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-08-30 13:43:48,177     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,249     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-08-30 13:43:48,325     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,391     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,453     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-08-30 13:43:48,509     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-08-30 13:43:48,561     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,608     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-08-30 13:43:48,661     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-08-30 13:43:48,826     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x1A40A2F0>
+2018-08-30 13:43:48,838     DEBUG: tr: Next section
+2018-08-30 13:43:48,839      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 13:43:48,841      INFO: tr: ###################### BoardTestScan ######################
+2018-08-30 13:43:48,841      INFO: tr.CM_PRP001: ---------- [CM_PRP001] Validate SYS Scan ----------
+2018-08-30 13:43:48,851     DEBUG: tr.CM_PRP001: context.SYS_MRP= u'PRD-863-503000FF'
+2018-08-30 13:43:48,851     DEBUG: tr.CM_PRP001: context.SYS_SERIAL_NO= u'NTQ0131360'
+2018-08-30 13:43:48,851     DEBUG: tr.CM_PRP001: context.future_links_to_test= [(u'PRD-863-503000FF', u'NTQ0131360')]
+2018-08-30 13:43:48,864      INFO: tr: ####################### Preparation #######################
+2018-08-30 13:43:48,864      INFO: tr.SY_PRP060: ------------ [SY_PRP060] Hardware setup ------------
+2018-08-30 13:43:48,875      INFO: tr.SY_PRP060: TESTER STEP:
+2018-08-30 13:43:48,979      INFO: tr.SY_PRP060: Setup is as follow
+2018-08-30 13:43:51,203      INFO: tr.SY_PRP060: Tester continued the test
+2018-08-30 13:43:51,207      INFO: tr.SY_PRP060: TESTER STEP:
+2018-08-30 13:43:51,210      INFO: tr.SY_PRP060: Plug The ETHERNET cable and the 2 antennas in the OC-LTE
+DO NOT plug the power yet
+2018-08-30 13:43:53,650      INFO: tr.SY_PRP060: Tester continued the test
+2018-08-30 13:43:53,668      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-30 13:43:53,723      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-30 13:43:53,729      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-08-30 13:44:00,535      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-08-30 13:44:00,539      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-08-30 13:44:00,782     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-08-30 13:44:00,783      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-08-30 13:44:00,785     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-08-30 13:44:00,786      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-08-30 13:44:00,786     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-08-30 13:44:00,792      INFO: tr.SY_PRP061: ------------ [SY_PRP061] Initial setup ------------
+2018-08-30 13:44:00,799      INFO: tr.SY_PRP061: TESTER STEP:
+2018-08-30 13:44:00,799      INFO: tr.SY_PRP061: Launch the Virtual machine named OC-LTE-EPC
+2018-08-30 13:47:17,220      INFO: tr.SY_PRP061: Tester continued the test
+2018-08-30 13:47:17,236      INFO: tr.SY_PRP062: ------ [SY_PRP062] Validate connection PC/VM ------
+2018-08-30 13:47:17,250      INFO: tr.SY_PRP062: Waiting end of boot and launching SSH connection
+2018-08-30 13:47:17,440      INFO: tr.SY_PRP063: -------------- [SY_PRP063] MME setup --------------
+2018-08-30 13:47:18,466      INFO: tr.server.E2ESSHServiceClient: Unable to connect to WebSocket host: Unable to connect to WebSocket host: 
+2018-08-30 13:47:19,325      INFO: tr.SY_PRP063: TESTER STEP:
+2018-08-30 13:47:19,325      INFO: tr.SY_PRP063: Plug the power in the OC-LTE
+2018-08-30 13:47:21,673      INFO: tr.SY_PRP063: Tester continued the test
+2018-08-30 13:47:21,687      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-30 13:47:21,723      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-30 13:47:21,730      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 13:48:04,358      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-30 13:50:25,703      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-08-30 13:50:25,914      INFO: tr: ###################### Transmission ######################
+2018-08-30 13:50:25,928      INFO: tr.SY_PRP064: --------------- [SY_PRP064] Power up ---------------
+2018-08-30 13:50:25,937      INFO: tr.SY_PRP064: TESTER STEP:
+2018-08-30 13:50:25,941      INFO: tr.SY_PRP064: Wait until all leds are Green, Then plug the Mobile Broadband
+2018-08-30 13:57:01,417     DEBUG: tr.SY_PRP064: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-08-30 13:57:01,467  CRITICAL: tr: Execution interrupted
+2018-08-30 13:57:01,469  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-08-30 13:57:01,469     DEBUG: tr: context.tester_interrupt_exception= None
+2018-08-30 13:57:01,479     DEBUG: tr: Next section
+2018-08-30 13:57:01,484      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 13:57:01,490      INFO: tr: ######################### Cleanup #########################
+2018-08-30 13:57:01,496      INFO: tr.CM_CLN001: ------------- [CM_CLN001] Kill server -------------
+2018-08-30 13:57:01,565      INFO: tr.CM_CLN001: Server is alive
+2018-08-30 13:57:01,566      INFO: tr.CM_CLN001: Unable to shutdown server: 'ServerInterface' object has no attribute 'KILL_IN_CLEANUP'
+2018-08-30 13:57:01,569      INFO: tr: All sections of batch file were executed
+2018-08-30 13:57:01,625      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp05d7rc\server

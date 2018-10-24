@@ -1,0 +1,19 @@
+2018-09-05 16:33:42,173      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp7leppg
+2018-09-05 16:33:42,486      INFO: tr.server: Loading services from config file
+2018-09-05 16:33:42,973      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:33:42,980      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 16:33:42,980      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 16:33:42,984      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101B1' in [PRD-865-101B1] : PASS
+2018-09-05 16:33:42,986      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131530] : PASS
+2018-09-05 16:33:42,986      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-2E] : PASS
+2018-09-05 16:33:42,996      INFO: tr: ####################### BBImpedance #######################
+2018-09-05 16:33:43,005      INFO: tr.BB_TSC001: ---------- [BB_TSC001] BB Impedance Test ----------
+2018-09-05 16:33:43,006      INFO: tr.BB_TSC001: TESTER STEP:
+2018-09-05 16:33:43,006      INFO: tr.BB_TSC001: Ground here
+2018-09-05 16:33:47,456      INFO: tr.BB_TSC001: Tester continued the test
+2018-09-05 16:33:47,457      INFO: tr.BB_TSC001: TESTER STEP:
+2018-09-05 16:33:47,457      INFO: tr.BB_TSC001: Please probe impedance of point #1 [12VIN at J24] and enter value in kOhms in the box below. Expecting [value > 10]
+2018-09-05 16:33:57,928  CRITICAL: tr: Execution interrupted
+2018-09-05 16:33:57,930  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 16:33:57,933      INFO: tr: All sections of batch file were executed
+2018-09-05 16:33:57,970      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp7leppg\server

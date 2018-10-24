@@ -1,0 +1,47 @@
+2018-09-05 16:33:42,173      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp7leppg
+2018-09-05 16:33:42,174     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x1801DDB0>
+2018-09-05 16:33:42,174     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04B683D0>
+2018-09-05 16:33:42,486      INFO: tr.server: Loading services from config file
+2018-09-05 16:33:42,500     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,517     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,553     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 16:33:42,571     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,596     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 16:33:42,625     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 16:33:42,641     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,665     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 16:33:42,687     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 16:33:42,703     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,733     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 16:33:42,750     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,767     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,792     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 16:33:42,815     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 16:33:42,834     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,865     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 16:33:42,884     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:33:42,970     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x18D97C30>
+2018-09-05 16:33:42,973     DEBUG: tr: Next section
+2018-09-05 16:33:42,973      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:33:42,980      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 16:33:42,980      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 16:33:42,983     DEBUG: tr.CM_PRP001: context.BB_MRP= u'PRD-865-101B1'
+2018-09-05 16:33:42,983     DEBUG: tr.CM_PRP001: context.BB_SERIAL_NO= u'NTQ0131530'
+2018-09-05 16:33:42,983     DEBUG: tr.CM_PRP001: context.BB_MAC_ADDR= u'00-D0-CC-20-14-2E'
+2018-09-05 16:33:42,984      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101B1' in [PRD-865-101B1] : PASS
+2018-09-05 16:33:42,986      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131530] : PASS
+2018-09-05 16:33:42,986      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-2E] : PASS
+2018-09-05 16:33:42,989     DEBUG: tr.CM_PRP001: context.future_links_to_test= [(u'PRD-865-101B1', u'NTQ0131530')]
+2018-09-05 16:33:42,996      INFO: tr: ####################### BBImpedance #######################
+2018-09-05 16:33:43,005      INFO: tr.BB_TSC001: ---------- [BB_TSC001] BB Impedance Test ----------
+2018-09-05 16:33:43,006      INFO: tr.BB_TSC001: TESTER STEP:
+2018-09-05 16:33:43,006      INFO: tr.BB_TSC001: Ground here
+2018-09-05 16:33:47,456      INFO: tr.BB_TSC001: Tester continued the test
+2018-09-05 16:33:47,457      INFO: tr.BB_TSC001: TESTER STEP:
+2018-09-05 16:33:47,457      INFO: tr.BB_TSC001: Please probe impedance of point #1 [12VIN at J24] and enter value in kOhms in the box below. Expecting [value > 10]
+2018-09-05 16:33:57,891     DEBUG: tr.BB_TSC001: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-05 16:33:57,928  CRITICAL: tr: Execution interrupted
+2018-09-05 16:33:57,930  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 16:33:57,930     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-05 16:33:57,933      INFO: tr: All sections of batch file were executed
+2018-09-05 16:33:57,970      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp7leppg\server

@@ -1,0 +1,451 @@
+2018-09-05 15:33:44,049:DEBUG    
+
+
+2018-09-05 15:33:44,049:INFO     SERVICE INITIALIZED
+2018-09-05 15:34:26,507:DEBUG    LOG =DEBUG
+2018-09-05 15:34:26,509:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 15:34:26,509:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 15:34:36,724:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.22 s)
+2018-09-05 15:34:36,736:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 15:34:36,755:DEBUG    Exit code= 0
+2018-09-05 15:34:36,755:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3023 cmd /usr/bin/tempcheck.sh
+Jan  2 08:01:30 LSM daemon.info init: starting pid 3757, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 4225 cmd /usr/bin/tempcheck.sh
+Jan  2 00:03:01 LSM cron.info crond[1441]: crond: USER root pid 5863 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1441]: crond: USER root pid 7387 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1441]: crond: USER root pid 7846 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1441]: crond: USER root pid 8100 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1441]: crond: USER root pid 8354 cmd /usr/bin/tempcheck.sh
+Jan  2 00:08:01 LSM cron.info crond[1441]: crond: USER root pid 8606 cmd /usr/bin/tempcheck.sh
+Jan  2 00:09:01 LSM cron.info crond[1441]: crond: USER root pid 8860 cmd /usr/bin/tempcheck.sh
+Jan  2 00:10:01 LSM cron.info crond[1441]: crond: USER root pid 9114 cmd /usr/bin/tempcheck.sh
+Jan  2 00:11:01 LSM cron.info crond[1441]: crond: USER root pid 9368 cmd /usr/bin/tempcheck.sh
+Jan  2 00:12:01 LSM cron.info crond[1441]: crond: USER root pid 9620 cmd /usr/bin/tempcheck.sh
+Jan  2 00:13:01 LSM cron.info crond[1441]: crond: USER root pid 9874 cmd /usr/bin/tempcheck.sh
+Jan  2 00:14:01 LSM cron.info crond[1441]: crond: USER root pid 10128 cmd /usr/bin/tempcheck.sh
+Jan  2 00:15:01 LSM cron.info crond[1441]: crond: USER root pid 10382 cmd /usr/bin/tempcheck.sh
+Jan  2 00:16:01 LSM cron.info crond[1441]: crond: USER root pid 10634 cmd /usr/bin/tempcheck.sh
+Jan  2 00:17:01 LSM cron.info crond[1441]: crond: USER root pid 10888 cmd /usr/bin/tempcheck.sh
+Jan  2 00:18:01 LSM cron.info crond[1441]: crond: USER root pid 11142 cmd /usr/bin/tempcheck.sh
+Jan  2 00:19:01 LSM cron.info crond[1441]: crond: USER root pid 11384 cmd /usr/bin/tempcheck.sh
+Jan  2 00:20:01 LSM cron.info crond[1441]: crond: USER root pid 11638 cmd /usr/bin/tempcheck.sh
+Jan  2 00:21:01 LSM cron.info crond[1441]: crond: USER root pid 11892 cmd /usr/bin/tempcheck.sh
+Jan  2 00:22:01 LSM cron.info crond[1441]: crond: USER root pid 12144 cmd /usr/bin/tempcheck.sh
+Jan  2 00:23:01 LSM cron.info crond[1441]: crond: USER root pid 12398 cmd /usr/bin/tempcheck.sh
+Jan  2 00:24:01 LSM cron.info crond[1441]: crond: USER root pid 12650 cmd /usr/bin/tempcheck.sh
+Jan  2 00:25:01 LSM cron.info crond[1441]: crond: USER root pid 12904 cmd /usr/bin/tempcheck.sh
+Jan  2 00:26:01 LSM cron.info crond[1441]: crond: USER root pid 13158 cmd /usr/bin/tempcheck.sh
+Jan  2 00:27:01 LSM cron.info crond[1441]: crond: USER root pid 13410 cmd /usr/bin/tempcheck.sh
+Jan  2 00:28:01 LSM cron.info crond[1441]: crond: USER root pid 13664 cmd /usr/bin/tempcheck.sh
+Jan  2 00:29:01 LSM cron.info crond[1441]: crond: USER root pid 13918 cmd /usr/bin/tempcheck.sh
+Jan  2 00:30:01 LSM cron.info crond[1441]: crond: USER root pid 14170 cmd /usr/bin/tempcheck.sh
+Jan  2 00:31:01 LSM cron.info crond[1441]: crond: USER root pid 14424 cmd /usr/bin/tempcheck.sh
+Jan  2 00:32:01 LSM cron.info crond[1441]: crond: USER root pid 14666 cmd /usr/bin/tempcheck.sh
+Jan  2 00:33:01 LSM cron.info crond[1441]: crond: USER root pid 14920 cmd /usr/bin/tempcheck.sh
+Jan  2 00:34:01 LSM cron.info crond[1441]: crond: USER root pid 15174 cmd /usr/bin/tempcheck.sh
+Jan  2 00:35:01 LSM cron.info crond[1441]: crond: USER root pid 15426 cmd /usr/bin/tempcheck.sh
+Jan  2 00:36:01 LSM cron.info crond[1441]: crond: USER root pid 15680 cmd /usr/bin/tempcheck.sh
+Jan  2 00:37:01 LSM cron.info crond[1441]: crond: USER root pid 15934 cmd /usr/bin/tempcheck.sh
+Jan  2 00:38:01 LSM cron.info crond[1441]: crond: USER root pid 16186 cmd /usr/bin/tempcheck.sh
+Jan  2 00:39:01 LSM cron.info crond[1441]: crond: USER root pid 16440 cmd /usr/bin/tempcheck.sh
+Jan  2 00:40:01 LSM cron.info crond[1441]: crond: USER root pid 16692 cmd /usr/bin/tempcheck.sh
+Jan  2 00:41:01 LSM cron.info crond[1441]: crond: USER root pid 16946 cmd /usr/bin/tempcheck.sh
+Jan  2 00:42:01 LSM cron.info crond[1441]: crond: USER root pid 17200 cmd /usr/bin/tempcheck.sh
+Jan  2 00:43:01 LSM cron.info crond[1441]: crond: USER root pid 17452 cmd /usr/bin/tempcheck.sh
+Jan  2 00:44:01 LSM cron.info crond[1441]: crond: USER root pid 17706 cmd /usr/bin/tempcheck.sh
+Jan  2 00:45:01 LSM cron.info crond[1441]: crond: USER root pid 17960 cmd /usr/bin/tempcheck.sh
+Jan  2 00:46:01 LSM cron.info crond[1441]: crond: USER root pid 18202 cmd /usr/bin/tempcheck.sh
+Jan  2 00:47:01 LSM cron.info crond[1441]: crond: USER root pid 18456 cmd /usr/bin/tempcheck.sh
+Jan  2 00:48:01 LSM cron.info crond[1441]: crond: USER root pid 18708 cmd /usr/bin/tempcheck.sh
+Jan  2 00:49:01 LSM cron.info crond[1441]: crond: USER root pid 18962 cmd /usr/bin/tempcheck.sh
+Jan  2 00:50:01 LSM cron.info crond[1441]: crond: USER root pid 19216 cmd /usr/bin/tempcheck.sh
+Jan  2 00:51:01 LSM cron.info crond[1441]: crond: USER root pid 19468 cmd /usr/bin/tempcheck.sh
+Jan  2 00:52:01 LSM cron.info crond[1441]: crond: USER root pid 19722 cmd /usr/bin/tempcheck.sh
+Jan  2 00:53:01 LSM cron.info crond[1441]: crond: USER root pid 19976 cmd /usr/bin/tempcheck.sh
+Jan  2 00:54:01 LSM cron.info crond[1441]: crond: USER root pid 20228 cmd /usr/bin/tempcheck.sh
+Jan  2 00:55:01 LSM cron.info crond[1441]: crond: USER root pid 20482 cmd /usr/bin/tempcheck.sh
+Jan  2 00:56:01 LSM cron.info crond[1441]: crond: USER root pid 20734 cmd /usr/bin/tempcheck.sh
+Jan  2 00:57:01 LSM cron.info crond[1441]: crond: USER root pid 20988 cmd /usr/bin/tempcheck.sh
+Jan  2 00:58:01 LSM cron.info crond[1441]: crond: USER root pid 21242 cmd /usr/bin/tempcheck.sh
+Jan  2 00:59:01 LSM cron.info crond[1441]: crond: USER root pid 21484 cmd /usr/bin/tempcheck.sh
+Jan  2 01:00:01 LSM cron.info crond[1441]: crond: USER root pid 21738 cmd /usr/bin/tempcheck.sh
+Jan  2 01:01:01 LSM cron.info crond[1441]: crond: USER root pid 21992 cmd /usr/bin/tempcheck.sh
+Jan  2 01:02:01 LSM cron.info crond[1441]: crond: USER root pid 22244 cmd /usr/bin/tempcheck.sh
+Jan  2 01:03:01 LSM cron.info crond[1441]: crond: USER root pid 22498 cmd /usr/bin/tempcheck.sh
+Jan  2 01:04:01 LSM cron.info crond[1441]: crond: USER root pid 22752 cmd /usr/bin/tempcheck.sh
+Jan  2 01:05:01 LSM cron.info crond[1441]: crond: USER root pid 23004 cmd /usr/bin/tempcheck.sh
+Jan  2 01:06:01 LSM cron.info crond[1441]: crond: USER root pid 23258 cmd /usr/bin/tempcheck.sh
+Jan  2 01:07:01 LSM cron.info crond[1441]: crond: USER root pid 23510 cmd /usr/bin/tempcheck.sh
+Jan  2 01:08:01 LSM cron.info crond[1441]: crond: USER root pid 23764 cmd /usr/bin/tempcheck.sh
+Jan  2 01:09:01 LSM cron.info crond[1441]: crond: USER root pid 24018 cmd /usr/bin/tempcheck.sh
+Jan  2 01:10:01 LSM cron.info crond[1441]: crond: USER root pid 24270 cmd /usr/bin/tempcheck.sh
+Jan  2 01:11:01 LSM cron.info crond[1441]: crond: USER root pid 24524 cmd /usr/bin/tempcheck.sh
+Jan  2 01:12:01 LSM cron.info crond[1441]: crond: USER root pid 24778 cmd /usr/bin/tempcheck.sh
+Jan  2 01:13:01 LSM cron.info crond[1441]: crond: USER root pid 25020 cmd /usr/bin/tempcheck.sh
+Jan  2 01:14:01 LSM cron.info crond[1441]: crond: USER root pid 25274 cmd /usr/bin/tempcheck.sh
+Jan  2 01:15:01 LSM cron.info crond[1441]: crond: USER root pid 25526 cmd /usr/bin/tempcheck.sh
+Jan  2 01:16:01 LSM cron.info crond[1441]: crond: USER root pid 25779 cmd /usr/bin/tempcheck.sh
+Jan  2 01:17:01 LSM cron.info crond[1441]: crond: USER root pid 26033 cmd /usr/bin/tempcheck.sh
+Jan  2 01:18:01 LSM cron.info crond[1441]: crond: USER root pid 26285 cmd /usr/bin/tempcheck.sh
+Jan  2 01:19:01 LSM cron.info crond[1441]: crond: USER root pid 26539 cmd /usr/bin/tempcheck.sh
+Jan  2 01:20:01 LSM cron.info crond[1441]: crond: USER root pid 26793 cmd /usr/bin/tempcheck.sh
+Jan  2 01:21:01 LSM cron.info crond[1441]: crond: USER root pid 27045 cmd /usr/bin/tempcheck.sh
+Jan  2 01:22:01 LSM cron.info crond[1441]: crond: USER root pid 27299 cmd /usr/bin/tempcheck.sh
+Jan  2 01:23:01 LSM cron.info crond[1441]: crond: USER root pid 27551 cmd /usr/bin/tempcheck.sh
+Jan  2 01:24:01 LSM cron.info crond[1441]: crond: USER root pid 27805 cmd /usr/bin/tempcheck.sh
+Jan  2 01:25:01 LSM cron.info crond[1441]: crond: USER root pid 28059 cmd /usr/bin/tempcheck.sh
+Jan  2 01:26:01 LSM cron.info crond[1441]: crond: USER root pid 28301 cmd /usr/bin/tempcheck.sh
+2018-09-05 15:34:36,756:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 15:34:47,114:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-05 15:34:47,130:DEBUG    Exit code= 0
+2018-09-05 15:34:47,131:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-05 15:34:48,286:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-05 15:34:48,332:DEBUG    Exit code= 0
+2018-09-05 15:34:48,332:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 15:34:48,334:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.05 s)
+2018-09-05 15:34:48,344:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-05 15:34:48,492:DEBUG    Exit code= 0
+2018-09-05 15:34:48,493:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-05 15:34:48,493:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-09-05 15:34:48,542:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024
+2018-09-05 15:34:48,563:DEBUG    Exit code= 0
+2018-09-05 15:34:48,563:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,563:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-05 15:34:48,581:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025
+2018-09-05 15:34:48,628:DEBUG    Exit code= 0
+2018-09-05 15:34:48,628:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,628:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-05 15:34:48,641:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026
+2018-09-05 15:34:48,690:DEBUG    Exit code= 0
+2018-09-05 15:34:48,690:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,690:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-05 15:34:48,701:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027
+2018-09-05 15:34:48,749:DEBUG    Exit code= 0
+2018-09-05 15:34:48,750:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,750:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-05 15:34:48,760:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028
+2018-09-05 15:34:48,809:DEBUG    Exit code= 0
+2018-09-05 15:34:48,809:DEBUG    driver
+iio:device0
+microamps_requested_0-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,809:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-05 15:34:48,819:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040
+2018-09-05 15:34:48,867:DEBUG    Exit code= 0
+2018-09-05 15:34:48,868:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 15:34:48,868:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-05 15:34:48,881:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a
+2018-09-05 15:34:48,911:DEBUG    Exit code= 0
+2018-09-05 15:34:48,913:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 15:34:48,913:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.03 s)
+2018-09-05 15:34:48,923:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051
+2018-09-05 15:34:48,970:DEBUG    Exit code= 0
+2018-09-05 15:34:48,970:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:48,970:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-05 15:34:49,030:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025
+2018-09-05 15:34:49,043:DEBUG    Exit code= 0
+2018-09-05 15:34:49,043:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,045:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.01 s)
+2018-09-05 15:34:49,055:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026
+2018-09-05 15:34:49,101:DEBUG    Exit code= 0
+2018-09-05 15:34:49,101:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,102:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-05 15:34:49,114:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027
+2018-09-05 15:34:49,161:DEBUG    Exit code= 0
+2018-09-05 15:34:49,163:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,163:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-05 15:34:49,174:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028
+2018-09-05 15:34:49,220:DEBUG    Exit code= 0
+2018-09-05 15:34:49,220:DEBUG    driver
+iio:device1
+microamps_requested_1-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,220:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-05 15:34:49,230:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040
+2018-09-05 15:34:49,279:DEBUG    Exit code= 0
+2018-09-05 15:34:49,279:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 15:34:49,279:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-05 15:34:49,289:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a
+2018-09-05 15:34:49,335:DEBUG    Exit code= 0
+2018-09-05 15:34:49,336:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 15:34:49,336:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-05 15:34:49,397:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020
+2018-09-05 15:34:49,414:DEBUG    Exit code= 0
+2018-09-05 15:34:49,414:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.02 s)
+2018-09-05 15:34:49,424:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049
+2018-09-05 15:34:49,473:DEBUG    Exit code= 0
+2018-09-05 15:34:49,473:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 15:34:49,473:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-05 15:34:49,483:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050
+2018-09-05 15:34:49,532:DEBUG    Exit code= 0
+2018-09-05 15:34:49,532:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,532:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-05 15:34:49,543:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f
+2018-09-05 15:34:49,591:DEBUG    Exit code= 0
+2018-09-05 15:34:49,592:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 15:34:49,592:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-05 15:34:49,601:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e
+2018-09-05 15:34:49,648:DEBUG    Exit code= 0
+2018-09-05 15:34:49,648:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,648:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-05 15:34:49,660:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f
+2018-09-05 15:34:49,707:DEBUG    Exit code= 0
+2018-09-05 15:34:49,709:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 15:34:49,709:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-05 15:34:49,767:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 15:34:50,789:DEBUG    Exit code= 0
+2018-09-05 15:34:50,789:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-05 15:34:50,798:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 15:34:50,983:DEBUG    Exit code= 0
+2018-09-05 15:34:50,983:DEBUG    0
+2018-09-05 15:34:50,983:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 15:34:51,494:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 15:34:51,644:DEBUG    Exit code= 0
+2018-09-05 15:34:51,644:DEBUG    0
+2018-09-05 15:34:51,645:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.15 s)
+2018-09-05 15:34:52,157:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 15:34:52,240:DEBUG    Exit code= 0
+2018-09-05 15:34:52,240:DEBUG    0
+2018-09-05 15:34:52,240:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 15:34:52,750:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 15:34:52,836:DEBUG    Exit code= 0
+2018-09-05 15:34:52,838:DEBUG    -5717
+2018-09-05 15:34:52,838:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 15:34:52,845:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10
+2018-09-05 15:34:52,894:DEBUG    Exit code= 0
+2018-09-05 15:34:52,895:DEBUG    add FC 00, 5, size 2, 0E 10
+2018-09-05 15:34:52,895:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 15:34:52,904:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8
+2018-09-05 15:34:52,954:DEBUG    Exit code= 0
+2018-09-05 15:34:52,956:DEBUG    add FC 02, 5, size 2, 0E D8
+2018-09-05 15:34:52,956:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 15:34:52,964:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10
+2018-09-05 15:34:53,013:DEBUG    Exit code= 0
+2018-09-05 15:34:53,013:DEBUG    add FC 14, 5, size 2, 0E 10
+2018-09-05 15:34:53,013:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 15:34:53,025:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8
+2018-09-05 15:34:53,073:DEBUG    Exit code= 0
+2018-09-05 15:34:53,075:DEBUG    add FC 16, 5, size 2, 0E D8
+2018-09-05 15:34:53,075:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 15:34:53,125:DEBUG    Timeout 10.0s, TTY=False. Command: fe-gethdrev
+2018-09-05 15:34:53,137:DEBUG    Exit code= 127
+2018-09-05 15:34:53,137:DEBUG    (STDERR)sh: fe-gethdrev: not found
+2018-09-05 15:34:53,138:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.01 s)
+2018-09-05 15:34:53,211:DEBUG    Timeout 10.0s, TTY=False. Command: fe-enable
+2018-09-05 15:34:53,259:DEBUG    Exit code= 0
+2018-09-05 15:34:53,259:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.05 s)
+2018-09-05 15:34:53,365:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-05 15:34:53,387:DEBUG    Exit code= 0
+2018-09-05 15:34:53,388:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.02 s)
+2018-09-05 15:34:53,398:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 15:34:53,453:DEBUG    Exit code= 0
+2018-09-05 15:34:53,453:DEBUG    140
+2018-09-05 15:34:53,453:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 15:34:53,463:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 15:34:53,510:DEBUG    Exit code= 0
+2018-09-05 15:34:53,510:DEBUG    28320
+2018-09-05 15:34:53,510:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 15:34:54,321:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 15:34:54,332:DEBUG    Exit code= 0
+2018-09-05 15:34:54,332:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 15:34:54,345:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 15:34:54,391:DEBUG    Exit code= 0
+2018-09-05 15:34:54,391:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 15:34:54,401:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 15:34:54,446:DEBUG    Exit code= 0
+2018-09-05 15:34:54,446:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 15:35:04,786:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 15:35:04,799:DEBUG    Exit code= 0
+2018-09-05 15:35:04,801:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 15:35:15,236:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 15:35:15,250:DEBUG    Exit code= 0
+2018-09-05 15:35:15,250:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 15:35:15,263:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 15:35:15,309:DEBUG    Exit code= 0
+2018-09-05 15:35:15,309:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 15:35:15,322:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 15:35:15,367:DEBUG    Exit code= 0
+2018-09-05 15:35:15,367:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 15:35:25,757:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 15:35:25,772:DEBUG    Exit code= 0
+2018-09-05 15:35:25,773:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.02 s)
+2018-09-05 15:35:36,155:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 15:35:36,171:DEBUG    Exit code= 0
+2018-09-05 15:35:36,171:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 15:35:36,180:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 15:35:36,226:DEBUG    Exit code= 0
+2018-09-05 15:35:36,227:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 15:35:36,237:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 15:35:36,282:DEBUG    Exit code= 0
+2018-09-05 15:35:36,283:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)

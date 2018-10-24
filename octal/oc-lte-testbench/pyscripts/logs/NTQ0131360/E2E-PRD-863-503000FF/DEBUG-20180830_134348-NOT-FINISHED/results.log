@@ -1,0 +1,16 @@
+PASS BoardTestScan: [CM_PRP001] Validate SYS Scan (0:00:00)
+PASS Preparation: [SY_PRP060] Hardware setup (0:00:04)
+PASS Preparation: [CM_PRP011] Launch TFTP Service (0:00:07)
+PASS Preparation: [SY_PRP061] Initial setup (0:03:16)
+PASS Preparation: [SY_PRP062] Validate connection PC/VM (0:00:00)
+PASS Preparation: [SY_PRP063] MME setup (0:00:04)
+PASS SSHFixedIp: [BB_TSC003] Boot Validation (0:03:03)
+PASS SSHFixedIp: [BB_PRP006] Launch SCP Service (0:00:00)
+INTERRUPTED Transmission: [SY_PRP064] Power up (0:06:35)
+UNEXECUTED Transmission: [SY_TSC060] UE/ENB checkup (None)
+UNEXECUTED Transmission: [SY_TSC061] Validate Internet Connection (None)
+UNEXECUTED Transmission: [SY_TSC062] Transmission Test (None)
+UNEXECUTED Transmission: [SY_TSC063] Reception Test (None)
+PASS Cleanup: [CM_CLN001] Kill server (0:00:00)
+Total Duration: 0:13:12
+NOT-FINISHED

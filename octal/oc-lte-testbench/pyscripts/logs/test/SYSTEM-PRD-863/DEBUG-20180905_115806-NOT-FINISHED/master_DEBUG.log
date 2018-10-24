@@ -1,0 +1,323 @@
+2018-09-05 11:58:06,137      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpbhhtnp
+2018-09-05 11:58:06,138     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x17F0DDB0>
+2018-09-05 11:58:06,138     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04CB83D0>
+2018-09-05 11:58:06,163      INFO: tr.server: Loading services from config file
+2018-09-05 11:58:06,184     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,197     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,216     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 11:58:06,232     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,250     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 11:58:06,269     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 11:58:06,289     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,309     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 11:58:06,325     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 11:58:06,338     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,358     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 11:58:06,371     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,384     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,404     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 11:58:06,423     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 11:58:06,438     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,461     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 11:58:06,480     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 11:58:06,611     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x183BB0B0>
+2018-09-05 11:58:06,615     DEBUG: tr: Next section
+2018-09-05 11:58:06,615      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 11:58:06,621      INFO: tr: ##################### SystemTestbench #####################
+2018-09-05 11:58:06,622      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-05 11:58:06,625      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-05 11:58:06,625      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-05 11:58:09,305      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-05 11:58:09,312      INFO: tr: ####################### Preparation #######################
+2018-09-05 11:58:09,316      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 11:58:09,319      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 11:58:09,319      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 11:58:16,104      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 11:58:16,105      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 11:58:16,201     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-05 11:58:16,203      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 11:58:16,203     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-05 11:58:16,203      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 11:58:16,204     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-05 11:58:16,210      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 11:58:16,263      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 11:58:16,273     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-05 11:58:17,365      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 11:58:17,477      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 11:58:17,487      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 11:58:17,490      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 11:58:27,778      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 11:58:27,815      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 11:58:37,950      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 11:58:37,957      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 11:58:38,000     DEBUG: tr.SY_PRP003: context.WAS_FINALENV= False
+2018-09-05 11:58:38,009      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 11:58:38,019      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 11:58:38,020      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 11:58:38,022     DEBUG: tr.CM_PRP042: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-05 11:58:38,150     DEBUG: tr.CM_PRP042: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-05 11:58:38,151     DEBUG: tr.CM_PRP042: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-05 11:58:39,325     DEBUG: tr.CM_PRP042: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 11:58:39,486      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 11:58:39,496      INFO: tr: ######################## LedBoard ########################
+2018-09-05 11:58:39,506      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-05 11:58:39,549      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-05 11:58:39,551      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-05 12:01:12,115      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-05 12:01:12,124      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-05 12:01:12,163      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-05 12:01:12,164      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-05 12:01:18,275      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-05 12:01:18,283      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-05 12:01:18,321      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-05 12:01:18,322      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-05 12:01:20,058      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-05 12:01:20,065      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-05 12:01:20,102      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-05 12:01:20,104      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-05 12:01:21,026      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-05 12:01:21,032      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 12:01:21,038      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 12:01:21,482      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 12:01:21,822      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 12:01:22,155      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 12:01:22,161     DEBUG: tr.FE_TSC013: Reset RFPAL
+2018-09-05 12:01:25,506      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 12:01:25,542      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 12:01:25,551      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 12:01:25,552      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 12:01:25,552      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 12:01:25,553      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 12:01:25,555      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 12:01:25,555      INFO: tr: ###################### BBPreparation ######################
+2018-09-05 12:01:25,561      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-05 12:01:25,605     DEBUG: tr.BB_PRP010: BB Attn 1 set to 20.00 dB
+2018-09-05 12:01:25,732     DEBUG: tr.BB_PRP010: PA 1 = (28.471 V, 0.0 A)
+2018-09-05 12:01:25,799     DEBUG: tr.BB_PRP010: TX Attn 1 set to 16.00 dB
+2018-09-05 12:01:25,921     DEBUG: tr.BB_PRP010: PA 1 = (28.471 V, 0.0 A)
+2018-09-05 12:01:25,980     DEBUG: tr.BB_PRP010: FB Attn 1 set to 14.00 dB
+2018-09-05 12:01:26,048     DEBUG: tr.BB_PRP010: BB Attn 2 set to 20.00 dB
+2018-09-05 12:01:26,171     DEBUG: tr.BB_PRP010: PA 2 = (28.473 V, 0.0 A)
+2018-09-05 12:01:26,233     DEBUG: tr.BB_PRP010: TX Attn 2 set to 16.00 dB
+2018-09-05 12:01:26,357     DEBUG: tr.BB_PRP010: PA 2 = (28.473 V, 0.0 A)
+2018-09-05 12:01:26,417     DEBUG: tr.BB_PRP010: FB Attn 2 set to 14.00 dB
+2018-09-05 12:01:26,417      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-05 12:01:28,040      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-05 12:01:32,048      INFO: tr: ################### PrepareCalibration ###################
+2018-09-05 12:01:32,052      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-05 12:01:32,055     DEBUG: tr.SY_PRP011: context.CALIBRATION_PREPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpbhhtnp\\measures'
+2018-09-05 12:01:32,056     DEBUG: tr.SY_PRP011: context.CALIBRATION_POSTPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpbhhtnp\\calib'
+2018-09-05 12:01:32,063      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-05 12:01:32,131     DEBUG: tr.SY_PRP012: 
+2018-09-05 12:01:32,177     DEBUG: tr.SY_PRP012: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-05 12:01:34,729     DEBUG: tr.SY_PRP012: TX 1 Predriver1 set to 1
+2018-09-05 12:01:34,785     DEBUG: tr.SY_PRP012: TX 1 Predriver2 set to 1
+2018-09-05 12:01:34,844     DEBUG: tr.SY_PRP012: TX 1 PA set to 1
+2018-09-05 12:01:36,697      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-05 12:01:36,703      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-05 12:01:36,740     DEBUG: tr.BB_TSC020: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-05 12:01:36,740     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-05 12:01:36,760     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-05 12:01:36,816     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-05 12:01:38,944     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-05 12:01:38,970     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-05 12:01:39,025     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-05 12:01:40,091      INFO: tr.BB_TSC020: Frequency error too high (1478 Hz), calibrating OCXO
+2018-09-05 12:01:40,091     DEBUG: tr.BB_TSC020: Set PWM Low to 37376
+2018-09-05 12:01:40,144     DEBUG: tr.BB_TSC020: Set PWM High to 25000
+2018-09-05 12:01:40,239      INFO: tr.BB_TSC020.ocxo: Calibrating OCXO Freq
+2018-09-05 12:01:40,819     DEBUG: tr.BB_TSC020.ocxo: Freq error = 338
+2018-09-05 12:01:40,819     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 24224
+2018-09-05 12:01:41,405     DEBUG: tr.BB_TSC020.ocxo: Freq error = 149
+2018-09-05 12:01:41,405     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 23881
+2018-09-05 12:01:42,006     DEBUG: tr.BB_TSC020.ocxo: Freq error = 64
+2018-09-05 12:01:42,006     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 23732
+2018-09-05 12:01:42,605     DEBUG: tr.BB_TSC020.ocxo: Freq error = 27
+2018-09-05 12:01:42,605     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 23669
+2018-09-05 12:01:43,207     DEBUG: tr.BB_TSC020.ocxo: Freq error = 10
+2018-09-05 12:01:43,209     DEBUG: tr.BB_TSC020.ocxo: Set PWM High to 23644
+2018-09-05 12:01:43,456     DEBUG: tr.BB_TSC020: context.CALIBRATION_OCXO_PWM_HIGH= 23644
+2018-09-05 12:01:43,457     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreglow=37376
+2018-09-05 12:01:46,003     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreghigh=23644
+2018-09-05 12:01:48,562      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([11.24]) < 50 : PASS
+2018-09-05 12:01:48,569      INFO: tr: #################### RFPALCalibration ####################
+2018-09-05 12:01:48,575      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-05 12:01:48,611     DEBUG: tr.FE_TSC120: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-05 12:01:48,612     DEBUG: tr.FE_TSC120: TX 1 Predriver1 set to 1
+2018-09-05 12:01:48,635     DEBUG: tr.FE_TSC120: TX 1 Predriver2 set to 1
+2018-09-05 12:01:48,693     DEBUG: tr.FE_TSC120: TX 1 PA set to 1
+2018-09-05 12:01:51,273     DEBUG: tr.FE_TSC120: Reset RFPAL
+2018-09-05 12:01:54,503     DEBUG: tr.FE_TSC120: BB Attn 1 set to 20.00 dB
+2018-09-05 12:01:54,625     DEBUG: tr.FE_TSC120: PA 1 = (28.563 V, 0.114 A)
+2018-09-05 12:01:55,473     DEBUG: tr.FE_TSC120: RFPAL IN=-16.27, target=-17.00
+2018-09-05 12:01:55,542     DEBUG: tr.FE_TSC120: BB Attn 1 set to 21.00 dB
+2018-09-05 12:01:55,667     DEBUG: tr.FE_TSC120: PA 1 = (28.563 V, 0.114 A)
+2018-09-05 12:01:56,051     DEBUG: tr.FE_TSC120: RFPAL IN=-17.33, target=-17.00
+2018-09-05 12:01:56,305      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=21.0, 	in_pwr=-17.33, 	fb=-48.21
+2018-09-05 12:01:56,369     DEBUG: tr.FE_TSC120: TX Attn 1 set to 16.00 dB
+2018-09-05 12:01:56,494     DEBUG: tr.FE_TSC120: PA 1 = (28.549 V, 0.13 A)
+2018-09-05 12:01:58,407     DEBUG: tr.FE_TSC120: Power out=-0.42, target=28.00
+2018-09-05 12:01:58,407   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-11.50
+2018-09-05 12:01:58,436     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:01:58,561     DEBUG: tr.FE_TSC120: PA 1 = (28.336 V, 0.364 A)
+2018-09-05 12:02:00,364     DEBUG: tr.FE_TSC120: Power out=1.05, target=28.00
+2018-09-05 12:02:00,364   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.75
+2018-09-05 12:02:00,398     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:00,523     DEBUG: tr.FE_TSC120: PA 1 = (28.339 V, 0.362 A)
+2018-09-05 12:02:02,338     DEBUG: tr.FE_TSC120: Power out=1.06, target=28.00
+2018-09-05 12:02:02,338   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.75
+2018-09-05 12:02:02,369     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:02,492     DEBUG: tr.FE_TSC120: PA 1 = (28.338 V, 0.363 A)
+2018-09-05 12:02:04,298     DEBUG: tr.FE_TSC120: Power out=1.07, target=28.00
+2018-09-05 12:02:04,299   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.50
+2018-09-05 12:02:04,329     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:04,454     DEBUG: tr.FE_TSC120: PA 1 = (28.34 V, 0.36 A)
+2018-09-05 12:02:06,267     DEBUG: tr.FE_TSC120: Power out=1.08, target=28.00
+2018-09-05 12:02:06,269   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.50
+2018-09-05 12:02:06,301     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:06,426     DEBUG: tr.FE_TSC120: PA 1 = (28.341 V, 0.36 A)
+2018-09-05 12:02:08,279     DEBUG: tr.FE_TSC120: Power out=1.05, target=28.00
+2018-09-05 12:02:08,279   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.75
+2018-09-05 12:02:08,312     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:08,436     DEBUG: tr.FE_TSC120: PA 1 = (28.34 V, 0.361 A)
+2018-09-05 12:02:10,243     DEBUG: tr.FE_TSC120: Power out=1.05, target=28.00
+2018-09-05 12:02:10,243   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.75
+2018-09-05 12:02:10,270     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:10,398     DEBUG: tr.FE_TSC120: PA 1 = (28.338 V, 0.359 A)
+2018-09-05 12:02:12,184     DEBUG: tr.FE_TSC120: Power out=1.08, target=28.00
+2018-09-05 12:02:12,184   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.50
+2018-09-05 12:02:12,213     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:12,335     DEBUG: tr.FE_TSC120: PA 1 = (28.339 V, 0.361 A)
+2018-09-05 12:02:14,184     DEBUG: tr.FE_TSC120: Power out=1.04, target=28.00
+2018-09-05 12:02:14,184   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.75
+2018-09-05 12:02:14,217     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:14,328     DEBUG: tr.FE_TSC120: PA 1 = (28.339 V, 0.361 A)
+2018-09-05 12:02:16,190     DEBUG: tr.FE_TSC120: Power out=1.07, target=28.00
+2018-09-05 12:02:16,191   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-23.50
+2018-09-05 12:02:16,221     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-05 12:02:16,345     DEBUG: tr.FE_TSC120: PA 1 = (28.34 V, 0.36 A)
+2018-09-05 12:02:18,204     DEBUG: tr.FE_TSC120: Power out=1.07, target=28.00
+2018-09-05 12:02:18,456      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-17.69, 	out_pwr=1.07, 	fb=-33.64
+2018-09-05 12:02:18,513     DEBUG: tr.FE_TSC120: FB Attn 1 set to 14.00 dB
+2018-09-05 12:02:19,066     DEBUG: tr.FE_TSC120: RFPAL FB=-16.04, target=-17.50
+2018-09-05 12:02:19,125     DEBUG: tr.FE_TSC120: FB Attn 1 set to 15.50 dB
+2018-09-05 12:02:19,775     DEBUG: tr.FE_TSC120: RFPAL FB=-18.00, target=-17.50
+2018-09-05 12:02:19,832     DEBUG: tr.FE_TSC120: FB Attn 1 set to 15.00 dB
+2018-09-05 12:02:20,341     DEBUG: tr.FE_TSC120: RFPAL FB=-17.44, target=-17.50
+2018-09-05 12:02:20,589      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=15.0, 	in_pwr=-17.68, 	out_pwr=1.06, 	fb=-17.44
+2018-09-05 12:02:20,591     DEBUG: tr.FE_TSC120: TX1 Clear RFPAL Calibration
+2018-09-05 12:02:29,753     DEBUG: tr.FE_TSC120: Reset RFPAL
+2018-09-05 12:02:38,213     DEBUG: tr.server.KeysightEXASpectrumClient: Stabilized get_aclr[ <0.30: avg 2: \/0.00s]. Took 5.36s(timeout=20s) Values=[-30.335169325000003, -30.234694740000002, -30.129774585]
+2018-09-05 12:02:38,213     DEBUG: tr.FE_TSC120: TX1 Set RFPAL Calibration
+2018-09-05 12:02:43,032      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-30.18] < -45 : FAIL
+2018-09-05 12:02:43,042     DEBUG: tr.FE_TSC120: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\rfpal.py", line 13, in FE_TSC120
+    lte_calib.calibrate_rfpal(context, tx=0, freq=context.RF_DL_MIDDLE_FREQ)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 498, in calibrate_rfpal
+    context.criteria.evaluate("FE_TSC%d20_RFPAL_POST_CALIBRATION_ACLR" % lte_calibtools.real_tx(tx), aclr)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\criteria.py", line 224, in evaluate
+    self.assert_criterion_pass(criterion)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\criteria.py", line 233, in assert_criterion_pass
+    assert criterion['result'] == "PASS", self.format_criterion(criterion)
+AssertionError: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-30.18] < -45 : FAIL
+
+2018-09-05 12:02:43,042     ERROR: tr.FE_TSC120: AssertionError: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-30.18] < -45 : FAIL
+2018-09-05 12:02:43,045     ERROR: tr.FE_TSC120: TEST FAILED
+2018-09-05 12:02:43,046      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-05 12:02:43,078     DEBUG: tr.FE_TSC220: Spectrum linked with UUT_ANT1. 21.50 dB loss
+2018-09-05 12:02:43,078     DEBUG: tr.FE_TSC220: TX 2 Predriver1 set to 1
+2018-09-05 12:02:43,101     DEBUG: tr.FE_TSC220: TX 2 Predriver2 set to 1
+2018-09-05 12:02:43,157     DEBUG: tr.FE_TSC220: TX 2 PA set to 1
+2018-09-05 12:02:45,263     DEBUG: tr.FE_TSC220: Reset RFPAL
+2018-09-05 12:02:48,496     DEBUG: tr.FE_TSC220: BB Attn 2 set to 20.00 dB
+2018-09-05 12:02:48,618     DEBUG: tr.FE_TSC220: PA 2 = (28.353 V, 0.102 A)
+2018-09-05 12:02:49,456     DEBUG: tr.FE_TSC220: RFPAL IN=-14.53, target=-17.00
+2018-09-05 12:02:49,529     DEBUG: tr.FE_TSC220: BB Attn 2 set to 22.00 dB
+2018-09-05 12:02:49,651     DEBUG: tr.FE_TSC220: PA 2 = (28.355 V, 0.102 A)
+2018-09-05 12:02:50,035     DEBUG: tr.FE_TSC220: RFPAL IN=-16.61, target=-17.00
+2018-09-05 12:02:50,295      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=22.0, 	in_pwr=-16.61, 	fb=-49.44
+2018-09-05 12:02:50,358     DEBUG: tr.FE_TSC220: TX Attn 2 set to 16.00 dB
+2018-09-05 12:02:50,480     DEBUG: tr.FE_TSC220: PA 2 = (28.348 V, 0.118 A)
+2018-09-05 12:02:52,391     DEBUG: tr.FE_TSC220: Power out=28.86, target=28.00
+2018-09-05 12:02:52,424     DEBUG: tr.FE_TSC220: TX Attn 2 set to 16.75 dB
+2018-09-05 12:02:52,546     DEBUG: tr.FE_TSC220: PA 2 = (28.348 V, 0.117 A)
+2018-09-05 12:02:54,344     DEBUG: tr.FE_TSC220: Power out=28.76, target=28.00
+2018-09-05 12:02:54,377     DEBUG: tr.FE_TSC220: TX Attn 2 set to 17.50 dB
+2018-09-05 12:02:54,500     DEBUG: tr.FE_TSC220: PA 2 = (28.349 V, 0.115 A)
+2018-09-05 12:02:56,301     DEBUG: tr.FE_TSC220: Power out=28.77, target=28.00
+2018-09-05 12:02:56,331     DEBUG: tr.FE_TSC220: TX Attn 2 set to 18.25 dB
+2018-09-05 12:02:56,453     DEBUG: tr.FE_TSC220: PA 2 = (28.351 V, 0.112 A)
+2018-09-05 12:02:58,253     DEBUG: tr.FE_TSC220: Power out=27.73, target=28.00
+2018-09-05 12:02:58,282     DEBUG: tr.FE_TSC220: TX Attn 2 set to 18.00 dB
+2018-09-05 12:02:58,407     DEBUG: tr.FE_TSC220: PA 2 = (28.35 V, 0.113 A)
+2018-09-05 12:03:00,210     DEBUG: tr.FE_TSC220: Power out=-8.80, target=28.00
+2018-09-05 12:03:00,210   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-17.75
+2018-09-05 12:03:00,240     DEBUG: tr.FE_TSC220: TX Attn 2 set to 2.50 dB
+2018-09-05 12:03:00,374     DEBUG: tr.FE_TSC220: PA 2 = (28.401 V, 0.397 A)
+2018-09-05 12:03:02,187     DEBUG: tr.FE_TSC220: Power out=-5.49, target=28.00
+2018-09-05 12:03:02,187   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-30.00
+2018-09-05 12:03:02,220     DEBUG: tr.FE_TSC220: TX Attn 2 set to 2.50 dB
+2018-09-05 12:03:02,339     DEBUG: tr.FE_TSC220: PA 2 = (28.401 V, 0.391 A)
+2018-09-05 12:03:04,171     DEBUG: tr.FE_TSC220: Power out=-5.73, target=28.00
+2018-09-05 12:03:04,171   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-30.25
+2018-09-05 12:03:04,203     DEBUG: tr.FE_TSC220: TX Attn 2 set to 2.50 dB
+2018-09-05 12:03:04,325     DEBUG: tr.FE_TSC220: PA 2 = (28.4 V, 0.388 A)
+2018-09-05 12:03:06,138     DEBUG: tr.FE_TSC220: Power out=27.83, target=28.00
+2018-09-05 12:03:06,140   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:03:06,171     DEBUG: tr.FE_TSC220: TX Attn 2 set to 2.50 dB
+2018-09-05 12:03:06,293     DEBUG: tr.FE_TSC220: PA 2 = (28.403 V, 0.388 A)
+2018-09-05 12:03:08,082     DEBUG: tr.FE_TSC220: Power out=29.82, target=28.00
+2018-09-05 12:03:08,111     DEBUG: tr.FE_TSC220: TX Attn 2 set to 4.25 dB
+2018-09-05 12:03:08,236     DEBUG: tr.FE_TSC220: PA 2 = (28.41 V, 0.293 A)
+2018-09-05 12:03:10,049     DEBUG: tr.FE_TSC220: Power out=27.17, target=28.00
+2018-09-05 12:03:10,081     DEBUG: tr.FE_TSC220: TX Attn 2 set to 3.50 dB
+2018-09-05 12:03:10,203     DEBUG: tr.FE_TSC220: PA 2 = (28.409 V, 0.338 A)
+2018-09-05 12:03:11,986     DEBUG: tr.FE_TSC220: Power out=28.61, target=28.00
+2018-09-05 12:03:12,219      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=3.5, 	in_pwr=-16.57, 	out_pwr=28.60, 	fb=-36.16
+2018-09-05 12:03:12,276     DEBUG: tr.FE_TSC220: FB Attn 2 set to 14.00 dB
+2018-09-05 12:03:13,084     DEBUG: tr.FE_TSC220: RFPAL FB=-18.15, target=-17.50
+2018-09-05 12:03:13,144     DEBUG: tr.FE_TSC220: FB Attn 2 set to 13.50 dB
+2018-09-05 12:03:13,654     DEBUG: tr.FE_TSC220: RFPAL FB=-17.78, target=-17.50
+2018-09-05 12:03:13,714     DEBUG: tr.FE_TSC220: FB Attn 2 set to 13.25 dB
+2018-09-05 12:03:14,227     DEBUG: tr.FE_TSC220: RFPAL FB=-17.62, target=-17.50
+2018-09-05 12:03:14,490      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=13.25, 	in_pwr=-16.64, 	out_pwr=28.13, 	fb=-17.62
+2018-09-05 12:03:14,490     DEBUG: tr.FE_TSC220: TX2 Clear RFPAL Calibration
+2018-09-05 12:03:23,653     DEBUG: tr.FE_TSC220: Reset RFPAL
+2018-09-05 12:03:41,352     DEBUG: tr.FE_TSC220: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-05 12:03:41,569     DEBUG: tr.server.KeysightEXASpectrumClient: Stabilized get_aclr[ <0.30: avg 2: \/0.00s]. Took 14.22s(timeout=20s) Values=[-34.265395534999996, -41.282925235, -43.899791195000006, -44.147110655, -45.11156759, -45.62942008, -45.656097884999994, -45.48916516]
+2018-09-05 12:03:41,571     DEBUG: tr.FE_TSC220: TX2 Set RFPAL Calibration
+2018-09-05 12:03:41,571     DEBUG: tr.server.LTESSHServiceClient: Call blocked !
+2018-09-05 12:03:41,572  CRITICAL: tr: Execution interrupted
+2018-09-05 12:03:41,572  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 12:03:41,573     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-05 12:03:41,575     DEBUG: tr: Next section
+2018-09-05 12:03:41,575      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 12:03:41,576      INFO: tr: ######################### Cleanup #########################
+2018-09-05 12:03:41,578      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 12:03:41,581     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-05 12:03:41,609     DEBUG: tr.FE_CLN001: TX 1 Predriver2 set to 0
+2018-09-05 12:03:41,667     DEBUG: tr.FE_CLN001: TX 1 PA set to 0
+2018-09-05 12:03:41,726     DEBUG: tr.FE_CLN001: TX 2 Predriver1 set to 0
+2018-09-05 12:03:41,786     DEBUG: tr.FE_CLN001: TX 2 Predriver2 set to 0
+2018-09-05 12:03:41,844     DEBUG: tr.FE_CLN001: TX 2 PA set to 0
+2018-09-05 12:03:41,898      INFO: tr.FE_CLN001: TXs are off
+2018-09-05 12:03:41,901      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 12:03:42,118   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 12:03:42,121      INFO: tr: All sections of batch file were executed
+2018-09-05 12:03:42,170      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpbhhtnp\server

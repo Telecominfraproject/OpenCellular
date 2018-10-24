@@ -1,0 +1,2291 @@
+2018-09-05 16:15:48,727:DEBUG    
+
+
+2018-09-05 16:15:48,729:INFO     SERVICE INITIALIZED
+2018-09-05 16:18:56,740:DEBUG    LOG =DEBUG
+2018-09-05 16:18:56,740:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:18:56,740:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:18:58,743:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:18:58,746:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:18:58,746:WARNING  Client error [timed out timed out]
+2018-09-05 16:18:58,750:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:18:59,759:DEBUG    LOG =DEBUG
+2018-09-05 16:18:59,760:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:18:59,760:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:01,765:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:01,766:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:01,766:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:01,769:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:02,779:DEBUG    LOG =DEBUG
+2018-09-05 16:19:02,779:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:02,780:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:04,782:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:04,783:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:04,783:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:04,786:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:05,798:DEBUG    LOG =DEBUG
+2018-09-05 16:19:05,798:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:05,798:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:07,802:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:07,802:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:07,803:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:07,805:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:08,816:DEBUG    LOG =DEBUG
+2018-09-05 16:19:08,816:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:08,816:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:10,819:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:10,821:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:10,821:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:10,823:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:11,835:DEBUG    LOG =DEBUG
+2018-09-05 16:19:11,835:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:11,835:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:13,838:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:13,839:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:13,841:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:13,842:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:14,854:DEBUG    LOG =DEBUG
+2018-09-05 16:19:14,855:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:14,855:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:16,858:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:16,859:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:16,859:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:16,861:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:17,874:DEBUG    LOG =DEBUG
+2018-09-05 16:19:17,875:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:17,875:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:19,878:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:19,880:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:19,880:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:19,881:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:20,894:DEBUG    LOG =DEBUG
+2018-09-05 16:19:20,894:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:20,894:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:22,898:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:22,898:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:22,898:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:22,901:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:23,914:DEBUG    LOG =DEBUG
+2018-09-05 16:19:23,914:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:23,914:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:25,917:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:25,917:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:25,918:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:25,921:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:26,933:DEBUG    LOG =DEBUG
+2018-09-05 16:19:26,934:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:26,934:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:28,937:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:28,938:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:28,938:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:28,940:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:29,950:DEBUG    LOG =DEBUG
+2018-09-05 16:19:29,951:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:29,951:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:31,953:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:31,953:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:31,954:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:31,957:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:32,967:DEBUG    LOG =DEBUG
+2018-09-05 16:19:32,969:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:32,969:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:34,973:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:34,973:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:34,973:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:34,976:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:35,989:DEBUG    LOG =DEBUG
+2018-09-05 16:19:35,989:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:35,989:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:37,993:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:37,993:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:37,993:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:37,996:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:39,007:DEBUG    LOG =DEBUG
+2018-09-05 16:19:39,007:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:39,007:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:41,010:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:41,012:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:41,013:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:41,016:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:42,029:DEBUG    LOG =DEBUG
+2018-09-05 16:19:42,029:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:42,029:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:44,032:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:44,033:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:44,033:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:44,036:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:45,046:DEBUG    LOG =DEBUG
+2018-09-05 16:19:45,046:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:45,046:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:47,051:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:47,052:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:47,052:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:47,053:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:48,068:DEBUG    LOG =DEBUG
+2018-09-05 16:19:48,068:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:48,068:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:50,071:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:50,072:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:50,072:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:50,076:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:51,089:DEBUG    LOG =DEBUG
+2018-09-05 16:19:51,089:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:51,091:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:53,095:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:53,095:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:53,095:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:53,098:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:54,109:DEBUG    LOG =DEBUG
+2018-09-05 16:19:54,111:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:54,111:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:56,115:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:56,115:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:56,115:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:56,118:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:57,128:DEBUG    LOG =DEBUG
+2018-09-05 16:19:57,128:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:19:57,128:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:19:59,131:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:19:59,132:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:19:59,132:WARNING  Client error [timed out timed out]
+2018-09-05 16:19:59,134:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:00,145:DEBUG    LOG =DEBUG
+2018-09-05 16:20:00,147:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:00,147:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:02,150:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:02,151:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:02,151:WARNING  Client error [timed out timed out]
+2018-09-05 16:20:02,154:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:03,164:DEBUG    LOG =DEBUG
+2018-09-05 16:20:03,165:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:03,165:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:05,168:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:05,170:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:05,170:WARNING  Client error [timed out timed out]
+2018-09-05 16:20:05,171:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:06,183:DEBUG    LOG =DEBUG
+2018-09-05 16:20:06,184:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:06,184:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:08,187:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:08,188:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:08,188:WARNING  Client error [timed out timed out]
+2018-09-05 16:20:08,190:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-05 16:20:09,203:DEBUG    LOG =DEBUG
+2018-09-05 16:20:09,203:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:09,203:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:10,213:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:10,214:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:10,214:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:10,217:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:11,230:DEBUG    LOG =DEBUG
+2018-09-05 16:20:11,230:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:11,230:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:12,243:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:12,243:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:12,243:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:12,246:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:13,256:DEBUG    LOG =DEBUG
+2018-09-05 16:20:13,256:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:13,256:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:14,266:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:14,267:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:14,267:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:14,269:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:15,280:DEBUG    LOG =DEBUG
+2018-09-05 16:20:15,282:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:15,282:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:16,301:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:16,302:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:16,302:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:16,305:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:17,315:DEBUG    LOG =DEBUG
+2018-09-05 16:20:17,316:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:17,316:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:18,331:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:18,361:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:18,361:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:18,365:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:19,377:DEBUG    LOG =DEBUG
+2018-09-05 16:20:19,378:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:19,378:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:20,397:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:20,398:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:20,398:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:20,400:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:21,421:DEBUG    LOG =DEBUG
+2018-09-05 16:20:21,421:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:21,421:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:22,430:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:22,430:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:22,430:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:22,433:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:23,444:DEBUG    LOG =DEBUG
+2018-09-05 16:20:23,446:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:23,446:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:24,453:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:24,454:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:24,456:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:24,461:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:25,476:DEBUG    LOG =DEBUG
+2018-09-05 16:20:25,476:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:25,476:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:26,486:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:26,486:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:26,486:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:26,490:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:27,503:DEBUG    LOG =DEBUG
+2018-09-05 16:20:27,505:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:27,506:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:28,513:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:28,515:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:28,515:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:28,517:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:29,528:DEBUG    LOG =DEBUG
+2018-09-05 16:20:29,529:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:29,529:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:30,538:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:20:30,539:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:30,539:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-05 16:20:30,542:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-05 16:20:31,555:DEBUG    LOG =DEBUG
+2018-09-05 16:20:31,555:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 16:20:31,555:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 16:20:42,302:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.75 s)
+2018-09-05 16:20:42,315:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:42,332:DEBUG    Exit code= 0
+2018-09-05 16:20:42,332:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:42,332:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:44,345:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:44,364:DEBUG    Exit code= 0
+2018-09-05 16:20:44,364:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:44,364:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:46,374:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:46,390:DEBUG    Exit code= 0
+2018-09-05 16:20:46,390:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:46,390:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:48,401:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:48,417:DEBUG    Exit code= 0
+2018-09-05 16:20:48,417:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:48,417:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:50,427:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:50,441:DEBUG    Exit code= 0
+2018-09-05 16:20:50,441:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:50,441:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:20:52,454:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:52,470:DEBUG    Exit code= 0
+2018-09-05 16:20:52,470:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:52,470:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:54,483:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:54,496:DEBUG    Exit code= 0
+2018-09-05 16:20:54,496:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:54,496:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:20:56,506:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:56,523:DEBUG    Exit code= 0
+2018-09-05 16:20:56,523:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:56,523:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:20:58,535:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:20:58,546:DEBUG    Exit code= 0
+2018-09-05 16:20:58,546:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:20:58,548:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:00,556:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:00,572:DEBUG    Exit code= 0
+2018-09-05 16:21:00,572:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:00,572:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:02,582:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:02,598:DEBUG    Exit code= 0
+2018-09-05 16:21:02,598:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:02,598:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:04,609:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:04,628:DEBUG    Exit code= 0
+2018-09-05 16:21:04,628:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:04,628:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:06,638:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:06,654:DEBUG    Exit code= 0
+2018-09-05 16:21:06,654:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:06,654:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:08,664:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:08,680:DEBUG    Exit code= 0
+2018-09-05 16:21:08,680:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:08,680:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:10,691:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:10,704:DEBUG    Exit code= 0
+2018-09-05 16:21:10,706:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:10,706:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:12,714:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:12,730:DEBUG    Exit code= 0
+2018-09-05 16:21:12,732:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:12,732:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:14,743:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:14,759:DEBUG    Exit code= 0
+2018-09-05 16:21:14,759:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:14,759:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:16,769:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:16,788:DEBUG    Exit code= 0
+2018-09-05 16:21:16,788:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:16,789:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:18,796:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:18,813:DEBUG    Exit code= 0
+2018-09-05 16:21:18,813:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:18,813:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:20,828:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:20,845:DEBUG    Exit code= 0
+2018-09-05 16:21:20,845:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:20,845:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:22,855:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:22,871:DEBUG    Exit code= 0
+2018-09-05 16:21:22,872:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:22,872:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:24,884:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:24,901:DEBUG    Exit code= 0
+2018-09-05 16:21:24,901:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:24,901:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:26,911:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:26,928:DEBUG    Exit code= 0
+2018-09-05 16:21:26,928:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:26,930:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:28,940:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:28,954:DEBUG    Exit code= 0
+2018-09-05 16:21:28,954:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:28,956:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:30,967:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:30,980:DEBUG    Exit code= 0
+2018-09-05 16:21:30,980:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:30,982:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:32,990:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:33,006:DEBUG    Exit code= 0
+2018-09-05 16:21:33,006:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-05 16:21:33,006:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:35,016:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:35,030:DEBUG    Exit code= 0
+2018-09-05 16:21:35,030:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:35,030:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:37,045:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:37,058:DEBUG    Exit code= 0
+2018-09-05 16:21:37,059:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:37,059:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:39,071:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:39,085:DEBUG    Exit code= 0
+2018-09-05 16:21:39,085:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:39,085:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:41,095:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:41,112:DEBUG    Exit code= 0
+2018-09-05 16:21:41,112:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:41,114:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:43,125:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:43,141:DEBUG    Exit code= 0
+2018-09-05 16:21:43,141:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:43,141:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:45,154:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:45,167:DEBUG    Exit code= 0
+2018-09-05 16:21:45,167:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:45,167:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:47,178:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:47,194:DEBUG    Exit code= 0
+2018-09-05 16:21:47,194:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:47,196:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:49,207:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:49,224:DEBUG    Exit code= 0
+2018-09-05 16:21:49,224:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:49,224:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:51,236:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:51,253:DEBUG    Exit code= 0
+2018-09-05 16:21:51,253:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:51,253:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:53,265:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:53,279:DEBUG    Exit code= 0
+2018-09-05 16:21:53,280:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:53,280:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:55,292:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:55,306:DEBUG    Exit code= 0
+2018-09-05 16:21:55,306:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:55,306:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:21:57,316:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:57,334:DEBUG    Exit code= 0
+2018-09-05 16:21:57,335:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:57,335:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:21:59,345:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:21:59,361:DEBUG    Exit code= 0
+2018-09-05 16:21:59,361:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:21:59,361:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:01,371:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:01,384:DEBUG    Exit code= 0
+2018-09-05 16:22:01,384:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:01,385:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:22:03,400:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:03,417:DEBUG    Exit code= 0
+2018-09-05 16:22:03,417:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:03,417:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:05,427:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:05,441:DEBUG    Exit code= 0
+2018-09-05 16:22:05,441:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:05,441:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:22:07,450:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:07,467:DEBUG    Exit code= 0
+2018-09-05 16:22:07,467:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:07,467:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:09,479:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:09,494:DEBUG    Exit code= 0
+2018-09-05 16:22:09,496:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:09,496:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:11,506:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:11,519:DEBUG    Exit code= 0
+2018-09-05 16:22:11,519:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:11,519:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:22:13,532:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:13,548:DEBUG    Exit code= 0
+2018-09-05 16:22:13,548:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:13,548:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:15,558:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:15,572:DEBUG    Exit code= 0
+2018-09-05 16:22:15,573:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:15,573:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:17,585:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:17,602:DEBUG    Exit code= 0
+2018-09-05 16:22:17,602:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:17,602:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:19,614:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:19,630:DEBUG    Exit code= 0
+2018-09-05 16:22:19,630:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:19,630:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:21,641:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:21,654:DEBUG    Exit code= 0
+2018-09-05 16:22:21,654:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:21,654:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:22:23,665:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:23,680:DEBUG    Exit code= 0
+2018-09-05 16:22:23,681:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:23,681:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:25,694:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:25,710:DEBUG    Exit code= 0
+2018-09-05 16:22:25,710:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:25,710:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:27,720:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:27,736:DEBUG    Exit code= 0
+2018-09-05 16:22:27,736:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:27,737:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:29,749:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:29,765:DEBUG    Exit code= 0
+2018-09-05 16:22:29,766:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:29,766:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:31,776:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:31,793:DEBUG    Exit code= 0
+2018-09-05 16:22:31,795:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:31,795:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:33,805:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:33,821:DEBUG    Exit code= 0
+2018-09-05 16:22:33,822:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:33,822:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:35,832:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:35,848:DEBUG    Exit code= 0
+2018-09-05 16:22:35,848:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:35,848:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:37,861:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:37,877:DEBUG    Exit code= 0
+2018-09-05 16:22:37,877:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:37,877:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:39,891:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:39,908:DEBUG    Exit code= 0
+2018-09-05 16:22:39,910:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:39,910:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:41,921:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:41,937:DEBUG    Exit code= 0
+2018-09-05 16:22:41,937:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:41,937:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:43,948:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:43,963:DEBUG    Exit code= 0
+2018-09-05 16:22:43,963:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:43,963:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:45,974:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:45,990:DEBUG    Exit code= 0
+2018-09-05 16:22:45,992:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:45,992:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:48,002:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:48,016:DEBUG    Exit code= 0
+2018-09-05 16:22:48,017:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:48,017:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:50,029:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:50,045:DEBUG    Exit code= 0
+2018-09-05 16:22:50,045:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:50,046:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:52,056:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:52,072:DEBUG    Exit code= 0
+2018-09-05 16:22:52,072:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:52,072:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:54,084:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:54,099:DEBUG    Exit code= 0
+2018-09-05 16:22:54,099:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+2018-09-05 16:22:54,099:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 16:22:56,111:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 16:22:56,124:DEBUG    Exit code= 0
+2018-09-05 16:22:56,124:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1402]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1403]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1403]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1441]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1441]: crond: USER root pid 3025 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1441]: crond: USER root pid 5281 cmd /usr/bin/tempcheck.sh
+Jan  2 08:02:23 LSM daemon.info init: starting pid 5662, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+2018-09-05 16:22:56,125:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-05 16:23:06,513:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-05 16:23:06,528:DEBUG    Exit code= 0
+2018-09-05 16:23:06,528:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.01 s)
+2018-09-05 16:23:07,798:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-05 16:23:07,842:DEBUG    Exit code= 0
+2018-09-05 16:23:07,842:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 16:23:07,842:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-05 16:23:07,852:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-05 16:23:08,039:DEBUG    Exit code= 0
+2018-09-05 16:23:08,040:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-05 16:23:08,040:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.19 s)
+2018-09-05 16:23:08,114:DEBUG    Timeout 200.0s, TTY=False. Command: sh /usr/bin/gpsGetLoc.sh
+2018-09-05 16:24:55,755:DEBUG    Exit code= 1
+2018-09-05 16:24:55,755:DEBUG    [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. 
+GPS fix location time out!
+2018-09-05 16:24:55,756:INFO     SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: sh /usr/bin/gpsGetLoc.sh (107.64 s)
+2018-09-05 16:24:55,805:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024
+2018-09-05 16:24:55,822:DEBUG    Exit code= 0
+2018-09-05 16:24:55,822:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:55,822:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-05 16:24:55,832:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025
+2018-09-05 16:24:55,878:DEBUG    Exit code= 0
+2018-09-05 16:24:55,878:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:55,878:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-05 16:24:55,888:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026
+2018-09-05 16:24:55,936:DEBUG    Exit code= 0
+2018-09-05 16:24:55,936:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:55,937:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-05 16:24:55,946:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027
+2018-09-05 16:24:55,993:DEBUG    Exit code= 0
+2018-09-05 16:24:55,993:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:55,993:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-05 16:24:56,002:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028
+2018-09-05 16:24:56,049:DEBUG    Exit code= 0
+2018-09-05 16:24:56,049:DEBUG    driver
+iio:device0
+microamps_requested_0-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,049:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-05 16:24:56,059:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040
+2018-09-05 16:24:56,108:DEBUG    Exit code= 0
+2018-09-05 16:24:56,108:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 16:24:56,108:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-05 16:24:56,118:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a
+2018-09-05 16:24:56,165:DEBUG    Exit code= 0
+2018-09-05 16:24:56,165:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 16:24:56,165:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-05 16:24:56,174:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051
+2018-09-05 16:24:56,224:DEBUG    Exit code= 0
+2018-09-05 16:24:56,226:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,226:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-05 16:24:56,247:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025
+2018-09-05 16:24:56,278:DEBUG    Exit code= 0
+2018-09-05 16:24:56,278:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,278:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.03 s)
+2018-09-05 16:24:56,289:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026
+2018-09-05 16:24:56,335:DEBUG    Exit code= 0
+2018-09-05 16:24:56,335:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,335:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-05 16:24:56,348:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027
+2018-09-05 16:24:56,394:DEBUG    Exit code= 0
+2018-09-05 16:24:56,395:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,397:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-05 16:24:56,407:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028
+2018-09-05 16:24:56,453:DEBUG    Exit code= 0
+2018-09-05 16:24:56,454:DEBUG    driver
+iio:device1
+microamps_requested_1-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,454:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-05 16:24:56,466:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040
+2018-09-05 16:24:56,512:DEBUG    Exit code= 0
+2018-09-05 16:24:56,512:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 16:24:56,513:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-05 16:24:56,523:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a
+2018-09-05 16:24:56,572:DEBUG    Exit code= 0
+2018-09-05 16:24:56,572:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 16:24:56,572:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-05 16:24:56,592:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020
+2018-09-05 16:24:56,638:DEBUG    Exit code= 0
+2018-09-05 16:24:56,638:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,640:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.05 s)
+2018-09-05 16:24:56,650:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049
+2018-09-05 16:24:56,696:DEBUG    Exit code= 0
+2018-09-05 16:24:56,697:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 16:24:56,697:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-05 16:24:56,706:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050
+2018-09-05 16:24:56,753:DEBUG    Exit code= 0
+2018-09-05 16:24:56,755:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,755:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-05 16:24:56,766:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f
+2018-09-05 16:24:56,812:DEBUG    Exit code= 0
+2018-09-05 16:24:56,813:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 16:24:56,813:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-05 16:24:56,823:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e
+2018-09-05 16:24:56,869:DEBUG    Exit code= 0
+2018-09-05 16:24:56,871:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,871:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-05 16:24:56,881:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f
+2018-09-05 16:24:56,927:DEBUG    Exit code= 0
+2018-09-05 16:24:56,927:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 16:24:56,927:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-05 16:24:56,944:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 16:24:57,980:DEBUG    Exit code= 0
+2018-09-05 16:24:57,980:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.04 s)
+2018-09-05 16:24:57,992:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 16:24:58,174:DEBUG    Exit code= 0
+2018-09-05 16:24:58,174:DEBUG    0
+2018-09-05 16:24:58,174:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 16:24:58,684:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 16:24:58,811:DEBUG    Exit code= 0
+2018-09-05 16:24:58,811:DEBUG    0
+2018-09-05 16:24:58,811:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-05 16:24:59,322:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 16:24:59,408:DEBUG    Exit code= 0
+2018-09-05 16:24:59,408:DEBUG    0
+2018-09-05 16:24:59,408:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 16:24:59,921:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 16:25:00,009:DEBUG    Exit code= 0
+2018-09-05 16:25:00,009:DEBUG    -18497
+2018-09-05 16:25:00,009:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 16:25:00,022:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10
+2018-09-05 16:25:00,055:DEBUG    Exit code= 0
+2018-09-05 16:25:00,055:DEBUG    add FC 00, 5, size 2, 0E 10
+2018-09-05 16:25:00,056:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.03 s)
+2018-09-05 16:25:00,065:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8
+2018-09-05 16:25:00,115:DEBUG    Exit code= 0
+2018-09-05 16:25:00,115:DEBUG    add FC 02, 5, size 2, 0E D8
+2018-09-05 16:25:00,115:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 16:25:00,128:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10
+2018-09-05 16:25:00,177:DEBUG    Exit code= 0
+2018-09-05 16:25:00,177:DEBUG    add FC 14, 5, size 2, 0E 10
+2018-09-05 16:25:00,177:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 16:25:00,187:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8
+2018-09-05 16:25:00,237:DEBUG    Exit code= 0
+2018-09-05 16:25:00,237:DEBUG    add FC 16, 5, size 2, 0E D8
+2018-09-05 16:25:00,239:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 16:25:00,255:DEBUG    Timeout 10.0s, TTY=False. Command: fe-gethdrev
+2018-09-05 16:25:00,283:DEBUG    Exit code= 127
+2018-09-05 16:25:00,283:DEBUG    (STDERR)sh: fe-gethdrev: not found
+2018-09-05 16:25:00,283:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.03 s)
+2018-09-05 16:25:00,313:DEBUG    Timeout 10.0s, TTY=False. Command: fe-enable
+2018-09-05 16:25:00,371:DEBUG    Exit code= 0
+2018-09-05 16:25:00,372:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.06 s)
+2018-09-05 16:25:00,401:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-05 16:25:00,434:DEBUG    Exit code= 0
+2018-09-05 16:25:00,436:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.04 s)
+2018-09-05 16:25:00,446:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 16:25:00,502:DEBUG    Exit code= 0
+2018-09-05 16:25:00,502:DEBUG    137
+2018-09-05 16:25:00,502:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 16:25:00,513:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 16:25:00,561:DEBUG    Exit code= 0
+2018-09-05 16:25:00,561:DEBUG    28323
+2018-09-05 16:25:00,562:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 16:25:25,526:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 16:25:25,542:DEBUG    Exit code= 0
+2018-09-05 16:25:25,542:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 16:25:25,555:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 16:25:25,598:DEBUG    Exit code= 0
+2018-09-05 16:25:25,598:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-09-05 16:25:25,608:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 16:25:25,654:DEBUG    Exit code= 0
+2018-09-05 16:25:25,654:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 16:25:36,105:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 16:25:36,118:DEBUG    Exit code= 0
+2018-09-05 16:25:36,119:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 16:25:46,525:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 16:25:46,536:DEBUG    Exit code= 0
+2018-09-05 16:25:46,536:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 16:25:46,548:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 16:25:46,589:DEBUG    Exit code= 0
+2018-09-05 16:25:46,591:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-09-05 16:25:46,601:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 16:25:46,647:DEBUG    Exit code= 0
+2018-09-05 16:25:46,647:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 16:25:57,022:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 16:25:57,032:DEBUG    Exit code= 0
+2018-09-05 16:25:57,032:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.01 s)
+2018-09-05 16:26:01,233:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 16:26:01,247:DEBUG    Exit code= 0
+2018-09-05 16:26:01,247:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 16:26:01,259:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 16:26:01,302:DEBUG    Exit code= 0
+2018-09-05 16:26:01,302:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-09-05 16:26:01,318:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 16:26:01,362:DEBUG    Exit code= 0
+2018-09-05 16:26:01,362:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-05 16:26:01,372:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-05 16:26:01,421:DEBUG    Exit code= 0
+2018-09-05 16:26:01,421:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-05 16:26:01,431:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-05 16:26:01,477:DEBUG    Exit code= 0
+2018-09-05 16:26:01,479:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-05 16:26:01,490:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-05 16:26:01,536:DEBUG    Exit code= 0
+2018-09-05 16:26:01,536:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)

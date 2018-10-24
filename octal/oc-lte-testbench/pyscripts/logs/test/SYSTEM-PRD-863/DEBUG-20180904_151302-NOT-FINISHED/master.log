@@ -1,0 +1,119 @@
+2018-09-04 15:13:01,730      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp_jc163
+2018-09-04 15:13:02,178      INFO: tr.server: Loading services from config file
+2018-09-04 15:13:02,611      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 15:13:02,615      INFO: tr: ##################### SystemTestbench #####################
+2018-09-04 15:13:02,618      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-04 15:13:02,618      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-04 15:13:02,619      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-04 15:13:04,213      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-04 15:13:04,221      INFO: tr: ####################### Preparation #######################
+2018-09-04 15:13:04,230      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 15:13:04,232      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 15:13:04,233      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 15:13:11,009      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 15:13:11,013      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 15:13:11,157      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 15:13:11,158      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 15:13:11,164      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 15:13:11,191      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 15:13:11,914      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 15:13:11,967      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 15:13:11,971      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 15:13:11,973      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 15:13:22,096      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 15:13:22,128      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 15:13:32,263      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 15:13:32,267      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 15:13:32,315      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 15:13:32,323      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 15:13:32,325      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 15:13:34,085      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 15:13:34,092      INFO: tr: ######################## LedBoard ########################
+2018-09-04 15:13:34,096      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-04 15:13:34,171      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-04 15:13:34,171      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-04 15:13:37,382      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-04 15:13:37,388      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-04 15:13:37,443      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-04 15:13:37,444      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-04 15:13:38,924      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-04 15:13:38,930      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-04 15:13:38,983      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-04 15:13:38,983      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-04 15:13:40,309      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-04 15:13:40,315      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-04 15:13:40,361      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-04 15:13:40,362      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-04 15:13:43,927      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-04 15:13:43,934      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 15:13:43,938      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 15:13:44,364      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 15:13:44,707      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 15:13:45,033      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 15:13:48,351      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 15:13:48,410      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-04 15:13:48,417     ERROR: tr.FE_TSC016: AssertionError: [fe-gethdrev] returned exit code 127, expected 0
+2018-09-04 15:13:48,418     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 15:13:48,420      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 15:13:48,421      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 15:13:48,421      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 15:13:48,421      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 15:13:48,423      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 15:13:48,423      INFO: tr: ###################### BBPreparation ######################
+2018-09-04 15:13:48,424      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-04 15:13:49,165      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-04 15:13:50,769      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-04 15:13:54,772      INFO: tr: ################### PrepareCalibration ###################
+2018-09-04 15:13:54,773      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-04 15:13:54,779      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-04 15:13:59,380      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-04 15:13:59,381      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-04 15:14:02,693      INFO: tr.BB_TSC020: Skipped OCXO Calibration, frequency error = 10 Hz
+2018-09-04 15:14:02,694      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([10.31]) < 50 : PASS
+2018-09-04 15:14:02,696      INFO: tr: #################### RFPALCalibration ####################
+2018-09-04 15:14:02,697      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-04 15:14:10,055      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=19.0, 	in_pwr=-17.10, 	fb=-47.20
+2018-09-04 15:14:12,096   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-36.50
+2018-09-04 15:14:14,032   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:15,973   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:17,911   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:19,845   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:21,779   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:23,732   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:25,680   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:27,621   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:29,572   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-50.00
+2018-09-04 15:14:31,732      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-17.05, 	out_pwr=-24.69, 	fb=-47.16
+2018-09-04 15:14:32,703   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-14.50
+2018-09-04 15:14:33,269   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-25.75
+2018-09-04 15:14:33,865   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-26.00
+2018-09-04 15:14:34,418   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-25.75
+2018-09-04 15:14:35,095   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-26.00
+2018-09-04 15:14:35,671   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-25.75
+2018-09-04 15:14:36,259   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-25.75
+2018-09-04 15:14:36,812   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-26.00
+2018-09-04 15:14:37,371   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-26.00
+2018-09-04 15:14:38,052   WARNING: tr.FE_TSC120: FB Attn value clamped ! Desired value=-26.00
+2018-09-04 15:14:38,868      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=2.5, 	in_pwr=-17.08, 	out_pwr=-24.69, 	fb=-47.17
+2018-09-04 15:15:01,209      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-5.588] < -45 : FAIL
+2018-09-04 15:15:01,211     ERROR: tr.FE_TSC120: AssertionError: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-5.588] < -45 : FAIL
+2018-09-04 15:15:01,213     ERROR: tr.FE_TSC120: TEST FAILED
+2018-09-04 15:15:01,213      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-04 15:15:07,780      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=20, 	in_pwr=-16.88, 	fb=-48.55
+2018-09-04 15:15:09,851   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:15:11,750  CRITICAL: tr: Execution interrupted
+2018-09-04 15:15:11,752  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 15:15:11,753      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 15:15:11,755      INFO: tr: ######################### Cleanup #########################
+2018-09-04 15:15:11,756      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 15:15:12,053      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 15:15:12,058      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 15:15:12,072   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 15:15:12,075      INFO: tr: All sections of batch file were executed
+2018-09-04 15:15:12,118      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp_jc163\server

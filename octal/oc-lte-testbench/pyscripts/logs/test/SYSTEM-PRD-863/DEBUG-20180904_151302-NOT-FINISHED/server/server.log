@@ -1,0 +1,443 @@
+2018-09-04 15:13:02,164: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmppifhik
+2018-09-04 15:13:02,190: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,226: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,279: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,299: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,332: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,348: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,381: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,427: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,446: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,480: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 15:13:02,513: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmp_jc163\server
+2018-09-04 15:13:11,154: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.12 s)
+2018-09-04 15:13:11,178: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.0 s)
+2018-09-04 15:13:11,206: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-04 15:13:11,206: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-04 15:13:11,256: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.05 s)
+2018-09-04 15:13:11,263: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-04 15:13:11,854: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.59 s)
+2018-09-04 15:13:11,862: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:13:11,865: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:13:11,868: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:13:11,884: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.02 s)
+2018-09-04 15:13:11,894: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:13:11,898: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:13:11,900: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:13:11,907: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:13:11,957: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-09-04 15:13:11,960: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (0.03 s)
+2018-09-04 15:13:22,094: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.11 s)
+2018-09-04 15:13:22,118: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:13:22,144: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:13:32,255: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.11 s)
+2018-09-04 15:13:32,305: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 15:13:32,398: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.06 s)
+2018-09-04 15:13:32,421: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.01 s)
+2018-09-04 15:13:33,677: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (1.25 s)
+2018-09-04 15:13:33,927: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-04 15:13:34,084: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-09-04 15:13:34,168: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.06 s)
+2018-09-04 15:13:37,438: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.04 s)
+2018-09-04 15:13:38,980: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange on (0.03 s)
+2018-09-04 15:13:40,359: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange off (0.03 s)
+2018-09-04 15:13:43,963: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-04 15:13:44,022: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-04 15:13:44,075: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-04 15:13:44,131: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-04 15:13:44,187: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-04 15:13:44,243: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-04 15:13:44,299: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-04 15:13:44,357: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-04 15:13:44,423: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.05 s)
+2018-09-04 15:13:44,476: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-04 15:13:44,530: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-04 15:13:44,588: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-04 15:13:44,644: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-04 15:13:44,698: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-04 15:13:44,749: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.03 s)
+2018-09-04 15:13:44,803: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-04 15:13:44,859: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-04 15:13:44,915: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-04 15:13:44,973: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-04 15:13:45,026: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-04 15:13:46,084: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.04 s)
+2018-09-04 15:13:46,282: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.19 s)
+2018-09-04 15:13:46,928: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-04 15:13:47,523: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 15:13:48,115: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:13:48,174: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-04 15:13:48,230: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 15:13:48,288: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-04 15:13:48,344: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 15:13:48,407: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.05 s)
+2018-09-04 15:13:48,473: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.04 s)
+2018-09-04 15:13:48,530: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:13:48,617: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.08 s)
+2018-09-04 15:13:48,674: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.04 s)
+2018-09-04 15:13:48,753: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.07 s)
+2018-09-04 15:13:48,821: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.06 s)
+2018-09-04 15:13:48,881: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-04 15:13:48,937: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 15:13:48,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-04 15:13:49,056: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-04 15:13:49,108: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 15:13:49,163: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-04 15:13:50,766: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1 (1.6 s)
+2018-09-04 15:13:54,928: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.14 s)
+2018-09-04 15:13:54,971: server.service.RFSwitchService@rfswitch           : INFO    SERVICE HANDLING - LINK SPECTRUM<->UUT_ANT0 (0.03 s)
+2018-09-04 15:13:55,015: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.03 s)
+2018-09-04 15:13:55,025: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:13:55,026: server.service.VISAService@spectrum               : INFO    Sending command: :INST LTE
+2018-09-04 15:13:55,029: server.service.VISAService@spectrum               : INFO    Sending command: :CONF:ACP
+2018-09-04 15:13:55,032: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:ACP
+2018-09-04 15:13:55,035: server.service.VISAService@spectrum               : INFO    Sending command: :ACP:AVER:COUN 50
+2018-09-04 15:13:55,036: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:PRES B20M
+2018-09-04 15:13:55,039: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:DIR DLIN
+2018-09-04 15:13:57,378: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (2.35 s)
+2018-09-04 15:13:57,385: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:13:57,388: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:13:57,394: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:13:57,405: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:CENT 1845 MHz
+2018-09-04 15:13:57,407: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:SPAN 50 MHz
+2018-09-04 15:13:57,413: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:13:57,482: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.05 s)
+2018-09-04 15:13:57,538: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.05 s)
+2018-09-04 15:13:57,596: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:13:57,650: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 15:13:57,657: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:13:57,660: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:13:59,374: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-5.193532776E+01,0.000000000E+00,-5.193532776E+01,7.885381618E-02,-5.185647394E+01,7.334994773E-02,-5.186197781E+01,9.701587396E-02,-5.183831188E+01,5.496947136E-02,-5.188035828E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:13:59,375: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.72 s)
+2018-09-04 15:13:59,410: server.service.RFSwitchService@rfswitch           : INFO    SERVICE HANDLING - LINK SPECTRUM<->UUT_ANT0 (0.02 s)
+2018-09-04 15:13:59,434: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 15:13:59,486: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:13:59,538: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-04 15:13:59,608: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-04 15:13:59,617: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:13:59,618: server.service.VISAService@spectrum               : INFO    Sending command: :INST LTE
+2018-09-04 15:13:59,621: server.service.VISAService@spectrum               : INFO    Sending command: :CONF:ACP
+2018-09-04 15:13:59,624: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:ACP
+2018-09-04 15:13:59,627: server.service.VISAService@spectrum               : INFO    Sending command: :ACP:AVER:COUN 50
+2018-09-04 15:13:59,628: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:PRES B20M
+2018-09-04 15:13:59,631: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:DIR DLIN
+2018-09-04 15:14:01,532: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.91 s)
+2018-09-04 15:14:01,539: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:14:01,542: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:14:01,549: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:14:01,569: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 15:14:01,625: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:14:01,677: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-04 15:14:01,684: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:CENT 1845 MHz
+2018-09-04 15:14:01,687: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:SPAN 50 MHz
+2018-09-04 15:14:01,694: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:14:01,763: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.06 s)
+2018-09-04 15:14:01,772: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:01,773: server.service.VISAService@spectrum               : INFO    Sending command: :READ:CEVM?
+2018-09-04 15:14:02,426: server.service.VISAService@spectrum               : INFO    Read: 5.782153320E+01,2.000000000E+00,3.928225403E+02,2.500000000E+01,1.700000000E+01,5.442310572E+01,5.803927588E+01,3.533886390E+01,2.117278399E+01,1.516582251E+02,-7.629125436E+01,-4.560741807E+01,-1.010575790E+02,7.118867293E+01,1.000000000E+00,1.120298718E+02,5.525235673E+00,6.921875931E-03,-3.434721824E+01,-2.109698744E-02,-2.151430782E-01,-7.386419093E-11,1.000000000E+00,1.000000000E+00,1.000000000E-01,1.000000000E+00,-7.629125436E+01,-1.066637497E+01,-4.562487938E+01,-4.583887932E+01,9.91E+37
+2018-09-04 15:14:02,427: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.65 s)
+2018-09-04 15:14:02,434: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:CEVM?
+2018-09-04 15:14:02,690: server.service.VISAService@spectrum               : INFO    Read: 5.907857132E+01,2.000000000E+00,1.632298706E+03,2.900000000E+01,6.000000000E+02,5.557467341E+01,5.679666697E+01,3.626941726E+01,5.360055279E+01,9.645467997E+01,-7.133319277E+01,-4.068921838E+01,1.030659389E+01,6.216586328E+01,1.000000000E+00,1.448172524E+02,1.217348446E+01,5.299993433E-04,-3.405734157E+01,-7.617777971E-02,-8.171622590E-01,1.152271235E-07,1.000000000E+00,1.000000000E+00,1.000000000E-01,1.000000000E+00,-7.133319277E+01,-1.072462374E+01,-4.060856903E+01,-4.580308564E+01,9.91E+37
+2018-09-04 15:14:02,690: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.26 s)
+2018-09-04 15:14:02,726: server.service.RFSwitchService@rfswitch           : INFO    SERVICE HANDLING - LINK SPECTRUM<->UUT_ANT0 (0.02 s)
+2018-09-04 15:14:02,747: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 15:14:02,801: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:14:02,855: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 15:14:02,924: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-04 15:14:02,933: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:14:02,934: server.service.VISAService@spectrum               : INFO    Sending command: :INST LTE
+2018-09-04 15:14:02,937: server.service.VISAService@spectrum               : INFO    Sending command: :CONF:ACP
+2018-09-04 15:14:02,940: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:ACP
+2018-09-04 15:14:02,941: server.service.VISAService@spectrum               : INFO    Sending command: :ACP:AVER:COUN 50
+2018-09-04 15:14:02,944: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:PRES B20M
+2018-09-04 15:14:02,946: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:DIR DLIN
+2018-09-04 15:14:05,334: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (2.4 s)
+2018-09-04 15:14:05,341: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:14:05,342: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:14:05,349: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:14:06,378: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-04 15:14:06,582: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.19 s)
+2018-09-04 15:14:07,213: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-04 15:14:07,805: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 15:14:08,395: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 15:14:08,404: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:CENT 1845 MHz
+2018-09-04 15:14:08,405: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:SPAN 50 MHz
+2018-09-04 15:14:08,413: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:14:08,480: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.06 s)
+2018-09-04 15:14:08,546: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.06 s)
+2018-09-04 15:14:08,605: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:08,658: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:08,854: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:08,979: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,049: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 19 (0.06 s)
+2018-09-04 15:14:09,112: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-04 15:14:09,170: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:09,296: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,420: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,546: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,670: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,795: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:09,918: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:10,048: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:10,105: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.04 s)
+2018-09-04 15:14:10,177: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-04 15:14:10,230: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:10,339: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:10,342: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:12,059: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.620325332E+01,0.000000000E+00,-4.620325332E+01,-5.544218583E+00,-5.174747191E+01,-5.608917486E+00,-5.181217081E+01,-5.663148995E+00,-5.186640232E+01,-5.653539824E+00,-5.185679315E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:12,061: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.72 s)
+2018-09-04 15:14:12,069: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:12,092: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.620446428E+01,0.000000000E+00,-4.620446428E+01,-5.541908615E+00,-5.174637290E+01,-5.604652581E+00,-5.180911687E+01,-5.660207668E+00,-5.186467195E+01,-5.651124809E+00,-5.185558909E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:12,094: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:12,119: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:12,181: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:12,236: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:12,244: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:12,247: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:13,996: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.621396926E+01,0.000000000E+00,-4.621396926E+01,-5.546679856E+00,-5.176064912E+01,-5.588723460E+00,-5.180269272E+01,-5.646110878E+00,-5.186008014E+01,-5.632876206E+00,-5.184684547E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:13,996: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:14,003: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:14,029: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.621300051E+01,0.000000000E+00,-4.621300051E+01,-5.549320653E+00,-5.176232116E+01,-5.591786227E+00,-5.180478673E+01,-5.650503632E+00,-5.186350414E+01,-5.635019708E+00,-5.184802021E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:14,030: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:14,059: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:14,122: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:14,177: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:14,186: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:14,187: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:15,934: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619328850E+01,0.000000000E+00,-4.619328850E+01,-5.538131440E+00,-5.173141994E+01,-5.588605344E+00,-5.178189385E+01,-5.691355848E+00,-5.188464435E+01,-5.705376401E+00,-5.189866490E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:15,936: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:15,944: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:15,969: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619027609E+01,0.000000000E+00,-4.619027609E+01,-5.538445069E+00,-5.172872116E+01,-5.592461519E+00,-5.178273761E+01,-5.693005392E+00,-5.188328149E+01,-5.707324016E+00,-5.189760011E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:15,970: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:15,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:16,058: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:16,111: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:16,118: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:16,121: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:17,872: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.620302038E+01,0.000000000E+00,-4.620302038E+01,-5.546160615E+00,-5.174918100E+01,-5.602442942E+00,-5.180546332E+01,-5.688869186E+00,-5.189188957E+01,-5.643913029E+00,-5.184693341E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:17,875: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.76 s)
+2018-09-04 15:14:17,881: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:17,907: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619851753E+01,0.000000000E+00,-4.619851753E+01,-5.552711222E+00,-5.175122875E+01,-5.602159120E+00,-5.180067665E+01,-5.694362430E+00,-5.189287996E+01,-5.650148516E+00,-5.184866605E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:17,907: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:17,934: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:17,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:18,049: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:18,058: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:18,059: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:19,806: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.617251262E+01,0.000000000E+00,-4.617251262E+01,-5.638386985E+00,-5.181089961E+01,-5.649753994E+00,-5.182226662E+01,-5.645664017E+00,-5.181817664E+01,-5.677450310E+00,-5.184996293E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:19,809: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:19,815: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:19,841: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.617651805E+01,0.000000000E+00,-4.617651805E+01,-5.629381782E+00,-5.180589983E+01,-5.642430854E+00,-5.181894891E+01,-5.636563718E+00,-5.181308177E+01,-5.672437901E+00,-5.184895595E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:19,842: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:19,872: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:19,934: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:19,990: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:19,999: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:20,000: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:21,742: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618397442E+01,0.000000000E+00,-4.618397442E+01,-5.604087559E+00,-5.178806198E+01,-5.601538073E+00,-5.178551249E+01,-5.657875154E+00,-5.184184957E+01,-5.695159930E+00,-5.187913435E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:21,743: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:21,750: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:21,776: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618264416E+01,0.000000000E+00,-4.618264416E+01,-5.607448263E+00,-5.179009242E+01,-5.597780758E+00,-5.178042492E+01,-5.657185205E+00,-5.183982936E+01,-5.696009451E+00,-5.187865361E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:21,776: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:21,805: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:21,875: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-04 15:14:21,930: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:21,937: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:21,940: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:23,694: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618796018E+01,0.000000000E+00,-4.618796018E+01,-5.632032865E+00,-5.181999305E+01,-5.594919002E+00,-5.178287918E+01,-5.660098172E+00,-5.184805835E+01,-5.714664652E+00,-5.190262483E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:23,694: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.76 s)
+2018-09-04 15:14:23,700: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:23,726: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618687348E+01,0.000000000E+00,-4.618687348E+01,-5.629477714E+00,-5.181635120E+01,-5.598008891E+00,-5.178488237E+01,-5.657592185E+00,-5.184446567E+01,-5.715240757E+00,-5.190211424E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:23,727: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:23,757: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:23,819: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:23,875: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:23,882: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:23,885: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:25,642: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.623114834E+01,0.000000000E+00,-4.623114834E+01,-5.515994188E+00,-5.174714253E+01,-5.563189473E+00,-5.179433781E+01,-5.583663648E+00,-5.181481199E+01,-5.634215832E+00,-5.186536417E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:25,644: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.76 s)
+2018-09-04 15:14:25,651: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:25,677: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.623681325E+01,0.000000000E+00,-4.623681325E+01,-5.504786916E+00,-5.174160016E+01,-5.557897786E+00,-5.179471103E+01,-5.570805287E+00,-5.180761853E+01,-5.630098148E+00,-5.186691139E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:25,677: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:25,707: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:25,769: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-04 15:14:25,822: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:25,831: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:25,832: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:27,582: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.616999839E+01,0.000000000E+00,-4.616999839E+01,-5.616491561E+00,-5.178648996E+01,-5.580244204E+00,-5.175024260E+01,-5.644258207E+00,-5.181425660E+01,-5.694822687E+00,-5.186482108E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:27,584: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:27,592: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:27,617: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.616971325E+01,0.000000000E+00,-4.616971325E+01,-5.620452877E+00,-5.179016613E+01,-5.584305358E+00,-5.175401861E+01,-5.644423176E+00,-5.181413643E+01,-5.692818407E+00,-5.186253166E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:27,618: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:27,647: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:27,710: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 15:14:27,763: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:27,772: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:27,775: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:29,532: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.624116263E+01,0.000000000E+00,-4.624116263E+01,-5.494310128E+00,-5.173547276E+01,-5.524393393E+00,-5.176555602E+01,-5.569449551E+00,-5.181061218E+01,-5.612118057E+00,-5.185328069E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:29,536: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.76 s)
+2018-09-04 15:14:29,542: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:29,566: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.623936563E+01,0.000000000E+00,-4.623936563E+01,-5.499312292E+00,-5.173867792E+01,-5.531785030E+00,-5.177115066E+01,-5.569324139E+00,-5.180868977E+01,-5.616814471E+00,-5.185618010E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:29,569: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:29,595: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-04 15:14:29,660: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-04 15:14:29,717: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-04 15:14:29,726: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:29,729: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:31,467: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618084174E+01,0.000000000E+00,-4.618084174E+01,-5.556074184E+00,-5.173691593E+01,-5.621280046E+00,-5.180212179E+01,-5.655011644E+00,-5.183585339E+01,-5.671170506E+00,-5.185201225E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:31,467: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.74 s)
+2018-09-04 15:14:31,476: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:31,500: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618336341E+01,0.000000000E+00,-4.618336341E+01,-5.556007277E+00,-5.173937069E+01,-5.619501449E+00,-5.180286486E+01,-5.652608250E+00,-5.183597166E+01,-5.670983895E+00,-5.185434731E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:31,503: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:31,598: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:31,615: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:31,638: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.618804390E+01,0.000000000E+00,-4.618804390E+01,-5.543258930E+00,-5.173130283E+01,-5.610163119E+00,-5.179820702E+01,-5.648519407E+00,-5.183656331E+01,-5.670662414E+00,-5.185870631E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:31,640: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:31,730: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 15:14:31,786: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:32,082: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:32,203: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:32,326: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:32,451: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:32,575: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:32,700: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:32,756: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:32,878: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,006: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,134: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,266: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,323: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:33,457: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,598: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,723: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.1 s)
+2018-09-04 15:14:33,859: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:33,911: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.03 s)
+2018-09-04 15:14:34,036: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,158: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,286: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,411: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,461: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.03 s)
+2018-09-04 15:14:34,588: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,713: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,836: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:34,967: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:35,092: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:35,148: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:35,276: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:35,411: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:35,535: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.11 s)
+2018-09-04 15:14:35,670: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:35,726: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:35,854: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,009: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.15 s)
+2018-09-04 15:14:36,132: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,256: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,311: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:36,438: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,563: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,686: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.11 s)
+2018-09-04 15:14:36,809: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:36,868: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:36,992: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,118: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,242: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,368: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,423: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:37,551: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,674: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,798: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:37,924: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,048: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,105: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 10 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 15:14:38,230: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,355: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,483: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,607: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,736: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 15:14:38,743: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:14:38,769: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619164946E+01,0.000000000E+00,-4.619164946E+01,-5.549861234E+00,-5.174151069E+01,-5.582742192E+00,-5.177439165E+01,-5.659413385E+00,-5.185106284E+01,-5.668095075E+00,-5.185974453E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:38,770: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 15:14:38,865: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:47,930: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-clearrfpalcal -c 1 (9.06 s)
+2018-09-04 15:14:48,023: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:49,084: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.05 s)
+2018-09-04 15:14:49,279: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.19 s)
+2018-09-04 15:14:49,931: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-04 15:14:50,533: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:51,131: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:14:51,151: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:51,154: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:52,868: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619518427E+01,0.000000000E+00,-4.619518427E+01,-5.568439990E+00,-5.176362426E+01,-5.594564607E+00,-5.178974888E+01,-5.653273591E+00,-5.184845786E+01,-5.681161181E+00,-5.187634545E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:52,868: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.72 s)
+2018-09-04 15:14:52,878: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:52,881: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:54,628: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.621244296E+01,0.000000000E+00,-4.621244296E+01,-5.580791573E+00,-5.179323454E+01,-5.550350735E+00,-5.176279370E+01,-5.658588688E+00,-5.187103165E+01,-5.660612663E+00,-5.187305563E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:54,630: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:14:54,638: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:14:54,641: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:14:56,390: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-4.619972801E+01,0.000000000E+00,-4.619972801E+01,-5.606352853E+00,-5.180608086E+01,-5.612891990E+00,-5.181262000E+01,-5.628272647E+00,-5.182800065E+01,-5.675815593E+00,-5.187554360E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:14:56,391: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:15:00,426: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setrfpalcal -c 1 (4.03 s)
+2018-09-04 15:15:00,611: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-04 15:15:01,207: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:15:01,240: server.service.RFSwitchService@rfswitch           : INFO    SERVICE HANDLING - LINK SPECTRUM<->UUT_ANT1 (0.02 s)
+2018-09-04 15:15:01,263: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.02 s)
+2018-09-04 15:15:01,316: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-09-04 15:15:01,371: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa1/state (0.05 s)
+2018-09-04 15:15:01,440: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-04 15:15:01,448: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 15:15:01,451: server.service.VISAService@spectrum               : INFO    Sending command: :INST LTE
+2018-09-04 15:15:01,453: server.service.VISAService@spectrum               : INFO    Sending command: :CONF:ACP
+2018-09-04 15:15:01,457: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:ACP
+2018-09-04 15:15:01,460: server.service.VISAService@spectrum               : INFO    Sending command: :ACP:AVER:COUN 50
+2018-09-04 15:15:01,461: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:PRES B20M
+2018-09-04 15:15:01,464: server.service.VISAService@spectrum               : INFO    Sending command: :RAD:STAN:DIR DLIN
+2018-09-04 15:15:03,368: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.92 s)
+2018-09-04 15:15:03,378: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 15:15:03,380: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 15:15:03,385: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:15:04,414: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-04 15:15:04,605: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-04 15:15:05,252: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-04 15:15:05,851: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 15:15:06,444: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 15:15:06,451: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:CENT 1845 MHz
+2018-09-04 15:15:06,454: server.service.VISAService@spectrum               : INFO    Sending command: :FREQ:SPAN 50 MHz
+2018-09-04 15:15:06,460: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 15:15:06,536: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.07 s)
+2018-09-04 15:15:06,605: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.06 s)
+2018-09-04 15:15:06,665: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-04 15:15:06,721: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 15:15:06,920: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.09 s)
+2018-09-04 15:15:07,040: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.11 s)
+2018-09-04 15:15:07,168: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-04 15:15:07,290: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-04 15:15:07,413: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-04 15:15:07,538: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-04 15:15:07,678: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.13 s)
+2018-09-04 15:15:07,778: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.09 s)
+2018-09-04 15:15:07,838: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-04 15:15:07,903: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-04 15:15:07,948: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.03 s)
+2018-09-04 15:15:08,059: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:15:08,061: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:15:09,812: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-6.093473289E+00,0.000000000E+00,-6.093473289E+00,-4.004531329E+01,-4.613878658E+01,-4.092900350E+01,-4.702247679E+01,-4.565030937E+01,-5.174378266E+01,-4.565284547E+01,-5.174631876E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:15:09,812: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.75 s)
+2018-09-04 15:15:09,822: server.service.VISAService@spectrum               : INFO    Sending command: :FETCH:ACP?
+2018-09-04 15:15:09,845: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,-6.092981634E+00,0.000000000E+00,-6.092981634E+00,-4.004109737E+01,-4.613407900E+01,-4.092836943E+01,-4.702135107E+01,-4.564887114E+01,-5.174185278E+01,-4.564774860E+01,-5.174073024E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:15:09,846: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.02 s)
+2018-09-04 15:15:09,875: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10 (0.02 s)
+2018-09-04 15:15:09,940: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-04 15:15:09,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 15:15:10,009: server.service.VISAService@spectrum               : INFO    Sending command: *TRG
+2018-09-04 15:15:10,012: server.service.VISAService@spectrum               : INFO    Sending command: :READ:ACP?
+2018-09-04 15:15:11,744: server.service.VISAService@spectrum               : INFO    Read: 0.000000000E+00,9.678729079E+00,0.000000000E+00,9.678729079E+00,-3.368644959E+01,-2.400772051E+01,-3.368838963E+01,-2.400966055E+01,-5.017157784E+01,-4.049284876E+01,-5.001875210E+01,-4.034002302E+01,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02,-9.990000000E+02
+2018-09-04 15:15:11,746: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.74 s)
+2018-09-04 15:15:11,779: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 15:15:11,834: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:15:11,888: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 15:15:11,940: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 15:15:11,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-04 15:15:12,052: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)
+2018-09-04 15:15:12,066: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 15:15:12,085: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmp_jc163\server

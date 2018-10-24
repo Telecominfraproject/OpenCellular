@@ -1,0 +1,68 @@
+2018-09-04 12:37:35,298:DEBUG    
+
+
+2018-09-04 12:37:35,299:INFO     SERVICE INITIALIZED
+2018-09-04 12:37:42,540:DEBUG    LOG =DEBUG
+2018-09-04 12:37:42,542:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 12:37:42,542:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 12:37:52,855:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.31 s)
+2018-09-04 12:37:52,880:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 12:37:52,894:DEBUG    Exit code= 0
+2018-09-04 12:37:52,894:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1369]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1370]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1370]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1408]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1408]: crond: USER root pid 2308 cmd /usr/bin/tempcheck.sh
+Jan  2 08:01:05 LSM daemon.info init: starting pid 2366, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:02:01 LSM cron.info crond[1408]: crond: USER root pid 3043 cmd /usr/bin/tempcheck.sh
+Jan  2 00:03:01 LSM cron.info crond[1408]: crond: USER root pid 3734 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1408]: crond: USER root pid 4306 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1408]: crond: USER root pid 4988 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1408]: crond: USER root pid 5783 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1408]: crond: USER root pid 6473 cmd /usr/bin/tempcheck.sh
+Jan  2 00:08:01 LSM cron.info crond[1408]: crond: USER root pid 7176 cmd /usr/bin/tempcheck.sh
+Jan  2 00:09:01 LSM cron.info crond[1408]: crond: USER root pid 7860 cmd /usr/bin/tempcheck.sh
+Jan  2 00:10:01 LSM cron.info crond[1408]: crond: USER root pid 8435 cmd /usr/bin/tempcheck.sh
+Jan  2 00:11:01 LSM cron.info crond[1408]: crond: USER root pid 9121 cmd /usr/bin/tempcheck.sh
+Jan  2 00:12:01 LSM cron.info crond[1408]: crond: USER root pid 9915 cmd /usr/bin/tempcheck.sh
+Jan  2 00:13:01 LSM cron.info crond[1408]: crond: USER root pid 10600 cmd /usr/bin/tempcheck.sh
+Jan  2 00:14:01 LSM cron.info crond[1408]: crond: USER root pid 11286 cmd /usr/bin/tempcheck.sh
+Jan  2 00:15:01 LSM cron.info crond[1408]: crond: USER root pid 11975 cmd /usr/bin/tempcheck.sh
+Jan  2 00:16:01 LSM cron.info crond[1408]: crond: USER root pid 12550 cmd /usr/bin/tempcheck.sh
+Jan  2 00:17:01 LSM cron.info crond[1408]: crond: USER root pid 13343 cmd /usr/bin/tempcheck.sh
+2018-09-04 12:37:52,895:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:38:03,046:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-09-04 12:38:03,075:DEBUG    Exit code= 0
+2018-09-04 12:38:03,075:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-09-04 12:38:03,075:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 12:38:03,088:DEBUG    Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \;
+2018-09-04 12:38:08,700:DEBUG    Exit code= 0
+2018-09-04 12:38:08,700:DEBUG    (STDERR)rm: can't remove '.' or '..'
+2018-09-04 12:38:08,700:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (5.61 s)
+2018-09-04 12:38:09,661:DEBUG    Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz
+2018-09-04 12:40:29,088:DEBUG    Exit code= 0
+2018-09-04 12:40:29,088:DEBUG    Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os0' ... 
+OK.
+Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os1' ... 
+OK.
+2018-09-04 12:40:29,088:INFO     SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (139.43 s)
+2018-09-04 12:40:29,102:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-04 12:40:29,115:DEBUG    Exit code= 0
+2018-09-04 12:40:29,115:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 12:40:29,121:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-04 12:40:29,165:DEBUG    Exit code= 0
+2018-09-04 12:40:29,165:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-09-04 12:40:29,170:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-04 12:40:29,213:DEBUG    Exit code= 0
+2018-09-04 12:40:29,213:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-04 12:40:29,217:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-04 12:40:29,263:DEBUG    Exit code= 0
+2018-09-04 12:40:29,263:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 12:40:29,267:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-04 12:40:29,309:DEBUG    Exit code= 0
+2018-09-04 12:40:29,309:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-09-04 12:40:29,315:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-04 12:40:29,398:DEBUG    Exit code= 0
+2018-09-04 12:40:29,398:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.08 s)

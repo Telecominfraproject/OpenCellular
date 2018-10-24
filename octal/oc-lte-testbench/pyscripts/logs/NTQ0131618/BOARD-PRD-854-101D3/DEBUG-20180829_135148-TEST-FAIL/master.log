@@ -1,0 +1,85 @@
+2018-08-29 13:51:48,529      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpuaviy_
+2018-08-29 13:51:48,588      INFO: tr.server: Loading services from config file
+2018-08-29 13:51:48,993      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-29 13:51:49,006      INFO: tr: ###################### BoardTestScan ######################
+2018-08-29 13:51:49,009      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-08-29 13:51:49,013      INFO: tr.criteria: UUT_FE_MRP: 'PRD-854-101' in [PRD-854-101D3] : PASS
+2018-08-29 13:51:49,013      INFO: tr.criteria: UUT_FE_SERIAL_NO: [NTQ0131618] : PASS
+2018-08-29 13:51:49,030      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-08-29 13:51:49,048      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-08-29 13:51:49,049      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-08-29 13:51:54,036      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-08-29 13:51:54,042      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-08-29 13:51:54,043      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-08-29 13:51:54,046      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-08-29 13:51:54,065      INFO: tr: ##################### BoardTestbench #####################
+2018-08-29 13:51:54,084      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-08-29 13:51:54,088      INFO: tr.CM_PRP000: TESTER STEP:
+2018-08-29 13:51:54,088      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-08-29 13:51:55,657      INFO: tr.CM_PRP000: Tester continued the test
+2018-08-29 13:51:55,658      INFO: tr.CM_PRP000: TESTER STEP:
+2018-08-29 13:51:55,660      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-08-29 13:51:56,319      INFO: tr.CM_PRP000: Tester continued the test
+2018-08-29 13:51:56,321      INFO: tr.CM_PRP000: TESTER STEP:
+2018-08-29 13:51:56,322      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-08-29 13:51:56,930      INFO: tr.CM_PRP000: Tester continued the test
+2018-08-29 13:51:56,957      INFO: tr: ####################### Preparation #######################
+2018-08-29 13:51:56,976      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-29 13:51:56,980      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-29 13:51:56,980      INFO: tr.artifactory: Retrieving artifact oc-lte/v1.0
+2018-08-29 13:51:59,236      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-08-29 13:51:59,239      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v1.0] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.0
+2018-08-29 13:51:59,369      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-08-29 13:51:59,371      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-08-29 13:51:59,394      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-08-29 13:51:59,460      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-08-29 13:51:59,980      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-08-29 13:52:09,167      INFO: tr: ######################### Powerup #########################
+2018-08-29 13:52:09,183      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-08-29 13:52:09,382      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-08-29 13:52:11,908      INFO: tr.CM_PRP030: Power On
+2018-08-29 13:52:13,072      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-29 13:52:13,094      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-29 13:52:13,096      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-29 13:53:06,058      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-29 13:55:17,306      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-08-29 13:55:27,448      INFO: tr: ####################### UpdateSetup #######################
+2018-08-29 13:55:27,463      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-08-29 13:55:27,464      INFO: tr.CM_PRP042: Updating setup file list...
+2018-08-29 13:55:29,540      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-08-29 13:55:29,555      INFO: tr: ####################### DigitalComm #######################
+2018-08-29 13:55:29,575      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-08-29 13:55:29,976      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-08-29 13:55:30,292      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-08-29 13:55:30,608      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-08-29 13:55:30,770     ERROR: tr.FE_TSC013: ValueError: invalid literal for int() with base 10: ''
+2018-08-29 13:55:30,772     ERROR: tr.FE_TSC013: TEST FAILED
+2018-08-29 13:55:30,773  CRITICAL: tr.FE_TSC013: SECTION CRITICAL FAILED: EXITING SECTION
+2018-08-29 13:55:30,773  CRITICAL: tr: Execution interrupted
+2018-08-29 13:55:30,773  CRITICAL: tr: ValueError: invalid literal for int() with base 10: ''
+2018-08-29 13:55:30,775      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-29 13:55:30,778      INFO: tr: ######################### Cleanup #########################
+2018-08-29 13:55:30,779      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-29 13:55:31,071      INFO: tr.FE_CLN001: TXs are off
+2018-08-29 13:55:31,075      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-29 13:55:31,194      INFO: tr: All sections of batch file were executed
+2018-08-29 13:55:31,242      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpuaviy_\server

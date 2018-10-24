@@ -1,0 +1,68 @@
+2018-09-05 16:10:41,700      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpvxe1n6
+2018-09-05 16:10:41,875      INFO: tr.server: Loading services from config file
+2018-09-05 16:10:42,552      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:10:42,571      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 16:10:42,573      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 16:10:42,578      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 16:10:42,581      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-05 16:10:42,582      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-05 16:10:42,604      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan FE ---------------
+2018-09-05 16:10:42,625      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-05 16:10:42,627      INFO: tr.CM_PRP002: Please scan the FE Unit
+2018-09-05 16:10:45,470      INFO: tr.CM_PRP002: Scanned: PRD-854-101D3;NTQ0131618
+2018-09-05 16:10:45,492      INFO: tr: ##################### BoardTestbench #####################
+2018-09-05 16:10:45,512      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-05 16:10:45,516      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:10:45,519      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-05 16:10:47,500      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:10:47,502      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:10:47,503      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-05 16:10:48,217      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:10:48,217      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:10:48,217      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-05 16:10:48,828      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:10:48,846      INFO: tr: ####################### Preparation #######################
+2018-09-05 16:10:48,864      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 16:10:48,867      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 16:10:48,867      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 16:10:55,651      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 16:10:55,651      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 16:10:55,674      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 16:10:55,677      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 16:10:55,707      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 16:10:55,789      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 16:11:01,857      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 16:11:01,947      INFO: tr: ######################### Powerup #########################
+2018-09-05 16:11:01,970      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-05 16:11:08,006     ERROR: tr.CM_PRP016: RemoteServerError: [400] NEW SERVICE call @dcsupply: ServiceError: No DC-DC converter found; closing device
+2018-09-05 16:11:08,006     ERROR: tr.CM_PRP016: TEST FAILED
+2018-09-05 16:11:08,006  CRITICAL: tr.CM_PRP016: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-05 16:11:08,007  CRITICAL: tr: Execution interrupted
+2018-09-05 16:11:08,009  CRITICAL: tr: RemoteServerError: [400] NEW SERVICE call @dcsupply: ServiceError: No DC-DC converter found; closing device
+2018-09-05 16:11:08,013      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 16:11:08,016      INFO: tr: ######################### Cleanup #########################
+2018-09-05 16:11:08,019      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 16:11:08,038   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 16:11:08,049      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 16:11:08,071   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 16:11:08,076      INFO: tr: All sections of batch file were executed
+2018-09-05 16:11:08,141      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpvxe1n6\server

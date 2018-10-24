@@ -1,0 +1,30 @@
+name,eval,value,result,exec,user_id
+GLOBAL_FE_TSC220_RFPAL_POST_CALIBRATION_ACLR,"""value < -45""",-46.93715253,PASS,RFPALCalibration: [FE_TSC220] Calibrate RFPAL TX2,
+GLOBAL_BB_TSC020_OCXO_FREQ_ERROR,"""abs(value) < 50""",1.100143075,PASS,SystemCalibCleanup: [SY_TSC035] Warmed-up OCXO Calibration,
+GLOBAL_BB_TSC014_GPS_LOCK,"""value == ''""",None,NOT TESTED,,
+GLOBAL_UUT_BB_SERIAL_NO,"""value""",None,NOT TESTED,,
+GLOBAL_UUT_FE_SERIAL_NO,"""value""",None,NOT TESTED,,
+GLOBAL_UUT_BB_MRP,"""'PRD-865-101' in value""",None,NOT TESTED,,
+GLOBAL_UUT_FE_MRP,"""'PRD-854-101' in value""",None,NOT TESTED,,
+GLOBAL_UUT_SYS_MRP,"""value""",None,NOT TESTED,,
+GLOBAL_UUT_BB_MAC,"""value""",None,NOT TESTED,,
+GLOBAL_FE_TSC120_RFPAL_POST_CALIBRATION_ACLR,"""value < -45""",-47.6199318225,PASS,RFPALCalibration: [FE_TSC120] Calibrate RFPAL TX1,
+GLOBAL_UUT_SYS_SERIAL_NO,"""value""",None,NOT TESTED,,
+SY_TSCX31_PA_CURRENT,"""value < 0.4""",0.371,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX31_ACLR,"""value < -42""",-46.5179711925,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX31_EVM,"""value < 4.0""",1.76388061,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX31_FREQ,"""value""",1869,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX31_POWER_OUT_dBm,"""28.5 < value < 31.5""",29.772239468,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX31_FREQ_ERROR,"""value < 50""",4.050094604,PASS,SystemCalib20MHz: [SY_TSCX31] Validate Calib 20 MHz,_45_ROOT_SEQUENCE_SystemCalib20MHz_SY_TSCX31ValidateCalib20MHz
+SY_TSCX11_PA_CURRENT,"""value < 0.4""",0.367,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX11_ACLR,"""value < -42""",-48.2066035425,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX11_EVM,"""value < 4.0""",1.502146363,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX11_FREQ,"""value""",1869,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX11_POWER_OUT_dBm,"""28.5 < value < 31.5""",29.644667011,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX11_FREQ_ERROR,"""value < 50""",6.957172871,PASS,SystemCalib10MHz: [SY_TSCX11] Validate Calib 10 MHz,_49_ROOT_SEQUENCE_SystemCalib10MHz_SY_TSCX11ValidateCalib10MHz
+SY_TSCX21_PA_CURRENT,"""value < 0.4""",0.371,PASS,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz
+SY_TSCX21_ACLR,"""value < -42""",-38.51640133,FAIL,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz
+SY_TSCX21_EVM,"""value < 4.0""",1.364104509,PASS,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz
+SY_TSCX21_FREQ,"""value""",1869,PASS,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz
+SY_TSCX21_POWER_OUT_dBm,"""28.5 < value < 31.5""",29.722076328,PASS,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz
+SY_TSCX21_FREQ_ERROR,"""value < 50""",5.555719852,PASS,SystemCalib5MHz: [SY_TSCX21] Validate Calib 5 MHz,_53_ROOT_SEQUENCE_SystemCalib5MHz_SY_TSCX21ValidateCalib5MHz

@@ -1,0 +1,1432 @@
+2018-09-05 15:37:59,459:DEBUG    
+
+
+2018-09-05 15:37:59,459:INFO     SERVICE INITIALIZED
+2018-09-05 15:38:13,789:DEBUG    LOG =DEBUG
+2018-09-05 15:38:13,789:DEBUG    Configuring interface
+2018-09-05 15:38:13,789:DEBUG    COM10, 115200 bps
+2018-09-05 15:38:13,809:DEBUG    Starting daemon threads
+2018-09-05 15:38:13,811:DEBUG    SUCCESS
+2018-09-05 15:38:13,812:INFO     SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.02 s)
+2018-09-05 15:38:16,341:DEBUG    Using octeth0 device
+2018-09-05 15:38:16,346:DEBUG    TFTP from server 10.102.81.50; our IP address is 10.102.81.61
+2018-09-05 15:38:16,351:DEBUG    Filename 'lsm_os.gz'.
+2018-09-05 15:38:16,354:DEBUG    Load address: 0x21000000
+2018-09-05 15:38:16,405:DEBUG    Loading: *
+2018-09-05 15:38:16,484:DEBUG    #
+2018-09-05 15:38:16,565:DEBUG    #
+2018-09-05 15:38:16,644:DEBUG    #
+2018-09-05 15:38:16,726:DEBUG    #
+2018-09-05 15:38:16,821:DEBUG    #
+2018-09-05 15:38:16,901:DEBUG    #
+2018-09-05 15:38:16,996:DEBUG    #
+2018-09-05 15:38:17,076:DEBUG    #
+2018-09-05 15:38:17,157:DEBUG    #
+2018-09-05 15:38:17,236:DEBUG    #
+2018-09-05 15:38:17,332:DEBUG    #
+2018-09-05 15:38:17,413:DEBUG    #
+2018-09-05 15:38:17,493:DEBUG    #
+2018-09-05 15:38:17,572:DEBUG    #
+2018-09-05 15:38:17,653:DEBUG    #
+2018-09-05 15:38:17,749:DEBUG    #
+2018-09-05 15:38:17,828:DEBUG    #
+2018-09-05 15:38:17,907:DEBUG    #
+2018-09-05 15:38:18,005:DEBUG    #
+2018-09-05 15:38:18,085:DEBUG    #
+2018-09-05 15:38:18,164:DEBUG    #
+2018-09-05 15:38:18,259:DEBUG    #
+2018-09-05 15:38:18,355:DEBUG    #
+2018-09-05 15:38:18,436:DEBUG    #
+2018-09-05 15:38:18,516:DEBUG    #
+2018-09-05 15:38:18,595:DEBUG    #
+2018-09-05 15:38:18,691:DEBUG    #
+2018-09-05 15:38:18,788:DEBUG    #
+2018-09-05 15:38:18,868:DEBUG    #
+2018-09-05 15:38:18,947:DEBUG    #
+2018-09-05 15:38:19,028:DEBUG    #
+2018-09-05 15:38:19,124:DEBUG    #
+2018-09-05 15:38:19,203:DEBUG    #
+2018-09-05 15:38:19,299:DEBUG    #
+2018-09-05 15:38:19,380:DEBUG    #
+2018-09-05 15:38:19,460:DEBUG    #
+2018-09-05 15:38:19,571:DEBUG    #
+2018-09-05 15:38:19,651:DEBUG    #
+2018-09-05 15:38:19,730:DEBUG    #
+2018-09-05 15:38:19,826:DEBUG    #
+2018-09-05 15:38:19,907:DEBUG    #
+2018-09-05 15:38:20,003:DEBUG    #
+2018-09-05 15:38:20,082:DEBUG    #
+2018-09-05 15:38:20,177:DEBUG    #
+2018-09-05 15:38:20,259:DEBUG    #
+2018-09-05 15:38:20,355:DEBUG    #
+2018-09-05 15:38:20,434:DEBUG    #
+2018-09-05 15:38:20,515:DEBUG    #
+2018-09-05 15:38:20,611:DEBUG    #
+2018-09-05 15:38:20,641:DEBUG    #
+2018-09-05 15:38:20,641:DEBUG    done
+2018-09-05 15:38:20,647:DEBUG    Bytes transferred = 4018945 (3d5301 hex)
+2018-09-05 15:38:20,855:DEBUG    Uncompressed size: 9761000 = 0x94F0E8
+2018-09-05 15:38:20,858:DEBUG    Using octeth0 device
+2018-09-05 15:38:20,865:DEBUG    TFTP from server 10.102.81.50; our IP address is 10.102.81.61
+2018-09-05 15:38:20,868:DEBUG    Filename 'lsm_rd.gz'.
+2018-09-05 15:38:20,871:DEBUG    Load address: 0x30800000
+2018-09-05 15:38:20,923:DEBUG    Loading: *
+2018-09-05 15:38:21,878:DEBUG    #
+2018-09-05 15:38:22,756:DEBUG    #
+2018-09-05 15:38:23,637:DEBUG    #
+2018-09-05 15:38:24,563:DEBUG    #
+2018-09-05 15:38:25,476:DEBUG    #
+2018-09-05 15:38:26,339:DEBUG    #
+2018-09-05 15:38:27,201:DEBUG    #
+2018-09-05 15:38:28,082:DEBUG    #
+2018-09-05 15:38:28,946:DEBUG    #
+2018-09-05 15:38:29,809:DEBUG    #
+2018-09-05 15:38:30,673:DEBUG    #
+2018-09-05 15:38:31,552:DEBUG    #
+2018-09-05 15:38:32,463:DEBUG    #
+2018-09-05 15:38:33,391:DEBUG    #
+2018-09-05 15:38:34,255:DEBUG    #
+2018-09-05 15:38:35,134:DEBUG    #
+2018-09-05 15:38:35,996:DEBUG    #
+2018-09-05 15:38:36,877:DEBUG    #
+2018-09-05 15:38:37,740:DEBUG    #
+2018-09-05 15:38:38,588:DEBUG    #
+2018-09-05 15:38:39,450:DEBUG    #
+2018-09-05 15:38:40,315:DEBUG    #
+2018-09-05 15:38:41,161:DEBUG    #
+2018-09-05 15:38:42,026:DEBUG    #
+2018-09-05 15:38:42,904:DEBUG    #
+2018-09-05 15:38:43,769:DEBUG    #
+2018-09-05 15:38:44,648:DEBUG    #
+2018-09-05 15:38:45,528:DEBUG    #
+2018-09-05 15:38:46,391:DEBUG    #
+2018-09-05 15:38:47,269:DEBUG    #
+2018-09-05 15:38:48,134:DEBUG    #
+2018-09-05 15:38:49,013:DEBUG    #
+2018-09-05 15:38:49,877:DEBUG    #
+2018-09-05 15:38:50,740:DEBUG    #
+2018-09-05 15:38:51,619:DEBUG    #
+2018-09-05 15:38:52,483:DEBUG    #
+2018-09-05 15:38:53,329:DEBUG    #
+2018-09-05 15:38:54,193:DEBUG    #
+2018-09-05 15:38:55,042:DEBUG    #
+2018-09-05 15:38:55,905:DEBUG    #
+2018-09-05 15:38:56,783:DEBUG    #
+2018-09-05 15:38:57,648:DEBUG    #
+2018-09-05 15:38:58,510:DEBUG    #
+2018-09-05 15:38:59,374:DEBUG    #
+2018-09-05 15:39:00,237:DEBUG    #
+2018-09-05 15:39:01,101:DEBUG    #
+2018-09-05 15:39:01,964:DEBUG    #
+2018-09-05 15:39:02,844:DEBUG    #
+2018-09-05 15:39:03,709:DEBUG    #
+2018-09-05 15:39:04,520:DEBUG    #
+2018-09-05 15:39:04,553:DEBUG    done
+2018-09-05 15:39:04,558:DEBUG    Bytes transferred = 40478550 (269a756 hex)
+2018-09-05 15:39:04,559:DEBUG    argv[2]: coremask=0x7
+2018-09-05 15:39:04,562:DEBUG    argv[3]: endbootargs
+2018-09-05 15:39:04,569:DEBUG    Allocating memory for ELF segment: addr: 0xffffffff80100000 (adjusted to: 0x100000), size 0x9b6530
+2018-09-05 15:39:04,716:DEBUG    ## Loading big-endian Linux kernel with entry point: 0xffffffff806480a0 ...
+2018-09-05 15:39:04,720:DEBUG    Bootloader: Done loading app on coremask: 0x7
+2018-09-05 15:39:04,723:DEBUG    Starting cores 0x7
+2018-09-05 15:39:04,737:DEBUG    Linux version 3.4.27-rt37-Cavium-Octeon (oc@PC) (gcc version 4.7.0 (Cavium Inc. Version: SDK_3_0_0 build 16) ) #1 SMP Wed Jul 18 10:38:43 EDT 2018
+2018-09-05 15:39:04,743:DEBUG    CVMSEG size: 2 cache lines (256 bytes)
+2018-09-05 15:39:04,746:DEBUG    Cavium Inc. SDK-3.0
+2018-09-05 15:39:04,750:DEBUG    Fusion rev: dev-git-21e8fb5-dirty-201807181035
+2018-09-05 15:39:04,753:DEBUG    bootconsole [early0] enabled
+2018-09-05 15:39:04,759:DEBUG    CPU revision is: 000d9401 (Cavium Octeon II)
+2018-09-05 15:39:04,763:DEBUG    Checking for the multiply/shift bug... no.
+2018-09-05 15:39:04,767:DEBUG    Checking for the daddiu bug... no.
+2018-09-05 15:39:04,772:DEBUG    Determined physical RAM map:
+2018-09-05 15:39:04,779:DEBUG    memory: 0000000002800000 @ 0000000030800000 (usable after init)
+2018-09-05 15:39:04,783:DEBUG    memory: 000000000e400000 @ 0000000000b00000 (usable)
+2018-09-05 15:39:04,788:DEBUG    memory: 0000000000c00000 @ 000000000f200000 (usable)
+2018-09-05 15:39:04,793:DEBUG    memory: 000000000e800000 @ 0000000020000000 (usable)
+2018-09-05 15:39:04,799:DEBUG    memory: 000000000004e000 @ 0000000000a02000 (usable after init)
+2018-09-05 15:39:04,803:DEBUG    Wasting 143472 bytes for tracking 2562 unused pages
+2018-09-05 15:39:04,812:DEBUG    Initial ramdisk at: 0x8000000030800000 (40478550 bytes)
+2018-09-05 15:39:04,819:DEBUG    Using passed Device Tree <8000000000080000>.
+2018-09-05 15:39:04,823:DEBUG    Placing 0MB software IO TLB between 8000000001a8f000 - 8000000001acf000
+2018-09-05 15:39:04,828:DEBUG    software IO TLB at phys 0x1a8f000 - 0x1acf000
+2018-09-05 15:39:04,828:DEBUG    Zone PFN ranges:
+2018-09-05 15:39:04,832:DEBUG    DMA32    0x00000a02 -> 0x000f0000
+2018-09-05 15:39:04,834:DEBUG    Normal   empty
+2018-09-05 15:39:04,836:DEBUG    Movable zone start PFN for each node
+2018-09-05 15:39:04,839:DEBUG    Early memory PFN ranges
+2018-09-05 15:39:04,842:DEBUG    0: 0x00000a02 -> 0x00000a50
+2018-09-05 15:39:04,845:DEBUG    0: 0x00000b00 -> 0x0000ef00
+2018-09-05 15:39:04,848:DEBUG    0: 0x0000f200 -> 0x0000fe00
+2018-09-05 15:39:04,851:DEBUG    0: 0x00020000 -> 0x0002e800
+2018-09-05 15:39:04,855:DEBUG    0: 0x00030800 -> 0x00033000
+2018-09-05 15:39:04,859:DEBUG    Cavium Hotplug: Available coremask 0x8
+2018-09-05 15:39:04,867:DEBUG    Primary instruction cache 37kB, virtually tagged, 37 way, 8 sets, linesize 128 bytes.
+2018-09-05 15:39:04,872:DEBUG    Primary data cache 32kB, 32-way, 8 sets, linesize 128 bytes.
+2018-09-05 15:39:04,878:DEBUG    Secondary unified cache 1024kB, 16-way, 512 sets, linesize 128 bytes.
+2018-09-05 15:39:04,884:DEBUG    PERCPU: Embedded 11 pages/cpu @8000000001ae2000 s14848 r8192 d22016 u45056
+2018-09-05 15:39:04,891:DEBUG    Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 128329
+2018-09-05 15:39:04,895:DEBUG    Kernel command line:  rd_name=initrd console=ttyS0,115200
+2018-09-05 15:39:04,900:DEBUG    PID hash table entries: 2048 (order: 2, 16384 bytes)
+2018-09-05 15:39:04,904:DEBUG    Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+2018-09-05 15:39:04,910:DEBUG    Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+2018-09-05 15:39:04,918:DEBUG    Memory: 471220k/524600k available (5550k kernel code, 53380k reserved, 3669k data, 312k init, 0k highmem)
+2018-09-05 15:39:04,921:DEBUG    Hierarchical RCU implementation.
+2018-09-05 15:39:04,924:DEBUG    NR_IRQS:256
+2018-09-05 15:39:04,928:DEBUG    Calibrating delay loop (skipped) preset value.. 2000.00 BogoMIPS (lpj=10000000)
+2018-09-05 15:39:04,931:DEBUG    pid_max: default: 32768 minimum: 301
+2018-09-05 15:39:04,934:DEBUG    Security Framework initialized
+2018-09-05 15:39:04,937:DEBUG    Mount-cache hash table entries: 256
+2018-09-05 15:39:04,940:DEBUG    Checking for the daddi bug... no.
+2018-09-05 15:39:04,947:DEBUG    Performance counters: octeon PMU enabled, 2 64-bit counters available to each CPU, irq 7
+2018-09-05 15:39:04,950:DEBUG    SMP: Booting CPU01 (CoreId  1)...
+2018-09-05 15:39:04,953:DEBUG    CPU revision is: 000d9401 (Cavium Octeon II)
+2018-09-05 15:39:04,957:DEBUG    SMP: Booting CPU02 (CoreId  2)...
+2018-09-05 15:39:04,960:DEBUG    CPU revision is: 000d9401 (Cavium Octeon II)
+2018-09-05 15:39:04,963:DEBUG    Brought up 3 CPUs
+2018-09-05 15:39:04,963:DEBUG    dummy:
+2018-09-05 15:39:04,966:DEBUG    NET: Registered protocol family 16
+2018-09-05 15:39:04,970:DEBUG    PTP Clock: Using sclk reference at 600000000 Hz
+2018-09-05 15:39:04,974:DEBUG    Installing handlers for error tree at: ffffffff8098f0a0
+2018-09-05 15:39:04,977:DEBUG    PCIe: Initializing port 0
+2018-09-05 15:39:06,927:DEBUG    PCIe: Link timeout on port 0, probably the slot is empty
+2018-09-05 15:39:06,930:DEBUG    PCIe: Initializing port 1
+2018-09-05 15:39:08,926:DEBUG    PCIe: Link timeout on port 1, probably the slot is empty
+2018-09-05 15:39:09,043:DEBUG    bio: create slab <bio-0> at 0
+2018-09-05 15:39:09,045:DEBUG    vgaarb: loaded
+2018-09-05 15:39:09,046:DEBUG    SCSI subsystem initialized
+2018-09-05 15:39:09,051:DEBUG    PCI host bridge to bus 0000:00
+2018-09-05 15:39:09,058:DEBUG    pci_bus 0000:00: root bus resource [mem 0x1000000000000]
+2018-09-05 15:39:09,062:DEBUG    pci_bus 0000:00: root bus resource [io  0x0000]
+2018-09-05 15:39:09,066:DEBUG    cfg80211: Calling CRDA to update world regulatory domain
+2018-09-05 15:39:09,069:DEBUG    Switching to clocksource OCTEON_CVMCOUNT
+2018-09-05 15:39:09,073:DEBUG    NET: Registered protocol family 2
+2018-09-05 15:39:09,078:DEBUG    IP route cache hash table entries: 4096 (order: 3, 32768 bytes)
+2018-09-05 15:39:09,084:DEBUG    TCP established hash table entries: 16384 (order: 6, 262144 bytes)
+2018-09-05 15:39:09,088:DEBUG    TCP bind hash table entries: 16384 (order: 6, 262144 bytes)
+2018-09-05 15:39:09,094:DEBUG    TCP: Hash tables configured (established 16384 bind 16384)
+2018-09-05 15:39:09,095:DEBUG    TCP: reno registered
+2018-09-05 15:39:09,099:DEBUG    UDP hash table entries: 256 (order: 1, 8192 bytes)
+2018-09-05 15:39:09,105:DEBUG    UDP-Lite hash table entries: 256 (order: 1, 8192 bytes)
+2018-09-05 15:39:09,108:DEBUG    NET: Registered protocol family 1
+2018-09-05 15:39:09,111:DEBUG    RPC: Registered named UNIX socket transport module.
+2018-09-05 15:39:09,115:DEBUG    RPC: Registered udp transport module.
+2018-09-05 15:39:09,118:DEBUG    RPC: Registered tcp transport module.
+2018-09-05 15:39:09,124:DEBUG    RPC: Registered tcp NFSv4.1 backchannel transport module.
+2018-09-05 15:39:09,130:DEBUG    Trying to unpack rootfs image as initramfs...
+2018-09-05 15:39:10,982:DEBUG    Freeing initrd memory: 39529k freed
+2018-09-05 15:39:10,986:DEBUG    gpiochip_add: registered GPIOs 0 to 19 on device: octeon-gpio
+2018-09-05 15:39:10,992:DEBUG    octeon_gpio 1070000000800.gpio-controller: version: 1.0
+2018-09-05 15:39:10,996:DEBUG    i2c-octeon 1180000001000.i2c: twsi_freq=100000
+2018-09-05 15:39:11,000:DEBUG    i2c-octeon 1180000001000.i2c: version 2.0
+2018-09-05 15:39:11,006:DEBUG    gpiochip_add: registered GPIOs 240 to 255 on device: pca9535
+2018-09-05 15:39:11,013:DEBUG    gpiochip_add: registered GPIOs 224 to 239 on device: pca9535
+2018-09-05 15:39:11,019:DEBUG    gpiochip_add: registered GPIOs 208 to 223 on device: pca9535
+2018-09-05 15:39:11,026:DEBUG    gpiochip_add: registered GPIOs 192 to 207 on device: pca9535
+2018-09-05 15:39:11,045:DEBUG    at24 0-0051: 8192 byte 24c64 EEPROM, writable, 1 bytes/write
+2018-09-05 15:39:11,049:DEBUG    i2c-octeon 1180000001200.i2c: twsi_freq=100000
+2018-09-05 15:39:11,052:DEBUG    i2c-octeon 1180000001200.i2c: version 2.0
+2018-09-05 15:39:11,058:DEBUG    gpiochip_add: registered GPIOs 176 to 191 on device: tca6416
+2018-09-05 15:39:11,065:DEBUG    gpiochip_add: registered GPIOs 160 to 175 on device: pca9535
+2018-09-05 15:39:11,072:DEBUG    gpiochip_add: registered GPIOs 144 to 159 on device: pca9535
+2018-09-05 15:39:11,078:DEBUG    gpiochip_add: registered GPIOs 128 to 143 on device: pca9535
+2018-09-05 15:39:11,084:DEBUG    gpiochip_add: registered GPIOs 112 to 127 on device: pca9535
+2018-09-05 15:39:11,227:DEBUG    at24 1-0050: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+2018-09-05 15:39:11,233:DEBUG    gpiochip_add: registered GPIOs 96 to 111 on device: sx1509q
+2018-09-05 15:39:11,240:DEBUG    gpiochip_add: registered GPIOs 80 to 95 on device: sx1509q
+2018-09-05 15:39:11,243:DEBUG    spi-octeon 1070000001000.spi: Version 2.0
+2018-09-05 15:39:11,246:DEBUG    fe5_4v_stepup: 5400 mV
+2018-09-05 15:39:11,249:DEBUG    fe2_2v_stepup: 2200 mV
+2018-09-05 15:39:11,252:DEBUG    pa_stepup: 28000 mV
+2018-09-05 15:39:11,255:DEBUG    pa0_vdd: 28000 mV
+2018-09-05 15:39:11,257:DEBUG    pa1_vdd: 28000 mV
+2018-09-05 15:39:11,263:DEBUG    ERROR: octeon_pci_console_setup0 failed.
+2018-09-05 15:39:11,266:DEBUG    /proc/octeon_perf: Octeon performance counter interface loaded
+2018-09-05 15:39:11,273:DEBUG    octeon_error_injector: Error: Unrecognized test number: 0
+2018-09-05 15:39:11,279:DEBUG    HugeTLB registered 2 MB page size, pre-allocated 0 pages
+2018-09-05 15:39:11,283:DEBUG    squashfs: version 4.0 (2009/01/31) Phillip Lougher
+2018-09-05 15:39:11,289:DEBUG    NFS: Registering the id_resolver key type
+2018-09-05 15:39:11,292:DEBUG    jffs2: version 2.2. (NAND)
+2018-09-05 15:39:11,295:DEBUG    2001-2006 Red Hat, Inc.
+2018-09-05 15:39:11,298:DEBUG    msgmni has been set to 997
+2018-09-05 15:39:11,302:DEBUG    io scheduler noop registered
+2018-09-05 15:39:11,308:DEBUG    io scheduler deadline registered (default)
+2018-09-05 15:39:11,311:DEBUG    io scheduler cfq registered
+2018-09-05 15:39:11,316:DEBUG    Serial: 8250/16550 driver, 6 ports, IRQ sharing disabled
+2018-09-05 15:39:11,319:DEBUG    brd: module loaded
+2018-09-05 15:39:11,323:DEBUG    loop: module loaded
+2018-09-05 15:39:11,487:DEBUG    slram: not enough parameters.
+2018-09-05 15:39:11,493:DEBUG    IMQ driver loaded successfully. (numdevs = 16, numqueues = 1)
+2018-09-05 15:39:11,496:DEBUG    Hooking IMQ after NAT on PREROUTING.
+2018-09-05 15:39:11,500:DEBUG    Hooking IMQ before NAT on POSTROUTING.
+2018-09-05 15:39:11,502:DEBUG    mdio-octeon: probed
+2018-09-05 15:39:11,506:DEBUG    mdio-octeon 1180000001800.mdio: Version 1.0
+2018-09-05 15:39:11,507:DEBUG    mdio-octeon: probed
+2018-09-05 15:39:11,512:DEBUG    mdio-octeon 1180000001900.mdio: Version 1.0
+2018-09-05 15:39:11,515:DEBUG    tun: Universal TUN/TAP device driver, 1.6
+2018-09-05 15:39:11,519:DEBUG    tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+2018-09-05 15:39:11,522:DEBUG    octeon-ethernet 2.0
+2018-09-05 15:39:11,525:DEBUG    Interface 0 has 2 ports (SGMII)
+2018-09-05 15:39:11,529:DEBUG    Interface 3 has 2 ports (LOOP)
+2018-09-05 15:39:11,536:DEBUG    octeon_ethernet 11800a0000000.pip: No device tree node found for port 0:1
+2018-09-05 15:39:11,543:DEBUG    ipw2100: Intel(R) PRO/Wireless 2100 Network Driver, git-1.2.2
+2018-09-05 15:39:11,549:DEBUG    ipw2100: Copyright(c) 2003-2006 Intel Corporation
+2018-09-05 15:39:11,555:DEBUG    libipw: 802.11 data/management/control stack, git-1.1.13
+2018-09-05 15:39:11,565:DEBUG    libipw: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
+2018-09-05 15:39:11,568:DEBUG    i2c /dev entries driver
+2018-09-05 15:39:11,572:DEBUG    lm75 0-004a: hwmon0: sensor 'lm75'
+2018-09-05 15:39:11,575:DEBUG    lm75 1-004a: hwmon1: sensor 'lm75'
+2018-09-05 15:39:11,578:DEBUG    lm75 1-0049: hwmon2: sensor 'lm75'
+2018-09-05 15:39:11,582:DEBUG    lm75 1-004f: hwmon3: sensor 'lm75'
+2018-09-05 15:39:11,586:DEBUG    ina2xx 0-0040: power monitor INA226 (Rshunt = 10000 uOhm)
+2018-09-05 15:39:11,592:DEBUG    ina2xx 1-0040: power monitor INA226 (Rshunt = 10000 uOhm)
+2018-09-05 15:39:11,595:DEBUG    octeon_wdt: Initial granularity 5 Sec
+2018-09-05 15:39:11,730:DEBUG    Netfilter messages via NETLINK v0.30.
+2018-09-05 15:39:11,733:DEBUG    nfnl_acct: registering with nfnetlink.
+2018-09-05 15:39:11,740:DEBUG    nf_conntrack version 0.5.0 (3990 buckets, 15960 max)
+2018-09-05 15:39:11,743:DEBUG    ctnetlink v0.93: registering with nfnetlink.
+2018-09-05 15:39:11,749:DEBUG    NF_TPROXY: Transparent proxy support initialized, version 4.1.0
+2018-09-05 15:39:11,753:DEBUG    NF_TPROXY: Copyright (c) 2006-2007 BalaBit IT Ltd.
+2018-09-05 15:39:11,756:DEBUG    xt_time: kernel timezone is -0000
+2018-09-05 15:39:11,759:DEBUG    ip_tables: (C) 2000-2006 Netfilter Core Team
+2018-09-05 15:39:11,762:DEBUG    TCP: cubic registered
+2018-09-05 15:39:11,765:DEBUG    Initializing XFRM netlink socket
+2018-09-05 15:39:11,767:DEBUG    NET: Registered protocol family 10
+2018-09-05 15:39:11,772:DEBUG    NET: Registered protocol family 17
+2018-09-05 15:39:11,776:DEBUG    NET: Registered protocol family 15
+2018-09-05 15:39:11,779:DEBUG    8021q: 802.1Q VLAN Support v1.8
+2018-09-05 15:39:11,786:DEBUG    sctp: Hash tables configured (established 8192 bind 8192)
+2018-09-05 15:39:11,792:DEBUG    lib80211: common routines for IEEE802.11 drivers
+2018-09-05 15:39:11,796:DEBUG    Registering the dns_resolver key type
+2018-09-05 15:39:11,799:DEBUG    L2 lock: TLB refill 256 bytes
+2018-09-05 15:39:11,802:DEBUG    L2 lock: General exception 128 bytes
+2018-09-05 15:39:11,805:DEBUG    L2 lock: low-level interrupt 128 bytes
+2018-09-05 15:39:11,809:DEBUG    L2 lock: interrupt 640 bytes
+2018-09-05 15:39:11,811:DEBUG    L2 lock: memcpy 1152 bytes
+2018-09-05 15:39:11,816:DEBUG    1180000000800.serial: ttyS0 at MMIO 0x1180000000800 (irq = 34) is a OCTEON
+2018-09-05 15:39:11,821:DEBUG    console [ttyS0] enabled, bootconsole disabled
+2018-09-05 15:39:11,825:DEBUG    console [ttyS0] enabled, bootconsole disabled
+2018-09-05 15:39:11,831:DEBUG    1180000000c00.serial: ttyS1 at MMIO 0x1180000000c00 (irq = 35) is a OCTEON
+2018-09-05 15:39:11,838:DEBUG    Bootbus flash: Setting flash for 128MB flash at 0x17c00000
+2018-09-05 15:39:13,357:DEBUG    phys_mapped_flash: Found 1 x16 devices at 0x0 in 16-bit bank. Manufacturer ID 0x000089 Chip ID 0x00227e
+2018-09-05 15:39:13,361:DEBUG    Amd/Fujitsu Extended Query Table at 0x0040
+2018-09-05 15:39:21,841:DEBUG    Amd/Fujitsu Extended Query version 1.3.
+2018-09-05 15:39:21,892:DEBUG    number of
+2018-09-05 15:39:21,913:DEBUG    CFI chips: 1
+2018-09-05 15:39:21,918:DEBUG    Creating 8 MTD partitions on "phys_mapped_flash":
+2018-09-05 15:39:21,924:DEBUG    0x000000000000-0x000000220000 : "flash_uboot"
+2018-09-05 15:39:21,930:DEBUG    0x000000220000-0x000000720000 : "flash_os0"
+2018-09-05 15:39:21,934:DEBUG    0x000000720000-0x000003220000 : "flash_rd0"
+2018-09-05 15:39:21,940:DEBUG    0x000003220000-0x000004100000 : "flash_app0"
+2018-09-05 15:39:21,944:DEBUG    0x000004100000-0x000004600000 : "flash_os1"
+2018-09-05 15:39:21,950:DEBUG    0x000004600000-0x000007100000 : "flash_rd1"
+2018-09-05 15:39:21,953:DEBUG    0x000007100000-0x000007fe0000 : "flash_app1"
+2018-09-05 15:39:21,957:DEBUG    0x000007fe0000-0x000008000000 : "flash_env"
+2018-09-05 15:39:21,963:DEBUG    Freeing unused kernel memory: 312k freed
+2018-09-05 15:39:21,963:DEBUG    /sbin/rc starting
+2018-09-05 15:39:21,970:DEBUG    Fusion SDK revision of rootfs: dev-git-21e8fb5-dirty-201807231401
+2018-09-05 15:39:21,973:DEBUG    Mounting file systems
+2018-09-05 15:39:24,247:DEBUG    Setting up loopback
+2018-09-05 15:39:24,250:DEBUG    Starting syslogd
+2018-09-05 15:39:24,348:DEBUG    [/usr/bin/ubootenvdump] /mnt/app/ubootenv will be overwritten by current uboot variables.
+2018-09-05 15:39:24,354:DEBUG    [/usr/bin/ubootenvdump] Set mk_ubootenv = 0 to bypass this step.
+2018-09-05 15:39:24,381:DEBUG    Error at line 45: unable to open eeprom device file
+2018-09-05 15:39:24,387:DEBUG    [/usr/bin/get_eeprom_config.sh] FOUND  RECORDS
+2018-09-05 15:39:24,388:DEBUG    sh: 0: unknown operand
+2018-09-05 15:39:24,395:DEBUG    cat: can't open '/tmp/rfeeprom.conf*': No such file or directory
+2018-09-05 15:39:24,417:DEBUG    [/usr/bin/get_eeprom_config.sh] Extracted BB EEPROM configuration to /tmp/bbeeprom.conf
+2018-09-05 15:39:24,427:DEBUG    [/usr/bin/get_eeprom_config.sh] Computed BB_MD5_RECORD = 8CF020F9750741FD7A0966836D03D7C7
+2018-09-05 15:39:24,500:DEBUG    [/etc/init.d/rcS] Enable app core dump setting...
+2018-09-05 15:39:24,506:DEBUG    kernel.core_pattern = /tmp/core-%e-%s-%u-%g-%p-%t
+2018-09-05 15:39:24,509:DEBUG    kernel.core_uses_pid = 1
+2018-09-05 15:39:24,512:DEBUG    fs.suid_dumpable = 2
+2018-09-05 15:39:24,516:DEBUG    [/etc/init.d/flashmnt] Entered...
+2018-09-05 15:39:24,519:DEBUG    [CHECK ] FLASH_CFG
+2018-09-05 15:39:24,563:DEBUG    [CHECK ] try to mount /mnt/app
+2018-09-05 15:39:26,898:DEBUG    [CHECK ] mount success
+2018-09-05 15:39:26,940:DEBUG    [/etc/init.d/S02button18] Entered...
+2018-09-05 15:39:26,948:DEBUG    [BUTTON18] Enabling GPIO18 for board reset/factory default reset function...
+2018-09-05 15:39:26,950:DEBUG    Setting affinity to 0x1
+2018-09-05 15:39:26,953:DEBUG    sh: write error: Invalid argument
+2018-09-05 15:39:26,957:DEBUG    [/etc/init.d/S05hostname] Entered...
+2018-09-05 15:39:26,964:DEBUG    [/etc/init.d/S06network] Entered...
+2018-09-05 15:39:26,969:DEBUG    eth0: 100 Mbps Full duplex, port 0
+2018-09-05 15:39:26,973:DEBUG    ADDRCONF(NETDEV_UP): eth0: link is not ready
+2018-09-05 15:39:27,029:DEBUG    current IP configuration: 10.102.81.61/255.255.255.0, GW=10.102.81.1
+2018-09-05 15:39:27,033:DEBUG    [/etc/init.d/S12ipsec] Entered...
+2018-09-05 15:39:27,039:DEBUG    [/etc/init.d/S12ipsec] Hardware IPSec enabled.
+2018-09-05 15:39:27,046:DEBUG    /lib/modules/3.4.27-rt37-Cavium-Octeon/cvm-ipsec-kame.ko
+2018-09-05 15:39:27,051:DEBUG    [/etc/init.d/S12ipsec] Insert KAME stack
+2018-09-05 15:39:27,055:DEBUG    [/etc/init.d/S12ipsec] Exited.
+2018-09-05 15:39:27,058:DEBUG    [/etc/init.d/S12ssh] Entered...
+2018-09-05 15:39:27,065:DEBUG    [/etc/init.d/S12ssh] /mnt/app/.ssh is mounted to /.ssh...
+2018-09-05 15:39:27,068:DEBUG    [/etc/init.d/S12ssh] Exited.
+2018-09-05 15:39:27,072:DEBUG    [/etc/init.d/S13swselect] Entered...
+2018-09-05 15:39:27,076:DEBUG    [/etc/init.d/S13swselect] Get software from tftp
+2018-09-05 15:39:27,082:DEBUG    [/etc/init.d/S13swselect]  empty file md5: d41d8cd98f
+2018-09-05 15:39:27,088:DEBUG    [/etc/init.d/S13swselect] Get LFMSOFT_OCT_D.tgz from tftp
+2018-09-05 15:39:27,937:DEBUG    ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+2018-09-05 15:39:37,532:DEBUG    [/etc/init.d/S13swselect] =>   Result //LFMSOFT_OCT_D.tgz: 3b48a5d1a7
+2018-09-05 15:39:37,538:DEBUG    [/etc/init.d/S13swselect] Get rffe.tgz from tftp
+2018-09-05 15:39:38,075:DEBUG    [/etc/init.d/S13swselect] =>   Result //rffe.tgz: fb9d001067
+2018-09-05 15:39:38,082:DEBUG    [/etc/init.d/S13swselect] Get lsmD.gz from tftp
+2018-09-05 15:39:46,533:DEBUG    [/etc/init.d/S13swselect] =>   Result /bin/lsmD.gz: cabfae16a9
+2018-09-05 15:39:48,707:DEBUG    [/etc/init.d/S13swselect] => /bin/lsmD: 706dfa41b2
+2018-09-05 15:39:48,710:DEBUG    [/etc/init.d/S13swselect] Get dsp.tgz from tftp
+2018-09-05 15:39:50,115:DEBUG    [/etc/init.d/S13swselect] =>   Result /etc/ds
+2018-09-05 15:39:50,408:DEBUG    p.tgz: fe48fc3bd5
+2018-09-05 15:39:50,417:DEBUG    [/etc/init.d/S13swselect] Get configation files from tftp
+2018-09-05 15:39:50,424:DEBUG    [/etc/init.d/S13swselect] => Original /usr/bin/updatephyrfparams.sh: 7798b75531
+2018-09-05 15:39:50,428:DEBUG    [/etc/init.d/S13swselect] Get updatephyrfparams.sh from tftp
+2018-09-05 15:39:50,443:DEBUG    tftp: server error: (1) File not found or No Access
+2018-09-05 15:39:50,447:DEBUG    WARNING: Failed downloading updatephyrfparams.sh by tftp...
+2018-09-05 15:39:50,457:DEBUG    [/etc/init.d/S13swselect] Using the default file /usr/bin/updatephyrfparams.sh...
+2018-09-05 15:39:50,463:DEBUG    [/etc/init.d/S13swselect] => Original /usr/bin/phyrfparams5Mhz.txt: 98cf8a211b
+2018-09-05 15:39:50,467:DEBUG    [/etc/init.d/S13swselect] Get phyrfparams5Mhz.txt from tftp
+2018-09-05 15:39:50,473:DEBUG    tftp: server error: (1) File not found or No Access
+2018-09-05 15:39:50,477:DEBUG    WARNING: Failed downloading phyrfparams5Mhz.txt by tftp...
+2018-09-05 15:39:50,483:DEBUG    [/etc/init.d/S13swselect] Using the default file /usr/bin/phyrfparams5Mhz.txt...
+2018-09-05 15:39:50,489:DEBUG    [/etc/init.d/S13swselect] Custom bringup script bringup
+2018-09-05 15:39:50,496:DEBUG    [/etc/init.d/S13swselect] => Original /usr/bin/bringup: 09edc32594
+2018-09-05 15:39:50,500:DEBUG    [/etc/init.d/S13swselect] Get bringup from tftp
+2018-09-05 15:39:50,506:DEBUG    tftp: server error: (1) File not found or No Access
+2018-09-05 15:39:50,512:DEBUG    WARNING: Failed downloading bringup by tftp...
+2018-09-05 15:39:50,517:DEBUG    [/etc/init.d/S13swselect] Using the default file /usr/bin/bringup...
+2018-09-05 15:39:50,523:DEBUG    [/etc/init.d/S13swselect] Exited.
+2018-09-05 15:39:50,525:DEBUG    Enabling PWM
+2018-09-05 15:39:50,529:DEBUG    Setting PWM registers  : 23384 , 37376
+2018-09-05 15:39:50,532:DEBUG    Setting affinity to 0x1
+2018-09-05 15:39:50,536:DEBUG    CVMX_SHARED: 0x120300000-0x120320000
+2018-09-05 15:39:50,538:DEBUG    WARNING:
+2018-09-05 15:39:50,546:DEBUG    Parameter checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:39:50,546:DEBUG    WARNING:
+2018-09-05 15:39:50,556:DEBUG    CSR address checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:39:50,559:DEBUG    WARNING:
+2018-09-05 15:39:50,569:DEBUG    POW state checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:39:50,572:DEBUG    Active coremask = 0x1
+2018-09-05 15:39:50,575:DEBUG    ****************************************
+2018-09-05 15:39:50,581:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:39:50,585:DEBUG    ****************************************
+2018-09-05 15:39:50,589:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:39:50,592:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:39:50,594:DEBUG    2.Init[i]
+2018-09-05 15:39:50,596:DEBUG    3.Init with File[if]
+2018-09-05 15:39:50,598:DEBUG    4.TX Freq[d]
+2018-09-05 15:39:50,601:DEBUG    5.RX Freq[u]
+2018-09-05 15:39:50,604:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:39:50,607:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:39:50,608:DEBUG    8.TX Power Select[t]
+2018-09-05 15:39:50,609:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:39:50,612:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:39:50,615:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:39:50,618:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:39:50,619:DEBUG    13.SPI read[r]
+2018-09-05 15:39:50,621:DEBUG    14.SPI write[w]
+2018-09-05 15:39:50,624:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:39:50,625:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:39:50,627:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:39:50,628:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:39:50,631:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:39:50,634:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:39:50,638:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:39:50,641:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:39:50,642:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:39:50,644:DEBUG    24.Quit[q]
+2018-09-05 15:39:50,645:DEBUG    Select the Option:
+2018-09-05 15:39:50,648:DEBUG    ************************
+2018-09-05 15:39:50,650:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:39:50,651:DEBUG    ************************
+2018-09-05 15:39:50,655:DEBUG    1.read current setting[r]
+2018-09-05 15:39:50,657:DEBUG    2.enable PWM[e]
+2018-09-05 15:39:50,658:DEBUG    3.disable PWM[d]
+2018-09-05 15:39:50,661:DEBUG    4.set PWM high time[h]
+2018-09-05 15:39:50,661:DEBUG    5.set PWM low time[l]
+2018-09-05 15:39:50,664:DEBUG    6.back to upper level[b]
+2018-09-05 15:39:50,664:DEBUG    7.quit[q]
+2018-09-05 15:39:50,671:DEBUG    select option: Enter PWM high value:set PWM_HIGH_TIME 23384(0x5b58)
+2018-09-05 15:39:50,674:DEBUG    ************************
+2018-09-05 15:39:50,676:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:39:50,677:DEBUG    ************************
+2018-09-05 15:39:50,680:DEBUG    1.read current setting[r]
+2018-09-05 15:39:50,681:DEBUG    2.enable PWM[e]
+2018-09-05 15:39:50,684:DEBUG    3.disable PWM[d]
+2018-09-05 15:39:50,686:DEBUG    4.set PWM high time[h]
+2018-09-05 15:39:50,688:DEBUG    5.set PWM low time[l]
+2018-09-05 15:39:50,690:DEBUG    6.back to upper level[b]
+2018-09-05 15:39:50,691:DEBUG    7.quit[q]
+2018-09-05 15:39:50,697:DEBUG    select option: Enter PWM low value:set PWM_LOW_TIME 37376(0x9200)
+2018-09-05 15:39:50,700:DEBUG    ************************
+2018-09-05 15:39:50,700:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:39:50,704:DEBUG    ************************
+2018-09-05 15:39:50,707:DEBUG    1.read current setting[r]
+2018-09-05 15:39:50,709:DEBUG    2.enable PWM[e]
+2018-09-05 15:39:50,710:DEBUG    3.disable PWM[d]
+2018-09-05 15:39:50,711:DEBUG    4.set PWM high time[h]
+2018-09-05 15:39:50,713:DEBUG    5.set PWM low time[l]
+2018-09-05 15:39:50,716:DEBUG    6.back to upper level[b]
+2018-09-05 15:39:50,717:DEBUG    7.quit[q]
+2018-09-05 15:39:50,719:DEBUG    select option:
+2018-09-05 15:39:50,723:DEBUG    ************************
+2018-09-05 15:39:50,724:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:39:50,727:DEBUG    ************************
+2018-09-05 15:39:50,730:DEBUG    1.read current setting[r]
+2018-09-05 15:39:50,732:DEBUG    2.enable PWM[e]
+2018-09-05 15:39:50,734:DEBUG    3.disable PWM[d]
+2018-09-05 15:39:50,736:DEBUG    4.set PWM high time[h]
+2018-09-05 15:39:50,739:DEBUG    5.set PWM low time[l]
+2018-09-05 15:39:50,742:DEBUG    6.back to upper level[b]
+2018-09-05 15:39:50,743:DEBUG    7.quit[q]
+2018-09-05 15:39:50,746:DEBUG    select option: PWM Control Exited
+2018-09-05 15:39:50,750:DEBUG    [/etc/init.d/S14updatecfg] startup.cfg checker is not enabled...
+2018-09-05 15:39:50,762:DEBUG    [/etc/init.d/S14updatecfg] Enable startup.cfg checker by setting u-boot environment variable 'cfgcheckerenable' to 1
+2018-09-05 15:39:50,770:DEBUG    [/etc/init.d/S14updatecfg] Enable auto startup.cfg update by setting u-boot environment variable 'updatecfg' to 1
+2018-09-05 15:39:50,775:DEBUG    mknod: /dev/i2c-0: File exists
+2018-09-05 15:39:50,776:DEBUG    mknod: /dev/i2c-1: File exists
+2018-09-05 15:39:50,779:DEBUG    date: invalid date ''
+2018-09-05 15:39:50,782:DEBUG    [/etc/init.d/S80systemtime] Setting TimeZONE
+2018-09-05 15:39:50,790:DEBUG    [/etc/init.d/S80systemtime] Set the default timezone to Los_Angeles
+2018-09-05 15:39:50,793:DEBUG    [/etc/init.d/S81sshd] Entered...
+2018-09-05 15:39:50,799:DEBUG    [/etc/init.d/S81sshd] passwd require system time not in 1970/01/01
+2018-09-05 15:39:50,803:DEBUG    [/etc/init.d/S81sshd] set time to 1970/01/02...
+2018-09-05 15:39:50,808:DEBUG    Fri Jan  2 00:00:00 PST 1970
+2018-09-05 15:39:50,811:DEBUG    [/etc/init.d/S81sshd] Starting sshd...
+2018-09-05 15:39:55,270:DEBUG    # 127.0.0.1 SSH-2.0-OpenSSH_6.1
+2018-09-05 15:39:55,319:DEBUG    [/etc/init.d/S81sshd] Exited.
+2018-09-05 15:39:55,335:DEBUG    killall: klogd: no process killed
+2018-09-05 15:39:55,377:DEBUG    [/etc/init.d/S82httpd] Start httpd daemon
+2018-09-05 15:39:55,378:DEBUG    Setting affinity to 0x1
+2018-09-05 15:39:55,382:DEBUG    bind: Address already in use
+2018-09-05 15:39:55,398:DEBUG    /usr/sbin/mini_httpd: started as root without requesting chroot(), warning only
+2018-09-05 15:39:55,453:DEBUG    Waiting to resolve enodeB IP Address .
+2018-09-05 15:40:00,387:DEBUG    . 10.102.81.61
+2018-09-05 15:40:00,427:DEBUG    Setting affinity to 0x1
+2018-09-05 15:40:00,430:DEBUG    [/etc/init.d/S82httpd] Start httpd done
+2018-09-05 15:40:00,437:DEBUG    [/etc/init.d/S83wifi] QCA_WIFI_ENABLE default to 0
+2018-09-05 15:40:00,440:DEBUG    Setting affinity to 0x1
+2018-09-05 15:40:00,453:DEBUG    [/etc/init.d/S90startapp] UART1 BAUDRATE_UART1 configuration : 19200
+2018-09-05 15:40:00,457:DEBUG    [/etc/init.d/S90startapp] Waiting for GPS Location
+2018-09-05 15:40:00,515:DEBUG    [/usr/bin/gpsGetLoc.sh] Gather GPS DATA .
+2018-09-05 15:40:01,520:DEBUG    .
+2018-09-05 15:40:02,528:DEBUG    .
+2018-09-05 15:40:03,519:DEBUG    .
+2018-09-05 15:40:04,526:DEBUG    .
+2018-09-05 15:40:05,533:DEBUG    .
+2018-09-05 15:40:06,525:DEBUG    .
+2018-09-05 15:40:07,533:DEBUG    .
+2018-09-05 15:40:08,539:DEBUG    .
+2018-09-05 15:40:09,532:DEBUG    .
+2018-09-05 15:40:10,586:DEBUG    gps location is fixed=1
+2018-09-05 15:40:10,763:DEBUG    [/usr/bin/gpsGetLoc.sh] Show satellite - gps
+2018-09-05 15:40:10,940:DEBUG    [/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+2018-09-05 15:40:11,056:DEBUG    ================================================
+2018-09-05 15:40:11,062:DEBUG    number of satellites in view:00*79
+2018-09-05 15:40:11,069:DEBUG    ================================================
+2018-09-05 15:40:11,075:DEBUG    ================================================
+2018-09-05 15:40:11,081:DEBUG    the satellites used for fix location
+2018-09-05 15:40:11,084:DEBUG    ================================================
+2018-09-05 15:40:11,085:DEBUG    PRN:
+2018-09-05 15:40:11,200:DEBUG    . [/usr/bin/gpsGetLoc.sh] Gather GPS DATA .
+2018-09-05 15:40:12,190:DEBUG    .
+2018-09-05 15:40:13,198:DEBUG    .
+2018-09-05 15:40:14,206:DEBUG    .
+2018-09-05 15:40:15,197:DEBUG    .
+2018-09-05 15:40:16,203:DEBUG    .
+2018-09-05 15:40:17,210:DEBUG    .
+2018-09-05 15:40:18,203:DEBUG    .
+2018-09-05 15:40:19,210:DEBUG    .
+2018-09-05 15:40:20,217:DEBUG    .
+2018-09-05 15:40:21,273:DEBUG    gps location is fixed=1
+2018-09-05 15:40:21,434:DEBUG    [/usr/bin/gpsGetLoc.sh] Show satellite - gps
+2018-09-05 15:40:21,622:DEBUG    [/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+2018-09-05 15:40:21,730:DEBUG    ================================================
+2018-09-05 15:40:21,734:DEBUG    number of satellites in view:00*79
+2018-09-05 15:40:21,742:DEBUG    ================================================
+2018-09-05 15:40:21,746:DEBUG    ================================================
+2018-09-05 15:40:21,752:DEBUG    the satellites used for fix location
+2018-09-05 15:40:21,756:DEBUG    ================================================
+2018-09-05 15:40:21,759:DEBUG    PRN:
+2018-09-05 15:40:21,871:DEBUG    . [/usr/bin/gpsGetLoc.sh] Gather GPS DATA .
+2018-09-05 15:40:22,864:DEBUG    .
+2018-09-05 15:40:23,871:DEBUG    .
+2018-09-05 15:40:24,878:DEBUG    .
+2018-09-05 15:40:25,871:DEBUG    .
+2018-09-05 15:40:26,878:DEBUG    .
+2018-09-05 15:40:27,884:DEBUG    .
+2018-09-05 15:40:28,875:DEBUG    .
+2018-09-05 15:40:29,884:DEBUG    .
+2018-09-05 15:40:30,891:DEBUG    .
+2018-09-05 15:40:31,947:DEBUG    gps location is fixed=1
+2018-09-05 15:40:32,108:DEBUG    [/usr/bin/gpsGetLoc.sh] Show satellite - gps
+2018-09-05 15:40:32,296:DEBUG    [/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+2018-09-05 15:40:32,404:DEBUG    ================================================
+2018-09-05 15:40:32,408:DEBUG    number of satellites in view:00*79
+2018-09-05 15:40:32,413:DEBUG    ================================================
+2018-09-05 15:40:32,417:DEBUG    ================================================
+2018-09-05 15:40:32,421:DEBUG    the satellites used for fix location
+2018-09-05 15:40:32,424:DEBUG    ================================================
+2018-09-05 15:40:32,427:DEBUG    PRN:
+2018-09-05 15:40:32,479:DEBUG    .
+2018-09-05 15:40:32,546:DEBUG    [/usr/bin/gpsGetLoc.sh] Gather GPS DATA .
+2018-09-05 15:40:33,538:DEBUG    .
+2018-09-05 15:40:34,545:DEBUG    .
+2018-09-05 15:40:35,552:DEBUG    .
+2018-09-05 15:40:36,543:DEBUG    .
+2018-09-05 15:40:37,551:DEBUG    .
+2018-09-05 15:40:38,558:DEBUG    .
+2018-09-05 15:40:39,565:DEBUG    .
+2018-09-05 15:40:40,555:DEBUG    .
+2018-09-05 15:40:41,565:DEBUG    .
+2018-09-05 15:40:42,619:DEBUG    gps location is fixed=1
+2018-09-05 15:40:42,782:DEBUG    [/usr/bin/gpsGetLoc.sh] Show satellite - gps
+2018-09-05 15:40:42,970:DEBUG    [/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+2018-09-05 15:40:43,078:DEBUG    ================================================
+2018-09-05 15:40:43,082:DEBUG    number of satellites in view:00*79
+2018-09-05 15:40:43,085:DEBUG    ================================================
+2018-09-05 15:40:43,091:DEBUG    ================================================
+2018-09-05 15:40:43,096:DEBUG    the satellites used for fix location
+2018-09-05 15:40:43,102:DEBUG    ================================================
+2018-09-05 15:40:43,105:DEBUG    PRN:
+2018-09-05 15:40:43,220:DEBUG    . [/usr/bin/gpsGetLoc.sh] Gather GPS DATA .
+2018-09-05 15:40:44,210:DEBUG    .
+2018-09-05 15:40:45,219:DEBUG    .
+2018-09-05 15:40:46,224:DEBUG    .
+2018-09-05 15:40:47,217:DEBUG    .
+2018-09-05 15:40:48,224:DEBUG    .
+2018-09-05 15:40:49,233:DEBUG    .
+2018-09-05 15:40:50,239:DEBUG    .
+2018-09-05 15:40:51,230:DEBUG    .
+2018-09-05 15:40:52,239:DEBUG    .
+2018-09-05 15:40:53,295:DEBUG    gps location is fixed=1
+2018-09-05 15:40:53,457:DEBUG    [/usr/bin/gpsGetLoc.sh] Show satellite - gps
+2018-09-05 15:40:53,648:DEBUG    [/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+2018-09-05 15:40:53,760:DEBUG    ================================================
+2018-09-05 15:40:53,765:DEBUG    number of satellites in view:00*79
+2018-09-05 15:40:53,769:DEBUG    ================================================
+2018-09-05 15:40:53,775:DEBUG    ================================================
+2018-09-05 15:40:53,779:DEBUG    the satellites used for fix location
+2018-09-05 15:40:53,785:DEBUG    ================================================
+2018-09-05 15:40:53,788:DEBUG    PRN:
+2018-09-05 15:40:53,788:DEBUG    .
+2018-09-05 15:40:53,792:DEBUG    GPS fix location time out!
+2018-09-05 15:40:55,846:DEBUG    [/etc/init.d/S90startapp] Loading /bin/lsmD with bootoct BW=5, MODE=pltd and  coremask 0x8
+2018-09-05 15:40:55,851:DEBUG    CVMX_SHARED: 0x120220000-0x120250000
+2018-09-05 15:40:55,854:DEBUG    Active coremask = 0x7
+2018-09-05 15:40:55,858:DEBUG    PP3:~CONSOLE-> Using device tree
+2018-09-05 15:40:55,862:DEBUG    INFO: Launching application on coremask 0x8
+2018-09-05 15:40:55,872:DEBUG    Available CoremaskPP3:~CONSOLE->  Bootmem Allocation File Name: src/libcli.c  Function Name : cli_initMem and Line No 60
+2018-09-05 15:40:55,878:DEBUG    PP3:~CONSOLE-> [CLI:] cli memory allocated successfully
+2018-09-05 15:40:55,881:DEBUG    PP3:~CONSOLE-> [MAIN] lsmD Started in pltD mode
+2018-09-05 15:40:55,891:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: sysLog.cpp  Function Name : getLogBuf and Line No 186
+2018-09-05 15:40:55,897:DEBUG    PP3:~CONSOLE-> [core8] log buf allocated addr:0x33000000
+2018-09-05 15:40:55,905:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: drvManager.cpp  Function Name : createSharedMemory and Line No 3566
+2018-09-05 15:40:55,915:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: drvManager.cpp  Function Name : createSharedMemory and Line No 3566
+2018-09-05 15:40:55,927:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: drvManager.cpp  Function Name : createSharedMemory and Line No 3566
+2018-09-05 15:40:55,938:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: drvManager.cpp  Function Name : createSharedMemory and Line No 3566
+2018-09-05 15:40:55,940:DEBUG    = 0x0
+2018-09-05 15:40:55,946:DEBUG    [/etc/init.d/S90startapp] Executing  /sbin/se_start
+2018-09-05 15:40:55,950:DEBUG    CVMX_SHARED: 0x120230000-0x120250000
+2018-09-05 15:40:55,951:DEBUG    Active coremask = 0x7
+2018-09-05 15:41:02,811:DEBUG    [/etc/init.d/S90startapp] Setting up the logger based on mode - selected pltd
+2018-09-05 15:41:02,819:DEBUG    [/etc/init.d/S90startapp] ***** VERIFY DEFAULT VALUE USED : LOGDISPPORT 9991 *****
+2018-09-05 15:41:02,828:DEBUG    [/etc/init.d/S90startapp] ***** VERIFY DEFAULT VALUE USED : LOGPARSERIP 10.102.81.100 *****
+2018-09-05 15:41:02,832:DEBUG    [/etc/init.d/S90startapp] Start core2 Logger
+2018-09-05 15:41:02,835:DEBUG    Setting affinity to 0x1
+2018-09-05 15:41:02,839:DEBUG    CVMX_SHARED: 0x120220000-0x120250000
+2018-09-05 15:41:02,842:DEBUG    Active coremask = 0x1
+2018-09-05 15:41:02,845:DEBUG    input log port = 9991
+2018-09-05 15:41:02,849:DEBUG    input log server ip addr = 10.102.81.100
+2018-09-05 15:41:02,854:DEBUG    [core1] log buf allocated addr:0x33000000
+2018-09-05 15:41:02,857:DEBUG    log buffer get success
+2018-09-05 15:41:02,858:DEBUG    bin/
+2018-09-05 15:41:02,859:DEBUG    bin/core0app
+2018-09-05 15:41:03,588:DEBUG    bin/lfmsoftstart
+2018-09-05 15:41:03,588:DEBUG    bin/ccli
+2018-09-05 15:41:03,812:DEBUG    bin/svnversion
+2018-09-05 15:41:03,815:DEBUG    bin/core1app
+2018-09-05 15:41:04,082:DEBUG    lib64/
+2018-09-05 15:41:04,085:DEBUG    lib64/libmemleak.so
+2018-09-05 15:41:04,088:DEBUG    lib64/libsctp.so
+2018-09-05 15:41:04,138:DEBUG    [/etc/init.d/S90startapp] Enable PPS
+2018-09-05 15:41:04,144:DEBUG    [/etc/init.d/S90startapp] Set system to use EXTERNAL 1PPS_IN
+2018-09-05 15:41:04,148:DEBUG    [/etc/init.d/S90startapp] System sync set to gps
+2018-09-05 15:41:04,154:DEBUG    [/etc/init.d/S90startapp] Start xoservo app
+2018-09-05 15:41:04,161:DEBUG    [/etc/init.d/S90startapp] Checking for custom scripts . . .
+2018-09-05 15:41:04,167:DEBUG    [/etc/init.d/S90startapp] Starting /usr/bin/bringup script
+2018-09-05 15:41:04,174:DEBUG    [/usr/bin/bringup] : START Override DSP RF Interface parameters in FDD mode
+2018-09-05 15:41:04,180:DEBUG    [/usr/bin/updatephyrfparams.sh] TXOFFSET=0x3BC4 RXOFFSET=0x4
+2018-09-05 15:41:04,348:DEBUG    [/usr/bin/updatephyrfparams.sh] Enabling DDR INIT for DSP
+2018-09-05 15:41:04,358:DEBUG    [/usr/bin/updatephyrfparams.sh] *******************************************************
+2018-09-05 15:41:04,367:DEBUG    [/usr/bin/updatephyrfparams.sh] ***************CONFIGURED the DDR MEMORY***************
+2018-09-05 15:41:04,378:DEBUG    [/usr/bin/updatephyrfparams.sh] *******************************************************
+2018-09-05 15:41:04,382:DEBUG    [/usr/bin/bringup] : DONE Override DSP RF Interface parameters
+2018-09-05 15:41:04,388:DEBUG    [/usr/bin/bringup] Preparing platform to run dl PLTD mode...
+2018-09-05 15:41:04,391:DEBUG    ****** Getting Uboot Parameters *********
+2018-09-05 15:41:04,732:DEBUG    *************** Starting Booting Procedure ***************
+2018-09-05 15:41:04,736:DEBUG    1. Setting PWM Values:23384,37376
+2018-09-05 15:41:04,739:DEBUG    Setting affinity to 0x1
+2018-09-05 15:41:04,742:DEBUG    CVMX_SHARED: 0x120300000-0x120320000
+2018-09-05 15:41:04,743:DEBUG    WARNING:
+2018-09-05 15:41:04,750:DEBUG    Parameter checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:04,750:DEBUG    WARNING:
+2018-09-05 15:41:04,759:DEBUG    CSR address checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:04,759:DEBUG    WARNING:
+2018-09-05 15:41:04,766:DEBUG    POW state checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:04,769:DEBUG    Active coremask = 0x1
+2018-09-05 15:41:04,773:DEBUG    ****************************************
+2018-09-05 15:41:04,776:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:04,779:DEBUG    ****************************************
+2018-09-05 15:41:04,782:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:04,785:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:04,786:DEBUG    2.Init[i]
+2018-09-05 15:41:04,789:DEBUG    3.Init with File[if]
+2018-09-05 15:41:04,790:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:04,792:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:04,795:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:04,798:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:04,799:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:04,802:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:04,803:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:04,806:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:04,809:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:04,811:DEBUG    13.SPI read[r]
+2018-09-05 15:41:04,812:DEBUG    14.SPI write[w]
+2018-09-05 15:41:04,815:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:04,816:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:04,819:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:04,821:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:04,822:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:04,825:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:04,828:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:04,832:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:04,834:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:04,835:DEBUG    24.Quit[q]
+2018-09-05 15:41:04,838:DEBUG    Select the Option:
+2018-09-05 15:41:04,841:DEBUG    ************************
+2018-09-05 15:41:04,842:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:41:04,845:DEBUG    ************************
+2018-09-05 15:41:04,846:DEBUG    1.read current setting[r]
+2018-09-05 15:41:04,848:DEBUG    2.enable PWM[e]
+2018-09-05 15:41:04,849:DEBUG    3.disable PWM[d]
+2018-09-05 15:41:04,854:DEBUG    4.set PWM high time[h]
+2018-09-05 15:41:04,855:DEBUG    5.set PWM low time[l]
+2018-09-05 15:41:04,859:DEBUG    6.back to upper level[b]
+2018-09-05 15:41:04,861:DEBUG    7.quit[q]
+2018-09-05 15:41:04,867:DEBUG    select option: Enter PWM high value:set PWM_HIGH_TIME 23384(0x5b58)
+2018-09-05 15:41:04,869:DEBUG    ************************
+2018-09-05 15:41:04,871:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:41:04,875:DEBUG    ************************
+2018-09-05 15:41:04,877:DEBUG    1.read current setting[r]
+2018-09-05 15:41:04,878:DEBUG    2.enable PWM[e]
+2018-09-05 15:41:04,881:DEBUG    3.disable PWM[d]
+2018-09-05 15:41:04,882:DEBUG    4.set PWM high time[h]
+2018-09-05 15:41:04,884:DEBUG    5.set PWM low time[l]
+2018-09-05 15:41:04,888:DEBUG    6.back to upper level[b]
+2018-09-05 15:41:04,888:DEBUG    7.quit[q]
+2018-09-05 15:41:04,894:DEBUG    select option: Enter PWM low value:set PWM_LOW_TIME 37376(0x9200)
+2018-09-05 15:41:04,897:DEBUG    ************************
+2018-09-05 15:41:04,898:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:41:04,901:DEBUG    ************************
+2018-09-05 15:41:04,904:DEBUG    1.read current setting[r]
+2018-09-05 15:41:04,904:DEBUG    2.enable PWM[e]
+2018-09-05 15:41:04,907:DEBUG    3.disable PWM[d]
+2018-09-05 15:41:04,908:DEBUG    4.set PWM high time[h]
+2018-09-05 15:41:04,911:DEBUG    5.set PWM low time[l]
+2018-09-05 15:41:04,913:DEBUG    6.back to upper level[b]
+2018-09-05 15:41:04,914:DEBUG    7.quit[q]
+2018-09-05 15:41:04,914:DEBUG    select option:
+2018-09-05 15:41:04,917:DEBUG    ************************
+2018-09-05 15:41:04,920:DEBUG    PWM Ref. Clock Control
+2018-09-05 15:41:04,923:DEBUG    ************************
+2018-09-05 15:41:04,924:DEBUG    1.read current setting[r]
+2018-09-05 15:41:04,926:DEBUG    2.enable PWM[e]
+2018-09-05 15:41:04,927:DEBUG    3.disable PWM[d]
+2018-09-05 15:41:04,930:DEBUG    4.set PWM high time[h]
+2018-09-05 15:41:04,931:DEBUG    5.set PWM low time[l]
+2018-09-05 15:41:04,934:DEBUG    6.back to upper level[b]
+2018-09-05 15:41:04,934:DEBUG    7.quit[q]
+2018-09-05 15:41:04,937:DEBUG    select option: PWM Control Exited
+2018-09-05 15:41:05,526:DEBUG    2. Configure RF-IF HAB
+2018-09-05 15:41:05,956:DEBUG    [BRINGUP] : DONE Override DSP RF Interface parameters
+2018-09-05 15:41:05,957:DEBUG    3. Configure RF-IC
+2018-09-05 15:41:05,966:DEBUG    3.1 if /usr/bin/ad9362_init_zen5Mhz.txt d 1825 u 1730 a 1 18 a 2 18 g 1 25 g 2 25 gpio 8
+2018-09-05 15:41:05,967:DEBUG    Setting affinity to 0x1
+2018-09-05 15:41:05,973:DEBUG    CVMX_SHARED: 0x120300000-0x120320000
+2018-09-05 15:41:05,974:DEBUG    WARNING:
+2018-09-05 15:41:05,980:DEBUG    Parameter checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:05,982:DEBUG    WARNING:
+2018-09-05 15:41:05,990:DEBUG    CSR address checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:05,992:DEBUG    WARNING:
+2018-09-05 15:41:05,999:DEBUG    POW state checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:06,002:DEBUG    Active coremask = 0x1
+2018-09-05 15:41:06,006:DEBUG    ****************************************
+2018-09-05 15:41:06,009:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,013:DEBUG    ****************************************
+2018-09-05 15:41:06,016:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,016:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,017:DEBUG    2.Init[i]
+2018-09-05 15:41:06,022:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,025:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,026:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,029:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,032:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,036:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,039:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,040:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,045:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,048:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,049:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,052:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,055:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,056:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,059:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,061:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,063:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,066:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,069:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,073:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,076:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,078:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,084:DEBUG    Select the Option:Enter the Filename Path:RFIC GPIO Reset Performed
+2018-09-05 15:41:06,088:DEBUG    RFIC Initialization
+2018-09-05 15:41:06,088:DEBUG    TIA calibration
+2018-09-05 15:41:06,091:DEBUG    ADI calibration
+2018-09-05 15:41:06,095:DEBUG    ****************************************
+2018-09-05 15:41:06,098:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,102:DEBUG    ****************************************
+2018-09-05 15:41:06,105:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,107:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,108:DEBUG    2.Init[i]
+2018-09-05 15:41:06,109:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,111:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,112:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,115:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,117:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,119:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,122:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,125:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,127:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,130:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,131:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,132:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,135:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,138:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,141:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,142:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,144:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,148:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,150:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,154:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,157:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,160:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,165:DEBUG    Select the Option:Enter the TX frequency in MHz:Tx Frequency Set is Success
+2018-09-05 15:41:06,171:DEBUG    ****************************************
+2018-09-05 15:41:06,174:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,177:DEBUG    ****************************************
+2018-09-05 15:41:06,178:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,180:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,181:DEBUG    2.Init[i]
+2018-09-05 15:41:06,184:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,187:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,187:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,190:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,191:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,194:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,196:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,197:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,200:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,203:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,204:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,207:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,209:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,210:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,213:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,214:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,217:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,220:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,223:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,226:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,230:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,230:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,237:DEBUG    Select the Option:Enter the RX frequency in MHz:Rx Frequency Set is Success
+2018-09-05 15:41:06,240:DEBUG    ****************************************
+2018-09-05 15:41:06,246:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,249:DEBUG    ****************************************
+2018-09-05 15:41:06,252:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,255:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,256:DEBUG    2.Init[i]
+2018-09-05 15:41:06,257:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,259:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,260:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,263:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,266:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,266:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,269:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,272:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,275:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,276:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,278:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,280:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,282:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,285:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,288:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,290:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,292:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,296:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,299:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,303:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,306:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,308:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,312:DEBUG    Select the Option:Select Antenna port [1 or 2]:Current attenuation is 30.00
+2018-09-05 15:41:06,315:DEBUG    Input attenuation [0.00 to 40.00 dB]:
+2018-09-05 15:41:06,321:DEBUG    ****************************************
+2018-09-05 15:41:06,325:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,328:DEBUG    ****************************************
+2018-09-05 15:41:06,331:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,334:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,335:DEBUG    2.Init[i]
+2018-09-05 15:41:06,336:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,339:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,342:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,345:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,346:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,348:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,349:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,351:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,357:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,358:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,359:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,361:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,364:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,365:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,368:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,371:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,374:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,377:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,378:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,381:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,384:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,388:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,394:DEBUG    Select the Option:Select Antenna port [1 or 2]:Current attenuation is 30.00
+2018-09-05 15:41:06,395:DEBUG    Input attenuation [0.00 to 40.00 dB]:
+2018-09-05 15:41:06,400:DEBUG    ****************************************
+2018-09-05 15:41:06,404:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,407:DEBUG    ****************************************
+2018-09-05 15:41:06,410:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,411:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,413:DEBUG    2.Init[i]
+2018-09-05 15:41:06,414:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,415:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,417:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,421:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,423:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,424:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,427:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,428:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,431:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,434:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,437:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,438:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,440:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,443:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,444:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,446:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,447:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,451:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,456:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,459:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,461:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,463:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,467:DEBUG    Select the Option:Select Antenna[1 or 2]:Current gain is 55
+2018-09-05 15:41:06,473:DEBUG    The Antenna 1 gain in dB [5 dB]to[60 dB]:Rx Gain for Antenna 1 is set
+2018-09-05 15:41:06,476:DEBUG    ****************************************
+2018-09-05 15:41:06,480:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,486:DEBUG    ****************************************
+2018-09-05 15:41:06,489:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,490:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,492:DEBUG    2.Init[i]
+2018-09-05 15:41:06,494:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,496:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,497:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,500:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,503:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,506:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,507:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,509:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,512:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,513:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,515:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,516:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,519:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,520:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,523:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,526:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,528:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,530:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,533:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,538:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,539:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,540:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,546:DEBUG    Select the Option:Select Antenna[1 or 2]:Current gain is 55
+2018-09-05 15:41:06,552:DEBUG    The Antenna 2 gain in dB [5 dB]to[60 dB]:Rx Gain for Antenna 2 is set
+2018-09-05 15:41:06,555:DEBUG    ****************************************
+2018-09-05 15:41:06,559:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,563:DEBUG    ****************************************
+2018-09-05 15:41:06,565:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,568:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,569:DEBUG    2.Init[i]
+2018-09-05 15:41:06,572:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,573:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,575:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,576:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,579:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,581:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,582:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,585:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,588:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,591:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,592:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,594:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,595:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,598:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,599:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,602:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,605:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,608:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,609:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,614:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,615:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,617:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,621:DEBUG    Select the Option:GPIO value in Hex:
+2018-09-05 15:41:06,624:DEBUG    ****************************************
+2018-09-05 15:41:06,627:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:06,630:DEBUG    ****************************************
+2018-09-05 15:41:06,631:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:06,634:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:06,635:DEBUG    2.Init[i]
+2018-09-05 15:41:06,638:DEBUG    3.Init with File[if]
+2018-09-05 15:41:06,641:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:06,641:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:06,644:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:06,645:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:06,648:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:06,650:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:06,651:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:06,654:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:06,657:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:06,658:DEBUG    13.SPI read[r]
+2018-09-05 15:41:06,660:DEBUG    14.SPI write[w]
+2018-09-05 15:41:06,661:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:06,664:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:06,667:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:06,668:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:06,671:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:06,674:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:06,677:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:06,680:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:06,684:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:06,684:DEBUG    24.Quit[q]
+2018-09-05 15:41:06,690:DEBUG    Select the Option:RF Module Driver Exited
+2018-09-05 15:41:07,082:DEBUG    4. Configure PTP Module:0x411AAAAAAA
+2018-09-05 15:41:08,135:DEBUG    DSP_RX0_DMEM.data
+2018-09-05 15:41:08,229:DEBUG    DSP_RX0_IMEM.data
+2018-09-05 15:41:08,325:DEBUG    DSP_RX0_SMEM.data
+2018-09-05 15:41:08,407:DEBUG    DSP_RX1_DMEM.data
+2018-09-05 15:41:08,503:DEBUG    DSP_RX1_IMEM.data
+2018-09-05 15:41:08,565:DEBUG    DSP_RX1_SMEM.data
+2018-09-05 15:41:08,661:DEBUG    DSP_TX_DMEM.data
+2018-09-05 15:41:08,757:DEBUG    DSP_TX_IMEM.data
+2018-09-05 15:41:08,836:DEBUG    DSP_TX_SMEM.data
+2018-09-05 15:41:08,967:DEBUG    6. Get PLTD Test Vector:
+2018-09-05 15:41:09,328:DEBUG    TV/
+2018-09-05 15:41:09,328:DEBUG    TV/DL/
+2018-09-05 15:41:09,331:DEBUG    TV/DL/SOC_tc0001/
+2018-09-05 15:41:09,336:DEBUG    TV/DL/SOC_tc0001/Configuration_data/
+2018-09-05 15:41:09,344:DEBUG    TV/DL/SOC_tc0001/Configuration_data/LTE_Femto_DlSysInfo.csv
+2018-09-05 15:41:09,348:DEBUG    TV/DL/SOC_tc0001/Configuration_data/SocPhichdata.txt
+2018-09-05 15:41:09,355:DEBUG    TV/DL/SOC_tc0001/Configuration_data/LTE_Femto_DlFixedSysInfo.csv
+2018-09-05 15:41:09,361:DEBUG    TV/DL/SOC_tc0001/Configuration_data/systemInfo.csv
+2018-09-05 15:41:09,367:DEBUG    TV/DL/SOC_tc0001/Configuration_data/HARQInfo.csv
+2018-09-05 15:41:09,374:DEBUG    TV/DL/SOC_tc0001/Configuration_data/phichdata.txt
+2018-09-05 15:41:09,378:DEBUG    TV/DL/SOC_tc0001/Configuration_data/siminfo.csv
+2018-09-05 15:41:09,384:DEBUG    TV/DL/SOC_tc0001/Configuration_data/pbchdata.txt
+2018-09-05 15:41:09,390:DEBUG    TV/DL/SOC_tc0001/Configuration_data/Sys_DL_TTI_conf.csv
+2018-09-05 15:41:09,395:DEBUG    TV/DL/SOC_tc0001/Configuration_data/dlConfigInfo.csv
+2018-09-05 15:41:09,398:DEBUG    TV/DL/SOC_tc0001/Testvectors/
+2018-09-05 15:41:09,405:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/
+2018-09-05 15:41:09,414:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI8_PdschCtrl.dat
+2018-09-05 15:41:09,421:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI8_UlTpcGrant.dat
+2018-09-05 15:41:09,430:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI4_CtrlNumData.dat
+2018-09-05 15:41:09,437:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI0_CtrlNumData.dat
+2018-09-05 15:41:09,444:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI3_CtrlNumData.dat
+2018-09-05 15:41:09,448:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI3_UlTpcGrant.dat
+2018-09-05 15:41:09,456:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI0_PdschCtrl.dat
+2018-09-05 15:41:09,463:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI6_DlRachGrant.dat
+2018-09-05 15:41:09,469:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI0_UlTpcGrant.dat
+2018-09-05 15:41:09,474:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI1_CtrlNumData.dat
+2018-09-05 15:41:09,480:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI5_PdschCtrl.dat
+2018-09-05 15:41:09,484:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI5_UlTpcGrant.dat
+2018-09-05 15:41:09,490:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI4_UlTpcGrant.dat
+2018-09-05 15:41:09,496:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI2_PdschCtrl.dat
+2018-09-05 15:41:09,503:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI7_PhichData.dat
+2018-09-05 15:41:09,509:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI7_PdschCtrl.dat
+2018-09-05 15:41:09,515:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI3_DlRachGrant.dat
+2018-09-05 15:41:09,519:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI1_UlTpcGrant.dat
+2018-09-05 15:41:09,523:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI4_PdschCtrl.dat
+2018-09-05 15:41:09,529:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI5_DlRachGrant.dat
+2018-09-05 15:41:09,536:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI4_DlRachGrant.dat
+2018-09-05 15:41:09,542:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI9_CtrlNumData.dat
+2018-09-05 15:41:09,546:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI2_CtrlNumData.dat
+2018-09-05 15:41:09,552:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI6_PdschCtrl.dat
+2018-09-05 15:41:09,558:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI3_PhichData.dat
+2018-09-05 15:41:09,562:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI7_UlTpcGrant.dat
+2018-09-05 15:41:09,568:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI6_CtrlNumData.dat
+2018-09-05 15:41:09,573:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI9_PhichData.dat
+2018-09-05 15:41:09,578:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI9_DlRachGrant.dat
+2018-09-05 15:41:09,582:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI8_PhichData.dat
+2018-09-05 15:41:09,588:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI2_PhichData.dat
+2018-09-05 15:41:09,594:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI8_CtrlNumData.dat
+2018-09-05 15:41:09,598:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI9_UlTpcGrant.dat
+2018-09-05 15:41:09,607:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI2_UlTpcGrant.dat
+2018-09-05 15:41:09,611:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI7_CtrlNumData.dat
+2018-09-05 15:41:09,615:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SysSet.dat
+2018-09-05 15:41:09,621:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI0_PhichData.dat
+2018-09-05 15:41:09,625:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI1_PhichData.dat
+2018-09-05 15:41:09,630:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI6_UlTpcGrant.dat
+2018-09-05 15:41:09,637:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI8_DlRachGrant.dat
+2018-09-05 15:41:09,641:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI5_CtrlNumData.dat
+2018-09-05 15:41:09,648:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI2_DlRachGrant.dat
+2018-09-05 15:41:09,654:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI1_DlRachGrant.dat
+2018-09-05 15:41:09,660:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI3_PdschCtrl.dat
+2018-09-05 15:41:09,664:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI9_PdschCtrl.dat
+2018-09-05 15:41:09,671:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI5_PhichData.dat
+2018-09-05 15:41:09,677:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI0_DlRachGrant.dat
+2018-09-05 15:41:09,680:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI4_PhichData.dat
+2018-09-05 15:41:09,687:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI6_PhichData.dat
+2018-09-05 15:41:09,694:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI7_DlRachGrant.dat
+2018-09-05 15:41:09,700:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/SFN0_TTI1_PdschCtrl.dat
+2018-09-05 15:41:09,707:DEBUG    TV/DL/SOC_tc0001/Testvectors/CPU_DSP/PhyCtrl.dat
+2018-09-05 15:41:09,709:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/
+2018-09-05 15:41:09,714:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti8_ant0.dat
+2018-09-05 15:41:09,721:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti7_ant0.dat
+2018-09-05 15:41:09,726:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_2.dat
+2018-09-05 15:41:09,732:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti9_ant0.dat
+2018-09-05 15:41:09,739:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti9_ant0.dat
+2018-09-05 15:41:09,743:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti0_ant0.dat
+2018-09-05 15:41:09,750:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti7_ant0.dat
+2018-09-05 15:41:09,755:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_9.dat
+2018-09-05 15:41:09,757:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_6.dat
+2018-09-05 15:41:09,763:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti9_ant0.dat
+2018-09-05 15:41:09,769:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti4_ant0.dat
+2018-09-05 15:41:09,773:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_3.dat
+2018-09-05 15:41:09,778:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_9.dat
+2018-09-05 15:41:09,782:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_8.dat
+2018-09-05 15:41:09,786:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_6.dat
+2018-09-05 15:41:09,790:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_5.dat
+2018-09-05 15:41:09,796:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti3_ant0.dat
+2018-09-05 15:41:09,801:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti1_ant0.dat
+2018-09-05 15:41:09,805:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti8_ant0.dat
+2018-09-05 15:41:09,809:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_2.dat
+2018-09-05 15:41:09,815:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti6_ant0.dat
+2018-09-05 15:41:09,821:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti2_ant0.dat
+2018-09-05 15:41:09,825:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_6.dat
+2018-09-05 15:41:09,829:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti8_ant0.dat
+2018-09-05 15:41:09,834:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_3.dat
+2018-09-05 15:41:09,838:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_8.dat
+2018-09-05 15:41:09,844:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti0_ant0.dat
+2018-09-05 15:41:09,848:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti1_ant0.dat
+2018-09-05 15:41:09,854:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_0.dat
+2018-09-05 15:41:09,858:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_4.dat
+2018-09-05 15:41:09,865:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_5.dat
+2018-09-05 15:41:09,871:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti5_ant0.dat
+2018-09-05 15:41:09,875:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_3.dat
+2018-09-05 15:41:09,881:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti7_ant0.dat
+2018-09-05 15:41:09,887:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti2_ant0.dat
+2018-09-05 15:41:09,891:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_8.dat
+2018-09-05 15:41:09,895:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti4_ant0.dat
+2018-09-05 15:41:09,903:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti8_ant0.dat
+2018-09-05 15:41:09,907:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_4.dat
+2018-09-05 15:41:09,911:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_3.dat
+2018-09-05 15:41:09,915:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_2.dat
+2018-09-05 15:41:09,921:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_0.dat
+2018-09-05 15:41:09,924:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_4.dat
+2018-09-05 15:41:09,930:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti2_ant0.dat
+2018-09-05 15:41:09,936:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_8.dat
+2018-09-05 15:41:09,940:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti4_ant0.dat
+2018-09-05 15:41:09,944:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_1.dat
+2018-09-05 15:41:09,950:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti9_ant0.dat
+2018-09-05 15:41:09,954:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_9.dat
+2018-09-05 15:41:09,960:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti3_ant0.dat
+2018-09-05 15:41:09,966:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti3_ant0.dat
+2018-09-05 15:41:09,971:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_5.dat
+2018-09-05 15:41:09,976:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_5.dat
+2018-09-05 15:41:09,980:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_rfSample_frame0_tti5_ant0.dat
+2018-09-05 15:41:09,986:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti0_ant0.dat
+2018-09-05 15:41:09,990:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_1.dat
+2018-09-05 15:41:09,994:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_0.dat
+2018-09-05 15:41:10,002:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti2_ant0.dat
+2018-09-05 15:41:10,006:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_1.dat
+2018-09-05 15:41:10,009:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_4.dat
+2018-09-05 15:41:10,015:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti3_ant0.dat
+2018-09-05 15:41:10,020:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti5_ant0.dat
+2018-09-05 15:41:10,025:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_1.dat
+2018-09-05 15:41:10,029:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti7_ant0.dat
+2018-09-05 15:41:10,036:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti1_ant0.dat
+2018-09-05 15:41:10,039:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_7.dat
+2018-09-05 15:41:10,045:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti5_ant0.dat
+2018-09-05 15:41:10,049:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_2.dat
+2018-09-05 15:41:10,053:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdsch0_7.dat
+2018-09-05 15:41:10,058:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti1_ant0.dat
+2018-09-05 15:41:10,062:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_7.dat
+2018-09-05 15:41:10,066:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pcfich_6.dat
+2018-09-05 15:41:10,072:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_9.dat
+2018-09-05 15:41:10,075:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_phich_0.dat
+2018-09-05 15:41:10,081:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti6_ant0.dat
+2018-09-05 15:41:10,086:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti4_ant0.dat
+2018-09-05 15:41:10,092:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_sfn0_tti6_ant0.dat
+2018-09-05 15:41:10,096:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/RFIF_rfSample_frame0_tti0_ant0.dat
+2018-09-05 15:41:10,102:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pdcch_7.dat
+2018-09-05 15:41:10,107:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_mem_pbch_0.dat
+2018-09-05 15:41:10,111:DEBUG    TV/DL/SOC_tc0001/Testvectors/PLT/plt_ifft_in_IQswap_sfn0_tti6_ant0.dat
+2018-09-05 15:41:10,115:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/
+2018-09-05 15:41:10,119:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PdschData1.dat
+2018-09-05 15:41:10,124:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PdschCtrl.dat
+2018-09-05 15:41:10,128:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PdschData0.dat
+2018-09-05 15:41:10,134:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PdschData1.dat
+2018-09-05 15:41:10,138:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PdschCtrl.dat
+2018-09-05 15:41:10,144:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PdschData1.dat
+2018-09-05 15:41:10,148:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PhichData.dat
+2018-09-05 15:41:10,153:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PdschCtrl.dat
+2018-09-05 15:41:10,157:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PdschData1.dat
+2018-09-05 15:41:10,161:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PdschData1.dat
+2018-09-05 15:41:10,165:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_DlRachGrant.dat
+2018-09-05 15:41:10,171:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PdschCtrl.dat
+2018-09-05 15:41:10,174:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PcfichData.dat
+2018-09-05 15:41:10,177:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PbchData.dat
+2018-09-05 15:41:10,183:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PdschData0.dat
+2018-09-05 15:41:10,187:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PdschCtrl.dat
+2018-09-05 15:41:10,190:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PcfichData.dat
+2018-09-05 15:41:10,196:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PdschCtrl.dat
+2018-09-05 15:41:10,200:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PhichData.dat
+2018-09-05 15:41:10,204:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_UlTpcGrant.dat
+2018-09-05 15:41:10,209:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PdschData0.dat
+2018-09-05 15:41:10,213:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_UlTpcGrant.dat
+2018-09-05 15:41:10,219:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PdschData0.dat
+2018-09-05 15:41:10,223:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PhichData.dat
+2018-09-05 15:41:10,226:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PbchData.dat
+2018-09-05 15:41:10,230:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PcfichData.dat
+2018-09-05 15:41:10,236:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_UlTpcGrant.dat
+2018-09-05 15:41:10,240:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PdschData0.dat
+2018-09-05 15:41:10,244:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_DlRachGrant.dat
+2018-09-05 15:41:10,249:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PdschData1.dat
+2018-09-05 15:41:10,253:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_UlTpcGrant.dat
+2018-09-05 15:41:10,257:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_PcfichData.dat
+2018-09-05 15:41:10,263:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PhichData.dat
+2018-09-05 15:41:10,267:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_DlRachGrant.dat
+2018-09-05 15:41:10,273:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PdschData0.dat
+2018-09-05 15:41:10,276:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/DrvCellConfig.dat
+2018-09-05 15:41:10,279:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_UlTpcGrant.dat
+2018-09-05 15:41:10,285:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PhichData.dat
+2018-09-05 15:41:10,289:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PdschCtrl.dat
+2018-09-05 15:41:10,292:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_DlRachGrant.dat
+2018-09-05 15:41:10,298:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PdschData1.dat
+2018-09-05 15:41:10,303:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_UlTpcGrant.dat
+2018-09-05 15:41:10,308:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PdschCtrl.dat
+2018-09-05 15:41:10,312:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PdschData1.dat
+2018-09-05 15:41:10,316:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PcfichData.dat
+2018-09-05 15:41:10,322:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PcfichData.dat
+2018-09-05 15:41:10,326:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_UlTpcGrant.dat
+2018-09-05 15:41:10,331:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PdschData0.dat
+2018-09-05 15:41:10,336:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_DlRachGrant.dat
+2018-09-05 15:41:10,341:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_PhichData.dat
+2018-09-05 15:41:10,345:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PhichData.dat
+2018-09-05 15:41:10,349:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PhichData.dat
+2018-09-05 15:41:10,355:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PcfichData.dat
+2018-09-05 15:41:10,359:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PbchData.dat
+2018-09-05 15:41:10,364:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_DlRachGrant.dat
+2018-09-05 15:41:10,368:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PdschData0.dat
+2018-09-05 15:41:10,374:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_UlTpcGrant.dat
+2018-09-05 15:41:10,378:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN07_DlRachGrant.dat
+2018-09-05 15:41:10,382:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/DrvPhyCtrl.dat
+2018-09-05 15:41:10,387:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PbchData.dat
+2018-09-05 15:41:10,391:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PbchData.dat
+2018-09-05 15:41:10,394:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN06_PcfichData.dat
+2018-09-05 15:41:10,400:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PbchData.dat
+2018-09-05 15:41:10,407:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_DlRachGrant.dat
+2018-09-05 15:41:10,411:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PdschData1.dat
+2018-09-05 15:41:10,414:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PhichData.dat
+2018-09-05 15:41:10,420:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_PdschData1.dat
+2018-09-05 15:41:10,424:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_DlRachGrant.dat
+2018-09-05 15:41:10,428:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN02_UlTpcGrant.dat
+2018-09-05 15:41:10,434:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN09_UlTpcGrant.dat
+2018-09-05 15:41:10,440:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PdschData0.dat
+2018-09-05 15:41:10,446:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PdschCtrl.dat
+2018-09-05 15:41:10,450:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PdschData0.dat
+2018-09-05 15:41:10,456:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PbchData.dat
+2018-09-05 15:41:10,460:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_PdschCtrl.dat
+2018-09-05 15:41:10,463:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PcfichData.dat
+2018-09-05 15:41:10,470:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN00_PbchData.dat
+2018-09-05 15:41:10,476:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN03_PbchData.dat
+2018-09-05 15:41:10,480:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN04_DlRachGrant.dat
+2018-09-05 15:41:10,486:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN05_PhichData.dat
+2018-09-05 15:41:10,490:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN08_PbchData.dat
+2018-09-05 15:41:10,494:DEBUG    TV/DL/SOC_tc0001/Testvectors/SOC_DRV/SFN01_PcfichData.dat
+2018-09-05 15:41:10,496:DEBUG    TV/
+2018-09-05 15:41:10,496:DEBUG    TV/UL/
+2018-09-05 15:41:10,497:DEBUG    TV/UL/5m/
+2018-09-05 15:41:10,500:DEBUG    TV/UL/5m/tc0901/
+2018-09-05 15:41:10,506:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti04.dat
+2018-09-05 15:41:10,509:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti07.dat
+2018-09-05 15:41:10,513:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti04.dat
+2018-09-05 15:41:10,516:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti09.dat
+2018-09-05 15:41:10,519:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti08.dat
+2018-09-05 15:41:10,523:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti09.dat
+2018-09-05 15:41:10,526:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti04.dat
+2018-09-05 15:41:10,529:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti03.dat
+2018-09-05 15:41:10,532:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti08.dat
+2018-09-05 15:41:10,536:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti07.dat
+2018-09-05 15:41:10,539:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti09.dat
+2018-09-05 15:41:10,543:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti01.dat
+2018-09-05 15:41:10,546:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti02.dat
+2018-09-05 15:41:10,549:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti00.dat
+2018-09-05 15:41:10,553:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti03.dat
+2018-09-05 15:41:10,555:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti06.dat
+2018-09-05 15:41:10,559:DEBUG    TV/UL/5m/tc0901/UlDspCellSpecific.dat
+2018-09-05 15:41:10,562:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti05.dat
+2018-09-05 15:41:10,565:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti02.dat
+2018-09-05 15:41:10,571:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti00.dat
+2018-09-05 15:41:10,573:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti00.dat
+2018-09-05 15:41:10,575:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti01.dat
+2018-09-05 15:41:10,579:DEBUG    TV/UL/5m/tc0901/LsmUlDrvCellCfg.dat
+2018-09-05 15:41:10,582:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti07.dat
+2018-09-05 15:41:10,586:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti02.dat
+2018-09-05 15:41:10,589:DEBUG    TV/UL/5m/tc0901/ulBasebandSample_tti06.dat
+2018-09-05 15:41:10,594:DEBUG    TV/UL/5m/tc0901/LsmUlDrvSched.dat
+2018-09-05 15:41:10,596:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti05.dat
+2018-09-05 15:41:10,601:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti01.dat
+2018-09-05 15:41:10,604:DEBUG    TV/UL/5m/tc0901/UlDspSfData_tti06.dat
+2018-09-05 15:41:10,607:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti08.dat
+2018-09-05 15:41:10,609:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti03.dat
+2018-09-05 15:41:10,612:DEBUG    TV/UL/5m/tc0901/UlDspSfCtrl_tti05.dat
+2018-09-05 15:41:11,572:DEBUG    7. Get PLTD Application :pltD
+2018-09-05 15:41:12,911:DEBUG    9. Program DSP Image
+2018-09-05 15:41:12,914:DEBUG    Setting affinity to 0x1
+2018-09-05 15:41:12,917:DEBUG    CVMX_SHARED: 0x120250000-0x120280000
+2018-09-05 15:41:12,920:DEBUG    Active coremask = 0x1
+2018-09-05 15:41:12,927:DEBUG    ======================================================================
+2018-09-05 15:41:12,930:DEBUG    Start CAZAC     Downloading!!!
+2018-09-05 15:41:12,937:DEBUG    ======================================================================
+2018-09-05 15:41:14,477:DEBUG    cazac table downloading is done
+2018-09-05 15:41:14,494:DEBUG    calGrant table download is done
+2018-09-05 15:41:15,338:DEBUG    ======================================================================
+2018-09-05 15:41:15,341:DEBUG    Start DSP Image Downloading!!!
+2018-09-05 15:41:15,348:DEBUG    ======================================================================
+2018-09-05 15:41:15,351:DEBUG    Initialized.....OK!
+2018-09-05 15:41:15,545:DEBUG    Load Image to IMEM....Complete!!
+2018-09-05 15:41:15,559:DEBUG    Load Image to SMEM....Complete!!
+2018-09-05 15:41:15,575:DEBUG    Load Image to DMEM....Complete!!
+2018-09-05 15:41:15,589:DEBUG    SMEM downloading...OK!
+2018-09-05 15:41:15,815:DEBUG    Load Image to IMEM....Complete!!
+2018-09-05 15:41:15,832:DEBUG    Load Image to SMEM....Complete!!
+2018-09-05 15:41:15,845:DEBUG    Load Image to DMEM....Complete!!
+2018-09-05 15:41:15,878:DEBUG    SMEM downloading...OK!
+2018-09-05 15:41:16,105:DEBUG    Load Image to IMEM....Complete!!
+2018-09-05 15:41:16,134:DEBUG    Load Image to SMEM....Complete!!
+2018-09-05 15:41:16,137:DEBUG    Load Image to DMEM....Complete!!
+2018-09-05 15:41:16,147:DEBUG    SMEM downloading...OK!
+2018-09-05 15:41:17,071:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: fapiInterfaceMgr.cpp  Function Name : sched_shm_alloc and Line No 403
+2018-09-05 15:41:17,082:DEBUG    PP3:~CONSOLE-> [Control]SHM Create Successful :mpu8ShmSchedBase/mpu8CschedReqShmBase/mpu8CschedCnfShmBase
+2018-09-05 15:41:17,088:DEBUG    PP3:~CONSOLE-> **************PLTD INIT DONE
+2018-09-05 15:41:17,099:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: core2Stats.cpp  Function Name : intialiseCore2StatsShm and Line No 86
+2018-09-05 15:41:17,111:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: core2Stats.cpp  Function Name : initialiseCavAlgoStatsShm and Line No 41
+2018-09-05 15:41:17,125:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: core2Stats.cpp  Function Name : intialiseMlbStatsShm and Line No 136
+2018-09-05 15:41:17,138:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1430
+2018-09-05 15:41:17,150:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1459
+2018-09-05 15:41:17,158:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1489
+2018-09-05 15:41:17,171:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1519
+2018-09-05 15:41:17,181:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1548
+2018-09-05 15:41:17,194:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1576
+2018-09-05 15:41:17,203:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_dma_alloc and Line No 1607
+2018-09-05 15:41:17,207:DEBUG    PP3:~CONSOLE-> [Scheduler] Initialize Done
+2018-09-05 15:41:17,220:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macMain.cpp  Function Name : mac_oam_shm_alloc and Line No 1674
+2018-09-05 15:41:17,233:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macControl.cpp  Function Name : control_mem_init and Line No 100
+2018-09-05 15:41:17,242:DEBUG    PP3:~CONSOLE-> [Control]SHM Create Successful : MAC_SHM_C0_C2
+2018-09-05 15:41:17,253:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: macControl.cpp  Function Name : control_mem_init and Line No 133
+2018-09-05 15:41:17,259:DEBUG    PP3:~CONSOLE-> [Control]SHM Create Successful : MAC_SHM_C2_C0
+2018-09-05 15:41:17,273:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: core_analysis.cpp  Function Name : initaliseCoreAnalysisShm and Line No 38
+2018-09-05 15:41:17,279:DEBUG    PP3:~CONSOLE-> SUCCESS: CoreCounterAnalysis: SHM alloc SUCCESS addr: 0xafbe30
+2018-09-05 15:41:17,289:DEBUG    PP3:~CONSOLE->  Bootmem Allocation File Name: pltShmManager.cpp  Function Name : createSharedMemory and Line No 31
+2018-09-05 15:41:18,757:DEBUG    [/usr/bin/bringup] Done setting dl PLTD mode.
+2018-09-05 15:41:19,941:DEBUG    Setting up receive path for TIP board
+2018-09-05 15:41:19,944:DEBUG    Setting affinity to 0x1
+2018-09-05 15:41:19,948:DEBUG    CVMX_SHARED: 0x120300000-0x120320000
+2018-09-05 15:41:19,950:DEBUG    WARNING:
+2018-09-05 15:41:19,957:DEBUG    Parameter checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:19,957:DEBUG    WARNING:
+2018-09-05 15:41:19,966:DEBUG    CSR address checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:19,967:DEBUG    WARNING:
+2018-09-05 15:41:19,976:DEBUG    POW state checks are enabled. Expect some performance loss due to the extra checking
+2018-09-05 15:41:19,979:DEBUG    Active coremask = 0x1
+2018-09-05 15:41:19,982:DEBUG    RFIC Device Id = 65290
+2018-09-05 15:41:19,986:DEBUG    ****************************************
+2018-09-05 15:41:19,990:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:19,994:DEBUG    ****************************************
+2018-09-05 15:41:19,999:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:20,002:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:20,003:DEBUG    2.Init[i]
+2018-09-05 15:41:20,006:DEBUG    3.Init with File[if]
+2018-09-05 15:41:20,009:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:20,009:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:20,013:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:20,016:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:20,019:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:20,020:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:20,023:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:20,026:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:20,029:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:20,032:DEBUG    13.SPI read[r]
+2018-09-05 15:41:20,033:DEBUG    14.SPI write[w]
+2018-09-05 15:41:20,036:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:20,039:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:20,042:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:20,045:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:20,048:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:20,052:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:20,055:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:20,059:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:20,062:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:20,063:DEBUG    24.Quit[q]
+2018-09-05 15:41:20,069:DEBUG    Select the Option:Enter the Address [Hex]:Enter the Value [Hex]:
+2018-09-05 15:41:20,075:DEBUG    ****************************************
+2018-09-05 15:41:20,078:DEBUG    RF Driver Main Menu, version 2018.05.17
+2018-09-05 15:41:20,085:DEBUG    ****************************************
+2018-09-05 15:41:20,088:DEBUG    0.SPI Device Select[spi]
+2018-09-05 15:41:20,089:DEBUG    1.RFIC Soft Reset[rst]
+2018-09-05 15:41:20,092:DEBUG    2.Init[i]
+2018-09-05 15:41:20,095:DEBUG    3.Init with File[if]
+2018-09-05 15:41:20,095:DEBUG    4.TX Freq[d]
+2018-09-05 15:41:20,098:DEBUG    5.RX Freq[u]
+2018-09-05 15:41:20,101:DEBUG    6.RX Gain Select[g]
+2018-09-05 15:41:20,104:DEBUG    7.TX Attenuator Select[a]
+2018-09-05 15:41:20,107:DEBUG    8.TX Power Select[t]
+2018-09-05 15:41:20,109:DEBUG    9.RSSI Measure[s]
+2018-09-05 15:41:20,112:DEBUG    10.GPIO Set[gpio]
+2018-09-05 15:41:20,117:DEBUG    11.DAC Clock Control[dac,dax]
+2018-09-05 15:41:20,118:DEBUG    12.PWM Clock Control[pwm]
+2018-09-05 15:41:20,121:DEBUG    13.SPI read[r]
+2018-09-05 15:41:20,121:DEBUG    14.SPI write[w]
+2018-09-05 15:41:20,124:DEBUG    15.Cal TX Power[T]
+2018-09-05 15:41:20,125:DEBUG    16.Cal RX RSSI[S]
+2018-09-05 15:41:20,128:DEBUG    17.Cal Ref Clock[C]
+2018-09-05 15:41:20,130:DEBUG    18.RF EEPROM Control[e]
+2018-09-05 15:41:20,132:DEBUG    19.BB EEPROM Control[be]
+2018-09-05 15:41:20,135:DEBUG    20.Temp Sensor read[mr,mb,mc]
+2018-09-05 15:41:20,138:DEBUG    21.Temp Compensation[tp,td,tx]
+2018-09-05 15:41:20,142:DEBUG    22.Dump registers to reg_dump.txt[dr]
+2018-09-05 15:41:20,148:DEBUG    23.Read Attenuation & Gain[rag]
+2018-09-05 15:41:20,148:DEBUG    24.Quit[q]
+2018-09-05 15:41:20,153:DEBUG    Select the Option:RF Module Driver Exited
+2018-09-05 15:41:20,819:DEBUG    [/usr/bin/bringup] SmallCell in pltd mode
+2018-09-05 15:41:20,844:DEBUG    Start fe-manager
+2018-09-05 15:41:20,851:DEBUG    WARNING: Failed finding application /bin/fe-manager!
+2018-09-05 15:41:20,855:DEBUG    [/etc/init.d/S90startapp] DONE
+2018-09-05 15:41:20,857:DEBUG    sh: bad number
+2018-09-05 15:41:20,859:DEBUG    /sbin/rc complete
+2018-09-05 15:41:21,006:DEBUG    LSM login:

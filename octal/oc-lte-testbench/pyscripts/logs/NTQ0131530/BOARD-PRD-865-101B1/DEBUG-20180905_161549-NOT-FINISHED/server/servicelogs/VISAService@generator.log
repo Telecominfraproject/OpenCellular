@@ -1,0 +1,22 @@
+2018-09-05 16:15:48,917:DEBUG    
+
+
+2018-09-05 16:15:48,917:INFO     SERVICE INITIALIZED
+2018-09-05 16:16:01,993:DEBUG    LOG =DEBUG
+2018-09-05 16:16:01,994:INFO     All parameters present
+2018-09-05 16:16:01,994:INFO     Connecting to instrument [TCPIP0::A-N5182B-50490.local::inst0::INSTR]
+2018-09-05 16:16:07,174:INFO     SERVICE CONFIGURATION - LOG =DEBUG (5.18 s)
+2018-09-05 16:16:07,184:DEBUG    Timeout is 10.0 seconds
+2018-09-05 16:16:07,184:INFO     Sending command: *RST
+2018-09-05 16:16:07,187:DEBUG    Waiting for operations to finish...
+2018-09-05 16:16:07,290:INFO     SERVICE HANDLING -  (0.11 s)
+2018-09-05 16:25:25,474:DEBUG    Timeout is 5.0 seconds
+2018-09-05 16:25:25,476:INFO     Sending command: :FREQ 1845 MHz
+2018-09-05 16:25:25,480:INFO     Sending command: :POW -21.0 dBm
+2018-09-05 16:25:25,482:DEBUG    Waiting for operations to finish...
+2018-09-05 16:25:25,489:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-05 16:25:25,502:DEBUG    Timeout is 5.0 seconds
+2018-09-05 16:25:25,502:INFO     Sending command: :OUTP ON
+2018-09-05 16:25:25,505:INFO     Sending command: :OUTP:MOD OFF
+2018-09-05 16:25:25,506:DEBUG    Waiting for operations to finish...
+2018-09-05 16:25:25,516:INFO     SERVICE HANDLING -  (0.01 s)

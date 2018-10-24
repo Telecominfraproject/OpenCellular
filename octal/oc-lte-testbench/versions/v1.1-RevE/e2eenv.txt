@@ -1,0 +1,16 @@
+bw=10
+bootby=flash
+bootfile=pxelinux.0
+cfgloadby=flash
+dhcpenable=0
+i2cinit=i2c reset
+mode=e2e
+mtdids=nor0=octeon_nor0
+named_block_addr=0x30800000
+named_block_size=0x2800000
+namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc pf4cazac 0x13000 0x84000000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+serverip=10.102.81.100
+startapp=1
+swloadby=flash
+target=zen
+tcxo=pwm

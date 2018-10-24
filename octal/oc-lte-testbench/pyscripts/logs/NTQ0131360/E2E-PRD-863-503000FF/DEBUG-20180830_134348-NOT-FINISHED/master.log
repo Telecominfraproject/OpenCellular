@@ -1,0 +1,50 @@
+2018-08-30 13:43:47,578      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp05d7rc
+2018-08-30 13:43:47,627      INFO: tr.server: Loading services from config file
+2018-08-30 13:43:48,839      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 13:43:48,841      INFO: tr: ###################### BoardTestScan ######################
+2018-08-30 13:43:48,841      INFO: tr.CM_PRP001: ---------- [CM_PRP001] Validate SYS Scan ----------
+2018-08-30 13:43:48,864      INFO: tr: ####################### Preparation #######################
+2018-08-30 13:43:48,864      INFO: tr.SY_PRP060: ------------ [SY_PRP060] Hardware setup ------------
+2018-08-30 13:43:48,875      INFO: tr.SY_PRP060: TESTER STEP:
+2018-08-30 13:43:48,979      INFO: tr.SY_PRP060: Setup is as follow
+2018-08-30 13:43:51,203      INFO: tr.SY_PRP060: Tester continued the test
+2018-08-30 13:43:51,207      INFO: tr.SY_PRP060: TESTER STEP:
+2018-08-30 13:43:51,210      INFO: tr.SY_PRP060: Plug The ETHERNET cable and the 2 antennas in the OC-LTE
+DO NOT plug the power yet
+2018-08-30 13:43:53,650      INFO: tr.SY_PRP060: Tester continued the test
+2018-08-30 13:43:53,668      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-30 13:43:53,723      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-30 13:43:53,729      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-08-30 13:44:00,535      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-08-30 13:44:00,539      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-08-30 13:44:00,783      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-08-30 13:44:00,786      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-08-30 13:44:00,792      INFO: tr.SY_PRP061: ------------ [SY_PRP061] Initial setup ------------
+2018-08-30 13:44:00,799      INFO: tr.SY_PRP061: TESTER STEP:
+2018-08-30 13:44:00,799      INFO: tr.SY_PRP061: Launch the Virtual machine named OC-LTE-EPC
+2018-08-30 13:47:17,220      INFO: tr.SY_PRP061: Tester continued the test
+2018-08-30 13:47:17,236      INFO: tr.SY_PRP062: ------ [SY_PRP062] Validate connection PC/VM ------
+2018-08-30 13:47:17,250      INFO: tr.SY_PRP062: Waiting end of boot and launching SSH connection
+2018-08-30 13:47:17,440      INFO: tr.SY_PRP063: -------------- [SY_PRP063] MME setup --------------
+2018-08-30 13:47:18,466      INFO: tr.server.E2ESSHServiceClient: Unable to connect to WebSocket host: Unable to connect to WebSocket host: 
+2018-08-30 13:47:19,325      INFO: tr.SY_PRP063: TESTER STEP:
+2018-08-30 13:47:19,325      INFO: tr.SY_PRP063: Plug the power in the OC-LTE
+2018-08-30 13:47:21,673      INFO: tr.SY_PRP063: Tester continued the test
+2018-08-30 13:47:21,687      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-30 13:47:21,723      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-30 13:47:21,730      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 13:48:04,358      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-30 13:50:25,703      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-08-30 13:50:25,914      INFO: tr: ###################### Transmission ######################
+2018-08-30 13:50:25,928      INFO: tr.SY_PRP064: --------------- [SY_PRP064] Power up ---------------
+2018-08-30 13:50:25,937      INFO: tr.SY_PRP064: TESTER STEP:
+2018-08-30 13:50:25,941      INFO: tr.SY_PRP064: Wait until all leds are Green, Then plug the Mobile Broadband
+2018-08-30 13:57:01,467  CRITICAL: tr: Execution interrupted
+2018-08-30 13:57:01,469  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-08-30 13:57:01,484      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 13:57:01,490      INFO: tr: ######################### Cleanup #########################
+2018-08-30 13:57:01,496      INFO: tr.CM_CLN001: ------------- [CM_CLN001] Kill server -------------
+2018-08-30 13:57:01,565      INFO: tr.CM_CLN001: Server is alive
+2018-08-30 13:57:01,566      INFO: tr.CM_CLN001: Unable to shutdown server: 'ServerInterface' object has no attribute 'KILL_IN_CLEANUP'
+2018-08-30 13:57:01,569      INFO: tr: All sections of batch file were executed
+2018-08-30 13:57:01,625      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp05d7rc\server

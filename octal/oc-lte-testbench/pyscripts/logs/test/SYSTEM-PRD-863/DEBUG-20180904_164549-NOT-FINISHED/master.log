@@ -1,0 +1,83 @@
+2018-09-04 16:45:48,331      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpp73pa7
+2018-09-04 16:45:48,644      INFO: tr.server: Loading services from config file
+2018-09-04 16:45:49,186      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 16:45:49,190      INFO: tr: ##################### SystemTestbench #####################
+2018-09-04 16:45:49,191      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-04 16:45:49,193      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-04 16:45:49,194      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-04 16:45:50,944      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-04 16:45:50,961      INFO: tr: ####################### Preparation #######################
+2018-09-04 16:45:50,974      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 16:45:50,980      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 16:45:50,982      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 16:45:57,765      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 16:45:57,766      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 16:45:57,884      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 16:45:57,885      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 16:45:57,892      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 16:45:57,931      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 16:45:58,915      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 16:45:58,963      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 16:45:58,967      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 16:45:58,969      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 16:46:09,096      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 16:46:09,132      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 16:46:19,262      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 16:46:19,266      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 16:46:19,323      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 16:46:19,329      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 16:46:19,332      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 16:46:20,931      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 16:46:20,937      INFO: tr: ######################## LedBoard ########################
+2018-09-04 16:46:20,941      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-04 16:46:20,987      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-04 16:46:20,989      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-04 16:46:29,036      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-04 16:46:29,045      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-04 16:46:29,081      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-04 16:46:29,082      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-04 16:46:31,936      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-04 16:46:31,944      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-04 16:46:31,977      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-04 16:46:31,979      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-04 16:46:35,747      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-04 16:46:35,759      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-04 16:46:35,793      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-04 16:46:35,793      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-04 16:46:37,069      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-04 16:46:37,078      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 16:46:37,084      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 16:46:37,513      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 16:46:37,842     ERROR: tr.FE_TSC011: AssertionError: Missing : 0x25 0x26 0x27 0x4a
+2018-09-04 16:46:37,844     ERROR: tr.FE_TSC011: TEST FAILED
+2018-09-04 16:46:37,845      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 16:46:38,164     ERROR: tr.FE_TSC012: AssertionError: Missing : 0x20 0x49 0x4f 0x3e 0x3f
+2018-09-04 16:46:38,164     ERROR: tr.FE_TSC012: TEST FAILED
+2018-09-04 16:46:38,164      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 16:46:39,584      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 16:46:39,642     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-04 16:46:39,644     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 16:46:39,644      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 16:46:39,644      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 16:46:39,645      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 16:46:39,647      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 16:46:39,648      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 16:46:39,648      INFO: tr: ###################### BBPreparation ######################
+2018-09-04 16:46:39,651      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-04 16:46:40,358      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-04 16:46:41,954      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-04 16:46:45,957  CRITICAL: tr: Execution interrupted
+2018-09-04 16:46:45,959  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 16:46:45,961      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 16:46:45,963      INFO: tr: ######################### Cleanup #########################
+2018-09-04 16:46:45,966      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 16:46:46,259      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 16:46:46,263      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 16:46:46,276   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 16:46:46,279      INFO: tr: All sections of batch file were executed
+2018-09-04 16:46:46,316      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpp73pa7\server

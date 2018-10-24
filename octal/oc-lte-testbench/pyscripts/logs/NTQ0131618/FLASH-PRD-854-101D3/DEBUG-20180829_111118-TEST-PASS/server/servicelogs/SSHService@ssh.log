@@ -1,0 +1,374 @@
+2018-08-29 11:11:18,005:DEBUG    
+
+
+2018-08-29 11:11:18,005:INFO     SERVICE INITIALIZED
+2018-08-29 11:11:19,279:DEBUG    LOG =DEBUG
+2018-08-29 11:11:19,279:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 11:11:19,279:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 11:11:29,377:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.1 s)
+2018-08-29 11:11:29,388:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 11:11:29,403:DEBUG    Exit code= 0
+2018-08-29 11:11:29,403:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1372]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1374]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1374]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1412]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 08:00:35 LSM daemon.info init: starting pid 1830, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:01:01 LSM cron.info crond[1412]: crond: USER root pid 2016 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1412]: crond: USER root pid 2278 cmd /usr/bin/tempcheck.sh
+Jan  2 00:03:01 LSM cron.info crond[1412]: crond: USER root pid 2535 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1412]: crond: USER root pid 2803 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1412]: crond: USER root pid 3056 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1412]: crond: USER root pid 3299 cmd /usr/bin/tempcheck.sh
+2018-08-29 11:11:29,404:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 11:11:39,548:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-08-29 11:11:39,575:DEBUG    Exit code= 0
+2018-08-29 11:11:39,575:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-08-29 11:11:39,575:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-08-29 11:11:39,601:DEBUG    Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \;
+2018-08-29 11:11:41,727:DEBUG    Exit code= 0
+2018-08-29 11:11:41,727:DEBUG    (STDERR)rm: can't remove '.' or '..'
+2018-08-29 11:11:41,727:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (2.13 s)
+2018-08-29 11:11:42,457:DEBUG    Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz
+2018-08-29 11:14:01,157:DEBUG    Exit code= 0
+2018-08-29 11:14:01,157:DEBUG    Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os0' ... 
+OK.
+Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os1' ... 
+OK.
+2018-08-29 11:14:01,157:INFO     SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (138.7 s)
+2018-08-29 11:14:06,957:DEBUG    Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz
+2018-08-29 11:23:20,970:DEBUG    Exit code= 0
+2018-08-29 11:23:20,970:DEBUG    Updating file '/tmp/lsm_rd.gz' to device '/dev/flash_rd0' ... 
+OK.
+Updating file '/tmp/lsm_rd.gz' to device '/dev/flash_rd1' ... 
+OK.
+2018-08-29 11:23:20,970:INFO     SERVICE HANDLING - Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz (554.01 s)
+2018-08-29 11:23:21,138:DEBUG    Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin
+2018-08-29 11:23:27,480:DEBUG    Exit code= 0
+2018-08-29 11:23:27,480:DEBUG    Updating Normal u-boot...
+2018-08-29 11:23:27,480:DEBUG    (STDERR)2+1 records in
+2+1 records out
+757024 bytes (739.3KB) copied, 6.287957 seconds, 117.6KB/s
+2018-08-29 11:23:27,482:INFO     SERVICE HANDLING - Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin (6.34 s)
+2018-08-29 11:24:18,990:DEBUG    Timeout 10.0s, TTY=False. Command: ls -l /mnt/app
+2018-08-29 11:24:19,003:DEBUG    Exit code= 0
+2018-08-29 11:24:19,003:DEBUG    -rw-r--r--    1 root     root       3907433 Jan  2 00:18 Dimark_Client.tgz
+-rw-r--r--    1 root     root       3712061 Jan  2 00:18 ETM_10MHz_TV.tgz
+-rw-r--r--    1 root     root       2759313 Jan  2 00:19 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root           102 Jan  2 00:19 README.txt
+-rw-r--r--    1 root     root          5503 Jan  2 00:18 bringup
+-rw-r--r--    1 root     root         40960 Jan  2 00:18 cal.tar
+-rw-r--r--    1 root     root          1417 Jan  2 00:18 cal.tgz
+-rw-r--r--    1 root     root        635868 Jan  2 00:18 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:18 dsp.tgz
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2902244 Jan  2 00:19 lsmD.gz
+-rw-r--r--    1 root     root           616 Jan  2 00:19 md5.txt
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:19 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:19 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:19 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:19 startup.cfg
+-rw-r--r--    1 root     root          1881 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:19 update_rffe.sh
+2018-08-29 11:24:19,003:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls -l /mnt/app (0.01 s)
+2018-08-29 11:24:19,013:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv
+2018-08-29 11:24:19,075:DEBUG    Exit code= 0
+2018-08-29 11:24:19,075:DEBUG    CRC check OK(0x823d2925)
+
+atten1=18
+atten2=18
+autoload=n
+baudrate=115200
+baudrate_uart1=19200
+bf=bootoct $(flash_unused_addr) forceboot numcores=$(numcores)
+boardname=zen
+bootby=tftp
+bootcbyflash=gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcbytftp=tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcmd=run i2cinit; run namedalloc; run bootcby${bootby}
+bootdelay=0
+burn_app=erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)
+bw=5
+cfgloadby=tftp
+dhcpenable=0
+dnsip=172.16.10.40
+enable_zen5_gpio18=1
+enbctrlrf=1
+ethact=octeth0
+ethaddr=00:D0:CC:20:14:06
+gain1=25
+gain2=25
+gatewayip=10.102.81.1
+gpsenable=0
+httpdenable=1
+i2cinit=i2c dev 0; i2c probe; i2c dev 1; i2c probe
+ipaddr=10.102.81.61
+linux_cf=fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)
+loadaddr=0x20000000
+logdispen=2
+logdispport=9991
+logparserip=172.16.32.44
+ls=fatls ide 0
+mk_ubootenv=1
+mode=pltd
+mode_test=dl
+namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+netmask=255.255.255.0
+numcores=4
+ovrdrfdsp=1
+partition=nor0,5
+pseudowww=1
+ptp1ppsen=0
+ptpenable=0
+pwdb_in_flash=1
+rftarget=ad9362
+rxfreq=1730
+serverip=10.102.81.50
+startapp=0
+swloadby=tftp
+syncby=internal
+target=zen
+tcxo=pwm
+telnetenable=1
+tip=1
+txfreq=1825
+txpower=30
+ucliovrd=1
+web_pass=456b7016a916a4b178dd72b947c152b7
+web_pass1=a81be4e9b20632860d20a64c054c4150
+web_user=admin
+web_user1=user
+webuilog=1
+pwmreglow=37376
+pwmreghigh=24051
+2018-08-29 11:24:19,075:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv (0.06 s)
+2018-08-29 11:24:19,079:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376'
+2018-08-29 11:24:21,203:DEBUG    Exit code= 0
+2018-08-29 11:24:21,203:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.12 s)
+2018-08-29 11:24:21,209:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25'
+2018-08-29 11:24:23,385:DEBUG    Exit code= 0
+2018-08-29 11:24:23,385:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25' (2.18 s)
+2018-08-29 11:24:23,391:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000'
+2018-08-29 11:24:25,621:DEBUG    Exit code= 0
+2018-08-29 11:24:25,622:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000' (2.23 s)
+2018-08-29 11:24:25,627:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61'
+2018-08-29 11:24:27,852:DEBUG    Exit code= 0
+2018-08-29 11:24:27,852:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61' (2.23 s)
+2018-08-29 11:24:27,857:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0'
+2018-08-29 11:24:30,082:DEBUG    Exit code= 0
+2018-08-29 11:24:30,082:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0' (2.23 s)
+2018-08-29 11:24:30,086:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n'
+2018-08-29 11:24:32,302:DEBUG    Exit code= 0
+2018-08-29 11:24:32,302:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n' (2.22 s)
+2018-08-29 11:24:32,308:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps'
+2018-08-29 11:24:34,523:DEBUG    Exit code= 0
+2018-08-29 11:24:34,523:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps' (2.21 s)
+2018-08-29 11:24:34,529:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen'
+2018-08-29 11:24:36,765:DEBUG    Exit code= 0
+2018-08-29 11:24:36,765:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen' (2.24 s)
+2018-08-29 11:24:36,769:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000'
+2018-08-29 11:24:38,953:DEBUG    Exit code= 0
+2018-08-29 11:24:38,953:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000' (2.18 s)
+2018-08-29 11:24:38,957:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv logparserip ''
+2018-08-29 11:24:41,213:DEBUG    Exit code= 0
+2018-08-29 11:24:41,213:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logparserip '' (2.26 s)
+2018-08-29 11:24:41,216:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '0'
+2018-08-29 11:24:43,512:DEBUG    Exit code= 0
+2018-08-29 11:24:43,513:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '0' (2.3 s)
+2018-08-29 11:24:43,516:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp'
+2018-08-29 11:24:45,796:DEBUG    Exit code= 0
+2018-08-29 11:24:45,796:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp' (2.28 s)
+2018-08-29 11:24:45,801:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2'
+2018-08-29 11:24:48,052:DEBUG    Exit code= 0
+2018-08-29 11:24:48,052:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2' (2.25 s)
+2018-08-29 11:24:48,059:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0'
+2018-08-29 11:24:50,282:DEBUG    Exit code= 0
+2018-08-29 11:24:50,282:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0' (2.22 s)
+2018-08-29 11:24:50,289:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1'
+2018-08-29 11:24:52,555:DEBUG    Exit code= 0
+2018-08-29 11:24:52,555:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1' (2.27 s)
+2018-08-29 11:24:52,559:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200'
+2018-08-29 11:24:54,763:DEBUG    Exit code= 0
+2018-08-29 11:24:54,763:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200' (2.2 s)
+2018-08-29 11:24:54,769:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp'
+2018-08-29 11:24:57,013:DEBUG    Exit code= 0
+2018-08-29 11:24:57,013:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp' (2.25 s)
+2018-08-29 11:24:57,019:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0'
+2018-08-29 11:24:59,223:DEBUG    Exit code= 0
+2018-08-29 11:24:59,223:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0' (2.2 s)
+2018-08-29 11:24:59,227:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;'
+2018-08-29 11:25:01,493:DEBUG    Exit code= 0
+2018-08-29 11:25:01,493:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;' (2.27 s)
+2018-08-29 11:25:01,497:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1'
+2018-08-29 11:25:03,743:DEBUG    Exit code= 0
+2018-08-29 11:25:03,743:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1' (2.25 s)
+2018-08-29 11:25:03,749:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv telnetenable ''
+2018-08-29 11:25:05,957:DEBUG    Exit code= 0
+2018-08-29 11:25:05,957:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv telnetenable '' (2.21 s)
+2018-08-29 11:25:05,961:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7'
+2018-08-29 11:25:08,164:DEBUG    Exit code= 0
+2018-08-29 11:25:08,164:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7' (2.2 s)
+2018-08-29 11:25:08,170:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825'
+2018-08-29 11:25:10,342:DEBUG    Exit code= 0
+2018-08-29 11:25:10,344:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825' (2.17 s)
+2018-08-29 11:25:10,348:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1'
+2018-08-29 11:25:12,552:DEBUG    Exit code= 0
+2018-08-29 11:25:12,552:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1' (2.2 s)
+2018-08-29 11:25:12,556:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730'
+2018-08-29 11:25:14,694:DEBUG    Exit code= 0
+2018-08-29 11:25:14,694:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730' (2.14 s)
+2018-08-29 11:25:14,700:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv logdispport ''
+2018-08-29 11:25:16,924:DEBUG    Exit code= 0
+2018-08-29 11:25:16,924:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispport '' (2.22 s)
+2018-08-29 11:25:16,930:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv target 'zen'
+2018-08-29 11:25:19,163:DEBUG    Exit code= 0
+2018-08-29 11:25:19,164:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv target 'zen' (2.23 s)
+2018-08-29 11:25:19,167:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1'
+2018-08-29 11:25:21,384:DEBUG    Exit code= 0
+2018-08-29 11:25:21,384:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1' (2.22 s)
+2018-08-29 11:25:21,388:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1'
+2018-08-29 11:25:23,594:DEBUG    Exit code= 0
+2018-08-29 11:25:23,594:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1' (2.21 s)
+2018-08-29 11:25:23,598:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd'
+2018-08-29 11:25:25,914:DEBUG    Exit code= 0
+2018-08-29 11:25:25,914:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd' (2.32 s)
+2018-08-29 11:25:25,918:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25'
+2018-08-29 11:25:28,194:DEBUG    Exit code= 0
+2018-08-29 11:25:28,194:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25' (2.28 s)
+2018-08-29 11:25:28,198:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe'
+2018-08-29 11:25:30,453:DEBUG    Exit code= 0
+2018-08-29 11:25:30,453:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe' (2.26 s)
+2018-08-29 11:25:30,459:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user'
+2018-08-29 11:25:32,723:DEBUG    Exit code= 0
+2018-08-29 11:25:32,723:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user' (2.26 s)
+2018-08-29 11:25:32,727:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'
+2018-08-29 11:25:34,984:DEBUG    Exit code= 0
+2018-08-29 11:25:34,984:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.26 s)
+2018-08-29 11:25:34,990:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0'
+2018-08-29 11:25:37,263:DEBUG    Exit code= 0
+2018-08-29 11:25:37,263:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0' (2.27 s)
+2018-08-29 11:25:37,269:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)'
+2018-08-29 11:25:39,515:DEBUG    Exit code= 0
+2018-08-29 11:25:39,515:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)' (2.25 s)
+2018-08-29 11:25:39,520:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1'
+2018-08-29 11:25:41,723:DEBUG    Exit code= 0
+2018-08-29 11:25:41,723:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1' (2.2 s)
+2018-08-29 11:25:41,727:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0'
+2018-08-29 11:25:43,943:DEBUG    Exit code= 0
+2018-08-29 11:25:43,944:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0' (2.22 s)
+2018-08-29 11:25:43,950:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18'
+2018-08-29 11:25:46,223:DEBUG    Exit code= 0
+2018-08-29 11:25:46,223:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18' (2.28 s)
+2018-08-29 11:25:46,230:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18'
+2018-08-29 11:25:48,493:DEBUG    Exit code= 0
+2018-08-29 11:25:48,493:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18' (2.26 s)
+2018-08-29 11:25:48,499:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}'
+2018-08-29 11:25:50,714:DEBUG    Exit code= 0
+2018-08-29 11:25:50,714:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}' (2.22 s)
+2018-08-29 11:25:50,719:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl'
+2018-08-29 11:25:52,973:DEBUG    Exit code= 0
+2018-08-29 11:25:52,973:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl' (2.25 s)
+2018-08-29 11:25:52,980:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0'
+2018-08-29 11:25:55,184:DEBUG    Exit code= 0
+2018-08-29 11:25:55,186:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0' (2.21 s)
+2018-08-29 11:25:55,194:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000'
+2018-08-29 11:25:57,414:DEBUG    Exit code= 0
+2018-08-29 11:25:57,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000' (2.22 s)
+2018-08-29 11:25:57,418:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)'
+2018-08-29 11:25:59,664:DEBUG    Exit code= 0
+2018-08-29 11:25:59,664:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)' (2.25 s)
+2018-08-29 11:25:59,667:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv tip '1'
+2018-08-29 11:26:01,954:DEBUG    Exit code= 0
+2018-08-29 11:26:01,954:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tip '1' (2.29 s)
+2018-08-29 11:26:01,960:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv baudrate ''
+2018-08-29 11:26:04,204:DEBUG    Exit code= 0
+2018-08-29 11:26:04,204:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate '' (2.24 s)
+2018-08-29 11:26:04,210:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150'
+2018-08-29 11:26:06,394:DEBUG    Exit code= 0
+2018-08-29 11:26:06,394:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150' (2.18 s)
+2018-08-29 11:26:06,398:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)'
+2018-08-29 11:26:08,644:DEBUG    Exit code= 0
+2018-08-29 11:26:08,644:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)' (2.25 s)
+2018-08-29 11:26:08,648:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0'
+2018-08-29 11:26:10,914:DEBUG    Exit code= 0
+2018-08-29 11:26:10,914:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0' (2.27 s)
+2018-08-29 11:26:10,920:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1'
+2018-08-29 11:26:13,186:DEBUG    Exit code= 0
+2018-08-29 11:26:13,186:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1' (2.27 s)
+2018-08-29 11:26:13,190:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50'
+2018-08-29 11:26:15,414:DEBUG    Exit code= 0
+2018-08-29 11:26:15,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50' (2.22 s)
+2018-08-29 11:26:15,426:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv txpower '30'
+2018-08-29 11:26:17,664:DEBUG    Exit code= 0
+2018-08-29 11:26:17,664:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txpower '30' (2.24 s)
+2018-08-29 11:26:17,676:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1'
+2018-08-29 11:26:19,894:DEBUG    Exit code= 0
+2018-08-29 11:26:19,894:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1' (2.22 s)
+2018-08-29 11:26:19,900:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bw '20'
+2018-08-29 11:26:22,144:DEBUG    Exit code= 0
+2018-08-29 11:26:22,144:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bw '20' (2.24 s)
+2018-08-29 11:26:22,148:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'
+2018-08-29 11:26:24,338:DEBUG    Exit code= 0
+2018-08-29 11:26:24,338:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.19 s)
+2018-08-29 11:26:24,342:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8'
+2018-08-29 11:26:26,604:DEBUG    Exit code= 0
+2018-08-29 11:26:26,604:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8' (2.26 s)
+2018-08-29 11:26:26,608:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm'
+2018-08-29 11:26:28,874:DEBUG    Exit code= 0
+2018-08-29 11:26:28,874:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm' (2.27 s)
+2018-08-29 11:26:28,880:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin'
+2018-08-29 11:26:31,144:DEBUG    Exit code= 0
+2018-08-29 11:26:31,145:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin' (2.27 s)
+2018-08-29 11:26:31,148:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1'
+2018-08-29 11:26:33,384:DEBUG    Exit code= 0
+2018-08-29 11:26:33,384:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1' (2.24 s)
+2018-08-29 11:26:33,388:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv numcores '4'
+2018-08-29 11:26:35,614:DEBUG    Exit code= 0
+2018-08-29 11:26:35,614:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv numcores '4' (2.23 s)
+2018-08-29 11:26:35,618:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gpsenable ''
+2018-08-29 11:26:37,793:DEBUG    Exit code= 0
+2018-08-29 11:26:37,793:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenable '' (2.17 s)
+2018-08-29 11:26:37,798:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5'
+2018-08-29 11:26:40,075:DEBUG    Exit code= 0
+2018-08-29 11:26:40,075:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5' (2.28 s)
+2018-08-29 11:26:40,078:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv startapp '0'
+2018-08-29 11:26:42,305:DEBUG    Exit code= 0
+2018-08-29 11:26:42,305:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv startapp '0' (2.23 s)
+2018-08-29 11:26:42,309:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744'
+2018-08-29 11:26:44,523:DEBUG    Exit code= 0
+2018-08-29 11:26:44,523:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744' (2.21 s)
+2018-08-29 11:26:44,528:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp'
+2018-08-29 11:26:46,805:DEBUG    Exit code= 0
+2018-08-29 11:26:46,805:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp' (2.28 s)
+2018-08-29 11:26:46,809:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362'
+2018-08-29 11:26:49,033:DEBUG    Exit code= 0
+2018-08-29 11:26:49,035:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362' (2.23 s)
+2018-08-29 11:26:49,040:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0'
+2018-08-29 11:26:51,286:DEBUG    Exit code= 0
+2018-08-29 11:26:51,286:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0' (2.25 s)
+2018-08-29 11:26:51,302:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-08-29 11:26:51,346:DEBUG    Exit code= 0
+2018-08-29 11:26:51,346:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx0_predriver1_en: nonexistent directory
+2018-08-29 11:26:51,346:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.04 s)
+2018-08-29 11:26:51,354:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-08-29 11:26:51,398:DEBUG    Exit code= 0
+2018-08-29 11:26:51,398:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx0_predriver2_en: nonexistent directory
+2018-08-29 11:26:51,398:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-08-29 11:26:51,404:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-08-29 11:26:51,444:DEBUG    Exit code= 0
+2018-08-29 11:26:51,444:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-08-29 11:26:51,450:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-08-29 11:26:51,493:DEBUG    Exit code= 0
+2018-08-29 11:26:51,493:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx1_predriver1_en: nonexistent directory
+2018-08-29 11:26:51,493:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.04 s)
+2018-08-29 11:26:51,496:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-08-29 11:26:51,540:DEBUG    Exit code= 0
+2018-08-29 11:26:51,540:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx1_predriver2_en: nonexistent directory
+2018-08-29 11:26:51,540:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-08-29 11:26:51,546:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-08-29 11:26:51,586:DEBUG    Exit code= 0
+2018-08-29 11:26:51,588:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)

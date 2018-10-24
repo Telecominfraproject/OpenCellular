@@ -1,0 +1,977 @@
+2018-09-05 12:35:52,385:DEBUG    
+
+
+2018-09-05 12:35:52,385:INFO     SERVICE INITIALIZED
+2018-09-05 12:36:15,700:DEBUG    LOG =DEBUG
+2018-09-05 12:36:15,700:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 12:36:15,700:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 12:36:25,915:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.21 s)
+2018-09-05 12:36:25,927:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 12:36:25,944:DEBUG    Exit code= 0
+2018-09-05 12:36:25,944:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1382]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1383]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1383]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1426]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 08:00:37 LSM daemon.info init: starting pid 1845, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+2018-09-05 12:36:25,944:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 12:36:36,125:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-09-05 12:36:36,157:DEBUG    Exit code= 0
+2018-09-05 12:36:36,158:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-09-05 12:36:36,158:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-05 12:36:36,267:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-05 12:36:36,286:DEBUG    Exit code= 0
+2018-09-05 12:36:36,286:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-05 12:36:37,634:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-05 12:36:37,678:DEBUG    Exit code= 0
+2018-09-05 12:36:37,680:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 12:36:37,680:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.05 s)
+2018-09-05 12:36:37,688:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-05 12:36:37,875:DEBUG    Exit code= 0
+2018-09-05 12:36:37,875:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-05 12:36:37,875:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.19 s)
+2018-09-05 12:36:37,898:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled red on
+2018-09-05 12:36:37,934:DEBUG    Exit code= 0
+2018-09-05 12:36:37,934:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.04 s)
+2018-09-05 12:36:43,822:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled green on
+2018-09-05 12:36:43,841:DEBUG    Exit code= 0
+2018-09-05 12:36:43,841:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.02 s)
+2018-09-05 12:36:45,144:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange on
+2018-09-05 12:36:45,161:DEBUG    Exit code= 0
+2018-09-05 12:36:45,161:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange on (0.02 s)
+2018-09-05 12:36:46,111:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange off
+2018-09-05 12:36:46,128:DEBUG    Exit code= 0
+2018-09-05 12:36:46,128:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange off (0.02 s)
+2018-09-05 12:36:47,075:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024
+2018-09-05 12:36:47,092:DEBUG    Exit code= 0
+2018-09-05 12:36:47,094:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,094:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-05 12:36:47,105:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025
+2018-09-05 12:36:47,153:DEBUG    Exit code= 0
+2018-09-05 12:36:47,153:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,153:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-05 12:36:47,163:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026
+2018-09-05 12:36:47,211:DEBUG    Exit code= 0
+2018-09-05 12:36:47,213:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,213:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-05 12:36:47,223:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027
+2018-09-05 12:36:47,270:DEBUG    Exit code= 0
+2018-09-05 12:36:47,270:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,272:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-05 12:36:47,279:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028
+2018-09-05 12:36:47,325:DEBUG    Exit code= 0
+2018-09-05 12:36:47,326:DEBUG    driver
+iio:device0
+microamps_requested_0-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,326:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-05 12:36:47,335:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040
+2018-09-05 12:36:47,384:DEBUG    Exit code= 0
+2018-09-05 12:36:47,384:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 12:36:47,384:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-05 12:36:47,394:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a
+2018-09-05 12:36:47,444:DEBUG    Exit code= 0
+2018-09-05 12:36:47,444:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:36:47,444:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-05 12:36:47,453:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051
+2018-09-05 12:36:47,503:DEBUG    Exit code= 0
+2018-09-05 12:36:47,503:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,503:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-05 12:36:47,523:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025
+2018-09-05 12:36:47,553:DEBUG    Exit code= 0
+2018-09-05 12:36:47,553:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,555:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.03 s)
+2018-09-05 12:36:47,562:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026
+2018-09-05 12:36:47,611:DEBUG    Exit code= 0
+2018-09-05 12:36:47,611:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,611:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-05 12:36:47,619:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027
+2018-09-05 12:36:47,668:DEBUG    Exit code= 0
+2018-09-05 12:36:47,668:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,668:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-05 12:36:47,678:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028
+2018-09-05 12:36:47,727:DEBUG    Exit code= 0
+2018-09-05 12:36:47,727:DEBUG    driver
+iio:device1
+microamps_requested_1-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,727:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-05 12:36:47,739:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040
+2018-09-05 12:36:47,789:DEBUG    Exit code= 0
+2018-09-05 12:36:47,789:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 12:36:47,789:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-05 12:36:47,799:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a
+2018-09-05 12:36:47,848:DEBUG    Exit code= 0
+2018-09-05 12:36:47,848:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:36:47,848:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-05 12:36:47,875:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020
+2018-09-05 12:36:47,905:DEBUG    Exit code= 0
+2018-09-05 12:36:47,907:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:47,907:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.03 s)
+2018-09-05 12:36:47,915:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049
+2018-09-05 12:36:47,964:DEBUG    Exit code= 0
+2018-09-05 12:36:47,964:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:36:47,966:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-05 12:36:47,976:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050
+2018-09-05 12:36:48,025:DEBUG    Exit code= 0
+2018-09-05 12:36:48,025:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:48,026:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-05 12:36:48,035:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f
+2018-09-05 12:36:48,082:DEBUG    Exit code= 0
+2018-09-05 12:36:48,082:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:36:48,082:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-05 12:36:48,092:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e
+2018-09-05 12:36:48,141:DEBUG    Exit code= 0
+2018-09-05 12:36:48,141:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:48,141:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-05 12:36:48,150:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f
+2018-09-05 12:36:48,197:DEBUG    Exit code= 0
+2018-09-05 12:36:48,197:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:36:48,197:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-05 12:36:48,220:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:36:49,256:DEBUG    Exit code= 0
+2018-09-05 12:36:49,256:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.04 s)
+2018-09-05 12:36:49,266:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:36:49,448:DEBUG    Exit code= 0
+2018-09-05 12:36:49,450:DEBUG    0
+2018-09-05 12:36:49,450:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 12:36:49,960:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:36:50,104:DEBUG    Exit code= 0
+2018-09-05 12:36:50,104:DEBUG    0
+2018-09-05 12:36:50,104:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-05 12:36:50,611:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:36:50,700:DEBUG    Exit code= 0
+2018-09-05 12:36:50,700:DEBUG    0
+2018-09-05 12:36:50,701:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:36:51,210:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:36:51,293:DEBUG    Exit code= 0
+2018-09-05 12:36:51,295:DEBUG    -18533
+2018-09-05 12:36:51,295:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:36:51,302:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10
+2018-09-05 12:36:51,352:DEBUG    Exit code= 0
+2018-09-05 12:36:51,352:DEBUG    add FC 00, 5, size 2, 0E 10
+2018-09-05 12:36:51,352:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 12:36:51,361:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8
+2018-09-05 12:36:51,413:DEBUG    Exit code= 0
+2018-09-05 12:36:51,413:DEBUG    add FC 02, 5, size 2, 0E D8
+2018-09-05 12:36:51,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 12:36:51,424:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10
+2018-09-05 12:36:51,473:DEBUG    Exit code= 0
+2018-09-05 12:36:51,473:DEBUG    add FC 14, 5, size 2, 0E 10
+2018-09-05 12:36:51,473:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 12:36:51,482:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8
+2018-09-05 12:36:51,532:DEBUG    Exit code= 0
+2018-09-05 12:36:51,532:DEBUG    add FC 16, 5, size 2, 0E D8
+2018-09-05 12:36:51,532:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 12:36:51,552:DEBUG    Timeout 10.0s, TTY=False. Command: fe-gethdrev
+2018-09-05 12:36:51,582:DEBUG    Exit code= 0
+2018-09-05 12:36:51,582:DEBUG    (STDERR)sh: fe-gethdrev: not found
+2018-09-05 12:36:51,582:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.03 s)
+2018-09-05 12:36:51,611:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20
+2018-09-05 12:36:51,632:DEBUG    Exit code= 0
+2018-09-05 12:36:51,632:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.02 s)
+2018-09-05 12:36:51,644:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:36:51,700:DEBUG    Exit code= 0
+2018-09-05 12:36:51,700:DEBUG    0
+2018-09-05 12:36:51,701:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:36:51,710:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:36:51,756:DEBUG    Exit code= 0
+2018-09-05 12:36:51,756:DEBUG    28476
+2018-09-05 12:36:51,756:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:36:51,766:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-05 12:36:51,821:DEBUG    Exit code= 0
+2018-09-05 12:36:51,822:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.06 s)
+2018-09-05 12:36:51,831:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:36:51,888:DEBUG    Exit code= 0
+2018-09-05 12:36:51,888:DEBUG    0
+2018-09-05 12:36:51,888:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:36:51,895:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:36:51,944:DEBUG    Exit code= 0
+2018-09-05 12:36:51,944:DEBUG    28478
+2018-09-05 12:36:51,944:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:36:51,953:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-05 12:36:52,003:DEBUG    Exit code= 0
+2018-09-05 12:36:52,003:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-05 12:36:52,013:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20
+2018-09-05 12:36:52,063:DEBUG    Exit code= 0
+2018-09-05 12:36:52,063:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.05 s)
+2018-09-05 12:36:52,073:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:36:52,128:DEBUG    Exit code= 0
+2018-09-05 12:36:52,130:DEBUG    0
+2018-09-05 12:36:52,130:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:36:52,141:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:36:52,187:DEBUG    Exit code= 0
+2018-09-05 12:36:52,187:DEBUG    28478
+2018-09-05 12:36:52,187:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:36:52,197:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64
+2018-09-05 12:36:52,250:DEBUG    Exit code= 0
+2018-09-05 12:36:52,252:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.06 s)
+2018-09-05 12:36:52,260:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:36:52,318:DEBUG    Exit code= 0
+2018-09-05 12:36:52,318:DEBUG    0
+2018-09-05 12:36:52,318:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:36:52,325:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:36:52,374:DEBUG    Exit code= 0
+2018-09-05 12:36:52,374:DEBUG    28478
+2018-09-05 12:36:52,374:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:36:52,384:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-05 12:36:52,430:DEBUG    Exit code= 0
+2018-09-05 12:36:52,431:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-05 12:36:52,441:DEBUG    Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1
+2018-09-05 12:36:54,028:DEBUG    Exit code= 0
+2018-09-05 12:36:54,029:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1 (1.59 s)
+2018-09-05 12:36:58,066:DEBUG    Timeout 10.0s, TTY=False. Command: fe-enable
+2018-09-05 12:36:58,111:DEBUG    Exit code= 0
+2018-09-05 12:36:58,111:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.04 s)
+2018-09-05 12:37:07,148:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:37:07,177:DEBUG    Exit code= 0
+2018-09-05 12:37:07,178:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:37:07,178:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.03 s)
+2018-09-05 12:37:09,654:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:37:09,680:DEBUG    Exit code= 0
+2018-09-05 12:37:09,680:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.03 s)
+2018-09-05 12:37:09,687:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:37:09,734:DEBUG    Exit code= 0
+2018-09-05 12:37:09,736:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.05 s)
+2018-09-05 12:37:09,746:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:37:09,792:DEBUG    Exit code= 0
+2018-09-05 12:37:09,792:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:37:09,802:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:37:09,848:DEBUG    Exit code= 0
+2018-09-05 12:37:09,848:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:37:20,664:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:37:20,676:DEBUG    Exit code= 0
+2018-09-05 12:37:20,676:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 12:37:20,684:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:37:20,730:DEBUG    Exit code= 0
+2018-09-05 12:37:20,730:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:37:20,740:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:37:20,786:DEBUG    Exit code= 0
+2018-09-05 12:37:20,786:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:37:20,795:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:37:20,857:DEBUG    Exit code= 0
+2018-09-05 12:37:20,857:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:37:20,857:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-05 12:37:22,832:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:37:22,848:DEBUG    Exit code= 0
+2018-09-05 12:37:22,848:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 12:37:22,857:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:37:22,904:DEBUG    Exit code= 0
+2018-09-05 12:37:22,904:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:37:22,913:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:37:22,957:DEBUG    Exit code= 0
+2018-09-05 12:37:22,957:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-05 12:37:22,984:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:37:23,026:DEBUG    Exit code= 0
+2018-09-05 12:37:23,026:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.04 s)
+2018-09-05 12:37:24,348:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:24,359:DEBUG    > pwm l 37376 q eof
+2018-09-05 12:37:24,398:DEBUG    Exit code= 0
+2018-09-05 12:37:24,398:DEBUG    pwm l 37376 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM low value:set PWM_LOW_TIME 37376(0x9200)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:24,398:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm l 37376 q eof (0.05 s)
+2018-09-05 12:37:24,407:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:24,450:DEBUG    > pwm h 25000 q eof
+2018-09-05 12:37:24,466:DEBUG    Exit code= 0
+2018-09-05 12:37:24,467:DEBUG    pwm h 25000 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 25000(0x61a8)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:24,467:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 25000 q eof (0.06 s)
+2018-09-05 12:37:25,697:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:25,706:DEBUG    > pwm h 26529 q eof
+2018-09-05 12:37:25,723:DEBUG    Exit code= 0
+2018-09-05 12:37:25,723:DEBUG    pwm h 26529 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 26529(0x67a1)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:25,723:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 26529 q eof (0.03 s)
+2018-09-05 12:37:26,683:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:26,694:DEBUG    > pwm h 25008 q eof
+2018-09-05 12:37:26,733:DEBUG    Exit code= 0
+2018-09-05 12:37:26,733:DEBUG    pwm h 25008 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 25008(0x61b0)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:26,733:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 25008 q eof (0.05 s)
+2018-09-05 12:37:27,815:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:27,829:DEBUG    > pwm h 22340 q eof
+2018-09-05 12:37:27,865:DEBUG    Exit code= 0
+2018-09-05 12:37:27,865:DEBUG    pwm h 22340 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 22340(0x5744)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:27,865:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 22340 q eof (0.05 s)
+2018-09-05 12:37:28,947:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:28,956:DEBUG    > pwm h 23444 q eof
+2018-09-05 12:37:28,990:DEBUG    Exit code= 0
+2018-09-05 12:37:28,990:DEBUG    pwm h 23444 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 23444(0x5b94)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:28,992:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 23444 q eof (0.05 s)
+2018-09-05 12:37:30,029:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:37:30,040:DEBUG    > pwm h 22939 q eof
+2018-09-05 12:37:30,078:DEBUG    Exit code= 1
+2018-09-05 12:37:30,078:DEBUG    pwm h 22939 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 22939(0x599b)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:37:30,078:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 22939 q eof (0.05 s)
+2018-09-05 12:37:30,542:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376'
+2018-09-05 12:37:33,088:DEBUG    Exit code= 0
+2018-09-05 12:37:33,089:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.55 s)
+2018-09-05 12:37:33,101:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '22939'
+2018-09-05 12:37:43,141:INFO     COMMAND TIMEOUT REACHED
+2018-09-05 12:37:43,144:DEBUG    Exit code= 0
+2018-09-05 12:37:43,144:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '22939' (10.04 s)
+2018-09-05 12:37:43,177:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:37:53,184:DEBUG    Unexpected error occured while handling request
+2018-09-05 12:37:53,194:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 73, in check_connected
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 90, in service_handle
+    ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command, timeout=timeout, get_pty=get_pty)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\client.py", line 480, in exec_command
+    chan = self._transport.open_session(timeout=timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\transport.py", line 767, in open_session
+    timeout=timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\transport.py", line 895, in open_channel
+    raise SSHException('Timeout opening channel.')
+SSHException: Timeout opening channel.
+
+2018-09-05 12:37:53,196:ERROR    Server error [Timeout opening channel.]
+2018-09-05 12:37:53,200:ERROR    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 304, in check_service_url_exists
+    resp = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 406, in service
+    return self.internal_service(url, content_object, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 410, in internal_service
+    resp.body = self.service_dict[url].base_service_handle(content_object)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 112, in _is_configured
+    return function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 194, in base_service_handle
+    resp = self._standard_function_error_handling(self.service_handle, request)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 73, in check_connected
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 90, in service_handle
+    ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command, timeout=timeout, get_pty=get_pty)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\client.py", line 480, in exec_command
+    chan = self._transport.open_session(timeout=timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\transport.py", line 767, in open_session
+    timeout=timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\paramiko\transport.py", line 895, in open_channel
+    raise SSHException('Timeout opening channel.')
+SSHException: Timeout opening channel.
+

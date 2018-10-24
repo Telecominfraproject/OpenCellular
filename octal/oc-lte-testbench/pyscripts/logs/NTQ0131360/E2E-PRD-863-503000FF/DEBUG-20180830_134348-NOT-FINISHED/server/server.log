@@ -1,0 +1,103 @@
+2018-08-30 13:43:47,621: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpij_ovj
+2018-08-30 13:43:47,635: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:47,714: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:47,819: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:47,877: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,032: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,102: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,246: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,448: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,497: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,605: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-08-30 13:43:48,707: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmp05d7rc\server
+2018-08-30 13:44:00,778: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.23 s)
+2018-08-30 13:47:17,434: server.service.SSHService@e2e_ssh                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.100:22, user=nuran, password=nuran (0.17 s)
+2018-08-30 13:47:19,322: server.service.SSHService@e2e_ssh                 : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=True. Command: sudo nohup bash /root/mme/lte_start.sh - > nuran (0.84 s)
+2018-08-30 13:47:23,749: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:26,779: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:29,812: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:32,845: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:35,884: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:38,917: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:41,946: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:44,979: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:48,006: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:51,026: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:54,055: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:47:57,092: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:48:00,115: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-08-30 13:48:02,154: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-08-30 13:48:04,348: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (1.17 s)
+2018-08-30 13:48:04,391: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:06,437: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:08,477: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:10,520: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:12,562: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:14,611: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:16,660: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:18,710: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:20,757: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:22,802: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:24,848: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:26,888: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:28,938: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:30,983: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:33,026: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:35,075: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:37,119: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:39,163: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:41,206: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:43,358: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.13 s)
+2018-08-30 13:48:45,404: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:47,446: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:49,490: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:51,540: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:53,586: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:48:55,635: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:57,684: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:48:59,727: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:49:01,779: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:03,819: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:05,868: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:07,913: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:09,953: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:49:12,000: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:14,046: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:16,091: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:18,132: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:49:20,180: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:22,224: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:49:24,269: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:26,313: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:28,361: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:30,411: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:32,464: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:34,516: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:36,559: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:38,609: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:40,655: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:42,701: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:44,752: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:46,798: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:48,845: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:50,891: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:52,943: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:54,993: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:57,042: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:49:59,091: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:01,138: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:03,184: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:05,227: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:07,273: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:50:09,321: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:11,368: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:13,414: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:15,453: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-30 13:50:17,500: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:19,549: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:21,595: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:23,642: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:25,687: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-08-30 13:50:25,755: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-08-30 13:50:25,905: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.15 s)
+2018-08-30 13:57:01,584: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmp05d7rc\server

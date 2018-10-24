@@ -1,0 +1,23 @@
+2018-09-04 16:13:23,779      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpsvy0jk
+2018-09-04 16:13:24,140      INFO: tr.server: Loading services from config file
+2018-09-04 16:13:24,552      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 16:13:24,553      INFO: tr: ####################### Preparation #######################
+2018-09-04 16:13:24,555      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 16:13:24,556      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 16:13:24,556      INFO: tr.artifactory: Retrieving artifact oc-lte/v1.1
+2018-09-04 16:13:31,338      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 16:13:31,342      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v1.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1
+2018-09-04 16:13:31,476      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 16:13:31,479      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 16:13:31,480      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 16:18:23,584      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 16:18:23,596  CRITICAL: tr: Execution interrupted
+2018-09-04 16:18:23,599  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 16:18:23,608      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 16:18:23,612      INFO: tr: ######################### Cleanup #########################
+2018-09-04 16:18:23,618      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 16:18:23,654   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-04 16:18:23,657      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 16:18:23,668   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 16:18:23,671      INFO: tr: All sections of batch file were executed
+2018-09-04 16:18:23,697      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpsvy0jk\server

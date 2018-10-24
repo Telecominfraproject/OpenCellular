@@ -1,0 +1,11 @@
+PASS Preparation: [CM_PRP011] Launch TFTP Service (0:00:06)
+PASS SSHFixedIp: [BB_TSC003] Boot Validation (0:00:00)
+PASS SSHFixedIp: [BB_PRP006] Launch SCP Service (0:00:00)
+PASS RevertUpdateFinal: [SY_PRP003] Revert to TFTP if final env (0:00:00)
+PASS FlashApp: [CM_CLN002] Copy boot by flash files (0:01:34)
+PASS UpdateFinal: [CM_CLN003] Update final env if was before test (0:03:08)
+PASS UpdateFinal: [SY_TSC050] Validate boot from flash (0:00:00)
+PASS Cleanup: [FE_CLN001] Set TX paths off (0:00:00)
+PASS Cleanup: [BB_CLN001] Power off (0:00:00)
+Total Duration: 0:04:50
+TEST-PASS

@@ -1,0 +1,20 @@
+2018-09-04 14:50:27,454      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpzupted
+2018-09-04 14:50:27,486      INFO: tr.server: Loading services from config file
+2018-09-04 14:50:27,813      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 14:50:27,819      INFO: tr: ####################### Preparation #######################
+2018-09-04 14:50:27,819      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-04 14:50:28,243      INFO: tr: ####################### FEImpedance #######################
+2018-09-04 14:50:28,262      INFO: tr.FE_TSC001: ---------- [FE_TSC001] FE Impedance Test ----------
+2018-09-04 14:50:28,263      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-04 14:50:28,263      INFO: tr.FE_TSC001: Ground here
+2018-09-04 14:50:34,217      INFO: tr.FE_TSC001: Tester continued the test
+2018-09-04 14:50:34,220      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-04 14:50:34,229      INFO: tr.FE_TSC001: Please probe impedance of point #1 [28V at TP24] and enter value in kOhms in the box below. Expecting [value > 100]
+2018-09-04 14:51:21,176      INFO: tr.FE_TSC001: Tester continued the test
+2018-09-04 14:51:21,177      INFO: tr.criteria: FE_TSC001_IMPEDANCE_28V: [200] > 100 : PASS
+2018-09-04 14:51:21,178      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-04 14:51:21,180      INFO: tr.FE_TSC001: Please probe impedance of point #2 [5V at TP25] and enter value in kOhms in the box below. Expecting [value > 0.3]
+2018-09-04 14:51:55,819  CRITICAL: tr: Execution interrupted
+2018-09-04 14:51:55,821  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 14:51:55,823      INFO: tr: All sections of batch file were executed
+2018-09-04 14:51:55,872      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpzupted\server

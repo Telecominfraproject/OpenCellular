@@ -1,0 +1,10 @@
+PASS Preparation: [CM_PRP016] Launch DCSupply Service (0:00:06)
+INTERRUPTED FEImpedance: [FE_TSC001] FE Impedance Test (0:03:47)
+UNEXECUTED FEImpedance: [CM_PRP030] Power-up (None)
+UNEXECUTED FEImpedance: [FE_TSC002] Potentiometer Tuning Test (None)
+UNEXECUTED FEImpedance: [CM_CLN030] Power-off (None)
+UNEXECUTED FEImpedance: [FE_TSC003] Potentiometer Impedance Measure (None)
+UNEXECUTED Cleanup: [FE_CLN001] Set TX paths off (None)
+UNEXECUTED Cleanup: [BB_CLN001] Power off (None)
+Total Duration: 0:03:53
+NOT-FINISHED

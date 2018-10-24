@@ -1,0 +1,185 @@
+2018-09-04 14:14:08,078      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpjindmn
+2018-09-04 14:14:08,082     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x17A3CEF0>
+2018-09-04 14:14:08,082     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x17A01E70>
+2018-09-04 14:14:08,105      INFO: tr.server: Loading services from config file
+2018-09-04 14:14:08,114     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,121     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,151     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-04 14:14:08,161     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,183     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-04 14:14:08,200     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-04 14:14:08,210     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,230     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-04 14:14:08,243     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-04 14:14:08,253     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,270     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-04 14:14:08,282     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,293     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,311     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-04 14:14:08,322     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-04 14:14:08,332     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,351     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-04 14:14:08,361     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-04 14:14:08,519     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x187592D0>
+2018-09-04 14:14:08,522     DEBUG: tr: Next section
+2018-09-04 14:14:08,523      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 14:14:08,535      INFO: tr: ###################### BoardTestScan ######################
+2018-09-04 14:14:08,536      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-04 14:14:08,538     DEBUG: tr.CM_PRP001: context.FE_MRP= u'PRD-854-101D3'
+2018-09-04 14:14:08,539     DEBUG: tr.CM_PRP001: context.FE_SERIAL_NO= u'NTQ0131618'
+2018-09-04 14:14:08,539      INFO: tr.criteria: UUT_FE_MRP: 'PRD-854-101' in [PRD-854-101D3] : PASS
+2018-09-04 14:14:08,540      INFO: tr.criteria: UUT_FE_SERIAL_NO: [NTQ0131618] : PASS
+2018-09-04 14:14:08,540     DEBUG: tr.CM_PRP001: context.FE_REV= u'D'
+2018-09-04 14:14:08,542     DEBUG: tr.CM_PRP001: context.future_links_to_test= [(u'PRD-854-101D3', u'NTQ0131618')]
+2018-09-04 14:14:08,556      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-04 14:14:08,572      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-04 14:14:08,572      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-04 14:14:13,250      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-04 14:14:13,253     DEBUG: tr.CM_PRP002: context.BB_MRP= 'PRD-865-101B1'
+2018-09-04 14:14:13,255     DEBUG: tr.CM_PRP002: context.BB_SERIAL_NO= 'NTQ0131490'
+2018-09-04 14:14:13,256     DEBUG: tr.CM_PRP002: context.BB_MAC_ADDR= '00-D0-CC-20-14-06'
+2018-09-04 14:14:13,257      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-04 14:14:13,260      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-04 14:14:13,263      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-04 14:14:13,266     DEBUG: tr.CM_PRP002: context.future_links_to_test= [(u'PRD-854-101D3', u'NTQ0131618'), ('PRD-865-101B1', 'NTQ0131490')]
+2018-09-04 14:14:13,312      INFO: tr: ##################### BoardTestbench #####################
+2018-09-04 14:14:13,328      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-04 14:14:13,331      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:13,332      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-04 14:14:14,859      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:14,862      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:14,865      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-04 14:14:15,480      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:15,486      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:15,494      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-04 14:14:16,413      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:16,467      INFO: tr: ####################### Preparation #######################
+2018-09-04 14:14:16,494      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 14:14:16,497      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 14:14:16,497      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 14:14:23,276      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 14:14:23,279      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 14:14:23,335     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-04 14:14:23,336      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 14:14:23,338     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-04 14:14:23,339      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 14:14:23,339     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-04 14:14:23,362      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 14:14:23,424      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 14:14:23,443     DEBUG: tr.server.KeysightEXGGeneratorClient: Connecting to TCPIP0::A-N5182B-50490::inst0::INSTR
+2018-09-04 14:14:26,355   WARNING: tr.CM_PRP014: Unable to create generator service: [500] NEW SERVICE call @generator: VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+2018-09-04 14:14:26,357     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-04 14:14:26,878      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 14:14:27,109   WARNING: tr.CM_PRP015: Unable to create rfswitch service: [500] NEW SERVICE call @rfswitch: Exception: Could not connect
+2018-09-04 14:14:27,125      INFO: tr: ######################### Powerup #########################
+2018-09-04 14:14:27,141      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-04 14:14:28,471      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-09-04 14:14:30,992      INFO: tr.CM_PRP030: Power On
+2018-09-04 14:14:32,131      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 14:14:32,148      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 14:14:32,150      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 14:14:32,325      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 14:14:32,361      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 14:14:32,494      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 14:14:32,509      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 14:14:32,512      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 14:14:32,513     DEBUG: tr.CM_PRP042: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-04 14:14:32,635     DEBUG: tr.CM_PRP042: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-04 14:14:32,637     DEBUG: tr.CM_PRP042: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-04 14:14:34,026     DEBUG: tr.CM_PRP042: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-04 14:14:34,184      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 14:14:34,200      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 14:14:34,217      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 14:14:34,624      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 14:14:34,984      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 14:14:35,368      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 14:14:35,391     DEBUG: tr.FE_TSC013: Reset RFPAL
+2018-09-04 14:14:38,698      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 14:14:38,763     DEBUG: tr.FE_TSC016: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_digitalcomm.py", line 66, in FE_TSC016
+    assert rev == context.FE_REV, "Scanned FE Rev [%s] does not match with on-board Rev [%s]" % (context.FE_REV, rev)
+AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+
+2018-09-04 14:14:38,763     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-04 14:14:38,765     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 14:14:38,767      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 14:14:38,769      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 14:14:38,769      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-04 14:14:38,772      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-04 14:14:38,826     DEBUG: tr.FE_PRP030: 
+2018-09-04 14:14:38,831      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-04 14:14:38,834      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-04 14:14:38,836      INFO: tr: ################### TXEnableValidation ###################
+2018-09-04 14:14:38,838      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-04 14:14:38,882     DEBUG: tr.FE_TSC131: TX Attn 1 set to 16.00 dB
+2018-09-04 14:14:39,032     DEBUG: tr.FE_TSC131: PA 1 = (28.316 V, 0.136 A)
+2018-09-04 14:14:39,036     DEBUG: tr.FE_TSC131: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 14, in FE_TSC131
+    validate_tx_gains(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 26, in validate_tx_gains
+    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 76, in set_spectrum_path
+    ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 29, in set_switch_path
+    display_patha = self.display_string(patha)
+AttributeError: 'ManualLossRFSwitch' object has no attribute 'display_string'
+
+2018-09-04 14:14:39,036     ERROR: tr.FE_TSC131: AttributeError: 'ManualLossRFSwitch' object has no attribute 'display_string'
+2018-09-04 14:14:39,038     ERROR: tr.FE_TSC131: TEST FAILED
+2018-09-04 14:14:39,039      INFO: tr.FE_TSC231: ------ [FE_TSC231] Validate TX2 Enables Gains ------
+2018-09-04 14:14:39,062     DEBUG: tr.FE_TSC231: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-04 14:14:39,101     DEBUG: tr.FE_TSC231: TX Attn 2 set to 16.00 dB
+2018-09-04 14:14:39,101     DEBUG: tr.server.SensorSSHServiceClient: Call blocked !
+2018-09-04 14:14:39,102  CRITICAL: tr: Execution interrupted
+2018-09-04 14:14:39,102  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 14:14:39,104     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-04 14:14:39,105     DEBUG: tr: Next section
+2018-09-04 14:14:39,105      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 14:14:39,108      INFO: tr: ######################### Cleanup #########################
+2018-09-04 14:14:39,109      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 14:14:39,111     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-04 14:14:39,163     DEBUG: tr.FE_CLN001: TX 1 Predriver2 set to 0
+2018-09-04 14:14:39,214     DEBUG: tr.FE_CLN001: TX 1 PA set to 0
+2018-09-04 14:14:39,265     DEBUG: tr.FE_CLN001: TX 2 Predriver1 set to 0
+2018-09-04 14:14:39,318     DEBUG: tr.FE_CLN001: TX 2 Predriver2 set to 0
+2018-09-04 14:14:39,368     DEBUG: tr.FE_CLN001: TX 2 PA set to 0
+2018-09-04 14:14:39,418      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 14:14:39,421      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 14:14:39,542      INFO: tr: All sections of batch file were executed
+2018-09-04 14:14:39,598      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpjindmn\server

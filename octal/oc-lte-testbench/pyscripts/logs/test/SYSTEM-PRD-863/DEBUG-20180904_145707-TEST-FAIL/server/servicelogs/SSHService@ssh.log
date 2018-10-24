@@ -1,0 +1,2004 @@
+2018-09-04 14:57:07,338:DEBUG    
+
+
+2018-09-04 14:57:07,338:INFO     SERVICE INITIALIZED
+2018-09-04 14:58:37,095:DEBUG    LOG =DEBUG
+2018-09-04 14:58:37,095:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:37,095:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:39,098:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:39,101:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:39,101:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:39,104:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:40,114:DEBUG    LOG =DEBUG
+2018-09-04 14:58:40,114:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:40,114:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:42,115:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:42,117:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:42,117:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:42,118:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:43,128:DEBUG    LOG =DEBUG
+2018-09-04 14:58:43,130:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:43,130:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:45,131:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:45,131:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:45,132:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:45,134:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:46,144:DEBUG    LOG =DEBUG
+2018-09-04 14:58:46,144:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:46,144:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:48,147:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:48,148:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:48,148:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:48,150:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:49,160:DEBUG    LOG =DEBUG
+2018-09-04 14:58:49,160:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:49,160:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:51,163:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:51,164:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:51,164:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:51,167:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:52,176:DEBUG    LOG =DEBUG
+2018-09-04 14:58:52,176:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:52,176:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:54,178:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:54,180:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:54,180:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:54,181:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:55,190:DEBUG    LOG =DEBUG
+2018-09-04 14:58:55,190:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:55,191:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:58:57,194:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:58:57,197:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:57,197:WARNING  Client error [timed out timed out]
+2018-09-04 14:58:57,200:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:58:58,207:DEBUG    LOG =DEBUG
+2018-09-04 14:58:58,209:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:58:58,209:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:00,211:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:00,213:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:00,213:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:00,216:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:01,223:DEBUG    LOG =DEBUG
+2018-09-04 14:59:01,223:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:01,224:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:03,227:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:03,229:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:03,229:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:03,230:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:04,239:DEBUG    LOG =DEBUG
+2018-09-04 14:59:04,239:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:04,239:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:06,242:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:06,243:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:06,243:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:06,244:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:07,253:DEBUG    LOG =DEBUG
+2018-09-04 14:59:07,253:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:07,253:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:09,256:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:09,257:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:09,257:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:09,259:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:10,269:DEBUG    LOG =DEBUG
+2018-09-04 14:59:10,269:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:10,269:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:12,273:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:12,273:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:12,275:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:12,276:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:13,285:DEBUG    LOG =DEBUG
+2018-09-04 14:59:13,285:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:13,285:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:15,288:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:15,288:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:15,289:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:15,289:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:16,299:DEBUG    LOG =DEBUG
+2018-09-04 14:59:16,299:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:16,299:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:18,302:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:18,302:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:18,303:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:18,305:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:19,313:DEBUG    LOG =DEBUG
+2018-09-04 14:59:19,313:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:19,313:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:21,316:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:21,316:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:21,316:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:21,321:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:22,328:DEBUG    LOG =DEBUG
+2018-09-04 14:59:22,328:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:22,329:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:24,332:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:24,332:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:24,332:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:24,335:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:25,344:DEBUG    LOG =DEBUG
+2018-09-04 14:59:25,344:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:25,344:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:27,348:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:27,348:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:27,348:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:27,348:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:28,359:DEBUG    LOG =DEBUG
+2018-09-04 14:59:28,359:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:28,359:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:30,364:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:30,364:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:30,364:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:30,365:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:31,375:DEBUG    LOG =DEBUG
+2018-09-04 14:59:31,375:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:31,375:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:33,378:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:33,378:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:33,378:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:33,380:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:34,391:DEBUG    LOG =DEBUG
+2018-09-04 14:59:34,391:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:34,391:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:36,394:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:36,394:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:36,394:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:36,397:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:37,407:DEBUG    LOG =DEBUG
+2018-09-04 14:59:37,407:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:37,407:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:39,410:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:39,410:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:39,411:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:39,411:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:40,421:DEBUG    LOG =DEBUG
+2018-09-04 14:59:40,421:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:40,421:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:42,424:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:42,424:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:42,424:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:42,426:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:43,436:DEBUG    LOG =DEBUG
+2018-09-04 14:59:43,436:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:43,436:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:45,437:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:45,437:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:45,437:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:45,440:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:46,448:DEBUG    LOG =DEBUG
+2018-09-04 14:59:46,448:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:46,448:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:48,451:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:48,451:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:48,451:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:48,453:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:49,461:DEBUG    LOG =DEBUG
+2018-09-04 14:59:49,461:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:49,461:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:51,466:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:51,467:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:51,467:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:51,467:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:52,477:DEBUG    LOG =DEBUG
+2018-09-04 14:59:52,477:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:52,477:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:54,482:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:54,482:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:54,483:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:54,483:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:55,493:DEBUG    LOG =DEBUG
+2018-09-04 14:59:55,493:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:55,493:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 14:59:57,497:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:59:57,499:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:57,499:WARNING  Client error [timed out timed out]
+2018-09-04 14:59:57,500:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 14:59:58,510:DEBUG    LOG =DEBUG
+2018-09-04 14:59:58,510:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:59:58,512:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:00,515:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:00,515:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:00,515:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:00,516:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:01,526:DEBUG    LOG =DEBUG
+2018-09-04 15:00:01,526:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:01,528:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:03,530:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:03,530:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:03,532:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:03,532:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:04,543:DEBUG    LOG =DEBUG
+2018-09-04 15:00:04,543:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:04,543:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:06,546:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:06,548:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:06,548:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:06,549:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:07,559:DEBUG    LOG =DEBUG
+2018-09-04 15:00:07,561:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:07,561:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:09,563:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:09,565:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:09,566:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:09,569:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:10,576:DEBUG    LOG =DEBUG
+2018-09-04 15:00:10,576:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:10,576:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:12,581:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:12,582:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:12,582:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:12,584:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:13,592:DEBUG    LOG =DEBUG
+2018-09-04 15:00:13,592:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:13,594:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:15,596:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:15,598:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:15,599:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:15,601:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:16,609:DEBUG    LOG =DEBUG
+2018-09-04 15:00:16,609:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:16,609:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:18,615:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:18,615:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:18,617:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:18,621:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:19,635:DEBUG    LOG =DEBUG
+2018-09-04 15:00:19,637:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:19,637:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:21,638:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:21,638:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:21,638:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:21,641:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:22,653:DEBUG    LOG =DEBUG
+2018-09-04 15:00:22,653:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:22,653:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:24,654:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:24,654:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:24,655:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:24,657:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:25,668:DEBUG    LOG =DEBUG
+2018-09-04 15:00:25,668:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:25,668:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:27,671:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:27,673:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:27,673:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:27,674:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:28,686:DEBUG    LOG =DEBUG
+2018-09-04 15:00:28,686:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:28,687:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:30,688:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:30,690:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:30,690:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:30,693:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:31,703:DEBUG    LOG =DEBUG
+2018-09-04 15:00:31,703:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:31,703:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:33,706:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:33,707:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:33,707:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:33,709:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:34,717:DEBUG    LOG =DEBUG
+2018-09-04 15:00:34,717:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:34,717:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:36,720:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:36,720:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:36,720:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:36,723:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:37,732:DEBUG    LOG =DEBUG
+2018-09-04 15:00:37,733:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:37,733:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:39,736:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:39,736:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:39,736:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:39,739:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:40,750:DEBUG    LOG =DEBUG
+2018-09-04 15:00:40,750:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:40,750:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:42,753:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:42,753:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:42,755:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:42,756:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:43,766:DEBUG    LOG =DEBUG
+2018-09-04 15:00:43,766:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:43,766:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:45,769:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:45,770:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:45,770:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:45,772:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:46,780:DEBUG    LOG =DEBUG
+2018-09-04 15:00:46,782:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:46,782:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:48,786:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:48,786:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:48,786:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:48,788:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:49,799:DEBUG    LOG =DEBUG
+2018-09-04 15:00:49,799:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:49,799:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:51,802:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:51,803:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:51,803:WARNING  Client error [timed out timed out]
+2018-09-04 15:00:51,805:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-09-04 15:00:52,815:DEBUG    LOG =DEBUG
+2018-09-04 15:00:52,815:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:52,815:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:53,832:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:53,832:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:53,832:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:53,834:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:54,844:DEBUG    LOG =DEBUG
+2018-09-04 15:00:54,844:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:54,844:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:55,851:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:55,851:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:55,851:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:55,854:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:56,864:DEBUG    LOG =DEBUG
+2018-09-04 15:00:56,864:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:56,864:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:57,871:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:57,871:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:57,871:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:57,872:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:58,881:DEBUG    LOG =DEBUG
+2018-09-04 15:00:58,882:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:00:58,882:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:00:59,901:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:00:59,901:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:00:59,901:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:59,904:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:00,913:DEBUG    LOG =DEBUG
+2018-09-04 15:01:00,913:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:00,913:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:01,920:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:01:01,921:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:01,921:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:01,924:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:02,934:DEBUG    LOG =DEBUG
+2018-09-04 15:01:02,934:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:02,934:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:03,941:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:01:03,943:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:03,944:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:03,946:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:04,957:DEBUG    LOG =DEBUG
+2018-09-04 15:01:04,957:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:04,957:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:05,966:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:01:05,967:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:05,967:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:05,969:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:06,979:DEBUG    LOG =DEBUG
+2018-09-04 15:01:06,979:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:06,979:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:07,990:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:01:07,992:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:07,992:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:07,993:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:09,005:DEBUG    LOG =DEBUG
+2018-09-04 15:01:09,006:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:09,006:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:10,025:DEBUG    Unexpected error occured while handling request
+2018-09-04 15:01:10,026:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:10,026:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:10,028:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-09-04 15:01:11,036:DEBUG    LOG =DEBUG
+2018-09-04 15:01:11,036:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:11,036:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 15:01:22,236:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (11.2 s)
+2018-09-04 15:01:22,246:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:22,285:DEBUG    Exit code= 0
+2018-09-04 15:01:22,285:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:22,285:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.04 s)
+2018-09-04 15:01:24,295:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:24,309:DEBUG    Exit code= 0
+2018-09-04 15:01:24,309:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:24,309:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:26,319:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:26,335:DEBUG    Exit code= 0
+2018-09-04 15:01:26,335:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:26,335:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:28,342:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:28,357:DEBUG    Exit code= 0
+2018-09-04 15:01:28,357:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:28,358:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:30,365:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:30,378:DEBUG    Exit code= 0
+2018-09-04 15:01:30,378:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:30,378:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:32,388:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:32,401:DEBUG    Exit code= 0
+2018-09-04 15:01:32,401:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:32,401:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:34,408:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:34,423:DEBUG    Exit code= 0
+2018-09-04 15:01:34,424:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:34,424:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:36,431:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:36,447:DEBUG    Exit code= 0
+2018-09-04 15:01:36,447:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:36,447:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:38,457:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:38,470:DEBUG    Exit code= 0
+2018-09-04 15:01:38,470:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:38,470:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:40,479:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:40,494:DEBUG    Exit code= 0
+2018-09-04 15:01:40,494:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:40,494:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:42,503:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:42,516:DEBUG    Exit code= 0
+2018-09-04 15:01:42,516:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:42,516:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:44,528:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:44,542:DEBUG    Exit code= 0
+2018-09-04 15:01:44,542:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:44,542:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:46,551:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:46,562:DEBUG    Exit code= 0
+2018-09-04 15:01:46,562:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+2018-09-04 15:01:46,562:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:48,573:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 15:01:48,585:DEBUG    Exit code= 0
+2018-09-04 15:01:48,585:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1400]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1401]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1401]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1439]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 08:00:34 LSM daemon.info init: starting pid 1842, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+2018-09-04 15:01:48,585:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:58,750:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-09-04 15:01:58,780:DEBUG    Exit code= 0
+2018-09-04 15:01:58,780:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-09-04 15:01:58,780:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 15:01:58,907:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-04 15:01:58,924:DEBUG    Exit code= 0
+2018-09-04 15:01:58,924:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-04 15:02:00,197:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-04 15:02:00,239:DEBUG    Exit code= 0
+2018-09-04 15:02:00,239:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-04 15:02:00,240:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-04 15:02:00,246:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-04 15:02:00,428:DEBUG    Exit code= 0
+2018-09-04 15:02:00,428:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-04 15:02:00,428:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.18 s)
+2018-09-04 15:02:00,450:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled red on
+2018-09-04 15:02:00,484:DEBUG    Exit code= 0
+2018-09-04 15:02:00,484:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-09-04 15:12:24,410:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled green on
+2018-09-04 15:12:24,436:DEBUG    Exit code= 0
+2018-09-04 15:12:24,436:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.03 s)
+2018-09-04 15:12:31,832:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-04 15:12:31,849:DEBUG    Exit code= 0
+2018-09-04 15:12:31,849:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-04 15:12:31,858:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-04 15:12:31,908:DEBUG    Exit code= 0
+2018-09-04 15:12:31,908:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:12:31,917:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-04 15:12:31,963:DEBUG    Exit code= 0
+2018-09-04 15:12:31,963:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 15:12:31,973:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-04 15:12:32,016:DEBUG    Exit code= 0
+2018-09-04 15:12:32,017:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.04 s)
+2018-09-04 15:12:32,026:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-04 15:12:32,072:DEBUG    Exit code= 0
+2018-09-04 15:12:32,072:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-04 15:12:32,079:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-04 15:12:32,125:DEBUG    Exit code= 0
+2018-09-04 15:12:32,125:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)

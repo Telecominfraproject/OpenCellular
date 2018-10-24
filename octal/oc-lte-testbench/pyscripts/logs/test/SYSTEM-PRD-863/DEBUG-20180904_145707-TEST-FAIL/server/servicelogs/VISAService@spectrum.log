@@ -1,0 +1,24 @@
+2018-09-04 14:57:07,428:DEBUG    
+
+
+2018-09-04 14:57:07,428:INFO     SERVICE INITIALIZED
+2018-09-04 14:58:26,924:DEBUG    LOG =DEBUG
+2018-09-04 14:58:26,924:INFO     All parameters present
+2018-09-04 14:58:26,926:INFO     Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-04 14:58:26,999:INFO     SERVICE CONFIGURATION - LOG =DEBUG (0.07 s)
+2018-09-04 14:58:27,006:DEBUG    Timeout is 10.0 seconds
+2018-09-04 14:58:27,006:INFO     Sending command: *RST
+2018-09-04 14:58:27,009:DEBUG    Waiting for operations to finish...
+2018-09-04 14:58:27,895:INFO     SERVICE HANDLING -  (0.89 s)
+2018-09-04 14:58:27,905:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:58:27,907:INFO     Sending command: :INIT:CONT ON
+2018-09-04 14:58:27,908:INFO     Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:58:27,911:INFO     Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:58:27,914:DEBUG    Waiting for operations to finish...
+2018-09-04 14:58:27,918:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:58:27,927:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:58:27,927:INFO     Sending command: :INIT:CONT ON
+2018-09-04 14:58:27,930:INFO     Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:58:27,933:INFO     Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:58:27,934:DEBUG    Waiting for operations to finish...
+2018-09-04 14:58:27,943:INFO     SERVICE HANDLING -  (0.02 s)

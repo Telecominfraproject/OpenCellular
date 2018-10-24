@@ -1,0 +1,5 @@
+PASS BoardTestScan: [CM_PRP001] Validate BB Scan (0:00:00)
+INTERRUPTED BBImpedance: [BB_TSC001] BB Impedance Test (0:00:14)
+UNEXECUTED BBImpedance: [BB_TSC002] BB Voltages Test (None)
+Total Duration: 0:00:14
+NOT-FINISHED

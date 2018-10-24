@@ -1,0 +1,34 @@
+2018-09-04 12:37:35,217      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpmou6u9
+2018-09-04 12:37:35,286      INFO: tr.server: Loading services from config file
+2018-09-04 12:37:35,599      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 12:37:35,601      INFO: tr: ####################### Preparation #######################
+2018-09-04 12:37:35,602      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 12:37:35,604      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 12:37:35,605      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 12:37:42,388      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 12:37:42,391      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 12:37:42,529      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 12:37:42,530      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 12:37:42,533      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 12:37:42,536      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 12:37:42,539      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 12:37:52,871      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 12:37:52,914      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 12:38:03,023      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 12:38:03,036      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 12:38:03,079      INFO: tr: ######################## FlashApp ########################
+2018-09-04 12:38:03,082      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-09-04 12:38:03,085      INFO: tr.CM_CLN002: Clearing mnt/app content
+2018-09-04 12:38:08,701      INFO: tr.CM_CLN002: Updating final file list...
+2018-09-04 12:38:08,701      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-09-04 12:40:29,091      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-09-04 12:40:29,092  CRITICAL: tr: Execution interrupted
+2018-09-04 12:40:29,094  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 12:40:29,095      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 12:40:29,096      INFO: tr: ######################### Cleanup #########################
+2018-09-04 12:40:29,098      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 12:40:29,407      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 12:40:29,414      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 12:40:29,487   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 12:40:29,493      INFO: tr: All sections of batch file were executed
+2018-09-04 12:40:29,525      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpmou6u9\server

@@ -1,0 +1,70 @@
+2018-08-30 10:10:39,216      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmprkrmlq
+2018-08-30 10:10:39,217     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x1795CE50>
+2018-08-30 10:10:39,217     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x17921E70>
+2018-08-30 10:10:39,513      INFO: tr.server: Loading services from config file
+2018-08-30 10:10:39,523     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,542     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,569     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-08-30 10:10:39,581     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,601     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-08-30 10:10:39,621     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-08-30 10:10:39,625     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,645     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-08-30 10:10:39,665     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-08-30 10:10:39,676     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,696     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-08-30 10:10:39,711     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,724     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,743     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-08-30 10:10:39,759     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-08-30 10:10:39,769     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,789     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-08-30 10:10:39,809     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-08-30 10:10:39,917     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x17CEEF10>
+2018-08-30 10:10:39,920     DEBUG: tr: Next section
+2018-08-30 10:10:39,920      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 10:10:39,924      INFO: tr: ##################### SystemTestbench #####################
+2018-08-30 10:10:39,924      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-08-30 10:10:39,927      INFO: tr.SY_PRP000: TESTER STEP:
+2018-08-30 10:10:39,927      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-08-30 10:10:42,232     DEBUG: tr.SY_PRP000: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\system\guide_tester.py", line 15, in SY_PRP000
+    """, image=os.path.join(context.IMAGE_FOLDER, r"SYSTEM_E2E.jpg"))
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\context.py", line 204, in wait_tester_feedback
+    value = self._test_interface.wait_tester_feedback(self, message, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\interface.py", line 132, in wait_tester_feedback
+    self.show(message, capture_input= capture_input,  button=fb_type, image=image)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\interface.py", line 331, in show
+    image_path = self.image_provider.load_image(image)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\api\routes.py", line 158, in load_image
+    loaded_image.load(image_path)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\api\routes.py", line 101, in load
+    with Image.open(image_path) as img:
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\PIL\Image.py", line 2580, in open
+    fp = builtins.open(filename, "rb")
+IOError: [Errno 2] No such file or directory: '\\\\Ravel\\r&d\\Projets\\Facebook\\FBKD1704_OC-LTE_Integration_And_Productization\\Documentation\\Uncontrolled\\Images\\SYSTEM_E2E.jpg'
+
+2018-08-30 10:10:42,234     ERROR: tr.SY_PRP000: IOError: [Errno 2] No such file or directory: '\\\\Ravel\\r&d\\Projets\\Facebook\\FBKD1704_OC-LTE_Integration_And_Productization\\Documentation\\Uncontrolled\\Images\\SYSTEM_E2E.jpg'
+2018-08-30 10:10:42,236     ERROR: tr.SY_PRP000: TEST FAILED
+2018-08-30 10:10:42,240  CRITICAL: tr.SY_PRP000: SECTION CRITICAL FAILED: EXITING SECTION
+2018-08-30 10:10:42,242  CRITICAL: tr: Execution interrupted
+2018-08-30 10:10:42,246  CRITICAL: tr: IOError: [Errno 2] No such file or directory: '\\\\Ravel\\r&d\\Projets\\Facebook\\FBKD1704_OC-LTE_Integration_And_Productization\\Documentation\\Uncontrolled\\Images\\SYSTEM_E2E.jpg'
+2018-08-30 10:10:42,247     DEBUG: tr: Next section
+2018-08-30 10:10:42,249      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 10:10:42,252      INFO: tr: ######################### Cleanup #########################
+2018-08-30 10:10:42,255      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-30 10:10:42,259     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-08-30 10:10:42,270   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-08-30 10:10:42,273      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-30 10:10:42,282   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-30 10:10:42,286      INFO: tr: All sections of batch file were executed
+2018-08-30 10:10:42,313      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmprkrmlq\server

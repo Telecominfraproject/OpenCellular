@@ -1,0 +1,25 @@
+2018-08-30 10:10:39,216      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmprkrmlq
+2018-08-30 10:10:39,513      INFO: tr.server: Loading services from config file
+2018-08-30 10:10:39,920      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 10:10:39,924      INFO: tr: ##################### SystemTestbench #####################
+2018-08-30 10:10:39,924      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-08-30 10:10:39,927      INFO: tr.SY_PRP000: TESTER STEP:
+2018-08-30 10:10:39,927      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-08-30 10:10:42,234     ERROR: tr.SY_PRP000: IOError: [Errno 2] No such file or directory: '\\\\Ravel\\r&d\\Projets\\Facebook\\FBKD1704_OC-LTE_Integration_And_Productization\\Documentation\\Uncontrolled\\Images\\SYSTEM_E2E.jpg'
+2018-08-30 10:10:42,236     ERROR: tr.SY_PRP000: TEST FAILED
+2018-08-30 10:10:42,240  CRITICAL: tr.SY_PRP000: SECTION CRITICAL FAILED: EXITING SECTION
+2018-08-30 10:10:42,242  CRITICAL: tr: Execution interrupted
+2018-08-30 10:10:42,246  CRITICAL: tr: IOError: [Errno 2] No such file or directory: '\\\\Ravel\\r&d\\Projets\\Facebook\\FBKD1704_OC-LTE_Integration_And_Productization\\Documentation\\Uncontrolled\\Images\\SYSTEM_E2E.jpg'
+2018-08-30 10:10:42,249      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 10:10:42,252      INFO: tr: ######################### Cleanup #########################
+2018-08-30 10:10:42,255      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-30 10:10:42,270   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-08-30 10:10:42,273      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-30 10:10:42,282   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-30 10:10:42,286      INFO: tr: All sections of batch file were executed
+2018-08-30 10:10:42,313      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmprkrmlq\server

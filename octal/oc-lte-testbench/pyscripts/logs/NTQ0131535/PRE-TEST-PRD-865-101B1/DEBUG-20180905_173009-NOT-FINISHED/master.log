@@ -1,0 +1,60 @@
+2018-09-05 17:30:09,157      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpeeua4h
+2018-09-05 17:30:09,198      INFO: tr.server: Loading services from config file
+2018-09-05 17:30:09,763      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 17:30:09,769      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 17:30:09,772      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 17:30:09,776      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 17:30:09,778      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131535] : PASS
+2018-09-05 17:30:09,779      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-33] : PASS
+2018-09-05 17:30:09,790      INFO: tr: ################### PreTestBBTestbench ###################
+2018-09-05 17:30:09,799      INFO: tr.BB_PRP000: -------------- [BB_PRP000] Setup unit --------------
+2018-09-05 17:30:09,801      INFO: tr.BB_PRP000: TESTER STEP:
+2018-09-05 17:30:09,802      INFO: tr.BB_PRP000: 
+Plug in the COM port USB cable
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the four TRX cables based on their identifications
+Place an SD card in the MMC card slot
+
+Slide in a golden Front-End board
+
+Plug in the 12V power header
+        
+2018-09-05 17:30:11,987      INFO: tr.BB_PRP000: Tester continued the test
+2018-09-05 17:30:11,996      INFO: tr: ####################### Preparation #######################
+2018-09-05 17:30:12,003      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 17:30:12,006      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 17:30:12,007      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 17:30:18,789      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 17:30:18,790      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 17:30:18,813      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 17:30:18,815      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 17:30:18,834      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 17:30:18,894      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 17:30:24,490      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 17:30:24,605      INFO: tr: ######################## Firstboot ########################
+2018-09-05 17:30:24,617      INFO: tr.CM_PRP040: ------ [CM_PRP040] Setup tftp boot in u-boot ------
+2018-09-05 17:30:24,618      INFO: tr.CM_PRP040: U-boot access in progress
+2018-09-05 17:30:38,586      INFO: tr.CM_PRP040: U-boot setup default env in progress
+2018-09-05 17:30:49,210      INFO: tr.CM_PRP040: U-boot set setup env in progress
+2018-09-05 17:31:08,016      INFO: tr.CM_PRP040: U-boot setup for tftp boot successful
+2018-09-05 17:31:08,016      INFO: tr.CM_PRP040: Reset from U-boot in progress
+2018-09-05 17:31:08,352      INFO: tr.CM_PRP041: ------ [CM_PRP041] Update u-boot from u-boot ------
+2018-09-05 17:31:08,365      INFO: tr.CM_PRP041: U-boot access in progress
+2018-09-05 17:31:15,267      INFO: tr.CM_PRP041: U-boot update in progress
+2018-09-05 17:31:21,773      INFO: tr.CM_PRP041: U-boot update successful
+2018-09-05 17:31:21,773      INFO: tr.CM_PRP041: Reset from U-boot in progress
+2018-09-05 17:31:22,164      INFO: tr.BB_TSC004: ----- [BB_TSC004] Validate 1000 MHz operation -----
+2018-09-05 17:31:23,829      INFO: tr.criteria: BB_TSC004_CORE_CLOCK: [1000 MHz] == '1000 MHz' : PASS
+2018-09-05 17:31:23,839      INFO: tr: ########################## Reset ##########################
+2018-09-05 17:31:23,848      INFO: tr.BB_TSC015: -------------- [BB_TSC015] SW1 reset --------------
+2018-09-05 17:31:43,282  CRITICAL: tr: Execution interrupted
+2018-09-05 17:31:43,283  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 17:31:43,286      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 17:31:43,289      INFO: tr: ######################### Cleanup #########################
+2018-09-05 17:31:43,292      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 17:31:43,309   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 17:31:43,312      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 17:31:43,331   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 17:31:43,334      INFO: tr: All sections of batch file were executed
+2018-09-05 17:31:43,381      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpeeua4h\server

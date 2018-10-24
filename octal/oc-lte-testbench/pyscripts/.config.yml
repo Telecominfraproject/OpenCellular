@@ -1,0 +1,81 @@
+---
+name: 'OC-LTE Testbench'
+
+route:
+  testrunner:
+    view: 'view.yml'
+
+  server:
+    launch_on: 5000 # hooks into the same app
+    import_root: '..'
+    services:
+      com: ['comport', 'COMService', 'tools.lte.lte_comport.LTECOMServiceClient']
+      dcsupply: ['dcsupply', 'DCSupplyService', 'DCSupplyServiceClient']
+      i2c: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.I2CDetectSSHServiceClient']
+      gps: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.GPSSSHServiceClient']
+      sensor: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.SensorSSHServiceClient']
+      sdcard: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.SDCardSSHServiceClient']
+      ssh_rms: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.RMSSSHServiceClient']
+      led: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.LEDSSHServiceClient']
+      ssh_eeprom: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.EEPROMSSHServiceClient']
+      env_var: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.EnvVarSSHServiceClient']
+      e2e_ssh: ['e2e_ssh', 'SSHService', 'tools.lte.lte_ssh_client.E2ESSHServiceClient']
+      ssh: ['ssh', 'SSHService', 'tools.lte.lte_ssh_client.LTESSHServiceClient']
+      scp: ['scp', 'SCPService', 'SCPServiceClient']
+      rfswitch: ['rfswitch', 'RFSwitchService', 'LossRFSwitchServiceClient']
+      tftp: ['tftp', 'TFTPService', 'tools.lte.lte_software.LTETFTPServiceClient']
+      dhcp: ['dhcp', 'DHCPService', 'DHCPServiceClient']
+      generator: ['generator', 'VISAService', 'KeysightEXGGeneratorClient']
+      spectrum: ['spectrum', 'VISAService', 'KeysightEXASpectrumClient']
+
+export:
+  # Extend features from lookup
+  BOARD:
+    config:
+      CALIBRATION_ACTION: exports.CALIBRATION_ACTION
+    input:
+      - calibration:
+          name: 'Calibration Action'
+          export_into: CALIBRATION_ACTION
+          default: null
+          select:
+            - {'name': 'None', 'value': null}
+            - {'name': 'Full', 'value': 'full'}
+            - {'name': 'Copy Existing (imprecise)', 'value': 'copy'}
+
+  FLASH:
+    config:
+      UPDATEFINAL_ACTION_REQUIRED: exports.UPDATEFINAL_ACTION_REQUIRED
+      FLASH_VERSION_DESIRED: exports.FLASH_VERSION_DESIRED
+      FLASH_CLEAR_APP: exports.FLASH_CLEAR_APP
+      FLASH_CLEAR_ENV: exports.FLASH_CLEAR_ENV
+    input:
+      - update_final_state:
+          name: Final state (PLTD -vs- E2E)
+          export_into: UPDATEFINAL_ACTION_REQUIRED
+          default: 'keep'
+          select:
+            - {'name': 'Keep Initial State', 'value': 'keep'}
+            - {'name': 'PLTD boot by TFTP', 'value': 'pltd'}
+            - {'name': 'E2E boot by flash', 'value': 'e2e'}
+      - software_version:
+          name: Software Version to Flash
+          export_into: FLASH_VERSION_DESIRED
+          default: null
+          select:
+            - {'name': 'Auto', 'value': null}
+            - {'name': 'v1.0', 'value': 'v1.0'}
+            - {'name': 'v1.1', 'value': 'v1.1'}
+            - {'name': 'v1.1-RevE', 'value': 'v1.1-RevE'}
+            - {'name': 'v2.0', 'value': 'v2.0'}
+            - {'name': 'v2.1', 'value': 'v2.1'}
+
+      - clear_mnt_app:
+          export_into: FLASH_CLEAR_APP
+          default: False
+          checkbox: 'Clear mnt/app'
+
+      - clear_env_vars:
+          export_into: FLASH_CLEAR_ENV
+          default: False
+          checkbox: 'Clear u-boot environnement variables'

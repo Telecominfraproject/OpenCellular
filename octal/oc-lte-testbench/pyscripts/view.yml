@@ -1,0 +1,28 @@
+---
+root:
+  -
+    - name: 'Status Monitor'
+    - input:
+      - unit_info:
+          name: 'UUT Information'
+          width: 6
+          label: $(UNIT_INFO)
+      - frontend_monitor:
+          name: 'Frontend Information'
+          width: 6
+          label: |
+                  $(PA0_INFO)
+                  $(PA1_INFO)
+                  Last updated $(LAST_UPDATE_DIFF)s ago
+          once:
+            export:
+              LAST_UPDATE_DIFF: (never)
+              UPDATE_ON: false
+          watch(PA0_INFO,PA1_INFO):
+            if($PA0_INFO):
+              export:
+                LAST_UPDATE_DIFF: 0
+                UPDATE_ON: true
+          every(1):
+            if($UPDATE_ON):
+              export(LAST_UPDATE_DIFF): $(LAST_UPDATE_DIFF) + 1

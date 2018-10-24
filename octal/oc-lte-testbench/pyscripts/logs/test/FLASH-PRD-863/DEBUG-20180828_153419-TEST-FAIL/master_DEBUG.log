@@ -1,0 +1,75 @@
+2018-08-28 15:34:18,617      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp_ulbfh
+2018-08-28 15:34:18,622     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x16873D90>
+2018-08-28 15:34:18,625     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x16822E90>
+2018-08-28 15:34:18,707      INFO: tr.server: Loading services from config file
+2018-08-28 15:34:18,719     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,736     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,759     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-08-28 15:34:18,773     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,795     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-08-28 15:34:18,815     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-08-28 15:34:18,829     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,851     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-08-28 15:34:18,868     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-08-28 15:34:18,884     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,907     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-08-28 15:34:18,921     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,940     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:18,960     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-08-28 15:34:18,982     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-08-28 15:34:19,000     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:19,020     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-08-28 15:34:19,036     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-08-28 15:34:19,104     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x18632C50>
+2018-08-28 15:34:19,107     DEBUG: tr: Next section
+2018-08-28 15:34:19,108      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-28 15:34:19,111      INFO: tr: ####################### Preparation #######################
+2018-08-28 15:34:19,111      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-28 15:34:19,114      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-28 15:34:19,115      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-08-28 15:34:21,387     DEBUG: tr.CM_PRP011: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\flash\preparation.py", line 10, in CM_PRP011
+    context.server.tftp.create_service(context)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_software.py", line 33, in create_service
+    tftp_folder = super(LTETFTPServiceClient, self).create_service(localip, artifactory_url, image_path)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\tftp_service.py", line 96, in create_service
+    files_path = tools.retrieve_artifact(artifactory_url, image_path, **artifactory_kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\artifactory\tools.py", line 19, in retrieve_artifact
+    return session.download_to_path(TEMP_ARTIFACTS_DIRECTORY, force_update=force_update, offline_allowed=offline_allowed)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\artifactory\tools.py", line 37, in download_to_path
+    try:
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\artifactory\tools.py", line 84, in get_folder_info
+    md5 = hash_md5.hexdigest()
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\artifactory\tools.py", line 88, in _get
+    for child in folder['children']:
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 72, in get
+    return request('get', url, params=params, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 58, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 512, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 622, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\adapters.py", line 513, in send
+    raise ConnectionError(e, request=request)
+ConnectionError: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',))
+
+2018-08-28 15:34:21,388     ERROR: tr.CM_PRP011: ConnectionError: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',))
+2018-08-28 15:34:21,391     ERROR: tr.CM_PRP011: TEST FAILED
+2018-08-28 15:34:21,394  CRITICAL: tr.CM_PRP011: SECTION CRITICAL FAILED: EXITING SECTION
+2018-08-28 15:34:21,395  CRITICAL: tr: Execution interrupted
+2018-08-28 15:34:21,400  CRITICAL: tr: ConnectionError: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',))
+2018-08-28 15:34:21,401     DEBUG: tr: Next section
+2018-08-28 15:34:21,401      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-28 15:34:21,403      INFO: tr: ######################### Cleanup #########################
+2018-08-28 15:34:21,404      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-28 15:34:21,405     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-08-28 15:34:21,414   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-08-28 15:34:21,420      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-28 15:34:21,431   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-28 15:34:21,434      INFO: tr: All sections of batch file were executed
+2018-08-28 15:34:21,463      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp_ulbfh\server

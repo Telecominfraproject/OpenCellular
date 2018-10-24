@@ -1,0 +1,4 @@
+name,FWD_RMS,REV_RMS,POWER_LOSS
+SEQUENCE: TXRMSDetectorValidation: [FE_TSC137] Validate TX1 RMS Detector FWD,,,
+SEQUENCE: TXRMSDetectorValidation: [FE_TSC237] Validate TX2 RMS Detector FWD,,,
+SEQUENCE: SnifferTest,,,

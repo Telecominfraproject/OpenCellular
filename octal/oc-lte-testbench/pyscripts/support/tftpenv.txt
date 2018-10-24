@@ -1,0 +1,65 @@
+atten1=18
+atten2=18
+autoload=n
+baudrate_uart1=19200
+bf=bootoct $(flash_unused_addr) forceboot numcores=$(numcores)
+boardname=zen
+bootby=tftp
+bootcbyflash=gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcbytftp=tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcmd=run i2cinit; run namedalloc; run bootcby${bootby}
+bootdelay=0
+burn_app=erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)
+bw=20
+cfgloadby=tftp
+dhcpenable=0
+dnsip=8.8.8.8
+enable_zen5_gpio18=1
+enbctrlrf=1
+ethact=octeth0
+gain1=25
+gain2=25
+gatewayip=10.102.81.1
+httpdenable=1
+ipaddr=10.102.81.61
+i2cinit=i2c dev 0; i2c probe; i2c dev 1; i2c probe
+linux_cf=fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)
+loadaddr=0x20000000
+logdispen=2
+ls=fatls ide 0
+mk_ubootenv=1
+mode=pltd
+mode_test=dl
+namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+netmask=255.255.255.0
+numcores=4
+ovrdrfdsp=1
+partition=nor0,5
+pseudowww=1
+ptp1ppsen=0
+ptpenable=0
+pwdb_in_flash=1
+rftarget=ad9362
+rxfreq=1730
+serverip=10.102.81.50
+startapp=0
+swloadby=tftp
+gpsenable=
+syncby=gps
+target=zen
+tcxo=pwm
+tip=1
+txfreq=1825
+txpower=30
+ucliovrd=0
+pwmreglow=37376
+pwmreghigh=24744
+
+named_block_addr=0x30800000
+named_block_size=0x2800000
+mtdids=nor0=octeon_nor0
+web_pass=456b7016a916a4b178dd72b947c152b7
+web_pass1=a81be4e9b20632860d20a64c054c4150
+web_user=admin
+web_user1=user
+webuilog=1

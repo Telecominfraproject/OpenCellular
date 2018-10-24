@@ -1,0 +1,116 @@
+2018-09-04 14:57:07,321: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmp5ztane
+2018-09-04 14:57:07,338: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,371: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,411: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,428: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,460: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,482: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,525: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,569: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,586: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,622: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:57:07,654: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpjy_ze8\server
+2018-09-04 14:58:26,868: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.11 s)
+2018-09-04 14:58:26,901: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.01 s)
+2018-09-04 14:58:26,924: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-04 14:58:26,926: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-04 14:58:26,999: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.07 s)
+2018-09-04 14:58:27,006: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-04 14:58:27,895: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.89 s)
+2018-09-04 14:58:27,907: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:58:27,908: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:58:27,911: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:58:27,918: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:58:27,927: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:58:27,930: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:58:27,933: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:58:27,943: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.02 s)
+2018-09-04 14:58:37,076: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-09-04 14:58:37,078: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (9.11 s)
+2018-09-04 14:58:39,101: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:42,117: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:45,132: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:48,148: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:51,164: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:54,180: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:58:57,197: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:00,213: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:03,229: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:06,243: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:09,257: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:12,275: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:15,289: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:18,303: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:21,316: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:24,332: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:27,348: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:30,364: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:33,378: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:36,394: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:39,411: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:42,424: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:45,437: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:48,451: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:51,467: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:54,483: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:59:57,499: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:00,515: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:03,532: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:06,548: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:09,566: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:12,582: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:15,599: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:18,617: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:21,638: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:24,655: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:27,673: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:30,690: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:33,707: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:36,720: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:39,736: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:42,755: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:45,770: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:48,786: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:51,803: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 15:00:53,832: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:55,851: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:57,871: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:00:59,901: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:01,921: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:03,944: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:05,967: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:07,992: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:10,026: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 15:01:22,236: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (11.2 s)
+2018-09-04 15:01:22,285: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.04 s)
+2018-09-04 15:01:24,309: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:26,335: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:28,358: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:30,378: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:32,401: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:34,424: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:36,447: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:38,470: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:40,494: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 15:01:42,516: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:44,542: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:46,562: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:48,585: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 15:01:48,615: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 15:01:58,730: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.12 s)
+2018-09-04 15:01:58,780: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 15:01:58,898: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.09 s)
+2018-09-04 15:01:58,924: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-04 15:02:00,190: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (1.25 s)
+2018-09-04 15:02:00,240: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-04 15:02:00,428: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.18 s)
+2018-09-04 15:02:00,484: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-09-04 15:12:24,436: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.03 s)
+2018-09-04 15:12:31,849: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-04 15:12:31,908: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 15:12:31,963: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 15:12:32,017: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.04 s)
+2018-09-04 15:12:32,072: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-04 15:12:32,125: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)
+2018-09-04 15:12:32,138: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 15:12:32,163: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpjy_ze8\server

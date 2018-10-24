@@ -1,0 +1,41 @@
+2018-09-05 16:43:50,493      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpu_sem8
+2018-09-05 16:43:50,494     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x1801DDB0>
+2018-09-05 16:43:50,494     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04B683D0>
+2018-09-05 16:43:50,535      INFO: tr.server: Loading services from config file
+2018-09-05 16:43:50,551     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,569     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,592     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 16:43:50,605     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,631     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 16:43:50,654     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 16:43:50,670     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,693     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 16:43:50,713     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 16:43:50,727     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,753     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 16:43:50,767     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,786     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,813     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 16:43:50,839     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 16:43:50,859     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,887     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 16:43:50,907     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 16:43:50,986     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x18606AB0>
+2018-09-05 16:43:50,990     DEBUG: tr: Next section
+2018-09-05 16:43:50,990      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:43:50,997      INFO: tr: ####################### Preparation #######################
+2018-09-05 16:43:50,999      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-05 16:43:57,017   WARNING: tr.CM_PRP016: Unable to create DC Supply service: [400] NEW SERVICE call @dcsupply: ServiceError: No DC-DC converter found; closing device
+2018-09-05 16:43:57,025      INFO: tr: ####################### FEImpedance #######################
+2018-09-05 16:43:57,032      INFO: tr.FE_TSC001: ---------- [FE_TSC001] FE Impedance Test ----------
+2018-09-05 16:43:57,033      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-05 16:43:57,035      INFO: tr.FE_TSC001: Ground here
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: Tester continued the test
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: Please probe impedance of point #1 [28V at TP24] and enter value in kOhms in the box below. Expecting [value > 100]
+2018-09-05 16:47:44,611     DEBUG: tr.FE_TSC001: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-05 16:47:44,645  CRITICAL: tr: Execution interrupted
+2018-09-05 16:47:44,645  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 16:47:44,647     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-05 16:47:44,648      INFO: tr: All sections of batch file were executed
+2018-09-05 16:47:44,691      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpu_sem8\server

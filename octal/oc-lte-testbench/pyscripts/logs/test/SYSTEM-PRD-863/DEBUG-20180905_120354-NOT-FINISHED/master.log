@@ -1,0 +1,494 @@
+2018-09-05 12:03:53,369      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp5y4tq1
+2018-09-05 12:03:53,717      INFO: tr.server: Loading services from config file
+2018-09-05 12:03:54,227      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 12:03:54,234      INFO: tr: ##################### SystemTestbench #####################
+2018-09-05 12:03:54,236      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-05 12:03:54,239      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-05 12:03:54,240      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-05 12:03:56,566      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-05 12:03:56,572      INFO: tr: ####################### Preparation #######################
+2018-09-05 12:03:56,576      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 12:03:56,578      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 12:03:56,579      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 12:03:59,447      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 12:03:59,447      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 12:04:00,174      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 12:04:00,174      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 12:04:00,180      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 12:04:00,220      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 12:04:01,411      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 12:04:01,466      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 12:04:01,473      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 12:04:01,476      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:04:11,605      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 12:04:11,637      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 12:04:21,760      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 12:04:21,767      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 12:04:21,815      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 12:04:21,821      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 12:04:21,823      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 12:04:23,430      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 12:04:23,440      INFO: tr: ######################## LedBoard ########################
+2018-09-05 12:04:23,448      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-05 12:04:23,496      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-05 12:04:23,496      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-05 12:04:26,148      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-05 12:04:26,155      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-05 12:04:26,194      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-05 12:04:26,196      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-05 12:04:27,220      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-05 12:04:27,226      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-05 12:04:27,262      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-05 12:04:27,263      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-05 12:04:28,134      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-05 12:04:28,144      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-05 12:04:28,181      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-05 12:04:28,183      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-05 12:04:29,408      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-05 12:04:29,417      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 12:04:29,423      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 12:04:29,858      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 12:04:30,216      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 12:04:30,549      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 12:04:33,891      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 12:04:33,936      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 12:04:33,941      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 12:04:33,943      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 12:04:33,944      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 12:04:33,946      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 12:04:33,947      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 12:04:33,947      INFO: tr: ###################### BBPreparation ######################
+2018-09-05 12:04:33,956      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-05 12:04:34,813      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-05 12:04:36,433      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-05 12:04:40,438      INFO: tr: ################### PrepareCalibration ###################
+2018-09-05 12:04:40,447      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-05 12:04:40,457      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-05 12:04:45,091      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-05 12:04:45,095      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-05 12:04:48,448      INFO: tr.BB_TSC020: Skipped OCXO Calibration, frequency error = 3 Hz
+2018-09-05 12:04:48,450      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([3.129]) < 50 : PASS
+2018-09-05 12:04:48,457      INFO: tr: #################### RFPALCalibration ####################
+2018-09-05 12:04:48,463      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-05 12:04:56,198      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=21.0, 	in_pwr=-17.38, 	fb=-48.28
+2018-09-05 12:05:04,509      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=3.5, 	in_pwr=-17.60, 	out_pwr=28.08, 	fb=-34.69
+2018-09-05 12:05:05,612      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=14, 	in_pwr=-17.61, 	out_pwr=27.90, 	fb=-17.58
+2018-09-05 12:05:38,723      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-46.89] < -45 : PASS
+2018-09-05 12:05:38,903      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-05 12:05:45,865      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=22.0, 	in_pwr=-16.75, 	fb=-48.86
+2018-09-05 12:05:57,976      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=3.5, 	in_pwr=-16.76, 	out_pwr=27.87, 	fb=-36.75
+2018-09-05 12:06:01,328      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=13.25, 	in_pwr=-16.75, 	out_pwr=27.85, 	fb=-17.67
+2018-09-05 12:06:38,586      INFO: tr.criteria: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-47.18] < -45 : PASS
+2018-09-05 12:06:38,769      INFO: tr: #################### SystemCalib20MHz ####################
+2018-09-05 12:06:38,776      INFO: tr.SY_TSC230: -------------- [SY_TSC230] TX2 20 MHz --------------
+2018-09-05 12:06:38,806      INFO: tr.SY_TSC230: Calibrating TX 2 w/ BW of 20 MHz
+2018-09-05 12:06:41,424      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1815 MHz
+2018-09-05 12:06:43,862      INFO: tr.SY_TSC230: [BB] f=1815, 	bb_attn=23.0, 	in_pwr=-17.08, 	fb=-32.21
+2018-09-05 12:06:45,956   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=0.75
+2018-09-05 12:06:47,907   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:06:49,858   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:06:51,831   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:06:53,809   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:06:55,788   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:06:57,772   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:06:59,713   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:07:01,686   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:07:03,661   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:07:05,861      INFO: tr.SY_TSC230: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-17.32, 	out_pwr=27.31, 	fb=-17.52
+2018-09-05 12:07:06,842      INFO: tr.SY_TSC230: [FB] f=1815, 	fb_attn=14, 	in_pwr=-17.28, 	out_pwr=27.29, 	fb=-17.55
+2018-09-05 12:07:06,842      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1825 MHz
+2018-09-05 12:07:08,767      INFO: tr.SY_TSC230: [BB] f=1825, 	bb_attn=23.0, 	in_pwr=-16.73, 	fb=-16.73
+2018-09-05 12:07:14,987      INFO: tr.SY_TSC230: [TX] f=1825, 	tx_attn=2.75, 	in_pwr=-16.77, 	out_pwr=27.88, 	fb=-17.14
+2018-09-05 12:07:16,309      INFO: tr.SY_TSC230: [FB] f=1825, 	fb_attn=14.25, 	in_pwr=-16.75, 	out_pwr=27.88, 	fb=-17.49
+2018-09-05 12:07:16,311      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1835 MHz
+2018-09-05 12:07:18,627      INFO: tr.SY_TSC230: [BB] f=1835, 	bb_attn=23.0, 	in_pwr=-17.34, 	fb=-18.23
+2018-09-05 12:07:22,891      INFO: tr.SY_TSC230: [TX] f=1835, 	tx_attn=2.5, 	in_pwr=-17.37, 	out_pwr=28.03, 	fb=-17.92
+2018-09-05 12:07:24,690      INFO: tr.SY_TSC230: [FB] f=1835, 	fb_attn=13.75, 	in_pwr=-17.33, 	out_pwr=28.00, 	fb=-17.44
+2018-09-05 12:07:24,691      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1845 MHz
+2018-09-05 12:07:27,137      INFO: tr.SY_TSC230: [BB] f=1845, 	bb_attn=22.0, 	in_pwr=-16.77, 	fb=-17.05
+2018-09-05 12:07:31,427      INFO: tr.SY_TSC230: [TX] f=1845, 	tx_attn=3.25, 	in_pwr=-16.74, 	out_pwr=27.91, 	fb=-18.14
+2018-09-05 12:07:34,638      INFO: tr.SY_TSC230: [FB] f=1845, 	fb_attn=13.25, 	in_pwr=-16.76, 	out_pwr=27.99, 	fb=-17.57
+2018-09-05 12:07:34,638      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1855 MHz
+2018-09-05 12:07:36,966      INFO: tr.SY_TSC230: [BB] f=1855, 	bb_attn=22.0, 	in_pwr=-16.78, 	fb=-17.82
+2018-09-05 12:07:45,135      INFO: tr.SY_TSC230: [TX] f=1855, 	tx_attn=3.25, 	in_pwr=-16.83, 	out_pwr=28.00, 	fb=-17.77
+2018-09-05 12:07:47,325      INFO: tr.SY_TSC230: [FB] f=1855, 	fb_attn=13.0, 	in_pwr=-16.83, 	out_pwr=27.99, 	fb=-17.48
+2018-09-05 12:07:47,325      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1865 MHz
+2018-09-05 12:07:48,845      INFO: tr.SY_TSC230: [BB] f=1865, 	bb_attn=23.0, 	in_pwr=-17.08, 	fb=-17.93
+2018-09-05 12:07:55,098      INFO: tr.SY_TSC230: [TX] f=1865, 	tx_attn=3.0, 	in_pwr=-17.06, 	out_pwr=28.09, 	fb=-17.56
+2018-09-05 12:07:57,742      INFO: tr.SY_TSC230: [FB] f=1865, 	fb_attn=13.0, 	in_pwr=-17.10, 	out_pwr=27.91, 	fb=-17.54
+2018-09-05 12:07:57,743      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1870 MHz
+2018-09-05 12:07:59,273      INFO: tr.SY_TSC230: [BB] f=1870, 	bb_attn=23.0, 	in_pwr=-16.85, 	fb=-17.39
+2018-09-05 12:08:07,466      INFO: tr.SY_TSC230: [TX] f=1870, 	tx_attn=3.0, 	in_pwr=-16.88, 	out_pwr=27.89, 	fb=-17.48
+2018-09-05 12:08:08,344      INFO: tr.SY_TSC230: [FB] f=1870, 	fb_attn=13.0, 	in_pwr=-16.88, 	out_pwr=27.87, 	fb=-17.50
+2018-09-05 12:08:08,578      INFO: tr.SY_TSC130: -------------- [SY_TSC130] TX1 20 MHz --------------
+2018-09-05 12:08:08,621      INFO: tr.SY_TSC130: Calibrating TX 1 w/ BW of 20 MHz
+2018-09-05 12:08:11,269      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1815 MHz
+2018-09-05 12:08:12,361      INFO: tr.SY_TSC130: [BB] f=1815, 	bb_attn=20, 	in_pwr=-16.62, 	fb=-29.64
+2018-09-05 12:08:18,611      INFO: tr.SY_TSC130: [TX] f=1815, 	tx_attn=3.5, 	in_pwr=-17.06, 	out_pwr=27.89, 	fb=-16.73
+2018-09-05 12:08:20,316      INFO: tr.SY_TSC130: [FB] f=1815, 	fb_attn=14.75, 	in_pwr=-17.06, 	out_pwr=27.83, 	fb=-17.59
+2018-09-05 12:08:20,318      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1825 MHz
+2018-09-05 12:08:21,165      INFO: tr.SY_TSC130: [BB] f=1825, 	bb_attn=21, 	in_pwr=-17.38, 	fb=-17.94
+2018-09-05 12:08:29,368      INFO: tr.SY_TSC130: [TX] f=1825, 	tx_attn=3.0, 	in_pwr=-17.43, 	out_pwr=27.98, 	fb=-17.69
+2018-09-05 12:08:30,790      INFO: tr.SY_TSC130: [FB] f=1825, 	fb_attn=14.5, 	in_pwr=-17.46, 	out_pwr=27.99, 	fb=-17.38
+2018-09-05 12:08:30,790      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1835 MHz
+2018-09-05 12:08:32,348      INFO: tr.SY_TSC130: [BB] f=1835, 	bb_attn=21.0, 	in_pwr=-17.22, 	fb=-17.20
+2018-09-05 12:08:38,596      INFO: tr.SY_TSC130: [TX] f=1835, 	tx_attn=3.5, 	in_pwr=-17.18, 	out_pwr=27.88, 	fb=-17.61
+2018-09-05 12:08:39,951      INFO: tr.SY_TSC130: [FB] f=1835, 	fb_attn=14.5, 	in_pwr=-17.22, 	out_pwr=27.86, 	fb=-17.62
+2018-09-05 12:08:39,953      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1845 MHz
+2018-09-05 12:08:41,638      INFO: tr.SY_TSC130: [BB] f=1845, 	bb_attn=20.0, 	in_pwr=-16.60, 	fb=-16.94
+2018-09-05 12:08:45,895      INFO: tr.SY_TSC130: [TX] f=1845, 	tx_attn=4.0, 	in_pwr=-16.55, 	out_pwr=27.87, 	fb=-17.73
+2018-09-05 12:08:47,713      INFO: tr.SY_TSC130: [FB] f=1845, 	fb_attn=14.25, 	in_pwr=-16.60, 	out_pwr=27.91, 	fb=-17.62
+2018-09-05 12:08:47,713      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1855 MHz
+2018-09-05 12:08:49,391      INFO: tr.SY_TSC130: [BB] f=1855, 	bb_attn=20.0, 	in_pwr=-17.09, 	fb=-18.23
+2018-09-05 12:08:55,641      INFO: tr.SY_TSC130: [TX] f=1855, 	tx_attn=3.5, 	in_pwr=-17.12, 	out_pwr=28.08, 	fb=-17.47
+2018-09-05 12:08:56,503      INFO: tr.SY_TSC130: [FB] f=1855, 	fb_attn=14.25, 	in_pwr=-17.09, 	out_pwr=28.10, 	fb=-17.46
+2018-09-05 12:08:56,503      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1865 MHz
+2018-09-05 12:08:58,052      INFO: tr.SY_TSC130: [BB] f=1865, 	bb_attn=20.0, 	in_pwr=-16.75, 	fb=-17.10
+2018-09-05 12:09:06,243      INFO: tr.SY_TSC130: [TX] f=1865, 	tx_attn=3.75, 	in_pwr=-16.74, 	out_pwr=27.78, 	fb=-17.35
+2018-09-05 12:09:07,480      INFO: tr.SY_TSC130: [FB] f=1865, 	fb_attn=14.25, 	in_pwr=-16.78, 	out_pwr=27.77, 	fb=-17.40
+2018-09-05 12:09:07,482      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1870 MHz
+2018-09-05 12:09:08,344      INFO: tr.SY_TSC130: [BB] f=1870, 	bb_attn=21.0, 	in_pwr=-17.47, 	fb=-18.04
+2018-09-05 12:09:14,589      INFO: tr.SY_TSC130: [TX] f=1870, 	tx_attn=3.0, 	in_pwr=-17.44, 	out_pwr=27.94, 	fb=-17.09
+2018-09-05 12:09:16,430      INFO: tr.SY_TSC130: [FB] f=1870, 	fb_attn=14.75, 	in_pwr=-17.48, 	out_pwr=27.96, 	fb=-17.59
+2018-09-05 12:09:16,674      INFO: tr.SY_TSCX31: -------- [SY_TSCX31] Validate Calib 20 MHz --------
+2018-09-05 12:09:19,052      INFO: tr.SY_TSCX31: Start ETM1.1
+2018-09-05 12:09:20,668      INFO: tr.SY_TSCX31: BOTTOM (1815 MHz)
+2018-09-05 12:09:20,670      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1815 MHz
+2018-09-05 12:09:31,822      INFO: tr.SY_TSCX31: Readings: bb_att=20, tx_att=14, fb_att=59, rf_in=-17.05, fb_in=-17.79, pwr_out=27.48
+2018-09-05 12:09:32,996      INFO: tr.criteria: POWER_OUT_dBm: 27 < [27.49] < 30 : PASS
+2018-09-05 12:09:33,029      INFO: tr.criteria: PA_CURRENT: [0.324] < 0.4 : PASS
+2018-09-05 12:09:33,030      INFO: tr.criteria: ACLR: [-46.45] < -42 : PASS
+2018-09-05 12:09:33,030      INFO: tr.criteria: FREQ: [1815] : PASS
+2018-09-05 12:09:33,032      INFO: tr.criteria: FREQ_ERROR: [1.643] < 50 : PASS
+2018-09-05 12:09:33,032      INFO: tr.criteria: EVM: [1.282] < 4.0 : PASS
+2018-09-05 12:09:33,033      INFO: tr.SY_TSCX31: MIDDLE (1845 MHz)
+2018-09-05 12:09:33,035      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1845 MHz
+2018-09-05 12:09:44,490      INFO: tr.SY_TSCX31: Readings: bb_att=20, tx_att=16, fb_att=57, rf_in=-16.74, fb_in=-17.85, pwr_out=27.69
+2018-09-05 12:09:45,647      INFO: tr.criteria: POWER_OUT_dBm: 27 < [27.66] < 30 : PASS
+2018-09-05 12:09:45,680      INFO: tr.criteria: PA_CURRENT: [0.309] < 0.4 : PASS
+2018-09-05 12:09:45,680      INFO: tr.criteria: ACLR: [-47.65] < -42 : PASS
+2018-09-05 12:09:45,681      INFO: tr.criteria: FREQ: [1845] : PASS
+2018-09-05 12:09:45,683      INFO: tr.criteria: FREQ_ERROR: [1.836] < 50 : PASS
+2018-09-05 12:09:45,683      INFO: tr.criteria: EVM: [1.215] < 4.0 : PASS
+2018-09-05 12:09:45,684      INFO: tr.SY_TSCX31: TOP (1870 MHz)
+2018-09-05 12:09:45,684      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1870 MHz
+2018-09-05 12:10:00,700      INFO: tr.SY_TSCX31: Readings: bb_att=21, tx_att=12, fb_att=59, rf_in=-18.33, fb_in=-18.67, pwr_out=26.87
+2018-09-05 12:10:01,844      INFO: tr.criteria: POWER_OUT_dBm: 27 < [26.88] < 30 : FAIL
+2018-09-05 12:10:01,878      INFO: tr.criteria: PA_CURRENT: [0.3] < 0.4 : PASS
+2018-09-05 12:10:01,878      INFO: tr.criteria: ACLR: [-47.82] < -42 : PASS
+2018-09-05 12:10:01,880      INFO: tr.criteria: FREQ: [1870] : PASS
+2018-09-05 12:10:01,881      INFO: tr.criteria: FREQ_ERROR: [2.151] < 50 : PASS
+2018-09-05 12:10:01,881      INFO: tr.criteria: EVM: [1.316] < 4.0 : PASS
+2018-09-05 12:10:01,881      INFO: tr.SY_TSCX31: RANDOM_BOTTOM (1828 MHz)
+2018-09-05 12:10:01,882      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1828 MHz
+2018-09-05 12:10:13,433      INFO: tr.SY_TSCX31: Readings: bb_att=21, tx_att=12, fb_att=58, rf_in=-17.38, fb_in=-17.42, pwr_out=27.97
+2018-09-05 12:10:14,578      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.04] < 30 : PASS
+2018-09-05 12:10:14,614      INFO: tr.criteria: PA_CURRENT: [0.331] < 0.4 : PASS
+2018-09-05 12:10:14,615      INFO: tr.criteria: ACLR: [-43.15] < -42 : PASS
+2018-09-05 12:10:14,617      INFO: tr.criteria: FREQ: [1828] : PASS
+2018-09-05 12:10:14,618      INFO: tr.criteria: FREQ_ERROR: [1.532] < 50 : PASS
+2018-09-05 12:10:14,618      INFO: tr.criteria: EVM: [1.525] < 4.0 : PASS
+2018-09-05 12:10:14,619      INFO: tr.SY_TSCX31: RANDOM_TOP (1869 MHz)
+2018-09-05 12:10:14,619      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1869 MHz
+2018-09-05 12:10:29,706      INFO: tr.SY_TSCX31: Readings: bb_att=20, tx_att=15, fb_att=58, rf_in=-17.22, fb_in=-18.05, pwr_out=27.21
+2018-09-05 12:10:30,855      INFO: tr.criteria: POWER_OUT_dBm: 27 < [27.15] < 30 : PASS
+2018-09-05 12:10:30,884      INFO: tr.criteria: PA_CURRENT: [0.309] < 0.4 : PASS
+2018-09-05 12:10:30,884      INFO: tr.criteria: ACLR: [-46.87] < -42 : PASS
+2018-09-05 12:10:30,885      INFO: tr.criteria: FREQ: [1869] : PASS
+2018-09-05 12:10:30,885      INFO: tr.criteria: FREQ_ERROR: [0.798] < 50 : PASS
+2018-09-05 12:10:30,887      INFO: tr.criteria: EVM: [1.321] < 4.0 : PASS
+2018-09-05 12:10:30,887      INFO: tr.SY_TSCX31: BOTTOM (1815 MHz)
+2018-09-05 12:10:30,888      INFO: tr.SY_TSCX31: TX 2 Validating EEPROM calib frequency 1815 MHz
+2018-09-05 12:10:49,536      INFO: tr.SY_TSCX31: Readings: bb_att=23, tx_att=6, fb_att=53, rf_in=-17.73, fb_in=-15.45, pwr_out=28.79
+2018-09-05 12:10:50,684      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.8] < 30 : PASS
+2018-09-05 12:10:50,717      INFO: tr.criteria: PA_CURRENT: [0.376] < 0.4 : PASS
+2018-09-05 12:10:50,717      INFO: tr.criteria: ACLR: [-41.58] < -42 : FAIL
+2018-09-05 12:10:50,717      INFO: tr.criteria: FREQ: [1815] : PASS
+2018-09-05 12:10:50,719      INFO: tr.criteria: FREQ_ERROR: [1.449] < 50 : PASS
+2018-09-05 12:10:50,720      INFO: tr.criteria: EVM: [2.342] < 4.0 : PASS
+2018-09-05 12:10:50,720      INFO: tr.SY_TSCX31: MIDDLE (1845 MHz)
+2018-09-05 12:10:50,721      INFO: tr.SY_TSCX31: TX 2 Validating EEPROM calib frequency 1845 MHz
+2018-09-05 12:11:02,253      INFO: tr.SY_TSCX31: Readings: bb_att=22, tx_att=12, fb_att=53, rf_in=-16.70, fb_in=-17.17, pwr_out=28.44
+2018-09-05 12:11:03,401      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.47] < 30 : PASS
+2018-09-05 12:11:03,434      INFO: tr.criteria: PA_CURRENT: [0.331] < 0.4 : PASS
+2018-09-05 12:11:03,437      INFO: tr.criteria: ACLR: [-45.04] < -42 : PASS
+2018-09-05 12:11:03,437      INFO: tr.criteria: FREQ: [1845] : PASS
+2018-09-05 12:11:03,438      INFO: tr.criteria: FREQ_ERROR: [2.276] < 50 : PASS
+2018-09-05 12:11:03,440      INFO: tr.criteria: EVM: [1.317] < 4.0 : PASS
+2018-09-05 12:11:03,440      INFO: tr.SY_TSCX31: TOP (1870 MHz)
+2018-09-05 12:11:03,440      INFO: tr.SY_TSCX31: TX 2 Validating EEPROM calib frequency 1870 MHz
+2018-09-05 12:11:21,989      INFO: tr.SY_TSCX31: Readings: bb_att=23, tx_att=11, fb_att=52, rf_in=-16.93, fb_in=-17.30, pwr_out=28.10
+2018-09-05 12:11:23,130      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.1] < 30 : PASS
+2018-09-05 12:11:23,164      INFO: tr.criteria: PA_CURRENT: [0.324] < 0.4 : PASS
+2018-09-05 12:11:23,164      INFO: tr.criteria: ACLR: [-47.09] < -42 : PASS
+2018-09-05 12:11:23,164      INFO: tr.criteria: FREQ: [1870] : PASS
+2018-09-05 12:11:23,165      INFO: tr.criteria: FREQ_ERROR: [2.041] < 50 : PASS
+2018-09-05 12:11:23,165      INFO: tr.criteria: EVM: [1.389] < 4.0 : PASS
+2018-09-05 12:11:23,167      INFO: tr.SY_TSCX31: RANDOM_BOTTOM (1828 MHz)
+2018-09-05 12:11:23,167      INFO: tr.SY_TSCX31: TX 2 Validating EEPROM calib frequency 1828 MHz
+2018-09-05 12:11:39,976      INFO: tr.SY_TSCX31: Readings: bb_att=23, tx_att=9, fb_att=56, rf_in=-17.89, fb_in=-17.65, pwr_out=27.40
+2018-09-05 12:11:41,132      INFO: tr.criteria: POWER_OUT_dBm: 27 < [27.48] < 30 : PASS
+2018-09-05 12:11:41,165      INFO: tr.criteria: PA_CURRENT: [0.317] < 0.4 : PASS
+2018-09-05 12:11:41,167      INFO: tr.criteria: ACLR: [-41.61] < -42 : FAIL
+2018-09-05 12:11:41,167      INFO: tr.criteria: FREQ: [1828] : PASS
+2018-09-05 12:11:41,167      INFO: tr.criteria: FREQ_ERROR: [1.294] < 50 : PASS
+2018-09-05 12:11:41,168      INFO: tr.criteria: EVM: [1.497] < 4.0 : PASS
+2018-09-05 12:11:41,170      INFO: tr.SY_TSCX31: RANDOM_TOP (1869 MHz)
+2018-09-05 12:11:41,170      INFO: tr.SY_TSCX31: TX 2 Validating EEPROM calib frequency 1869 MHz
+2018-09-05 12:11:58,042      INFO: tr.SY_TSCX31: Readings: bb_att=23, tx_att=11, fb_att=52, rf_in=-16.90, fb_in=-17.18, pwr_out=28.18
+2018-09-05 12:11:59,219      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.22] < 30 : PASS
+2018-09-05 12:11:59,250      INFO: tr.criteria: PA_CURRENT: [0.327] < 0.4 : PASS
+2018-09-05 12:11:59,252      INFO: tr.criteria: ACLR: [-46.62] < -42 : PASS
+2018-09-05 12:11:59,253      INFO: tr.criteria: FREQ: [1869] : PASS
+2018-09-05 12:11:59,253      INFO: tr.criteria: FREQ_ERROR: [0.2042] < 50 : PASS
+2018-09-05 12:11:59,253      INFO: tr.criteria: EVM: [1.31] < 4.0 : PASS
+2018-09-05 12:11:59,269      INFO: tr: #################### SystemCalib10MHz ####################
+2018-09-05 12:11:59,275      INFO: tr.SY_TSC210: -------------- [SY_TSC210] TX2 10 MHz --------------
+2018-09-05 12:11:59,305      INFO: tr.SY_TSC210: Calibrating TX 2 w/ BW of 10 MHz
+2018-09-05 12:11:59,348      INFO: tr.SY_TSC210: Changing bandwidth; requires reboot.
+2018-09-05 12:12:02,961      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-05 12:12:02,961      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:13:48,207      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 12:14:24,678      INFO: tr.SY_TSC210: Updating setup file list...
+2018-09-05 12:14:26,335      INFO: tr.SY_TSC210: Updating setup file list... Done
+2018-09-05 12:14:26,424      INFO: tr.SY_TSC210: Start ETM1.1
+2018-09-05 12:14:31,088      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1810 MHz
+2018-09-05 12:14:33,267      INFO: tr.SY_TSC210: [BB] f=1810, 	bb_attn=19.0, 	in_pwr=-17.31, 	fb=-32.45
+2018-09-05 12:14:34,888   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=0.50
+2018-09-05 12:14:36,426   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:37,960   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.50
+2018-09-05 12:14:39,484   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:41,009   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:42,569   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:44,094   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:45,609   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:47,127   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:48,653   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=1.25
+2018-09-05 12:14:50,411      INFO: tr.SY_TSC210: [TX] f=1810, 	tx_attn=2.5, 	in_pwr=-17.99, 	out_pwr=26.58, 	fb=-18.36
+2018-09-05 12:14:52,673      INFO: tr.SY_TSC210: [FB] f=1810, 	fb_attn=13.0, 	in_pwr=-17.95, 	out_pwr=26.63, 	fb=-17.38
+2018-09-05 12:14:52,674      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1818 MHz
+2018-09-05 12:14:53,904      INFO: tr.SY_TSC210: [BB] f=1818, 	bb_attn=20.0, 	in_pwr=-16.98, 	fb=-16.08
+2018-09-05 12:14:55,555   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:14:57,289      INFO: tr.SY_TSC210: [TX] f=1818, 	tx_attn=2.5, 	in_pwr=-16.89, 	out_pwr=27.98, 	fb=-16.07
+2018-09-05 12:14:59,082      INFO: tr.SY_TSC210: [FB] f=1818, 	fb_attn=14.25, 	in_pwr=-17.04, 	out_pwr=28.07, 	fb=-17.45
+2018-09-05 12:14:59,084      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1826 MHz
+2018-09-05 12:15:01,020      INFO: tr.SY_TSC210: [BB] f=1826, 	bb_attn=20.0, 	in_pwr=-17.00, 	fb=-17.45
+2018-09-05 12:15:07,502      INFO: tr.SY_TSC210: [TX] f=1826, 	tx_attn=2.5, 	in_pwr=-17.00, 	out_pwr=28.08, 	fb=-17.36
+2018-09-05 12:15:09,299      INFO: tr.SY_TSC210: [FB] f=1826, 	fb_attn=14.5, 	in_pwr=-17.01, 	out_pwr=28.12, 	fb=-17.57
+2018-09-05 12:15:09,301      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1834 MHz
+2018-09-05 12:15:11,608      INFO: tr.SY_TSC210: [BB] f=1834, 	bb_attn=19.0, 	in_pwr=-16.98, 	fb=-17.58
+2018-09-05 12:15:15,040      INFO: tr.SY_TSC210: [TX] f=1834, 	tx_attn=3.0, 	in_pwr=-16.91, 	out_pwr=27.91, 	fb=-18.29
+2018-09-05 12:15:17,756      INFO: tr.SY_TSC210: [FB] f=1834, 	fb_attn=13.5, 	in_pwr=-16.99, 	out_pwr=27.94, 	fb=-17.40
+2018-09-05 12:15:17,766      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1843 MHz
+2018-09-05 12:15:19,934      INFO: tr.SY_TSC210: [BB] f=1843, 	bb_attn=19.0, 	in_pwr=-17.10, 	fb=-17.92
+2018-09-05 12:15:26,332      INFO: tr.SY_TSC210: [TX] f=1843, 	tx_attn=3.0, 	in_pwr=-17.06, 	out_pwr=28.00, 	fb=-17.95
+2018-09-05 12:15:28,243      INFO: tr.SY_TSC210: [FB] f=1843, 	fb_attn=13.0, 	in_pwr=-17.06, 	out_pwr=28.01, 	fb=-17.42
+2018-09-05 12:15:28,243      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1851 MHz
+2018-09-05 12:15:30,654      INFO: tr.SY_TSC210: [BB] f=1851, 	bb_attn=19.0, 	in_pwr=-17.26, 	fb=-17.64
+2018-09-05 12:15:35,473      INFO: tr.SY_TSC210: [TX] f=1851, 	tx_attn=3.0, 	in_pwr=-17.21, 	out_pwr=28.03, 	fb=-17.63
+2018-09-05 12:15:37,519      INFO: tr.SY_TSC210: [FB] f=1851, 	fb_attn=12.75, 	in_pwr=-17.27, 	out_pwr=28.00, 	fb=-17.49
+2018-09-05 12:15:37,519      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1859 MHz
+2018-09-05 12:15:39,042      INFO: tr.SY_TSC210: [BB] f=1859, 	bb_attn=19.0, 	in_pwr=-17.16, 	fb=-17.46
+2018-09-05 12:15:43,982      INFO: tr.SY_TSC210: [TX] f=1859, 	tx_attn=3.0, 	in_pwr=-17.15, 	out_pwr=28.06, 	fb=-17.40
+2018-09-05 12:15:45,332      INFO: tr.SY_TSC210: [FB] f=1859, 	fb_attn=12.75, 	in_pwr=-17.18, 	out_pwr=28.05, 	fb=-17.45
+2018-09-05 12:15:45,332      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1868 MHz
+2018-09-05 12:15:46,293      INFO: tr.SY_TSC210: [BB] f=1868, 	bb_attn=20.0, 	in_pwr=-17.10, 	fb=-17.44
+2018-09-05 12:15:51,214      INFO: tr.SY_TSC210: [TX] f=1868, 	tx_attn=3.0, 	in_pwr=-17.14, 	out_pwr=27.91, 	fb=-17.61
+2018-09-05 12:15:51,950      INFO: tr.SY_TSC210: [FB] f=1868, 	fb_attn=12.75, 	in_pwr=-17.10, 	out_pwr=27.88, 	fb=-17.51
+2018-09-05 12:15:51,951      INFO: tr.SY_TSC210: Calibrating Attn values for TX 2 @ 1875 MHz
+2018-09-05 12:15:54,378      INFO: tr.SY_TSC210: [BB] f=1875, 	bb_attn=20.0, 	in_pwr=-17.06, 	fb=-17.53
+2018-09-05 12:15:55,964   WARNING: tr.SY_TSC210: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:15:59,226      INFO: tr.SY_TSC210: [TX] f=1875, 	tx_attn=2.75, 	in_pwr=-16.97, 	out_pwr=28.11, 	fb=-17.03
+2018-09-05 12:16:01,144      INFO: tr.SY_TSC210: [FB] f=1875, 	fb_attn=13.0, 	in_pwr=-17.00, 	out_pwr=28.00, 	fb=-17.51
+2018-09-05 12:16:01,400      INFO: tr.SY_TSC110: -------------- [SY_TSC110] TX1 10 MHz --------------
+2018-09-05 12:16:01,440      INFO: tr.SY_TSC110: Calibrating TX 1 w/ BW of 10 MHz
+2018-09-05 12:16:03,624      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1810 MHz
+2018-09-05 12:16:06,457      INFO: tr.SY_TSC110: [BB] f=1810, 	bb_attn=16.0, 	in_pwr=-16.68, 	fb=-29.79
+2018-09-05 12:16:09,821      INFO: tr.SY_TSC110: [TX] f=1810, 	tx_attn=2.75, 	in_pwr=-17.10, 	out_pwr=28.05, 	fb=-16.16
+2018-09-05 12:16:11,483      INFO: tr.SY_TSC110: [FB] f=1810, 	fb_attn=15.25, 	in_pwr=-17.20, 	out_pwr=28.14, 	fb=-17.52
+2018-09-05 12:16:11,483      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1818 MHz
+2018-09-05 12:16:12,967      INFO: tr.SY_TSC110: [BB] f=1818, 	bb_attn=17.0, 	in_pwr=-17.44, 	fb=-17.80
+2018-09-05 12:16:17,821      INFO: tr.SY_TSC110: [TX] f=1818, 	tx_attn=3.0, 	in_pwr=-17.40, 	out_pwr=28.09, 	fb=-18.17
+2018-09-05 12:16:20,404      INFO: tr.SY_TSC110: [FB] f=1818, 	fb_attn=14.75, 	in_pwr=-17.36, 	out_pwr=28.06, 	fb=-17.62
+2018-09-05 12:16:20,405      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1826 MHz
+2018-09-05 12:16:22,588      INFO: tr.SY_TSC110: [BB] f=1826, 	bb_attn=17.0, 	in_pwr=-16.80, 	fb=-17.13
+2018-09-05 12:16:39,494      INFO: tr.SY_TSC110: [TX] f=1826, 	tx_attn=4.0, 	in_pwr=-16.82, 	out_pwr=27.43, 	fb=-18.49
+2018-09-05 12:16:41,171      INFO: tr.SY_TSC110: [FB] f=1826, 	fb_attn=13.75, 	in_pwr=-16.80, 	out_pwr=27.48, 	fb=-17.57
+2018-09-05 12:16:41,173      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1834 MHz
+2018-09-05 12:16:42,038      INFO: tr.SY_TSC110: [BB] f=1834, 	bb_attn=18.0, 	in_pwr=-17.52, 	fb=-18.22
+2018-09-05 12:16:46,915      INFO: tr.SY_TSC110: [TX] f=1834, 	tx_attn=3.0, 	in_pwr=-17.52, 	out_pwr=28.12, 	fb=-16.92
+2018-09-05 12:16:50,282      INFO: tr.SY_TSC110: [FB] f=1834, 	fb_attn=14.5, 	in_pwr=-17.56, 	out_pwr=28.12, 	fb=-17.54
+2018-09-05 12:16:50,282      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1843 MHz
+2018-09-05 12:16:51,921      INFO: tr.SY_TSC110: [BB] f=1843, 	bb_attn=17.0, 	in_pwr=-16.90, 	fb=-16.81
+2018-09-05 12:16:58,344      INFO: tr.SY_TSC110: [TX] f=1843, 	tx_attn=3.75, 	in_pwr=-16.89, 	out_pwr=28.21, 	fb=-17.61
+2018-09-05 12:17:00,017      INFO: tr.SY_TSC110: [FB] f=1843, 	fb_attn=14.25, 	in_pwr=-16.90, 	out_pwr=28.13, 	fb=-17.59
+2018-09-05 12:17:00,019      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1851 MHz
+2018-09-05 12:17:01,565      INFO: tr.SY_TSC110: [BB] f=1851, 	bb_attn=17.0, 	in_pwr=-17.48, 	fb=-18.23
+2018-09-05 12:17:06,463      INFO: tr.SY_TSC110: [TX] f=1851, 	tx_attn=3.5, 	in_pwr=-17.46, 	out_pwr=28.01, 	fb=-17.83
+2018-09-05 12:17:08,121      INFO: tr.SY_TSC110: [FB] f=1851, 	fb_attn=14.0, 	in_pwr=-17.55, 	out_pwr=28.00, 	fb=-17.62
+2018-09-05 12:17:08,121      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1859 MHz
+2018-09-05 12:17:10,408      INFO: tr.SY_TSC110: [BB] f=1859, 	bb_attn=16.0, 	in_pwr=-16.82, 	fb=-16.85
+2018-09-05 12:17:16,756      INFO: tr.SY_TSC110: [TX] f=1859, 	tx_attn=3.75, 	in_pwr=-16.83, 	out_pwr=28.30, 	fb=-17.15
+2018-09-05 12:17:18,457      INFO: tr.SY_TSC110: [FB] f=1859, 	fb_attn=14.25, 	in_pwr=-16.80, 	out_pwr=28.21, 	fb=-17.52
+2018-09-05 12:17:18,457      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1868 MHz
+2018-09-05 12:17:19,306      INFO: tr.SY_TSC110: [BB] f=1868, 	bb_attn=17.0, 	in_pwr=-17.07, 	fb=-17.72
+2018-09-05 12:17:24,217      INFO: tr.SY_TSC110: [TX] f=1868, 	tx_attn=3.5, 	in_pwr=-17.00, 	out_pwr=27.98, 	fb=-17.25
+2018-09-05 12:17:25,747      INFO: tr.SY_TSC110: [FB] f=1868, 	fb_attn=14.5, 	in_pwr=-17.01, 	out_pwr=27.93, 	fb=-17.45
+2018-09-05 12:17:25,747      INFO: tr.SY_TSC110: Calibrating Attn values for TX 1 @ 1875 MHz
+2018-09-05 12:17:27,851      INFO: tr.SY_TSC110: [BB] f=1875, 	bb_attn=17.0, 	in_pwr=-16.51, 	fb=-16.85
+2018-09-05 12:17:34,226      INFO: tr.SY_TSC110: [TX] f=1875, 	tx_attn=3.75, 	in_pwr=-16.46, 	out_pwr=28.35, 	fb=-17.04
+2018-09-05 12:17:35,802      INFO: tr.SY_TSC110: [FB] f=1875, 	fb_attn=14.75, 	in_pwr=-16.50, 	out_pwr=28.26, 	fb=-17.46
+2018-09-05 12:17:36,013      INFO: tr.SY_TSCX11: -------- [SY_TSCX11] Validate Calib 10 MHz --------
+2018-09-05 12:17:37,779      INFO: tr.SY_TSCX11: Start ETM1.1
+2018-09-05 12:17:39,378      INFO: tr.SY_TSCX11: BOTTOM (1810 MHz)
+2018-09-05 12:17:39,378      INFO: tr.SY_TSCX11: TX 1 Validating EEPROM calib frequency 1810 MHz
+2018-09-05 12:17:54,108      INFO: tr.SY_TSCX11: Readings: bb_att=16, tx_att=11, fb_att=61, rf_in=-17.06, fb_in=-17.68, pwr_out=27.93
+2018-09-05 12:17:54,927      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28] < 30 : PASS
+2018-09-05 12:17:54,967      INFO: tr.criteria: PA_CURRENT: [0.35] < 0.4 : PASS
+2018-09-05 12:17:54,967      INFO: tr.criteria: ACLR: [-46.55] < -42 : PASS
+2018-09-05 12:17:54,967      INFO: tr.criteria: FREQ: [1810] : PASS
+2018-09-05 12:17:54,967      INFO: tr.criteria: FREQ_ERROR: [2.213] < 50 : PASS
+2018-09-05 12:17:54,967      INFO: tr.criteria: EVM: [1.4] < 4.0 : PASS
+2018-09-05 12:17:54,967      INFO: tr.SY_TSCX11: MIDDLE (1845 MHz)
+2018-09-05 12:17:54,967      INFO: tr.SY_TSCX11: TX 1 Validating EEPROM calib frequency 1845 MHz
+2018-09-05 12:18:04,765      INFO: tr.SY_TSCX11: Readings: bb_att=17, tx_att=15, fb_att=57, rf_in=-17.25, fb_in=-18.06, pwr_out=27.67
+2018-09-05 12:18:05,592      INFO: tr.criteria: POWER_OUT_dBm: 27 < [27.62] < 30 : PASS
+2018-09-05 12:18:05,625      INFO: tr.criteria: PA_CURRENT: [0.31] < 0.4 : PASS
+2018-09-05 12:18:05,625      INFO: tr.criteria: ACLR: [-48.69] < -42 : PASS
+2018-09-05 12:18:05,627      INFO: tr.criteria: FREQ: [1845] : PASS
+2018-09-05 12:18:05,627      INFO: tr.criteria: FREQ_ERROR: [0.8818] < 50 : PASS
+2018-09-05 12:18:05,628      INFO: tr.criteria: EVM: [1.217] < 4.0 : PASS
+2018-09-05 12:18:05,628      INFO: tr.SY_TSCX11: TOP (1875 MHz)
+2018-09-05 12:18:05,628      INFO: tr.SY_TSCX11: TX 1 Validating EEPROM calib frequency 1875 MHz
+2018-09-05 12:18:17,953      INFO: tr.SY_TSCX11: Readings: bb_att=17, tx_att=16, fb_att=60, rf_in=-17.14, fb_in=-18.98, pwr_out=26.95
+2018-09-05 12:18:18,802      INFO: tr.criteria: POWER_OUT_dBm: 27 < [26.96] < 30 : FAIL
+2018-09-05 12:18:18,835      INFO: tr.criteria: PA_CURRENT: [0.296] < 0.4 : PASS
+2018-09-05 12:18:18,835      INFO: tr.criteria: ACLR: [-51.8] < -42 : PASS
+2018-09-05 12:18:18,836      INFO: tr.criteria: FREQ: [1875] : PASS
+2018-09-05 12:18:18,838      INFO: tr.criteria: FREQ_ERROR: [3.214] < 50 : PASS
+2018-09-05 12:18:18,838      INFO: tr.criteria: EVM: [1.186] < 4.0 : PASS
+2018-09-05 12:18:18,838      INFO: tr.SY_TSCX11: RANDOM_BOTTOM (1828 MHz)
+2018-09-05 12:18:18,839      INFO: tr.SY_TSCX11: TX 1 Validating EEPROM calib frequency 1828 MHz
+2018-09-05 12:18:29,934      INFO: tr.SY_TSCX11: Readings: bb_att=17, tx_att=14, fb_att=54, rf_in=-16.83, fb_in=-16.48, pwr_out=28.23
+2018-09-05 12:18:30,740      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.2] < 30 : PASS
+2018-09-05 12:18:30,780      INFO: tr.criteria: PA_CURRENT: [0.336] < 0.4 : PASS
+2018-09-05 12:18:30,782      INFO: tr.criteria: ACLR: [-43.92] < -42 : PASS
+2018-09-05 12:18:30,782      INFO: tr.criteria: FREQ: [1828] : PASS
+2018-09-05 12:18:30,782      INFO: tr.criteria: FREQ_ERROR: [1.475] < 50 : PASS
+2018-09-05 12:18:30,782      INFO: tr.criteria: EVM: [1.46] < 4.0 : PASS
+2018-09-05 12:18:30,783      INFO: tr.SY_TSCX11: RANDOM_TOP (1869 MHz)
+2018-09-05 12:18:30,783      INFO: tr.SY_TSCX11: TX 1 Validating EEPROM calib frequency 1869 MHz
+2018-09-05 12:18:41,884      INFO: tr.SY_TSCX11: Readings: bb_att=17, tx_att=14, fb_att=58, rf_in=-17.93, fb_in=-18.60, pwr_out=26.70
+2018-09-05 12:18:42,694      INFO: tr.criteria: POWER_OUT_dBm: 27 < [26.67] < 30 : FAIL
+2018-09-05 12:18:42,734      INFO: tr.criteria: PA_CURRENT: [0.298] < 0.4 : PASS
+2018-09-05 12:18:42,734      INFO: tr.criteria: ACLR: [-47.89] < -42 : PASS
+2018-09-05 12:18:42,736      INFO: tr.criteria: FREQ: [1869] : PASS
+2018-09-05 12:18:42,736      INFO: tr.criteria: FREQ_ERROR: [2.38] < 50 : PASS
+2018-09-05 12:18:42,736      INFO: tr.criteria: EVM: [1.137] < 4.0 : PASS
+2018-09-05 12:18:42,736      INFO: tr.SY_TSCX11: BOTTOM (1810 MHz)
+2018-09-05 12:18:42,737      INFO: tr.SY_TSCX11: TX 2 Validating EEPROM calib frequency 1810 MHz
+2018-09-05 12:18:55,134      INFO: tr.SY_TSCX11: Readings: bb_att=19, tx_att=4, fb_att=47, rf_in=-18.29, fb_in=-14.20, pwr_out=28.60
+2018-09-05 12:18:55,983      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.57] < 30 : PASS
+2018-09-05 12:18:56,013      INFO: tr.criteria: PA_CURRENT: [0.38] < 0.4 : PASS
+2018-09-05 12:18:56,013      INFO: tr.criteria: ACLR: [-36.76] < -42 : FAIL
+2018-09-05 12:18:56,013      INFO: tr.criteria: FREQ: [1810] : PASS
+2018-09-05 12:18:56,013      INFO: tr.criteria: FREQ_ERROR: [2.017] < 50 : PASS
+2018-09-05 12:18:56,015      INFO: tr.criteria: EVM: [5.592] < 4.0 : FAIL
+2018-09-05 12:18:56,015      INFO: tr.SY_TSCX11: MIDDLE (1845 MHz)
+2018-09-05 12:18:56,015      INFO: tr.SY_TSCX11: TX 2 Validating EEPROM calib frequency 1845 MHz
+2018-09-05 12:19:08,430      INFO: tr.SY_TSCX11: Readings: bb_att=19, tx_att=11, fb_att=52, rf_in=-16.88, fb_in=-17.01, pwr_out=28.58
+2018-09-05 12:19:09,256      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.56] < 30 : PASS
+2018-09-05 12:19:09,296      INFO: tr.criteria: PA_CURRENT: [0.341] < 0.4 : PASS
+2018-09-05 12:19:09,296      INFO: tr.criteria: ACLR: [-44.37] < -42 : PASS
+2018-09-05 12:19:09,296      INFO: tr.criteria: FREQ: [1845] : PASS
+2018-09-05 12:19:09,296      INFO: tr.criteria: FREQ_ERROR: [0.2255] < 50 : PASS
+2018-09-05 12:19:09,296      INFO: tr.criteria: EVM: [1.482] < 4.0 : PASS
+2018-09-05 12:19:09,296      INFO: tr.SY_TSCX11: TOP (1875 MHz)
+2018-09-05 12:19:09,296      INFO: tr.SY_TSCX11: TX 2 Validating EEPROM calib frequency 1875 MHz
+2018-09-05 12:19:28,451      INFO: tr.SY_TSCX11: Readings: bb_att=20, tx_att=10, fb_att=52, rf_in=-17.06, fb_in=-17.06, pwr_out=28.29
+2018-09-05 12:19:29,255      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.27] < 30 : PASS
+2018-09-05 12:19:29,286      INFO: tr.criteria: PA_CURRENT: [0.333] < 0.4 : PASS
+2018-09-05 12:19:29,288      INFO: tr.criteria: ACLR: [-45.79] < -42 : PASS
+2018-09-05 12:19:29,288      INFO: tr.criteria: FREQ: [1875] : PASS
+2018-09-05 12:19:29,289      INFO: tr.criteria: FREQ_ERROR: [2.891] < 50 : PASS
+2018-09-05 12:19:29,289      INFO: tr.criteria: EVM: [1.533] < 4.0 : PASS
+2018-09-05 12:19:29,289      INFO: tr.SY_TSCX11: RANDOM_BOTTOM (1828 MHz)
+2018-09-05 12:19:29,289      INFO: tr.SY_TSCX11: TX 2 Validating EEPROM calib frequency 1828 MHz
+2018-09-05 12:19:41,684      INFO: tr.SY_TSCX11: Readings: bb_att=20, tx_att=9, fb_att=57, rf_in=-18.44, fb_in=-18.64, pwr_out=26.93
+2018-09-05 12:19:42,500      INFO: tr.criteria: POWER_OUT_dBm: 27 < [26.91] < 30 : FAIL
+2018-09-05 12:19:42,532      INFO: tr.criteria: PA_CURRENT: [0.299] < 0.4 : PASS
+2018-09-05 12:19:42,532      INFO: tr.criteria: ACLR: [-46.9] < -42 : PASS
+2018-09-05 12:19:42,533      INFO: tr.criteria: FREQ: [1828] : PASS
+2018-09-05 12:19:42,533      INFO: tr.criteria: FREQ_ERROR: [1.442] < 50 : PASS
+2018-09-05 12:19:42,535      INFO: tr.criteria: EVM: [1.163] < 4.0 : PASS
+2018-09-05 12:19:42,535      INFO: tr.SY_TSCX11: RANDOM_TOP (1869 MHz)
+2018-09-05 12:19:42,535      INFO: tr.SY_TSCX11: TX 2 Validating EEPROM calib frequency 1869 MHz
+2018-09-05 12:19:54,974      INFO: tr.SY_TSCX11: Readings: bb_att=20, tx_att=11, fb_att=51, rf_in=-17.04, fb_in=-17.34, pwr_out=28.08
+2018-09-05 12:19:55,779      INFO: tr.criteria: POWER_OUT_dBm: 27 < [28.1] < 30 : PASS
+2018-09-05 12:19:55,808      INFO: tr.criteria: PA_CURRENT: [0.32] < 0.4 : PASS
+2018-09-05 12:19:55,809      INFO: tr.criteria: ACLR: [-47.11] < -42 : PASS
+2018-09-05 12:19:55,809      INFO: tr.criteria: FREQ: [1869] : PASS
+2018-09-05 12:19:55,809      INFO: tr.criteria: FREQ_ERROR: [3.031] < 50 : PASS
+2018-09-05 12:19:55,811      INFO: tr.criteria: EVM: [1.193] < 4.0 : PASS
+2018-09-05 12:19:55,819      INFO: tr: ##################### SystemCalib5MHz #####################
+2018-09-05 12:19:55,822      INFO: tr.SY_TSC220: -------------- [SY_TSC220] TX2 5 MHz --------------
+2018-09-05 12:19:55,854      INFO: tr.SY_TSC220: Calibrating TX 2 w/ BW of 5 MHz
+2018-09-05 12:19:55,892      INFO: tr.SY_TSC220: Changing bandwidth; requires reboot.
+2018-09-05 12:19:59,535      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-05 12:19:59,536      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:21:45,809      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 12:22:22,280      INFO: tr.SY_TSC220: Updating setup file list...
+2018-09-05 12:22:23,898      INFO: tr.SY_TSC220: Updating setup file list... Done
+2018-09-05 12:22:23,986      INFO: tr.SY_TSC220: Start ETM1.1
+2018-09-05 12:22:28,650      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1808 MHz
+2018-09-05 12:22:30,703      INFO: tr.SY_TSC220: [BB] f=1808, 	bb_attn=21.0, 	in_pwr=-16.93, 	fb=-32.05
+2018-09-05 12:22:32,365   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.00
+2018-09-05 12:22:33,901   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:35,410   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:36,910   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:38,423   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:39,933   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:41,430   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.50
+2018-09-05 12:22:42,930   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.50
+2018-09-05 12:22:44,505   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.50
+2018-09-05 12:22:46,015   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-05 12:22:47,743      INFO: tr.SY_TSC220: [TX] f=1808, 	tx_attn=2.5, 	in_pwr=-17.84, 	out_pwr=27.03, 	fb=-18.23
+2018-09-05 12:22:49,447      INFO: tr.SY_TSC220: [FB] f=1808, 	fb_attn=13.25, 	in_pwr=-17.80, 	out_pwr=27.06, 	fb=-17.43
+2018-09-05 12:22:49,447      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1815 MHz
+2018-09-05 12:22:50,927      INFO: tr.SY_TSC220: [BB] f=1815, 	bb_attn=22.0, 	in_pwr=-17.51, 	fb=-17.28
+2018-09-05 12:22:52,565   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=2.00
+2018-09-05 12:22:54,114   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:22:55,607   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:22:57,334      INFO: tr.SY_TSC220: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-17.51, 	out_pwr=27.84, 	fb=-17.13
+2018-09-05 12:23:01,042      INFO: tr.SY_TSC220: [FB] f=1815, 	fb_attn=13.5, 	in_pwr=-17.43, 	out_pwr=27.76, 	fb=-17.35
+2018-09-05 12:23:01,043      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1822 MHz
+2018-09-05 12:23:01,907      INFO: tr.SY_TSC220: [BB] f=1822, 	bb_attn=23.0, 	in_pwr=-17.17, 	fb=-16.73
+2018-09-05 12:23:03,608   WARNING: tr.SY_TSC220: TX Attn value clamped ! Desired value=2.25
+2018-09-05 12:23:08,358      INFO: tr.SY_TSC220: [TX] f=1822, 	tx_attn=2.5, 	in_pwr=-17.12, 	out_pwr=28.19, 	fb=-16.87
+2018-09-05 12:23:10,937      INFO: tr.SY_TSC220: [FB] f=1822, 	fb_attn=14.25, 	in_pwr=-17.12, 	out_pwr=28.06, 	fb=-17.62
+2018-09-05 12:23:10,938      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1829 MHz
+2018-09-05 12:23:14,003      INFO: tr.SY_TSC220: [BB] f=1829, 	bb_attn=22.0, 	in_pwr=-17.11, 	fb=-17.63
+2018-09-05 12:23:17,417      INFO: tr.SY_TSC220: [TX] f=1829, 	tx_attn=2.75, 	in_pwr=-17.21, 	out_pwr=28.11, 	fb=-17.94
+2018-09-05 12:23:19,345      INFO: tr.SY_TSC220: [FB] f=1829, 	fb_attn=13.75, 	in_pwr=-17.13, 	out_pwr=28.08, 	fb=-17.50
+2018-09-05 12:23:19,345      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1836 MHz
+2018-09-05 12:23:22,233      INFO: tr.SY_TSC220: [BB] f=1836, 	bb_attn=21.0, 	in_pwr=-16.58, 	fb=-16.92
+2018-09-05 12:23:25,601      INFO: tr.SY_TSC220: [TX] f=1836, 	tx_attn=3.5, 	in_pwr=-16.48, 	out_pwr=28.05, 	fb=-17.94
+2018-09-05 12:23:27,532      INFO: tr.SY_TSC220: [FB] f=1836, 	fb_attn=13.25, 	in_pwr=-16.45, 	out_pwr=28.00, 	fb=-17.41
+2018-09-05 12:23:27,533      INFO: tr.SY_TSC220: Calibrating Attn values for TX 2 @ 1844 MHz
+2018-09-05 12:23:29,736      INFO: tr.SY_TSC220: [BB] f=1844, 	bb_attn=21.0, 	in_pwr=-16.66, 	fb=-17.94
+2018-09-05 12:23:30,029  CRITICAL: tr: Execution interrupted
+2018-09-05 12:23:30,029  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 12:23:30,032      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 12:23:30,035      INFO: tr: ######################### Cleanup #########################
+2018-09-05 12:23:30,036      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 12:23:30,339      INFO: tr.FE_CLN001: TXs are off
+2018-09-05 12:23:30,345      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 12:23:30,519   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 12:23:30,522      INFO: tr: All sections of batch file were executed
+2018-09-05 12:23:30,575      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp5y4tq1\server

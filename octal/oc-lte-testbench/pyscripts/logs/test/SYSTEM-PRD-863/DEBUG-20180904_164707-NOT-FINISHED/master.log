@@ -1,0 +1,39 @@
+2018-09-04 16:47:06,698      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpasdq7q
+2018-09-04 16:47:07,134      INFO: tr.server: Loading services from config file
+2018-09-04 16:47:07,687      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 16:47:07,691      INFO: tr: ##################### SystemTestbench #####################
+2018-09-04 16:47:07,693      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-04 16:47:07,694      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-04 16:47:07,696      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-04 16:47:10,407      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-04 16:47:10,430      INFO: tr: ####################### Preparation #######################
+2018-09-04 16:47:10,453      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 16:47:10,464      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 16:47:10,467      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 16:47:17,247      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 16:47:17,249      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 16:47:17,334      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 16:47:17,335      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 16:47:17,344      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 16:47:17,385      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 16:47:18,109      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 16:47:18,164      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 16:47:18,173      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 16:47:18,176      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 16:48:57,950      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 16:51:11,543      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 16:51:21,668  CRITICAL: tr: Execution interrupted
+2018-09-04 16:51:21,670  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 16:51:21,673      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 16:51:21,674      INFO: tr: ######################### Cleanup #########################
+2018-09-04 16:51:21,677      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 16:51:21,977      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 16:51:21,980      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 16:51:21,994   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 16:51:21,997      INFO: tr: All sections of batch file were executed
+2018-09-04 16:51:22,040      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpasdq7q\server

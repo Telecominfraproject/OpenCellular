@@ -1,0 +1,16 @@
+2018-09-04 14:50:27,479: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmptz6nba
+2018-09-04 14:50:27,494: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,530: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,555: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,572: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,596: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,608: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,632: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,667: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,684: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,713: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:50:27,739: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpzupted\server
+2018-09-04 14:50:27,828: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-04 14:50:28,042: server.service.DCSupplyService@dcsupply.dcdc      : INFO    Connected to DC-DC converter with devcount: 1
+2018-09-04 14:50:28,145: server.service.DCSupplyService@dcsupply           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - SUCCESS (0.32 s)
+2018-09-04 14:51:55,845: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpzupted\server

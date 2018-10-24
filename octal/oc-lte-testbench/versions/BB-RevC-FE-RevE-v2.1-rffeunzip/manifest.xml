@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OC-LTE>
+  <description>
+    <imageVersion>v2.2</imageVersion>
+    <date>2018-09-13</date>
+	<BB>revB, revC</BB>
+    <FE>revD</FE>
+	<note>Fix 5MHz;</note>
+  </description>
+  <binaryImage_u-boot>
+    <fileName>u-boot-octeon_tip.bin</fileName>
+    <version></version>
+	<date>2018-09-12</date>
+    <md5sum>4c086a853f420f0379283794a97a6538</md5sum>
+    <BB>revB, revC</BB>
+    <FE>revE</FE>
+    <note>Fix i2c current sensors 0x41 for PA2;</note>
+  </binaryImage_u-boot>
+  <binaryImage_kernel>
+    <fileName>lsm_os.gz</fileName>
+    <version></version>
+	<date>2018-08-27</date>
+    <md5sum>1e23addc54cdec2ace1b2e0ed00d2b0e</md5sum>
+    <BB>revB, revC</BB>
+    <FE>revE</FE>
+    <note></note>
+  </binaryImage_kernel>
+  <binaryImage_rootfs>
+    <fileName>lsm_rd.gz</fileName>
+    <version></version>
+	<date>2018-09-13</date>
+    <md5sum>aa05248ebc923a0116c1823104eaea6c</md5sum>
+    <BB>revB, revC</BB>
+    <FE>revE</FE>
+    <note>Fix 5MHz, set Half-Band filter;</note>
+  </binaryImage_rootfs>
+  <binaryImage_rffe>
+    <fileName>rffe.tgz</fileName>
+    <version>v1.3.1</version>
+	<date>2018-08-29</date>
+    <md5sum>45d2f403d6f4742be722c6948cbd9644</md5sum>
+    <FE>revD, revE</FE>
+    <note>Fixed fe-manager loop; Update fe-manager start message</note>
+  </binaryImage_rffe>
+</OC-LTE>

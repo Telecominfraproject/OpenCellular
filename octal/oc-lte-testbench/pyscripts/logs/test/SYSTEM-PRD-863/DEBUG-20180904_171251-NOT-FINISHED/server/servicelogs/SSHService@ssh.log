@@ -1,0 +1,43 @@
+2018-09-04 17:12:51,308:DEBUG    
+
+
+2018-09-04 17:12:51,308:INFO     SERVICE INITIALIZED
+2018-09-04 17:13:02,181:DEBUG    LOG =DEBUG
+2018-09-04 17:13:02,183:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 17:13:02,183:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 17:13:12,303:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.12 s)
+2018-09-04 17:13:12,312:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 17:13:12,326:DEBUG    Exit code= 0
+2018-09-04 17:13:12,326:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1391]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1392]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1392]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1430]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1430]: crond: USER root pid 3012 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1430]: crond: USER root pid 5268 cmd /usr/bin/tempcheck.sh
+Jan  2 08:02:23 LSM daemon.info init: starting pid 5651, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:03:01 LSM cron.info crond[1430]: crond: USER root pid 5840 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1430]: crond: USER root pid 6573 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1430]: crond: USER root pid 7123 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1430]: crond: USER root pid 7902 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1430]: crond: USER root pid 8156 cmd /usr/bin/tempcheck.sh
+2018-09-04 17:13:12,326:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 17:13:22,500:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-04 17:13:22,515:DEBUG    Exit code= 0
+2018-09-04 17:13:22,515:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 17:13:22,523:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-04 17:13:22,569:DEBUG    Exit code= 0
+2018-09-04 17:13:22,569:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 17:13:22,578:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-04 17:13:22,624:DEBUG    Exit code= 0
+2018-09-04 17:13:22,624:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 17:13:22,632:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-04 17:13:22,678:DEBUG    Exit code= 0
+2018-09-04 17:13:22,680:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 17:13:22,687:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-04 17:13:22,733:DEBUG    Exit code= 0
+2018-09-04 17:13:22,733:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-04 17:13:22,743:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-04 17:13:22,788:DEBUG    Exit code= 0
+2018-09-04 17:13:22,788:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)

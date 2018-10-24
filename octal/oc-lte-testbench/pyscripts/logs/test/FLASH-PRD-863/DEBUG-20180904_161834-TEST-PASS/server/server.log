@@ -1,0 +1,165 @@
+2018-09-04 16:18:34,512: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpw8v0r8
+2018-09-04 16:18:34,523: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,582: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,621: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,645: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,676: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,696: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,736: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,796: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,815: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,869: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 16:18:34,910: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmp3gwwvd\server
+2018-09-04 16:18:37,897: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.03 s)
+2018-09-04 16:18:39,927: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:42,969: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:45,996: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:49,030: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:52,063: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:55,105: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:18:58,130: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:01,174: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:04,203: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:07,240: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:10,272: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:13,312: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:16,338: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:19,369: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:22,407: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:25,448: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:28,483: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:31,519: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:34,556: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:37,601: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:40,648: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:43,693: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:46,736: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:49,780: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:52,825: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:55,869: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:19:58,914: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 16:20:00,967: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:03,007: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:05,046: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:07,095: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:09,131: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:11,177: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:13,209: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:15,246: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:17,308: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:19,371: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 16:20:31,530: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (11.13 s)
+2018-09-04 16:20:31,585: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 16:20:33,632: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:35,681: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:37,707: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:39,753: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:41,806: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 16:20:43,854: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:45,903: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:47,944: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:49,992: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:52,035: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:54,088: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:20:56,150: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 16:20:58,207: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 16:20:58,237: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 16:21:08,354: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.12 s)
+2018-09-04 16:21:08,428: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.04 s)
+2018-09-04 16:21:10,066: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (1.6 s)
+2018-09-04 16:21:10,581: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsm_os.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /tmp/ (0.5 s)
+2018-09-04 16:23:29,147: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (138.55 s)
+2018-09-04 16:23:34,092: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsm_rd.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /tmp/ (4.95 s)
+2018-09-04 16:33:03,526: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz (569.41 s)
+2018-09-04 16:33:03,661: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put u-boot-octeon_tip.bin from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /tmp/ (0.14 s)
+2018-09-04 16:33:09,556: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin (5.89 s)
+2018-09-04 16:33:09,611: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put bringup from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.05 s)
+2018-09-04 16:33:09,710: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put cal.tar from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.07 s)
+2018-09-04 16:33:09,789: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put cal.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.06 s)
+2018-09-04 16:33:10,285: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put data-model.xml from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.48 s)
+2018-09-04 16:33:15,298: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put Dimark_Client.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (4.99 s)
+2018-09-04 16:33:15,986: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put dsp.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.66 s)
+2018-09-04 16:33:20,601: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put ETM_10MHz_TV.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (4.61 s)
+2018-09-04 16:33:24,098: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put LFMSOFT_OCT_D.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (3.48 s)
+2018-09-04 16:33:28,607: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsmD.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (4.49 s)
+2018-09-04 16:33:28,746: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put md5.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.12 s)
+2018-09-04 16:33:28,871: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rc_post.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.1 s)
+2018-09-04 16:33:28,980: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rc_pre.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.09 s)
+2018-09-04 16:33:29,117: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put README.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.1 s)
+2018-09-04 16:33:30,364: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rffe.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (1.22 s)
+2018-09-04 16:33:30,509: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put startup.cfg from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.13 s)
+2018-09-04 16:33:30,640: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put update_rffe.sh from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1 to /mnt/app/ (0.1 s)
+2018-09-04 16:33:30,690: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls -l /mnt/app (0.03 s)
+2018-09-04 16:33:30,769: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv (0.03 s)
+2018-09-04 16:33:33,197: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.42 s)
+2018-09-04 16:33:35,618: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25' (2.42 s)
+2018-09-04 16:33:38,048: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000' (2.43 s)
+2018-09-04 16:33:40,471: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61' (2.41 s)
+2018-09-04 16:33:42,947: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0' (2.45 s)
+2018-09-04 16:33:45,367: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n' (2.42 s)
+2018-09-04 16:33:47,818: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps' (2.45 s)
+2018-09-04 16:33:50,250: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen' (2.43 s)
+2018-09-04 16:33:52,648: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000' (2.39 s)
+2018-09-04 16:33:55,059: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '0' (2.4 s)
+2018-09-04 16:33:57,509: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp' (2.44 s)
+2018-09-04 16:34:00,607: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2' (3.09 s)
+2018-09-04 16:34:03,019: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0' (2.4 s)
+2018-09-04 16:34:05,390: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1' (2.36 s)
+2018-09-04 16:34:07,779: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200' (2.38 s)
+2018-09-04 16:34:10,168: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp' (2.38 s)
+2018-09-04 16:34:12,539: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0' (2.36 s)
+2018-09-04 16:34:14,970: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;' (2.42 s)
+2018-09-04 16:34:17,398: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1' (2.42 s)
+2018-09-04 16:34:19,859: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7' (2.45 s)
+2018-09-04 16:34:22,299: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825' (2.43 s)
+2018-09-04 16:34:24,719: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1' (2.41 s)
+2018-09-04 16:34:27,118: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730' (2.39 s)
+2018-09-04 16:34:29,588: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv target 'zen' (2.46 s)
+2018-09-04 16:34:32,039: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1' (2.44 s)
+2018-09-04 16:34:34,453: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1' (2.41 s)
+2018-09-04 16:34:36,890: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd' (2.43 s)
+2018-09-04 16:34:39,319: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25' (2.42 s)
+2018-09-04 16:34:41,779: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe' (2.45 s)
+2018-09-04 16:34:44,229: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user' (2.44 s)
+2018-09-04 16:34:46,680: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.44 s)
+2018-09-04 16:34:49,069: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0' (2.38 s)
+2018-09-04 16:34:51,539: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)' (2.46 s)
+2018-09-04 16:34:54,029: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1' (2.48 s)
+2018-09-04 16:34:56,503: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0' (2.47 s)
+2018-09-04 16:34:58,969: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18' (2.46 s)
+2018-09-04 16:35:01,408: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18' (2.43 s)
+2018-09-04 16:35:03,859: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}' (2.44 s)
+2018-09-04 16:35:06,319: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl' (2.45 s)
+2018-09-04 16:35:08,750: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0' (2.42 s)
+2018-09-04 16:35:11,150: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000' (2.39 s)
+2018-09-04 16:35:13,539: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)' (2.38 s)
+2018-09-04 16:35:15,928: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tip '1' (2.38 s)
+2018-09-04 16:35:18,368: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150' (2.43 s)
+2018-09-04 16:35:20,829: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)' (2.45 s)
+2018-09-04 16:35:23,319: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0' (2.48 s)
+2018-09-04 16:35:25,759: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1' (2.43 s)
+2018-09-04 16:35:28,180: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50' (2.41 s)
+2018-09-04 16:35:30,651: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txpower '30' (2.46 s)
+2018-09-04 16:35:33,079: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1' (2.42 s)
+2018-09-04 16:35:35,509: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bw '20' (2.42 s)
+2018-09-04 16:35:37,990: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.47 s)
+2018-09-04 16:35:40,450: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8' (2.45 s)
+2018-09-04 16:35:42,878: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm' (2.42 s)
+2018-09-04 16:35:45,299: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin' (2.41 s)
+2018-09-04 16:35:47,717: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1' (2.41 s)
+2018-09-04 16:35:50,167: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv numcores '4' (2.45 s)
+2018-09-04 16:35:52,615: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenable '' (2.45 s)
+2018-09-04 16:35:55,019: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5' (2.4 s)
+2018-09-04 16:35:57,483: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv startapp '0' (2.46 s)
+2018-09-04 16:35:59,927: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744' (2.43 s)
+2018-09-04 16:36:02,309: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp' (2.38 s)
+2018-09-04 16:36:04,717: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362' (2.4 s)
+2018-09-04 16:36:07,137: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0' (2.42 s)
+2018-09-04 16:36:07,197: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.04 s)
+2018-09-04 16:36:07,266: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.06 s)
+2018-09-04 16:36:07,325: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 16:36:07,375: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.04 s)
+2018-09-04 16:36:07,436: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.03 s)
+2018-09-04 16:36:07,496: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)
+2018-09-04 16:36:07,526: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 16:36:07,559: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmp3gwwvd\server

@@ -1,0 +1,80 @@
+2018-09-05 16:08:34,355:DEBUG    
+
+
+2018-09-05 16:08:34,355:INFO     SERVICE INITIALIZED
+2018-09-05 16:09:04,286:DEBUG    LOG =DEBUG
+2018-09-05 16:09:04,286:DEBUG    DcDcConverter module imported
+2018-09-05 16:09:04,289:INFO     DCDCUsbLib DLL loaded successfully
+2018-09-05 16:09:04,290:DEBUG    Resource handle: <CDLL 'c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\dcsupply_dll\DCDCUsbLib.dll', handle 19b90000 at 4f8e670>
+2018-09-05 16:09:04,293:INFO     No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:09:06,286:WARNING  No DC-DC converter found; closing device
+2018-09-05 16:09:06,288:WARNING  Retrying (2 retries left)
+2018-09-05 16:09:06,289:DEBUG    DcDcConverter module imported
+2018-09-05 16:09:06,289:INFO     DCDCUsbLib DLL loaded successfully
+2018-09-05 16:09:06,289:DEBUG    Resource handle: <CDLL 'c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\dcsupply_dll\DCDCUsbLib.dll', handle 19b90000 at 4f8e530>
+2018-09-05 16:09:06,292:INFO     No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:09:08,288:WARNING  No DC-DC converter found; closing device
+2018-09-05 16:09:08,289:WARNING  Retrying (1 retries left)
+2018-09-05 16:09:08,290:DEBUG    DcDcConverter module imported
+2018-09-05 16:09:08,290:INFO     DCDCUsbLib DLL loaded successfully
+2018-09-05 16:09:08,292:DEBUG    Resource handle: <CDLL 'c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\dcsupply_dll\DCDCUsbLib.dll', handle 19b90000 at 4fea830>
+2018-09-05 16:09:08,293:INFO     No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:09:10,288:WARNING  No DC-DC converter found; closing device
+2018-09-05 16:09:10,289:ERROR    Max retries reached
+2018-09-05 16:09:10,292:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\dcsupply_service.py", line 48, in try_creating_supply
+    self.supply = DcDcConverter(1, 0.1, 2, logger = self.logger.getChild('dcdc'))
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\dcsupply_utils.py", line 90, in __init__
+    raise Exception("No DC-DC converter found; closing device")
+Exception: No DC-DC converter found; closing device
+
+2018-09-05 16:09:10,292:DEBUG    Unexpected error occured while handling request
+2018-09-05 16:09:10,293:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\dcsupply_service.py", line 43, in service_config
+    self.try_creating_supply()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\dcsupply_service.py", line 59, in try_creating_supply
+    raise ServiceError(e.message)
+ServiceError: No DC-DC converter found; closing device
+
+2018-09-05 16:09:10,293:WARNING  Client error [No DC-DC converter found; closing device]
+2018-09-05 16:09:10,296:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\dcsupply_service.py", line 43, in service_config
+    self.try_creating_supply()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\dcsupply_service.py", line 59, in try_creating_supply
+    raise ServiceError(e.message)
+ServiceError: No DC-DC converter found; closing device
+
+2018-09-05 16:09:10,380:WARNING  Client error [Service must be configured before usage (create_service)]
+2018-09-05 16:09:10,381:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 304, in check_service_url_exists
+    resp = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 406, in service
+    return self.internal_service(url, content_object, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 410, in internal_service
+    resp.body = self.service_dict[url].base_service_handle(content_object)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 114, in _is_configured
+    self.service_error("Service must be configured before usage (create_service)")
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 118, in service_error
+    raise ServiceError(message, service=self)
+ServiceError: Service must be configured before usage (create_service)
+

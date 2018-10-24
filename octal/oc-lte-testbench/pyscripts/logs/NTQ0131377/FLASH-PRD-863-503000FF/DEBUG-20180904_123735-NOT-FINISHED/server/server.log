@@ -1,0 +1,29 @@
+2018-09-04 12:37:35,275: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpjzgu7a
+2018-09-04 12:37:35,299: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,349: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,365: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,384: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,404: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,424: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,444: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,474: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,494: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,525: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 12:37:35,545: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpmou6u9\server
+2018-09-04 12:37:42,526: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.12 s)
+2018-09-04 12:37:52,855: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.31 s)
+2018-09-04 12:37:52,895: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:37:52,921: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 12:38:03,013: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.09 s)
+2018-09-04 12:38:03,075: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 12:38:08,700: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (5.61 s)
+2018-09-04 12:38:09,650: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsm_os.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (0.95 s)
+2018-09-04 12:40:29,088: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (139.43 s)
+2018-09-04 12:40:29,115: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 12:40:29,165: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-09-04 12:40:29,213: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-04 12:40:29,263: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 12:40:29,309: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-09-04 12:40:29,398: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.08 s)
+2018-09-04 12:40:29,467: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 12:40:29,500: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpmou6u9\server

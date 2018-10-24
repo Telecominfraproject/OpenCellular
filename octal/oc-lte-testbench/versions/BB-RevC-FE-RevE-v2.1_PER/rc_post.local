@@ -1,0 +1,9 @@
+#!/bin/sh
+
+source /tmp/system.conf
+
+if [ "$SYNCBY" == "gps" ];then 
+cat << EOF >> /var/spool/cron/crontabs/root
+*/2	*	*	*	*	/usr/bin/fault_manager.sh gps
+EOF
+fi

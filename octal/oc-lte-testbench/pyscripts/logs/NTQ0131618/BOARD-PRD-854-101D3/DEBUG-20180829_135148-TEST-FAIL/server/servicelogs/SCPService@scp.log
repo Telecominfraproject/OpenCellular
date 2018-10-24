@@ -1,0 +1,11 @@
+2018-08-29 13:51:48,707:DEBUG    
+
+
+2018-08-29 13:51:48,707:INFO     SERVICE INITIALIZED
+2018-08-29 13:55:17,325:DEBUG    LOG =DEBUG
+2018-08-29 13:55:17,326:INFO     Initiating SSH connection at 10.102.81.61
+2018-08-29 13:55:27,430:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.11 s)
+2018-08-29 13:55:27,471:DEBUG    Put etm-start-tmp.sh from support\files\ to /bin/
+2018-08-29 13:55:27,533:INFO     SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.06 s)
+2018-08-29 13:55:27,562:DEBUG    Put wfm.tar from support\files\ to /tmp/
+2018-08-29 13:55:29,492:INFO     SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (1.93 s)

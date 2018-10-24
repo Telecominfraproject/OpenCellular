@@ -1,0 +1,238 @@
+2018-09-05 16:15:48,684      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpngpfi6
+2018-09-05 16:15:48,717      INFO: tr.server: Loading services from config file
+2018-09-05 16:15:49,276      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:15:49,295      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 16:15:49,296      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 16:15:49,302      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 16:15:49,302      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131530] : PASS
+2018-09-05 16:15:49,303      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-2E] : PASS
+2018-09-05 16:15:49,325      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan FE ---------------
+2018-09-05 16:15:49,365      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-05 16:15:49,365      INFO: tr.CM_PRP002: Please scan the FE Unit
+2018-09-05 16:15:52,007      INFO: tr.CM_PRP002: Scanned: PRD-854-101D3;NTQ0131618
+2018-09-05 16:15:52,029      INFO: tr: ##################### BoardTestbench #####################
+2018-09-05 16:15:52,048      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-05 16:15:52,051      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:15:52,052      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-05 16:15:53,525      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:15:53,526      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:15:53,526      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-05 16:15:54,290      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:15:54,290      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:15:54,292      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-05 16:15:54,900      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:15:54,920      INFO: tr: ####################### Preparation #######################
+2018-09-05 16:15:54,937      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 16:15:54,940      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 16:15:54,941      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 16:16:01,723      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 16:16:01,723      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 16:16:01,838      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 16:16:01,841      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 16:16:01,865      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 16:16:01,959      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 16:16:08,211      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 16:16:17,364      INFO: tr: ######################## Firstboot ########################
+2018-09-05 16:16:17,394      INFO: tr.CM_PRP040: ------ [CM_PRP040] Setup tftp boot in u-boot ------
+2018-09-05 16:16:17,398      INFO: tr.CM_PRP040: U-boot access in progress
+2018-09-05 16:16:28,723      INFO: tr.CM_PRP040: U-boot setup default env in progress
+2018-09-05 16:16:39,249      INFO: tr.CM_PRP040: U-boot set setup env in progress
+2018-09-05 16:16:57,875      INFO: tr.CM_PRP040: U-boot setup for tftp boot successful
+2018-09-05 16:16:57,875      INFO: tr.CM_PRP040: Reset from U-boot in progress
+2018-09-05 16:16:58,326      INFO: tr.CM_PRP041: ------ [CM_PRP041] Update u-boot from u-boot ------
+2018-09-05 16:16:58,354      INFO: tr.CM_PRP041: U-boot access in progress
+2018-09-05 16:17:05,107      INFO: tr.CM_PRP041: U-boot update in progress
+2018-09-05 16:17:12,272      INFO: tr.CM_PRP041: U-boot update successful
+2018-09-05 16:17:12,273      INFO: tr.CM_PRP041: Reset from U-boot in progress
+2018-09-05 16:17:12,727      INFO: tr.BB_TSC004: ----- [BB_TSC004] Validate 1000 MHz operation -----
+2018-09-05 16:17:14,303      INFO: tr.criteria: BB_TSC004_CORE_CLOCK: [1000 MHz] == '1000 MHz' : PASS
+2018-09-05 16:17:14,331      INFO: tr: ########################## Reset ##########################
+2018-09-05 16:17:14,359      INFO: tr.BB_TSC015: -------------- [BB_TSC015] SW1 reset --------------
+2018-09-05 16:18:31,157      INFO: tr.BB_TSC015: TESTER STEP:
+2018-09-05 16:18:31,158      INFO: tr.BB_TSC015: Press SW1 and hold it for at least 1 sec
+2018-09-05 16:18:36,900      INFO: tr.BB_TSC015: Tester continued the test
+2018-09-05 16:18:45,581      INFO: tr.BB_TSC015: Reset occured
+2018-09-05 16:18:45,605      INFO: tr.BB_TSC017: -------------- [BB_TSC017] SW2 reset --------------
+2018-09-05 16:18:45,638      INFO: tr.BB_TSC017: TESTER STEP:
+2018-09-05 16:18:45,638      INFO: tr.BB_TSC017: Press SW2 and hold it for at least 1 sec
+2018-09-05 16:18:49,651      INFO: tr.BB_TSC017: Tester continued the test
+2018-09-05 16:18:56,698      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 16:18:56,726      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 16:18:56,729      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 16:20:42,308      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 16:22:56,165      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 16:23:06,358      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 16:23:06,387      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 16:23:06,390      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 16:23:08,043      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 16:23:08,072      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 16:23:08,098      INFO: tr.BB_TSC010: -------------- [BB_TSC010] I2C0 Scan --------------
+2018-09-05 16:23:08,098      INFO: tr.BB_TSC011: -------------- [BB_TSC011] I2C1 Scan --------------
+2018-09-05 16:23:08,099      INFO: tr.BB_TSC013: ----------------- [BB_TSC013] PCIE -----------------
+2018-09-05 16:23:08,101      INFO: tr.BB_TSC014: ----------------- [BB_TSC014] GPS -----------------
+2018-09-05 16:23:08,105      INFO: tr.BB_TSC014: This test can take up to 5 min
+2018-09-05 16:23:08,105      INFO: tr.BB_TSC014: GPS Lock in progress...
+2018-09-05 16:24:55,759      INFO: tr.BB_TSC014: [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. [/usr/bin/gpsGetLoc.sh] Gather GPS DATA . . . . . . . . . .
+gps location is fixed=1
+[/usr/bin/gpsGetLoc.sh] Show satellite - gps
+[/usr/bin/gpsGetLoc.sh] Grabbing gps location - gps
+================================================
+number of satellites in view:00*79
+================================================
+================================================
+the satellites used for fix location
+================================================
+PRN:            
+. 
+GPS fix location time out!
+2018-09-05 16:24:55,763      INFO: tr.criteria: BB_TSC014_GPS_LOCK: [timeout, no GPS found] == '' : FAIL
+2018-09-05 16:24:55,785     ERROR: tr.BB_TSC014: AssertionError: BB_TSC014_GPS_LOCK: [timeout, no GPS found] == '' : FAIL
+2018-09-05 16:24:55,786     ERROR: tr.BB_TSC014: TEST FAILED
+2018-09-05 16:24:55,786      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 16:24:55,792      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 16:24:56,236      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 16:24:56,578      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 16:24:56,934      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 16:25:00,244      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 16:25:00,288      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 16:25:00,292      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 16:25:00,295      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 16:25:00,296      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 16:25:00,296      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 16:25:00,299      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 16:25:00,301      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-05 16:25:00,305      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-05 16:25:00,381      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-05 16:25:00,384      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-05 16:25:00,388      INFO: tr: ################### TXEnableValidation ###################
+2018-09-05 16:25:00,391      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-05 16:25:46,517      INFO: tr.criteria: TSC131_PRE_DRIVER1_GAIN_dB: 25 < [4.74] < 40 : FAIL
+2018-09-05 16:26:01,214  CRITICAL: tr: Execution interrupted
+2018-09-05 16:26:01,216  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 16:26:01,220      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 16:26:01,221      INFO: tr: ######################### Cleanup #########################
+2018-09-05 16:26:01,223      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 16:26:01,540      INFO: tr.FE_CLN001: TXs are off
+2018-09-05 16:26:01,546      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 16:26:01,566   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 16:26:01,572      INFO: tr: All sections of batch file were executed
+2018-09-05 16:26:01,644      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpngpfi6\server

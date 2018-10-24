@@ -1,0 +1,136 @@
+2018-09-04 14:14:08,098: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmprixgyc
+2018-09-04 14:14:08,111: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,148: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,177: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,197: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,227: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,242: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,269: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,308: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,322: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,351: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:14:08,371: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpjindmn\server
+2018-09-04 14:14:23,334: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.04 s)
+2018-09-04 14:14:23,407: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.02 s)
+2018-09-04 14:14:23,448: server.service.VISAService@generator              : INFO    All parameters present
+2018-09-04 14:14:23,450: server.service.VISAService@generator              : INFO    Connecting to instrument [TCPIP0::A-N5182B-50490::inst0::INSTR]
+2018-09-04 14:14:26,348: server.service.VISAService@generator              : ERROR   Server error [VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.]
+2018-09-04 14:14:26,351: server.service.VISAService@generator              : ERROR   Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 60, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 69, in connect
+    self.instr = resource_manager.open_resource(self.instr_name, open_timeout=self.open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1724, in open_resource
+    res.open(access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\resources\resource.py", line 209, in open
+    self.session, status = self._resource_manager.open_bare_resource(self._resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1681, in open_bare_resource
+    return self.visalib.open(self.session, resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\functions.py", line 1213, in open
+    ret = library.viOpen(session, resource_name, access_mode, open_timeout, byref(out_session))
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\highlevel.py", line 188, in _return_handler
+    raise errors.VisaIOError(ret_value)
+VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+
+2018-09-04 14:14:26,361: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-04 14:14:26,361: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-04 14:14:26,398: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.04 s)
+2018-09-04 14:14:26,404: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-04 14:14:26,598: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.19 s)
+2018-09-04 14:14:26,743: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:14:26,746: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:14:26,749: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:14:26,835: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.09 s)
+2018-09-04 14:14:26,842: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:14:26,845: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:14:26,846: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:14:26,854: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:14:27,105: server.service.RFSwitchService@rfswitch           : ERROR   Server error [Could not connect]
+2018-09-04 14:14:27,105: server.service.RFSwitchService@rfswitch           : ERROR   Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 69, in service_config
+    self.connect_switchs()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 187, in connect_switchs
+    raise Exception("Could not connect")
+Exception: Could not connect
+
+2018-09-04 14:14:28,348: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-04 14:14:28,351: server.service.DCSupplyService@dcsupply.dcdc      : INFO    Connected to DC-DC converter with devcount: 1
+2018-09-04 14:14:28,454: server.service.DCSupplyService@dcsupply           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - SUCCESS (1.31 s)
+2018-09-04 14:14:31,003: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Vout=12.00 (0.0 s)
+2018-09-04 14:14:31,111: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Out ON=True (0.1 s)
+2018-09-04 14:14:32,321: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (0.17 s)
+2018-09-04 14:14:32,344: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 14:14:32,384: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 14:14:32,476: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.09 s)
+2018-09-04 14:14:32,611: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.1 s)
+2018-09-04 14:14:32,634: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-04 14:14:33,974: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (1.34 s)
+2018-09-04 14:14:34,023: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-04 14:14:34,181: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-09-04 14:14:34,233: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.01 s)
+2018-09-04 14:14:34,286: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-04 14:14:34,338: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-04 14:14:34,394: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-04 14:14:34,447: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-04 14:14:34,499: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-04 14:14:34,549: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-04 14:14:34,602: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-04 14:14:34,667: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.02 s)
+2018-09-04 14:14:34,717: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-04 14:14:34,769: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-04 14:14:34,855: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.08 s)
+2018-09-04 14:14:34,907: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-04 14:14:34,963: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-04 14:14:35,019: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.01 s)
+2018-09-04 14:14:35,104: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.08 s)
+2018-09-04 14:14:35,158: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-04 14:14:35,246: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.08 s)
+2018-09-04 14:14:35,298: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-04 14:14:35,348: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-04 14:14:36,414: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-04 14:14:36,608: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.19 s)
+2018-09-04 14:14:37,244: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-04 14:14:37,836: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-04 14:14:38,430: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-04 14:14:38,515: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.08 s)
+2018-09-04 14:14:38,568: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 14:14:38,621: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-04 14:14:38,677: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 14:14:38,740: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.01 s)
+2018-09-04 14:14:38,823: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.04 s)
+2018-09-04 14:14:38,881: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.04 s)
+2018-09-04 14:14:38,938: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 14:14:39,029: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.09 s)
+2018-09-04 14:14:39,098: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-04 14:14:39,161: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.05 s)
+2018-09-04 14:14:39,213: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 14:14:39,263: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 14:14:39,315: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 14:14:39,367: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-09-04 14:14:39,417: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.05 s)
+2018-09-04 14:14:39,535: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Out ON=False (0.11 s)
+2018-09-04 14:14:39,569: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpjindmn\server

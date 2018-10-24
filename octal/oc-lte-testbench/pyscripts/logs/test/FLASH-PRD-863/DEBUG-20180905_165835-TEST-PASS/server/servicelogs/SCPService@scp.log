@@ -1,0 +1,37 @@
+2018-09-05 16:58:34,798:DEBUG    
+
+
+2018-09-05 16:58:34,798:INFO     SERVICE INITIALIZED
+2018-09-05 16:58:52,223:DEBUG    LOG =DEBUG
+2018-09-05 16:58:52,223:INFO     Initiating SSH connection at 10.102.81.61
+2018-09-05 16:59:02,326:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.1 s)
+2018-09-05 16:59:04,609:DEBUG    Put lsm_os.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/
+2018-09-05 16:59:05,078:INFO     SERVICE HANDLING - Put lsm_os.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (0.47 s)
+2018-09-05 16:59:05,141:DEBUG    Put lsm_rd.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/
+2018-09-05 16:59:09,190:INFO     SERVICE HANDLING - Put lsm_rd.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (4.05 s)
+2018-09-05 16:59:09,250:DEBUG    Put u-boot-octeon_tip.bin from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/
+2018-09-05 16:59:09,380:INFO     SERVICE HANDLING - Put u-boot-octeon_tip.bin from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (0.13 s)
+2018-09-05 16:59:20,092:DEBUG    Put data-model.xml from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 16:59:24,509:INFO     SERVICE HANDLING - Put data-model.xml from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (4.42 s)
+2018-09-05 16:59:24,516:DEBUG    Put Dimark_Client.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 16:59:50,532:INFO     SERVICE HANDLING - Put Dimark_Client.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (26.02 s)
+2018-09-05 16:59:50,539:DEBUG    Put dsp.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 16:59:54,237:INFO     SERVICE HANDLING - Put dsp.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (3.7 s)
+2018-09-05 16:59:54,253:DEBUG    Put e2eenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 16:59:54,382:INFO     SERVICE HANDLING - Put e2eenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.13 s)
+2018-09-05 16:59:54,392:DEBUG    Put LFMSOFT_OCT_D.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:14,167:INFO     SERVICE HANDLING - Put LFMSOFT_OCT_D.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (19.77 s)
+2018-09-05 17:00:14,174:DEBUG    Put lsmD.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:37,193:INFO     SERVICE HANDLING - Put lsmD.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (23.02 s)
+2018-09-05 17:00:37,200:DEBUG    Put rc_post.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:38,101:INFO     SERVICE HANDLING - Put rc_post.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.9 s)
+2018-09-05 17:00:38,108:DEBUG    Put rc_pre.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:38,898:INFO     SERVICE HANDLING - Put rc_pre.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.79 s)
+2018-09-05 17:00:38,907:DEBUG    Put rffe.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:40,125:INFO     SERVICE HANDLING - Put rffe.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (1.22 s)
+2018-09-05 17:00:40,134:DEBUG    Put startup.cfg from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:41,898:INFO     SERVICE HANDLING - Put startup.cfg from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (1.76 s)
+2018-09-05 17:00:41,907:DEBUG    Put tftpenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:42,855:INFO     SERVICE HANDLING - Put tftpenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.95 s)
+2018-09-05 17:00:42,864:DEBUG    Put update_rffe.sh from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/
+2018-09-05 17:00:42,994:INFO     SERVICE HANDLING - Put update_rffe.sh from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.13 s)

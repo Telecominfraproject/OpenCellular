@@ -1,0 +1,181 @@
+2018-09-05 17:32:07,309      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp2i8glq
+2018-09-05 17:32:07,312     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x181EDD30>
+2018-09-05 17:32:07,312     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04E283D0>
+2018-09-05 17:32:07,486      INFO: tr.server: Loading services from config file
+2018-09-05 17:32:07,500     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,520     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,549     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 17:32:07,569     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,599     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 17:32:07,625     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 17:32:07,642     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,671     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 17:32:07,703     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 17:32:07,720     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,749     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 17:32:07,766     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,788     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,815     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 17:32:07,839     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 17:32:07,859     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,891     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 17:32:07,911     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:32:07,996     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x19013270>
+2018-09-05 17:32:08,003     DEBUG: tr: Next section
+2018-09-05 17:32:08,003      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 17:32:08,006      INFO: tr: ####################### Preparation #######################
+2018-09-05 17:32:08,009      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 17:32:08,012      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 17:32:08,013      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 17:32:14,792      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 17:32:14,795      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 17:32:14,918     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-05 17:32:14,920      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 17:32:14,920     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-05 17:32:14,921      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 17:32:14,921     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-05 17:32:14,926      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 17:32:14,928      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 17:32:14,930      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 17:34:07,229      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 17:36:20,753      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 17:36:30,875      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 17:36:30,878      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 17:36:30,917     DEBUG: tr.SY_PRP003: context.WAS_FINALENV= False
+2018-09-05 17:36:30,921      INFO: tr: ######################## FlashApp ########################
+2018-09-05 17:36:30,924      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-09-05 17:36:30,926      INFO: tr.CM_CLN002: Clearing mnt/app content
+2018-09-05 17:36:32,578      INFO: tr.CM_CLN002: Updating final file list...
+2018-09-05 17:36:32,578      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-09-05 17:36:33,131      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-09-05 17:36:37,822      INFO: tr.CM_CLN002: Updating u-boot
+2018-09-05 17:36:47,536      INFO: tr.CM_CLN002: Transfering data-model.xml to mnt/app/
+2018-09-05 17:36:52,471      INFO: tr.CM_CLN002: Transfering Dimark_Client.tgz to mnt/app/
+2018-09-05 17:37:15,871      INFO: tr.CM_CLN002: Transfering dsp.tgz to mnt/app/
+2018-09-05 17:37:19,467      INFO: tr.CM_CLN002: Transfering e2eenv.txt to mnt/app/
+2018-09-05 17:37:19,575      INFO: tr.CM_CLN002: Transfering LFMSOFT_OCT_D.tgz to mnt/app/
+2018-09-05 17:37:38,131      INFO: tr.CM_CLN002: Transfering lsmD.gz to mnt/app/
+2018-09-05 17:37:52,743      INFO: tr.CM_CLN002: Transfering rc_post.local to mnt/app/
+2018-09-05 17:37:52,878      INFO: tr.CM_CLN002: Transfering rc_pre.local to mnt/app/
+2018-09-05 17:37:52,993      INFO: tr.CM_CLN002: Transfering rffe.tgz to mnt/app/
+2018-09-05 17:37:53,349      INFO: tr.CM_CLN002: Transfering startup.cfg to mnt/app/
+2018-09-05 17:37:53,467      INFO: tr.CM_CLN002: Transfering tftpenv.txt to mnt/app/
+2018-09-05 17:37:53,553      INFO: tr.CM_CLN002: Transfering update_rffe.sh to mnt/app/
+2018-09-05 17:37:53,720      INFO: tr.CM_CLN002: Final mnt/app content: 
+
+-rw-r--r--    1 root     root       3892930 Jan  2 00:03 Dimark_Client.tgz
+-rw-r--r--    1 root     root       2759575 Jan  2 00:03 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root        635321 Jan  2 00:02 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:03 dsp.tgz
+-rw-r--r--    1 root     root           985 Jan  2 00:03 e2eenv.txt
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2901563 Jan  2 00:03 lsmD.gz
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:03 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:03 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:03 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:03 startup.cfg
+-rw-r--r--    1 root     root          1747 Jan  2 00:03 tftpenv.txt
+-rw-r--r--    1 root     root          1880 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:03 update_rffe.sh
+
+2018-09-05 17:37:53,724      INFO: tr: ####################### UpdateFinal #######################
+2018-09-05 17:37:53,726      INFO: tr.CM_CLN003: - [CM_CLN003] Update final env if was before test -
+2018-09-05 17:37:53,727     DEBUG: tr.CM_CLN003: context.FLASH_REBOOT_VALIDATION= True
+2018-09-05 17:37:53,729      INFO: tr.CM_CLN003: Setup final env in progress
+2018-09-05 17:37:53,730      INFO: tr.CM_CLN003: Clearing all unessential env vars and setup final env
+2018-09-05 17:37:53,803     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreglow=37376
+2018-09-05 17:37:56,405     DEBUG: tr.server.EnvVarSSHServiceClient: gain2=25
+2018-09-05 17:37:58,964     DEBUG: tr.server.EnvVarSSHServiceClient: named_block_size=0x2800000
+2018-09-05 17:38:01,543     DEBUG: tr.server.EnvVarSSHServiceClient: ipaddr=10.102.81.61
+2018-09-05 17:38:04,115     DEBUG: tr.server.EnvVarSSHServiceClient: ptp1ppsen=0
+2018-09-05 17:38:06,654     DEBUG: tr.server.EnvVarSSHServiceClient: autoload=n
+2018-09-05 17:38:09,224     DEBUG: tr.server.EnvVarSSHServiceClient: syncby=gps
+2018-09-05 17:38:11,813     DEBUG: tr.server.EnvVarSSHServiceClient: boardname=zen
+2018-09-05 17:38:14,365     DEBUG: tr.server.EnvVarSSHServiceClient: loadaddr=0x20000000
+2018-09-05 17:38:16,904     DEBUG: tr.server.EnvVarSSHServiceClient: ucliovrd=0
+2018-09-05 17:38:19,555     DEBUG: tr.server.EnvVarSSHServiceClient: swloadby=flash
+2018-09-05 17:38:22,114     DEBUG: tr.server.EnvVarSSHServiceClient: logdispen=2
+2018-09-05 17:38:24,683     DEBUG: tr.server.EnvVarSSHServiceClient: bootdelay=0
+2018-09-05 17:38:27,286     DEBUG: tr.server.EnvVarSSHServiceClient: enable_zen5_gpio18=1
+2018-09-05 17:38:29,885     DEBUG: tr.server.EnvVarSSHServiceClient: default_load=setenv flash_rd_addr 0x18320000 && setenv flash_os_addr 0x17E20000 && setenv img_no 0 && run load_imgs
+2018-09-05 17:38:32,545     DEBUG: tr.server.EnvVarSSHServiceClient: baudrate_uart1=19200
+2018-09-05 17:38:35,187     DEBUG: tr.server.EnvVarSSHServiceClient: bootby=flash
+2018-09-05 17:38:37,795     DEBUG: tr.server.EnvVarSSHServiceClient: ls=fatls ide 0
+2018-09-05 17:38:40,434     DEBUG: tr.server.EnvVarSSHServiceClient: namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc pf4cazac 0x13000 0x84000000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+2018-09-05 17:38:43,046     DEBUG: tr.server.EnvVarSSHServiceClient: pseudowww=1
+2018-09-05 17:38:45,683     DEBUG: tr.server.EnvVarSSHServiceClient: gpstestinterval=10
+2018-09-05 17:38:48,296     DEBUG: tr.server.EnvVarSSHServiceClient: web_pass=456b7016a916a4b178dd72b947c152b7
+2018-09-05 17:38:50,903     DEBUG: tr.server.EnvVarSSHServiceClient: txfreq=1825
+2018-09-05 17:38:53,526     DEBUG: tr.server.EnvVarSSHServiceClient: factory_load=setenv flash_rd_addr 0x1C200000 && setenv flash_os_addr 0x1BD00000 && setenv img_no 1 && run load_imgs
+2018-09-05 17:38:56,158     DEBUG: tr.server.EnvVarSSHServiceClient: webuilog=1
+2018-09-05 17:38:58,805     DEBUG: tr.server.EnvVarSSHServiceClient: rxfreq=1730
+2018-09-05 17:39:01,405     DEBUG: tr.server.EnvVarSSHServiceClient: target=zen
+2018-09-05 17:39:04,013     DEBUG: tr.server.EnvVarSSHServiceClient: gpsenablecount=5
+2018-09-05 17:39:06,657     DEBUG: tr.server.EnvVarSSHServiceClient: pwdb_in_flash=1
+2018-09-05 17:39:09,323     DEBUG: tr.server.EnvVarSSHServiceClient: enbctrlrf=1
+2018-09-05 17:39:11,994     DEBUG: tr.server.EnvVarSSHServiceClient: mode=e2e
+2018-09-05 17:39:14,686     DEBUG: tr.server.EnvVarSSHServiceClient: gain1=25
+2018-09-05 17:39:17,395     DEBUG: tr.server.EnvVarSSHServiceClient: i2cinit=i2c reset
+2018-09-05 17:39:20,035     DEBUG: tr.server.EnvVarSSHServiceClient: web_user1=user
+2018-09-05 17:39:22,684     DEBUG: tr.server.EnvVarSSHServiceClient: bootcbyflash=run default_load || run factory_load; run boot_linux
+2018-09-05 17:39:25,334     DEBUG: tr.server.EnvVarSSHServiceClient: ethact=octeth0
+2018-09-05 17:39:27,983     DEBUG: tr.server.EnvVarSSHServiceClient: burn_app=erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)
+2018-09-05 17:39:30,653     DEBUG: tr.server.EnvVarSSHServiceClient: httpdenable=1
+2018-09-05 17:39:33,295     DEBUG: tr.server.EnvVarSSHServiceClient: mtdids=nor0=octeon_nor0
+2018-09-05 17:39:35,907     DEBUG: tr.server.EnvVarSSHServiceClient: atten2=18
+2018-09-05 17:39:38,594     DEBUG: tr.server.EnvVarSSHServiceClient: atten1=18
+2018-09-05 17:39:41,216     DEBUG: tr.server.EnvVarSSHServiceClient: bootcmd=run i2cinit; run namedalloc; run bootcby${bootby}
+2018-09-05 17:39:43,844     DEBUG: tr.server.EnvVarSSHServiceClient: mode_test=dl
+2018-09-05 17:39:46,493     DEBUG: tr.server.EnvVarSSHServiceClient: dhcpenable=0
+2018-09-05 17:39:49,105     DEBUG: tr.server.EnvVarSSHServiceClient: named_block_addr=0x30800000
+2018-09-05 17:39:51,694     DEBUG: tr.server.EnvVarSSHServiceClient: linux_cf=fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)
+2018-09-05 17:39:54,273     DEBUG: tr.server.EnvVarSSHServiceClient: load_imgs=cp.l ${flash_rd_addr} 0x30800000 0xA00000 && gunzip ${flash_os_addr} 0x20000000
+2018-09-05 17:39:56,835     DEBUG: tr.server.EnvVarSSHServiceClient: tip=1
+2018-09-05 17:39:59,496     DEBUG: tr.server.EnvVarSSHServiceClient: acsurl=
+2018-09-05 17:40:02,104     DEBUG: tr.server.EnvVarSSHServiceClient: bootfile=pxelinux.0
+2018-09-05 17:40:04,766     DEBUG: tr.server.EnvVarSSHServiceClient: baudrate=
+2018-09-05 17:40:07,368     DEBUG: tr.server.EnvVarSSHServiceClient: web_pass1=a81be4e9b20632860d20a64c054c4150
+2018-09-05 17:40:10,033     DEBUG: tr.server.EnvVarSSHServiceClient: bf=bootoct $(flash_unused_addr) forceboot numcores=$(numcores)
+2018-09-05 17:40:12,645     DEBUG: tr.server.EnvVarSSHServiceClient: ptpenable=0
+2018-09-05 17:40:15,256     DEBUG: tr.server.EnvVarSSHServiceClient: gatewayip=10.102.81.1
+2018-09-05 17:40:17,884     DEBUG: tr.server.EnvVarSSHServiceClient: serverip=10.102.81.50
+2018-09-05 17:40:20,536     DEBUG: tr.server.EnvVarSSHServiceClient: acsenable=0
+2018-09-05 17:40:23,187     DEBUG: tr.server.EnvVarSSHServiceClient: txpower=30
+2018-09-05 17:40:25,875     DEBUG: tr.server.EnvVarSSHServiceClient: mk_ubootenv=1
+2018-09-05 17:40:28,545     DEBUG: tr.server.EnvVarSSHServiceClient: bw=10
+2018-09-05 17:40:31,167     DEBUG: tr.server.EnvVarSSHServiceClient: bootcbytftp=tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+2018-09-05 17:40:33,835     DEBUG: tr.server.EnvVarSSHServiceClient: dnsip=8.8.8.8
+2018-09-05 17:40:36,516     DEBUG: tr.server.EnvVarSSHServiceClient: tcxo=pwm
+2018-09-05 17:40:39,204     DEBUG: tr.server.EnvVarSSHServiceClient: web_user=admin
+2018-09-05 17:40:41,855     DEBUG: tr.server.EnvVarSSHServiceClient: ovrdrfdsp=1
+2018-09-05 17:40:44,526     DEBUG: tr.server.EnvVarSSHServiceClient: numcores=4
+2018-09-05 17:40:47,155     DEBUG: tr.server.EnvVarSSHServiceClient: gpsenable=
+2018-09-05 17:40:49,815     DEBUG: tr.server.EnvVarSSHServiceClient: partition=nor0,5
+2018-09-05 17:40:52,476     DEBUG: tr.server.EnvVarSSHServiceClient: startapp=1
+2018-09-05 17:40:55,174     DEBUG: tr.server.EnvVarSSHServiceClient: pwmreghigh=24744
+2018-09-05 17:40:57,845     DEBUG: tr.server.EnvVarSSHServiceClient: boot_linux=bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M img=${img_no}
+2018-09-05 17:41:00,494     DEBUG: tr.server.EnvVarSSHServiceClient: cfgloadby=flash
+2018-09-05 17:41:03,167     DEBUG: tr.server.EnvVarSSHServiceClient: rftarget=ad9362
+2018-09-05 17:41:05,844     DEBUG: tr.server.EnvVarSSHServiceClient: netmask=255.255.255.0
+2018-09-05 17:41:08,490      INFO: tr.SY_TSC050: ------- [SY_TSC050] Validate boot from flash -------
+2018-09-05 17:41:09,535      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-05 17:41:09,536      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 17:42:32,174      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 17:44:53,904     DEBUG: tr: Next section
+2018-09-05 17:44:53,904      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 17:44:53,905      INFO: tr: ######################### Cleanup #########################
+2018-09-05 17:44:53,907      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 17:44:53,910     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-05 17:44:53,963     DEBUG: tr.FE_CLN001: TX 1 Predriver2 set to 0
+2018-09-05 17:44:54,017     DEBUG: tr.FE_CLN001: TX 1 PA set to 0
+2018-09-05 17:44:54,071     DEBUG: tr.FE_CLN001: TX 2 Predriver1 set to 0
+2018-09-05 17:44:54,131     DEBUG: tr.FE_CLN001: TX 2 Predriver2 set to 0
+2018-09-05 17:44:54,200     DEBUG: tr.FE_CLN001: TX 2 PA set to 0
+2018-09-05 17:44:54,253      INFO: tr.FE_CLN001: TXs are off
+2018-09-05 17:44:54,256      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 17:44:54,272   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 17:44:54,275      INFO: tr: All sections of batch file were executed
+2018-09-05 17:44:54,308      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp2i8glq\server

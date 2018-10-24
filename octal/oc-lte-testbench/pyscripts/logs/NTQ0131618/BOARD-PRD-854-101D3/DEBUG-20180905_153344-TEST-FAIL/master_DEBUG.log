@@ -1,0 +1,817 @@
+2018-09-05 15:33:44,007      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpdlmyor
+2018-09-05 15:33:44,009     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x17B7DC90>
+2018-09-05 15:33:44,009     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x047183D0>
+2018-09-05 15:33:44,038      INFO: tr.server: Loading services from config file
+2018-09-05 15:33:44,052     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,066     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,088     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 15:33:44,101     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,122     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 15:33:44,145     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 15:33:44,161     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,181     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 15:33:44,200     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 15:33:44,213     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,237     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 15:33:44,252     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,267     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,292     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 15:33:44,312     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 15:33:44,329     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,354     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 15:33:44,377     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 15:33:44,566     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x1808E190>
+2018-09-05 15:33:44,569     DEBUG: tr: Next section
+2018-09-05 15:33:44,569      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 15:33:44,586      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 15:33:44,589      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-05 15:33:44,592     DEBUG: tr.CM_PRP001: context.FE_MRP= u'PRD-854-101D3'
+2018-09-05 15:33:44,592     DEBUG: tr.CM_PRP001: context.FE_SERIAL_NO= u'NTQ0131618'
+2018-09-05 15:33:44,594     DEBUG: tr.CM_PRP001: context.FE_REV= u'D'
+2018-09-05 15:33:44,594     DEBUG: tr.CM_PRP001: context.future_links_to_test= [(u'PRD-854-101D3', u'NTQ0131618')]
+2018-09-05 15:33:44,612      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-05 15:33:44,631      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-05 15:33:44,631      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-05 15:34:05,005      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-05 15:34:05,006     DEBUG: tr.CM_PRP002: context.BB_MRP= 'PRD-865-101B1'
+2018-09-05 15:34:05,006     DEBUG: tr.CM_PRP002: context.BB_SERIAL_NO= 'NTQ0131490'
+2018-09-05 15:34:05,007     DEBUG: tr.CM_PRP002: context.BB_MAC_ADDR= '00-D0-CC-20-14-06'
+2018-09-05 15:34:05,007      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 15:34:05,009      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-05 15:34:05,010      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-05 15:34:05,010     DEBUG: tr.CM_PRP002: context.future_links_to_test= [(u'PRD-854-101D3', u'NTQ0131618'), ('PRD-865-101B1', 'NTQ0131490')]
+2018-09-05 15:34:05,026      INFO: tr: ##################### BoardTestbench #####################
+2018-09-05 15:34:05,042      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-05 15:34:05,043      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:05,045      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-05 15:34:06,973      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:06,974      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:06,974      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-05 15:34:08,042      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:08,042      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:08,045      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-05 15:34:09,009      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:09,026      INFO: tr: ####################### Preparation #######################
+2018-09-05 15:34:09,042      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 15:34:09,043      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 15:34:09,045      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 15:34:15,821      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 15:34:15,822      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 15:34:15,931     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-05 15:34:15,933      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 15:34:15,934     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-05 15:34:15,934      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 15:34:15,934     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-05 15:34:15,960      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 15:34:16,036      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 15:34:16,059     DEBUG: tr.server.KeysightEXGGeneratorClient: Connecting to TCPIP0::A-N5182B-50490.local::inst0::INSTR
+2018-09-05 15:34:21,372     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-05 15:34:22,438      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 15:34:22,622      INFO: tr: ######################### Powerup #########################
+2018-09-05 15:34:22,644      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-05 15:34:22,796      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-09-05 15:34:25,329      INFO: tr.CM_PRP030: Power On
+2018-09-05 15:34:26,480      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 15:34:26,496      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 15:34:26,500      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 15:34:36,729      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 15:34:36,782      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 15:34:46,957      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 15:34:46,986      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 15:34:46,989      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 15:34:46,990     DEBUG: tr.CM_PRP042: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-05 15:34:47,134     DEBUG: tr.CM_PRP042: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-05 15:34:47,134     DEBUG: tr.CM_PRP042: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-05 15:34:48,336     DEBUG: tr.CM_PRP042: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 15:34:48,496      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 15:34:48,516      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 15:34:48,532      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 15:34:48,993      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 15:34:49,361      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 15:34:49,733      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 15:34:49,759     DEBUG: tr.FE_TSC013: Reset RFPAL
+2018-09-05 15:34:53,095      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 15:34:53,141      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 15:34:53,170      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 15:34:53,171      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 15:34:53,171      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 15:34:53,173      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 15:34:53,174      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 15:34:53,174      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-05 15:34:53,201      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-05 15:34:53,262     DEBUG: tr.FE_PRP030: 
+2018-09-05 15:34:53,285      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-05 15:34:53,308      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-05 15:34:53,332      INFO: tr: ################### TXEnableValidation ###################
+2018-09-05 15:34:53,357      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-05 15:34:53,391     DEBUG: tr.FE_TSC131: TX Attn 1 set to 16.00 dB
+2018-09-05 15:34:53,513     DEBUG: tr.FE_TSC131: PA 1 = (28.32 V, 0.14 A)
+2018-09-05 15:34:53,558     DEBUG: tr.FE_TSC131: Spectrum linked with UUT_ANT0. 24.50 dB loss
+2018-09-05 15:34:53,598     DEBUG: tr.FE_TSC131: Generator linked with UUT_TX0. 4.00 dB loss
+2018-09-05 15:34:54,312     DEBUG: tr.FE_TSC131: TX 1 Predriver1 set to 1
+2018-09-05 15:34:54,335     DEBUG: tr.FE_TSC131: TX 1 Predriver2 set to 1
+2018-09-05 15:34:54,394     DEBUG: tr.FE_TSC131: TX 1 PA set to 1
+2018-09-05 15:34:54,926     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-100.89)
+2018-09-05 15:34:55,148     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.70)
+2018-09-05 15:34:55,282     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.98)
+2018-09-05 15:34:55,395     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.97)
+2018-09-05 15:34:55,766     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.48)
+2018-09-05 15:34:55,891     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.97)
+2018-09-05 15:34:56,240     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.08)
+2018-09-05 15:34:56,339     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-116.70)
+2018-09-05 15:34:56,573     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.58)
+2018-09-05 15:34:56,688     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.61)
+2018-09-05 15:34:56,828     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-109.59)
+2018-09-05 15:34:56,969     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.59)
+2018-09-05 15:34:58,022     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.04)
+2018-09-05 15:34:59,069     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.82)
+2018-09-05 15:34:59,187     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.77)
+2018-09-05 15:34:59,460     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.24)
+2018-09-05 15:34:59,842     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.03)
+2018-09-05 15:34:59,993     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.63)
+2018-09-05 15:35:00,226     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-118.66)
+2018-09-05 15:35:00,466     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.31)
+2018-09-05 15:35:00,585     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.18)
+2018-09-05 15:35:01,224     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.66)
+2018-09-05 15:35:01,809     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.53)
+2018-09-05 15:35:01,940     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.43)
+2018-09-05 15:35:02,344     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.32)
+2018-09-05 15:35:02,459     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-115.14)
+2018-09-05 15:35:02,687     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.58)
+2018-09-05 15:35:02,803     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.96)
+2018-09-05 15:35:03,165     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.23)
+2018-09-05 15:35:03,302     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.93)
+2018-09-05 15:35:03,673     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.73)
+2018-09-05 15:35:04,259     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.84)
+2018-09-05 15:35:04,490     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-109.86)
+2018-09-05 15:35:04,779     DEBUG: tr.FE_TSC131: TX 1 Predriver1 set to 0
+2018-09-05 15:35:05,571     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.99)
+2018-09-05 15:35:05,812     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-114.24)
+2018-09-05 15:35:06,069     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.34)
+2018-09-05 15:35:06,829     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.00)
+2018-09-05 15:35:07,072     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.66)
+2018-09-05 15:35:07,193     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.87)
+2018-09-05 15:35:07,316     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.32)
+2018-09-05 15:35:07,690     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.85)
+2018-09-05 15:35:07,950     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.37)
+2018-09-05 15:35:08,417     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.41)
+2018-09-05 15:35:08,536     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.96)
+2018-09-05 15:35:08,655     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.17)
+2018-09-05 15:35:08,795     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.48)
+2018-09-05 15:35:08,931     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.25)
+2018-09-05 15:35:09,217     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.49)
+2018-09-05 15:35:09,697     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.64)
+2018-09-05 15:35:10,163     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.51)
+2018-09-05 15:35:10,434     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-120.83)
+2018-09-05 15:35:10,566     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.56)
+2018-09-05 15:35:10,917     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.57)
+2018-09-05 15:35:11,388     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.54)
+2018-09-05 15:35:11,644     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-114.95)
+2018-09-05 15:35:11,756     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.88)
+2018-09-05 15:35:11,996     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-100.83)
+2018-09-05 15:35:13,164     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-115.68)
+2018-09-05 15:35:13,391     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.39)
+2018-09-05 15:35:13,871     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.07)
+2018-09-05 15:35:14,217     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.34)
+2018-09-05 15:35:14,450     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.07)
+2018-09-05 15:35:14,806     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.95)
+2018-09-05 15:35:15,033     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.83)
+2018-09-05 15:35:15,227      INFO: tr.criteria: TSC131_PRE_DRIVER1_GAIN_dB: 25 < [3.612] < 40 : FAIL
+2018-09-05 15:35:15,227     DEBUG: tr.FE_TSC131: TX 1 Predriver1 set to 1
+2018-09-05 15:35:15,253     DEBUG: tr.FE_TSC131: TX 1 Predriver2 set to 1
+2018-09-05 15:35:15,313     DEBUG: tr.FE_TSC131: TX 1 PA set to 1
+2018-09-05 15:35:15,855     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.54)
+2018-09-05 15:35:16,437     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.00)
+2018-09-05 15:35:16,674     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.00)
+2018-09-05 15:35:17,026     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.64)
+2018-09-05 15:35:17,134     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.76)
+2018-09-05 15:35:17,726     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-109.14)
+2018-09-05 15:35:18,308     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.81)
+2018-09-05 15:35:18,437     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.65)
+2018-09-05 15:35:18,684     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.68)
+2018-09-05 15:35:18,813     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.64)
+2018-09-05 15:35:19,062     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.17)
+2018-09-05 15:35:19,286     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.35)
+2018-09-05 15:35:19,786     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.90)
+2018-09-05 15:35:20,253     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.31)
+2018-09-05 15:35:20,601     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.98)
+2018-09-05 15:35:21,099     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.42)
+2018-09-05 15:35:21,335     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.83)
+2018-09-05 15:35:21,595     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.04)
+2018-09-05 15:35:21,852     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.86)
+2018-09-05 15:35:22,378     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.22)
+2018-09-05 15:35:22,736     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-115.05)
+2018-09-05 15:35:22,957     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.69)
+2018-09-05 15:35:23,068     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.62)
+2018-09-05 15:35:23,529     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.62)
+2018-09-05 15:35:23,645     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.41)
+2018-09-05 15:35:24,138     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.88)
+2018-09-05 15:35:24,263     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-115.03)
+2018-09-05 15:35:24,875     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.63)
+2018-09-05 15:35:25,683     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.70)
+2018-09-05 15:35:25,750     DEBUG: tr.FE_TSC131: TX 1 Predriver2 set to 0
+2018-09-05 15:35:26,158     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-100.02)
+2018-09-05 15:35:26,640     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.21)
+2018-09-05 15:35:26,779     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.85)
+2018-09-05 15:35:27,134     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.90)
+2018-09-05 15:35:27,628     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.89)
+2018-09-05 15:35:28,266     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.31)
+2018-09-05 15:35:28,779     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.36)
+2018-09-05 15:35:28,920     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.54)
+2018-09-05 15:35:29,293     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.62)
+2018-09-05 15:35:29,427     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-121.60)
+2018-09-05 15:35:29,545     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.45)
+2018-09-05 15:35:30,132     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.47)
+2018-09-05 15:35:30,364     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.91)
+2018-09-05 15:35:30,599     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.39)
+2018-09-05 15:35:30,716     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-115.11)
+2018-09-05 15:35:30,831     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.05)
+2018-09-05 15:35:31,078     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.51)
+2018-09-05 15:35:31,316     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-116.47)
+2018-09-05 15:35:31,443     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.37)
+2018-09-05 15:35:32,141     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-119.86)
+2018-09-05 15:35:32,381     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.83)
+2018-09-05 15:35:32,499     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.02)
+2018-09-05 15:35:32,618     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.58)
+2018-09-05 15:35:33,242     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-111.96)
+2018-09-05 15:35:33,596     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-100.30)
+2018-09-05 15:35:33,709     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-119.40)
+2018-09-05 15:35:33,826     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.05)
+2018-09-05 15:35:34,052     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.52)
+2018-09-05 15:35:34,171     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.09)
+2018-09-05 15:35:34,641     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-113.78)
+2018-09-05 15:35:34,888     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.54)
+2018-09-05 15:35:35,236     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-100.52)
+2018-09-05 15:35:35,467     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.51)
+2018-09-05 15:35:35,703     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.47)
+2018-09-05 15:35:35,963     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-108.79)
+2018-09-05 15:35:36,078     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.16)
+2018-09-05 15:35:36,145      INFO: tr.criteria: TSC131_PRE_DRIVER2_GAIN_dB: 25 < [-1.54] < 40 : FAIL
+2018-09-05 15:35:36,147     DEBUG: tr.FE_TSC131: TX 1 Predriver1 set to 1
+2018-09-05 15:35:36,174     DEBUG: tr.FE_TSC131: TX 1 Predriver2 set to 1
+2018-09-05 15:35:36,230     DEBUG: tr.FE_TSC131: TX 1 PA set to 1
+2018-09-05 15:35:36,914     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.76)
+2018-09-05 15:35:37,719     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.04)
+2018-09-05 15:35:38,209     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.67)
+2018-09-05 15:35:38,788     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.44)
+2018-09-05 15:35:39,029     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.14)
+2018-09-05 15:35:39,384     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.57)
+2018-09-05 15:35:41,085     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.06)
+2018-09-05 15:35:41,552     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-116.51)
+2018-09-05 15:35:41,769     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-101.54)
+2018-09-05 15:35:42,131     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-123.16)
+2018-09-05 15:35:42,250     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.64)
+2018-09-05 15:35:42,362     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-116.59)
+2018-09-05 15:35:42,602     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-102.46)
+2018-09-05 15:35:42,839     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.42)
+2018-09-05 15:35:42,957     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-110.20)
+2018-09-05 15:35:43,072     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-105.31)
+2018-09-05 15:35:43,420     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-109.36)
+2018-09-05 15:35:43,657     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-112.46)
+2018-09-05 15:35:44,124     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-104.31)
+2018-09-05 15:35:44,234     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-103.23)
+2018-09-05 15:35:44,368     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-106.79)
+2018-09-05 15:35:44,618     DEBUG: tr.server.KeysightEXASpectrumClient: Compensating path loss with a very small value (-107.38)
+2018-09-05 15:35:44,915     DEBUG: tr.FE_TSC131: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 14, in FE_TSC131
+    validate_tx_gains(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 43, in validate_tx_gains
+    lte_calibtools.set_all_enables(context, tx, 0, 0, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 39, in validate_tx_gains
+    pa_gain = measure_gain(context, component_tester, lte_calibtools.set_pa, tx)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 49, in measure_gain
+    peak_on = component_tester.spectrum.find_peak_stable_amp(stable_diff=0.5)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\instruments\spectrum_keysight_exa.py", line 131, in find_peak_stable_amp
+    return self._find_peak_stable(1, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\instruments\spectrum_keysight_exa.py", line 140, in _find_peak_stable
+    peak_amp = utils.stabilize_output(_get_value, stable_diff=stable_diff, average_count=3)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\utils\all_utils.py", line 453, in stabilize_output
+    after = get_value_fn()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\instruments\spectrum_keysight_exa.py", line 135, in _get_value
+    peak = self.find_peak()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\instruments\spectrum_keysight_exa.py", line 147, in find_peak
+    return (self.get_peak_freq(), self.get_peak_amp())
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\instruments\spectrum_keysight_exa.py", line 154, in get_peak_amp
+    ampl = self.execute_command(':CALC:MARK1:Y?', doread=True)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 210, in execute_command
+    status, resp = self.service(command=command, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [500] SERVICE call @spectrum: AttributeError: 'NoneType' object has no attribute 'write'
+
+2018-09-05 15:35:44,917     ERROR: tr.FE_TSC131: RemoteServerError: [500] SERVICE call @spectrum: AttributeError: 'NoneType' object has no attribute 'write'
+2018-09-05 15:35:44,917     ERROR: tr.FE_TSC131: TEST FAILED
+2018-09-05 15:35:44,918      INFO: tr.FE_TSC231: ------ [FE_TSC231] Validate TX2 Enables Gains ------
+2018-09-05 15:35:44,954     DEBUG: tr.FE_TSC231: TX Attn 2 set to 16.00 dB
+2018-09-05 15:35:45,086     DEBUG: tr.FE_TSC231: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 18, in FE_TSC231
+    validate_tx_gains(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 23, in validate_tx_gains
+    lte_calibtools.set_tx_atten(context, context.server.ssh, tx, context.CALIBRATION_TX_ATTN_INIT_ATTEN)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 450, in set_tx_atten
+    validate_pa_current(context, unreal_tx(tx))
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 105, in validate_pa_current
+    pa_current = context.server.sensor.current_tx(tx)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_ssh_client.py", line 261, in current_tx
+    value = self.execute_command('fe-getcurrent pa%d' % (tx+1)).strip()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [500] SERVICE call @ssh: EOFError: 
+
+2018-09-05 15:35:45,088     ERROR: tr.FE_TSC231: RemoteServerError: [500] SERVICE call @ssh: EOFError: 
+2018-09-05 15:35:45,088     ERROR: tr.FE_TSC231: TEST FAILED
+2018-09-05 15:35:45,088      INFO: tr: #################### TXAttnValidation ####################
+2018-09-05 15:35:45,092      INFO: tr.FE_TSC132: ---------- [FE_TSC132] Validate TX1 Attn ----------
+2018-09-05 15:35:45,109     DEBUG: tr.FE_TSC132: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 64, in FE_TSC132
+    validate_tx_attn(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 91, in validate_tx_attn
+    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 76, in set_spectrum_path
+    ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:45,111     ERROR: tr.FE_TSC132: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:45,111     ERROR: tr.FE_TSC132: TEST FAILED
+2018-09-05 15:35:45,112      INFO: tr.FE_TSC133: ---------- [FE_TSC133] Validate FB1 Attn ----------
+2018-09-05 15:35:46,127     DEBUG: tr.FE_TSC133: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 68, in FE_TSC133
+    validate_fb_attn(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 102, in validate_fb_attn
+    lte_calibtools.assert_rfpal_responsive(context)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 292, in assert_rfpal_responsive
+    value = read_rfpal_in_dbm(context, context.server.ssh, 0)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 358, in read_rfpal_in_dbm
+    output = _get_rfpal_pwr_in(context, ssh, tx)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 372, in _get_rfpal_pwr_in
+    value = execute_command_from_calib_dir(ssh, cmd)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 21, in execute_command_from_calib_dir
+    return ssh.execute_command('%s' % (cmd), *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 483, in std_service
+    status_code, resp = fn(req)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 453, in _if_call_allowed
+    return function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 548, in base_service_request
+    return self.interface.service(content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 625, in connection_errors_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 634, in service
+    return self._standard_request(requests.put, content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 661, in _standard_request
+    with fn(self.http_url, content, **kwargs) as resp:
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 126, in put
+    return request('put', url, data=data, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 58, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 512, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 622, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\adapters.py", line 513, in send
+    raise ConnectionError(e, request=request)
+ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18238330>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+
+2018-09-05 15:35:46,130     ERROR: tr.FE_TSC133: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18238330>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:46,131     ERROR: tr.FE_TSC133: TEST FAILED
+2018-09-05 15:35:46,131      INFO: tr.FE_TSC232: ---------- [FE_TSC232] Validate TX2 Attn ----------
+2018-09-05 15:35:47,144     DEBUG: tr.FE_TSC232: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 72, in FE_TSC232
+    validate_tx_attn(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 91, in validate_tx_attn
+    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 76, in set_spectrum_path
+    ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 483, in std_service
+    status_code, resp = fn(req)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 453, in _if_call_allowed
+    return function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 548, in base_service_request
+    return self.interface.service(content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 625, in connection_errors_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 634, in service
+    return self._standard_request(requests.put, content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 661, in _standard_request
+    with fn(self.http_url, content, **kwargs) as resp:
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 126, in put
+    return request('put', url, data=data, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 58, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 512, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 622, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\adapters.py", line 513, in send
+    raise ConnectionError(e, request=request)
+ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/rfswitch (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18227310>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+
+2018-09-05 15:35:47,145     ERROR: tr.FE_TSC232: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/rfswitch (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18227310>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:47,147     ERROR: tr.FE_TSC232: TEST FAILED
+2018-09-05 15:35:47,147      INFO: tr.FE_TSC233: ---------- [FE_TSC233] Validate FB2 Attn ----------
+2018-09-05 15:35:48,158     DEBUG: tr.FE_TSC233: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 76, in FE_TSC233
+    validate_fb_attn(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 102, in validate_fb_attn
+    lte_calibtools.assert_rfpal_responsive(context)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 292, in assert_rfpal_responsive
+    value = read_rfpal_in_dbm(context, context.server.ssh, 0)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 358, in read_rfpal_in_dbm
+    output = _get_rfpal_pwr_in(context, ssh, tx)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 372, in _get_rfpal_pwr_in
+    value = execute_command_from_calib_dir(ssh, cmd)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 21, in execute_command_from_calib_dir
+    return ssh.execute_command('%s' % (cmd), *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 483, in std_service
+    status_code, resp = fn(req)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 453, in _if_call_allowed
+    return function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 548, in base_service_request
+    return self.interface.service(content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 625, in connection_errors_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 634, in service
+    return self._standard_request(requests.put, content)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 661, in _standard_request
+    with fn(self.http_url, content, **kwargs) as resp:
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 126, in put
+    return request('put', url, data=data, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\api.py", line 58, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 512, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\sessions.py", line 622, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\requests\adapters.py", line 513, in send
+    raise ConnectionError(e, request=request)
+ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x17E41D70>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+
+2018-09-05 15:35:48,161     ERROR: tr.FE_TSC233: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x17E41D70>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:48,163     ERROR: tr.FE_TSC233: TEST FAILED
+2018-09-05 15:35:48,163      INFO: tr: ###################### TRXIsolation ######################
+2018-09-05 15:35:48,164      INFO: tr.FE_TSC136: ------- [FE_TSC136] Validate TRX1 Isolation -------
+2018-09-05 15:35:48,680     DEBUG: tr.FE_TSC136: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 125, in FE_TSC136
+    validate_tx_isolation(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 132, in validate_tx_isolation
+    rfmeasure.set_generator_path(context, 'UUT_TX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 84, in set_generator_path
+    ret_val = context.server.rfswitch.set_switch_path('GENERATOR', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,681     ERROR: tr.FE_TSC136: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,681     ERROR: tr.FE_TSC136: TEST FAILED
+2018-09-05 15:35:48,683      INFO: tr.FE_TSC236: ------- [FE_TSC236] Validate TRX2 Isolation -------
+2018-09-05 15:35:48,694     DEBUG: tr.FE_TSC236: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 129, in FE_TSC236
+    validate_tx_isolation(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 132, in validate_tx_isolation
+    rfmeasure.set_generator_path(context, 'UUT_TX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 84, in set_generator_path
+    ret_val = context.server.rfswitch.set_switch_path('GENERATOR', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,694     ERROR: tr.FE_TSC236: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,696     ERROR: tr.FE_TSC236: TEST FAILED
+2018-09-05 15:35:48,697      INFO: tr: ################# TXRMSDetectorValidation #################
+2018-09-05 15:35:48,697      INFO: tr.FE_TSC137: ---- [FE_TSC137] Validate TX1 RMS Detector FWD ----
+2018-09-05 15:35:48,711     DEBUG: tr.FE_TSC137: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 280, in _declare_criteria
+    return function(_self, _execute, _test_func, context)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 167, in FE_TSC137
+    measure_rms_fwd_gain(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 177, in measure_rms_fwd_gain
+    rfmeasure.set_generator_path(context, 'UUT_TX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 84, in set_generator_path
+    ret_val = context.server.rfswitch.set_switch_path('GENERATOR', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,713     ERROR: tr.FE_TSC137: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,713     ERROR: tr.FE_TSC137: TEST FAILED
+2018-09-05 15:35:48,713      INFO: tr.FE_TSC237: ---- [FE_TSC237] Validate TX2 RMS Detector FWD ----
+2018-09-05 15:35:48,726     DEBUG: tr.FE_TSC237: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 280, in _declare_criteria
+    return function(_self, _execute, _test_func, context)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 172, in FE_TSC237
+    measure_rms_fwd_gain(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_tx_channel.py", line 177, in measure_rms_fwd_gain
+    rfmeasure.set_generator_path(context, 'UUT_TX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 84, in set_generator_path
+    ret_val = context.server.rfswitch.set_switch_path('GENERATOR', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,727     ERROR: tr.FE_TSC237: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,727     ERROR: tr.FE_TSC237: TEST FAILED
+2018-09-05 15:35:48,730      INFO: tr: ###################### SetupRXSwitch ######################
+2018-09-05 15:35:48,736      INFO: tr.FE_PRP040: -------- [FE_PRP040] Set RX Sniffer switch --------
+2018-09-05 15:35:48,750     DEBUG: tr.FE_PRP040: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 15, in FE_PRP040
+    lte_calibtools.set_rx1_switches(context)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 162, in set_rx1_switches
+    context.server.ssh.execute_command("echo 1 > /sys/devices/soc.0/0.tip/ant1_or_sniffer_to_rx1_switch")
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+
+2018-09-05 15:35:48,752     ERROR: tr.FE_PRP040: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,753     ERROR: tr.FE_PRP040: TEST FAILED
+2018-09-05 15:35:48,753      INFO: tr.FE_PRP041: ------------- [FE_PRP041] Turn off TX -------------
+2018-09-05 15:35:48,756     DEBUG: tr.FE_PRP041: TX 1 Predriver1 set to 0
+2018-09-05 15:35:48,769     DEBUG: tr.FE_PRP041: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 19, in FE_PRP041
+    lte_calibtools.set_all_tx_off(context)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 124, in set_all_tx_off
+    set_tx_enable(context, 0, 0)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 132, in set_tx_enable
+    set_all_enables(context, tx, value, value, value)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 135, in set_all_enables
+    set_pred1(context, tx, pred1)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 141, in set_pred1
+    set_enable_file_path(context, "/sys/devices/soc.0/0.tip/tx%d_predriver1_en" % tx, value)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 169, in set_enable_file_path
+    context.server.ssh.write_file(path, value)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 217, in write_file
+    self.execute_command("echo \"%s\" > %s" % (content, path))
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+
+2018-09-05 15:35:48,769     ERROR: tr.FE_PRP041: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,769     ERROR: tr.FE_PRP041: TEST FAILED
+2018-09-05 15:35:48,770      INFO: tr: ################# RXAttenuatorValidation #################
+2018-09-05 15:35:48,776      INFO: tr.FE_TSC040: ---- [FE_TSC040] Validate RX 1 Attenuator bits ----
+2018-09-05 15:35:48,792     DEBUG: tr.FE_TSC040: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 26, in FE_TSC040
+    validate_rx_attn(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 44, in validate_rx_attn
+    rfmeasure.set_spectrum_path(context, 'UUT_RX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 76, in set_spectrum_path
+    ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,792     ERROR: tr.FE_TSC040: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,793     ERROR: tr.FE_TSC040: TEST FAILED
+2018-09-05 15:35:48,795      INFO: tr.FE_TSC140: ---- [FE_TSC140] Validate RX 2 Attenuator bits ----
+2018-09-05 15:35:48,806     DEBUG: tr.FE_TSC140: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 30, in FE_TSC140
+    validate_rx_attn(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 44, in validate_rx_attn
+    rfmeasure.set_spectrum_path(context, 'UUT_RX', tx)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\integration\rfmeasure.py", line 76, in set_spectrum_path
+    ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 242, in set_switch_path
+    self.service(patha=patha, pathb=pathb)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+
+2018-09-05 15:35:48,806     ERROR: tr.FE_TSC140: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,808     ERROR: tr.FE_TSC140: TEST FAILED
+2018-09-05 15:35:48,809      INFO: tr: ################### RXEnableValidation ###################
+2018-09-05 15:35:48,812      INFO: tr.FE_TSC041: -------- [FE_TSC041] Validate RX1 LNA Gain --------
+2018-09-05 15:35:48,835     DEBUG: tr.FE_TSC041: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 63, in FE_TSC041
+    validate_rx_gain(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 72, in validate_rx_gain
+    lte_calibtools.set_rx_atten(context, context.server.ssh, tx, context.CALIBRATION_RX_ATTN_INIT_ATTEN)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 508, in set_rx_atten
+    execute_command_from_calib_dir(ssh, "echo %d > %s" % (quarter_dbs, path))
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 21, in execute_command_from_calib_dir
+    return ssh.execute_command('%s' % (cmd), *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+
+2018-09-05 15:35:48,835     ERROR: tr.FE_TSC041: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,836     ERROR: tr.FE_TSC041: TEST FAILED
+2018-09-05 15:35:48,838      INFO: tr.FE_TSC141: -------- [FE_TSC141] Validate RX2 LNA Gain --------
+2018-09-05 15:35:48,852     DEBUG: tr.FE_TSC141: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 67, in FE_TSC141
+    validate_rx_gain(context, 1)
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_rx_channel.py", line 72, in validate_rx_gain
+    lte_calibtools.set_rx_atten(context, context.server.ssh, tx, context.CALIBRATION_RX_ATTN_INIT_ATTEN)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 508, in set_rx_atten
+    execute_command_from_calib_dir(ssh, "echo %d > %s" % (quarter_dbs, path))
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 21, in execute_command_from_calib_dir
+    return ssh.execute_command('%s' % (cmd), *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+
+2018-09-05 15:35:48,854     ERROR: tr.FE_TSC141: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,854     ERROR: tr.FE_TSC141: TEST FAILED
+2018-09-05 15:35:48,855      INFO: tr: ###################### AssembleUnit ######################
+2018-09-05 15:35:48,858      INFO: tr.CM_PRP060: --------- [CM_PRP060] BB and FE RF Jumpers ---------
+2018-09-05 15:35:48,877     DEBUG: tr.CM_PRP060: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\bb_fe_assembly.py", line 8, in CM_PRP060
+    lte_calibtools.default_atten_values(context, 0)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 380, in default_atten_values
+    set_tx_atten(context, context.server.ssh, tx, context.CALIBRATION_TX_ATTN_INIT_ATTEN)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 448, in set_tx_atten
+    execute_command_from_calib_dir(ssh, 'fe-settxatt %d %d' % (tx, quarter_dbs))
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calibtools.py", line 21, in execute_command_from_calib_dir
+    return ssh.execute_command('%s' % (cmd), *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 170, in execute_command
+    output, exit_code = self.execute_command_output_status(command, timeout=timeout, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 186, in execute_command_output_status
+    status, resp = self.service(command=cmd, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 471, in service
+    return self.std_service(self.base_service_request, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 492, in std_service
+    raise RemoteServerError(self, resp, status_code)
+RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+
+2018-09-05 15:35:48,877     ERROR: tr.CM_PRP060: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,878     ERROR: tr.CM_PRP060: TEST FAILED
+2018-09-05 15:35:48,881  CRITICAL: tr.CM_PRP060: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-05 15:35:48,881  CRITICAL: tr: Execution interrupted
+2018-09-05 15:35:48,882  CRITICAL: tr: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,884     DEBUG: tr: Next section
+2018-09-05 15:35:48,884      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 15:35:48,887      INFO: tr: ######################### Cleanup #########################
+2018-09-05 15:35:48,890      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 15:35:48,891     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-05 15:35:48,901   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 15:35:48,907      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 15:35:48,921   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 15:35:48,927      INFO: tr: All sections of batch file were executed
+2018-09-05 15:35:48,961      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. No log destination !

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OC-LTE>
+  <description>
+    <imageVersion>v1.2</imageVersion>
+    <date>2018-08-29</date>
+	<BB>revB</BB>
+    <FE>revD</FE>
+	<note></note>
+  </description>
+  <binaryImage_kernel>
+    <fileName>lsm_os.gz</fileName>
+    <version></version>
+	<date>2018-08-29</date>
+    <md5sum>317e8aaa4f18af58d7d289e0117be585</md5sum>
+    <BB>revB</BB>
+    <FE>revD</FE>
+    <note>Fixed get FE rev function</note>
+  </binaryImage_kernel>
+  <binaryImage_rffe>
+    <fileName>rffe.tgz</fileName>
+    <version>v1.3.1</version>
+	<date>2018-08-29</date>
+    <md5sum>45d2f403d6f4742be722c6948cbd9644</md5sum>
+    <FE>revD, revE</FE>
+    <note>Fixed fe-manager loop; Update fe-manager start message</note>
+  </binaryImage_rffe>
+</OC-LTE>

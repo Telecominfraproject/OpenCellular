@@ -1,0 +1,89 @@
+2018-08-30 08:46:39,411      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp391jcm
+2018-08-30 08:46:39,414     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x18076EF0>
+2018-08-30 08:46:39,414     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x05A94E70>
+2018-08-30 08:46:39,542      INFO: tr.server: Loading services from config file
+2018-08-30 08:46:39,558     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,575     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,599     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-08-30 08:46:39,611     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,631     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-08-30 08:46:39,651     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-08-30 08:46:39,661     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,681     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-08-30 08:46:39,701     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-08-30 08:46:39,711     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,742     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-08-30 08:46:39,752     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,762     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,792     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-08-30 08:46:39,812     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-08-30 08:46:39,822     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:39,842     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-08-30 08:46:39,861     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-08-30 08:46:40,013     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x19AC7150>
+2018-08-30 08:46:40,017     DEBUG: tr: Next section
+2018-08-30 08:46:40,017      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 08:46:40,023      INFO: tr: ##################### SystemTestbench #####################
+2018-08-30 08:46:40,026      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-08-30 08:46:40,029      INFO: tr.SY_PRP000: TESTER STEP:
+2018-08-30 08:46:40,029      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-08-30 08:47:21,180      INFO: tr.SY_PRP000: Tester continued the test
+2018-08-30 08:47:21,187      INFO: tr: ####################### Preparation #######################
+2018-08-30 08:47:21,193      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-30 08:47:21,194      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-30 08:47:21,196      INFO: tr.artifactory: Retrieving artifact oc-lte/v1.1-RevE
+2018-08-30 08:47:21,509     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/Dimark_Client.tgz
+2018-08-30 08:47:21,538     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/ETM_10MHz_TV.tgz
+2018-08-30 08:47:21,559     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/LFMSOFT_OCT_D.tgz
+2018-08-30 08:47:21,569     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/bringup
+2018-08-30 08:47:21,582     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/data-model.xml
+2018-08-30 08:47:21,592     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/dsp.tgz
+2018-08-30 08:47:21,601     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/e2eenv.txt
+2018-08-30 08:47:21,625     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/lsmD.gz
+2018-08-30 08:47:21,655     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/lsm_os.gz
+2018-08-30 08:47:21,803     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/lsm_rd.gz
+2018-08-30 08:47:21,812     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/md5.txt
+2018-08-30 08:47:21,822     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/rffe.tgz
+2018-08-30 08:47:21,831     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/startup.cfg
+2018-08-30 08:47:21,839     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/tftpenv.txt
+2018-08-30 08:47:21,852     DEBUG: tr.artifactory: [SKIPPED] /v1.1-RevE/u-boot-octeon_tip.bin
+2018-08-30 08:47:21,852      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v1.1-RevE] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1-RevE
+2018-08-30 08:47:21,946     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v1.1-RevE'
+2018-08-30 08:47:21,947      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-08-30 08:47:21,947     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v1.1-RevE\\tftpenv.txt'
+2018-08-30 08:47:21,947      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-08-30 08:47:21,948     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= u'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v1.1-RevE\\e2eenv.txt'
+2018-08-30 08:47:21,957      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-08-30 08:47:21,976      INFO: tr.CM_PRP013: Unable to open COM port, but not required for this test
+2018-08-30 08:47:21,976     DEBUG: tr.CM_PRP013: [500] NEW SERVICE call @comport: SerialException: could not open port u'COM4': WindowsError(2, 'Le fichier sp\xe9cifi\xe9 est introuvable.')
+2018-08-30 08:47:21,980      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-08-30 08:47:21,987     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to USB0::0x2A8D::0x0B0B::US47520105::INSTR
+2018-08-30 08:47:22,026   WARNING: tr.CM_PRP014: Unable to create spectrum service: [500] NEW SERVICE call @spectrum: VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+2018-08-30 08:47:22,032      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-08-30 08:47:22,059   WARNING: tr.CM_PRP015: Unable to create rfswitch service: [500] NEW SERVICE call @rfswitch: Exception: Could not connect
+2018-08-30 08:47:22,065      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-30 08:47:22,069      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-30 08:47:22,072      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 08:47:34,493     DEBUG: tr.BB_TSC003: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-08-30 08:47:37,132     DEBUG: tr.server.LTESSHServiceClient: Call blocked !
+2018-08-30 08:47:37,134     DEBUG: tr.BB_TSC003: context.SSH_PASSWORD= ''
+2018-08-30 08:47:37,134      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 08:47:37,135     DEBUG: tr.server.LTESSHServiceClient: Call blocked !
+2018-08-30 08:47:37,144  CRITICAL: tr: Execution interrupted
+2018-08-30 08:47:37,147  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-08-30 08:47:37,148     DEBUG: tr: context.tester_interrupt_exception= None
+2018-08-30 08:47:37,150     DEBUG: tr: Next section
+2018-08-30 08:47:37,150      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 08:47:37,151      INFO: tr: ######################### Cleanup #########################
+2018-08-30 08:47:37,154      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-30 08:47:37,154     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-08-30 08:47:37,164   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-08-30 08:47:37,168      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-30 08:47:37,180   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-30 08:47:37,183      INFO: tr: All sections of batch file were executed
+2018-08-30 08:47:37,210      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp391jcm\server

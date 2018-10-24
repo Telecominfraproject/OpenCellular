@@ -1,0 +1,54 @@
+2018-08-30 10:13:20,641:DEBUG    
+
+
+2018-08-30 10:13:20,641:INFO     SERVICE INITIALIZED
+2018-08-30 10:13:36,947:DEBUG    LOG =DEBUG
+2018-08-30 10:13:36,948:INFO     Initiating SSH connection at 10.102.81.61
+2018-08-30 10:13:47,039:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.09 s)
+2018-08-30 10:13:47,112:DEBUG    Put etm-start-tmp.sh from support\files\ to /bin/
+2018-08-30 10:13:47,207:INFO     SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.09 s)
+2018-08-30 10:13:47,230:DEBUG    Put wfm.tar from support\files\ to /tmp/
+2018-08-30 10:13:49,177:INFO     SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (1.95 s)
+2018-08-30 10:17:23,756:INFO     Closing SCP connection
+2018-08-30 10:17:23,756:INFO     SERVICE SHUTDOWN COMPLETE
+2018-08-30 10:17:23,766:DEBUG    
+
+
+2018-08-30 10:17:23,766:INFO     SERVICE INITIALIZED
+2018-08-30 10:17:23,766:DEBUG    LOG =DEBUG
+2018-08-30 10:17:23,766:INFO     Initiating SSH connection at 10.102.81.61
+2018-08-30 10:17:33,867:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.1 s)
+2018-08-30 10:17:33,872:DEBUG    Put etm-start-tmp.sh from support\files\ to /bin/
+2018-08-30 10:17:33,970:INFO     SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.1 s)
+2018-08-30 10:17:33,996:DEBUG    Put wfm.tar from support\files\ to /tmp/
+2018-08-30 10:17:36,391:INFO     SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (2.39 s)
+2018-08-30 10:21:44,536:DEBUG    Put cal.tgz from C:\Users\william.laroche\appdata\local\temp\tmp2r1jbo\calib to /tmp/
+2018-08-30 10:21:44,631:INFO     SERVICE HANDLING - Put cal.tgz from C:\Users\william.laroche\appdata\local\temp\tmp2r1jbo\calib to /tmp/ (0.1 s)
+2018-08-30 10:23:13,717:INFO     Closing SCP connection
+2018-08-30 10:23:13,717:INFO     SERVICE SHUTDOWN COMPLETE
+2018-08-30 10:23:13,726:DEBUG    
+
+
+2018-08-30 10:23:13,726:INFO     SERVICE INITIALIZED
+2018-08-30 10:23:13,726:DEBUG    LOG =DEBUG
+2018-08-30 10:23:13,726:INFO     Initiating SSH connection at 10.102.81.61
+2018-08-30 10:23:23,821:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.1 s)
+2018-08-30 10:23:23,829:DEBUG    Put etm-start-tmp.sh from support\files\ to /bin/
+2018-08-30 10:23:23,923:INFO     SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.09 s)
+2018-08-30 10:23:23,950:DEBUG    Put wfm.tar from support\files\ to /tmp/
+2018-08-30 10:23:26,038:INFO     SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (2.09 s)
+2018-08-30 10:27:55,526:DEBUG    Put cal.tgz from C:\Users\william.laroche\appdata\local\temp\tmp2r1jbo\calib to /tmp/
+2018-08-30 10:27:55,588:INFO     SERVICE HANDLING - Put cal.tgz from C:\Users\william.laroche\appdata\local\temp\tmp2r1jbo\calib to /tmp/ (0.06 s)
+2018-08-30 10:29:25,125:INFO     Closing SCP connection
+2018-08-30 10:29:25,125:INFO     SERVICE SHUTDOWN COMPLETE
+2018-08-30 10:29:25,134:DEBUG    
+
+
+2018-08-30 10:29:25,134:INFO     SERVICE INITIALIZED
+2018-08-30 10:29:25,134:DEBUG    LOG =DEBUG
+2018-08-30 10:29:25,134:INFO     Initiating SSH connection at 10.102.81.61
+2018-08-30 10:29:35,236:INFO     SERVICE CONFIGURATION - LOG =DEBUG (10.1 s)
+2018-08-30 10:29:35,243:DEBUG    Put etm-start-tmp.sh from support\files\ to /bin/
+2018-08-30 10:29:35,338:INFO     SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.1 s)
+2018-08-30 10:29:35,365:DEBUG    Put wfm.tar from support\files\ to /tmp/
+2018-08-30 10:29:37,957:INFO     SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (2.59 s)

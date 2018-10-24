@@ -1,0 +1,101 @@
+2018-09-04 14:14:08,078      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpjindmn
+2018-09-04 14:14:08,105      INFO: tr.server: Loading services from config file
+2018-09-04 14:14:08,523      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 14:14:08,535      INFO: tr: ###################### BoardTestScan ######################
+2018-09-04 14:14:08,536      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-04 14:14:08,539      INFO: tr.criteria: UUT_FE_MRP: 'PRD-854-101' in [PRD-854-101D3] : PASS
+2018-09-04 14:14:08,540      INFO: tr.criteria: UUT_FE_SERIAL_NO: [NTQ0131618] : PASS
+2018-09-04 14:14:08,556      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-04 14:14:08,572      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-04 14:14:08,572      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-04 14:14:13,250      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-04 14:14:13,257      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-04 14:14:13,260      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-04 14:14:13,263      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-04 14:14:13,312      INFO: tr: ##################### BoardTestbench #####################
+2018-09-04 14:14:13,328      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-04 14:14:13,331      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:13,332      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-04 14:14:14,859      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:14,862      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:14,865      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-04 14:14:15,480      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:15,486      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:14:15,494      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-04 14:14:16,413      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:14:16,467      INFO: tr: ####################### Preparation #######################
+2018-09-04 14:14:16,494      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 14:14:16,497      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 14:14:16,497      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 14:14:23,276      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 14:14:23,279      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 14:14:23,336      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 14:14:23,339      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 14:14:23,362      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 14:14:23,424      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 14:14:26,355   WARNING: tr.CM_PRP014: Unable to create generator service: [500] NEW SERVICE call @generator: VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+2018-09-04 14:14:26,878      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 14:14:27,109   WARNING: tr.CM_PRP015: Unable to create rfswitch service: [500] NEW SERVICE call @rfswitch: Exception: Could not connect
+2018-09-04 14:14:27,125      INFO: tr: ######################### Powerup #########################
+2018-09-04 14:14:27,141      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-04 14:14:28,471      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-09-04 14:14:30,992      INFO: tr.CM_PRP030: Power On
+2018-09-04 14:14:32,131      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 14:14:32,148      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 14:14:32,150      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 14:14:32,325      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 14:14:32,361      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 14:14:32,494      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 14:14:32,509      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 14:14:32,512      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 14:14:34,184      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 14:14:34,200      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 14:14:34,217      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 14:14:34,624      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 14:14:34,984      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 14:14:35,368      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 14:14:38,698      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 14:14:38,763     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-04 14:14:38,765     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 14:14:38,766      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 14:14:38,767      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 14:14:38,769      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 14:14:38,769      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-04 14:14:38,772      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-04 14:14:38,831      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-04 14:14:38,834      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-04 14:14:38,836      INFO: tr: ################### TXEnableValidation ###################
+2018-09-04 14:14:38,838      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-04 14:14:39,036     ERROR: tr.FE_TSC131: AttributeError: 'ManualLossRFSwitch' object has no attribute 'display_string'
+2018-09-04 14:14:39,038     ERROR: tr.FE_TSC131: TEST FAILED
+2018-09-04 14:14:39,039      INFO: tr.FE_TSC231: ------ [FE_TSC231] Validate TX2 Enables Gains ------
+2018-09-04 14:14:39,102  CRITICAL: tr: Execution interrupted
+2018-09-04 14:14:39,102  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-04 14:14:39,105      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 14:14:39,108      INFO: tr: ######################### Cleanup #########################
+2018-09-04 14:14:39,109      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 14:14:39,418      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 14:14:39,421      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 14:14:39,542      INFO: tr: All sections of batch file were executed
+2018-09-04 14:14:39,598      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpjindmn\server

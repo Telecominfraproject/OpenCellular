@@ -1,0 +1,61 @@
+2018-09-04 14:20:12,984: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmprkebeu
+2018-09-04 14:20:12,999: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,026: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,052: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,066: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,092: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,107: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,131: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,168: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,184: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,213: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:20:13,236: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpjixmof\server
+2018-09-04 14:20:36,619: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.12 s)
+2018-09-04 14:20:36,684: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.02 s)
+2018-09-04 14:20:36,726: server.service.VISAService@generator              : INFO    All parameters present
+2018-09-04 14:20:36,726: server.service.VISAService@generator              : INFO    Connecting to instrument [TCPIP0::A-N5182B-50490.local::inst0::INSTR]
+2018-09-04 14:20:41,775: server.service.VISAService@generator              : INFO    SERVICE CONFIGURATION - LOG =DEBUG (5.05 s)
+2018-09-04 14:20:41,780: server.service.VISAService@generator              : INFO    Sending command: *RST
+2018-09-04 14:20:41,904: server.service.VISAService@generator              : INFO    SERVICE HANDLING -  (0.12 s)
+2018-09-04 14:20:41,911: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-04 14:20:41,911: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-04 14:20:41,948: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.04 s)
+2018-09-04 14:20:41,954: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-04 14:20:42,033: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.08 s)
+2018-09-04 14:20:42,039: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:20:42,042: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:20:42,043: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:20:42,071: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 14:20:42,076: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-04 14:20:42,078: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-04 14:20:42,082: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-04 14:20:42,102: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.03 s)
+2018-09-04 14:20:42,338: server.service.RFSwitchService@rfswitch           : ERROR   Server error [Could not connect]
+2018-09-04 14:20:42,339: server.service.RFSwitchService@rfswitch           : ERROR   Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 69, in service_config
+    self.connect_switchs()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\rfswitch_service.py", line 187, in connect_switchs
+    raise Exception("Could not connect")
+Exception: Could not connect
+
+2018-09-04 14:20:42,385: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-04 14:20:42,390: server.service.DCSupplyService@dcsupply.dcdc      : INFO    Connected to DC-DC converter with devcount: 1
+2018-09-04 14:20:42,493: server.service.DCSupplyService@dcsupply           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - SUCCESS (0.11 s)
+2018-09-04 14:20:45,042: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Vout=12.00 (0.0 s)
+2018-09-04 14:20:45,151: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Out ON=True (0.1 s)
+2018-09-04 14:20:48,213: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 14:20:49,259: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 14:20:49,384: server.service.DCSupplyService@dcsupply           : INFO    SERVICE HANDLING - Out ON=False (0.11 s)
+2018-09-04 14:20:49,411: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpjixmof\server

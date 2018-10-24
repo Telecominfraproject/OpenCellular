@@ -1,0 +1,116 @@
+2018-08-30 11:20:19,733:DEBUG    
+
+
+2018-08-30 11:20:19,736:INFO     SERVICE INITIALIZED
+2018-08-30 11:20:30,421:DEBUG    LOG =DEBUG
+2018-08-30 11:20:30,421:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-30 11:20:30,421:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-30 11:20:40,516:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.1 s)
+2018-08-30 11:20:40,523:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-30 11:20:40,536:DEBUG    Exit code= 0
+2018-08-30 11:20:40,536:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1361]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1362]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1362]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1400]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1400]: crond: USER root pid 2452 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1400]: crond: USER root pid 3907 cmd /usr/bin/tempcheck.sh
+Jan  2 08:02:19 LSM daemon.info init: starting pid 4341, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:03:01 LSM cron.info crond[1400]: crond: USER root pid 4847 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1400]: crond: USER root pid 5955 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1400]: crond: USER root pid 7193 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1400]: crond: USER root pid 8352 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1400]: crond: USER root pid 9158 cmd /usr/bin/tempcheck.sh
+Jan  2 00:08:01 LSM cron.info crond[1400]: crond: USER root pid 9964 cmd /usr/bin/tempcheck.sh
+Jan  2 00:09:01 LSM cron.info crond[1400]: crond: USER root pid 10768 cmd /usr/bin/tempcheck.sh
+Jan  2 00:10:01 LSM cron.info crond[1400]: crond: USER root pid 11527 cmd /usr/bin/tempcheck.sh
+Jan  2 00:11:01 LSM cron.info crond[1400]: crond: USER root pid 12331 cmd /usr/bin/tempcheck.sh
+Jan  2 00:12:01 LSM cron.info crond[1400]: crond: USER root pid 13137 cmd /usr/bin/tempcheck.sh
+Jan  2 00:13:01 LSM cron.info crond[1400]: crond: USER root pid 13953 cmd /usr/bin/tempcheck.sh
+Jan  2 00:14:01 LSM cron.info crond[1400]: crond: USER root pid 14711 cmd /usr/bin/tempcheck.sh
+2018-08-30 11:20:40,536:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-30 11:20:50,664:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-08-30 11:20:50,691:DEBUG    Exit code= 0
+2018-08-30 11:20:50,691:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-08-30 11:20:50,691:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-08-30 11:20:50,821:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-08-30 11:20:50,835:DEBUG    Exit code= 0
+2018-08-30 11:20:50,835:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.01 s)
+2018-08-30 11:20:53,042:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-08-30 11:20:53,085:DEBUG    Exit code= 0
+2018-08-30 11:20:53,085:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-08-30 11:20:53,085:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-08-30 11:20:53,091:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-08-30 11:20:53,236:DEBUG    Exit code= 0
+2018-08-30 11:20:53,236:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-08-30 11:20:53,236:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-08-30 11:20:53,256:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled red on
+2018-08-30 11:20:53,286:DEBUG    Exit code= 0
+2018-08-30 11:20:53,286:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-08-30 11:20:59,926:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-08-30 11:20:59,943:DEBUG    Exit code= 0
+2018-08-30 11:20:59,944:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-08-30 11:20:59,951:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-08-30 11:21:00,002:DEBUG    Exit code= 0
+2018-08-30 11:21:00,002:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-08-30 11:21:00,009:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-08-30 11:21:00,053:DEBUG    Exit code= 0
+2018-08-30 11:21:00,053:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-08-30 11:21:00,059:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-08-30 11:21:00,104:DEBUG    Exit code= 0
+2018-08-30 11:21:00,104:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-08-30 11:21:00,109:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-08-30 11:21:00,154:DEBUG    Exit code= 0
+2018-08-30 11:21:00,154:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-08-30 11:21:00,161:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-08-30 11:21:00,203:DEBUG    Exit code= 0
+2018-08-30 11:21:00,204:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)

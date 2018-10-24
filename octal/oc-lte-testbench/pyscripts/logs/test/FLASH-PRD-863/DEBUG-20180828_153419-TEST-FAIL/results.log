@@ -1,0 +1,11 @@
+FAIL Preparation: [CM_PRP011] Launch TFTP Service: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',)) (0:00:02)
+UNEXECUTED SSHFixedIp: [BB_TSC003] Boot Validation (None)
+UNEXECUTED SSHFixedIp: [BB_PRP006] Launch SCP Service (None)
+UNEXECUTED RevertUpdateFinal: [SY_PRP003] Revert to TFTP if final env (None)
+UNEXECUTED FlashApp: [CM_CLN002] Copy boot by flash files (None)
+UNEXECUTED UpdateFinal: [CM_CLN003] Update final env if was before test (None)
+UNEXECUTED UpdateFinal: [SY_TSC050] Validate boot from flash (None)
+PASS Cleanup: [FE_CLN001] Set TX paths off (0:00:00)
+PASS Cleanup: [BB_CLN001] Power off (0:00:00)
+Total Duration: 0:00:02
+TEST-FAIL

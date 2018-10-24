@@ -1,0 +1,15 @@
+2018-08-30 13:43:47,809:DEBUG    
+
+
+2018-08-30 13:43:47,819:INFO     SERVICE INITIALIZED
+2018-08-30 13:47:17,263:DEBUG    LOG =DEBUG
+2018-08-30 13:47:17,263:DEBUG    Initiating SSH connection at 10.102.81.100
+2018-08-30 13:47:17,263:DEBUG    10.102.81.100:22, user=nuran, password=nuran
+2018-08-30 13:47:17,434:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.100:22, user=nuran, password=nuran (0.17 s)
+2018-08-30 13:47:18,480:DEBUG    Timeout 10.0s, TTY=True. Command: sudo nohup bash /root/mme/lte_start.sh
+2018-08-30 13:47:18,503:DEBUG    > nuran
+2018-08-30 13:47:19,322:DEBUG    Exit code= 0
+2018-08-30 13:47:19,322:DEBUG    nuran
+[sudo] password for nuran: 
+nohup: ignoring input and appending output to 'nohup.out'
+2018-08-30 13:47:19,322:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=True. Command: sudo nohup bash /root/mme/lte_start.sh - > nuran (0.84 s)

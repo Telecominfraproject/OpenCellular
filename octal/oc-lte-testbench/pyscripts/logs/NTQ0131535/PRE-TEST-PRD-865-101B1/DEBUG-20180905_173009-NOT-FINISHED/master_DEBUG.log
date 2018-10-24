@@ -1,0 +1,145 @@
+2018-09-05 17:30:09,157      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpeeua4h
+2018-09-05 17:30:09,158     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x181EDD30>
+2018-09-05 17:30:09,160     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x04E283D0>
+2018-09-05 17:30:09,198      INFO: tr.server: Loading services from config file
+2018-09-05 17:30:09,214     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,234     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,269     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-05 17:30:09,292     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,322     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-05 17:30:09,348     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-05 17:30:09,368     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,397     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-05 17:30:09,418     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-05 17:30:09,434     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,460     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-05 17:30:09,477     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,500     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,528     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-05 17:30:09,553     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-05 17:30:09,573     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,598     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-05 17:30:09,618     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-05 17:30:09,757     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x18BD1070>
+2018-09-05 17:30:09,762     DEBUG: tr: Next section
+2018-09-05 17:30:09,763      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 17:30:09,769      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 17:30:09,772      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 17:30:09,775     DEBUG: tr.CM_PRP001: context.BB_MRP= u'PRD-865-101B1'
+2018-09-05 17:30:09,775     DEBUG: tr.CM_PRP001: context.BB_SERIAL_NO= u'NTQ0131535'
+2018-09-05 17:30:09,776     DEBUG: tr.CM_PRP001: context.BB_MAC_ADDR= u'00-D0-CC-20-14-33'
+2018-09-05 17:30:09,776      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 17:30:09,778      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131535] : PASS
+2018-09-05 17:30:09,779      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-33] : PASS
+2018-09-05 17:30:09,780     DEBUG: tr.CM_PRP001: context.future_links_to_test= [(u'PRD-865-101B1', u'NTQ0131535')]
+2018-09-05 17:30:09,790      INFO: tr: ################### PreTestBBTestbench ###################
+2018-09-05 17:30:09,799      INFO: tr.BB_PRP000: -------------- [BB_PRP000] Setup unit --------------
+2018-09-05 17:30:09,801      INFO: tr.BB_PRP000: TESTER STEP:
+2018-09-05 17:30:09,802      INFO: tr.BB_PRP000: 
+Plug in the COM port USB cable
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the four TRX cables based on their identifications
+Place an SD card in the MMC card slot
+
+Slide in a golden Front-End board
+
+Plug in the 12V power header
+        
+2018-09-05 17:30:11,987      INFO: tr.BB_PRP000: Tester continued the test
+2018-09-05 17:30:11,996      INFO: tr: ####################### Preparation #######################
+2018-09-05 17:30:12,003      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 17:30:12,006      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 17:30:12,007      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 17:30:18,789      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 17:30:18,790      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 17:30:18,813     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-05 17:30:18,813      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 17:30:18,815     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-05 17:30:18,815      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 17:30:18,816     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-05 17:30:18,834      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 17:30:18,894      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 17:30:18,907     DEBUG: tr.server.KeysightEXGGeneratorClient: Connecting to TCPIP0::A-N5182B-50490.local::inst0::INSTR
+2018-09-05 17:30:24,210     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-05 17:30:24,490      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 17:30:24,605      INFO: tr: ######################## Firstboot ########################
+2018-09-05 17:30:24,617      INFO: tr.CM_PRP040: ------ [CM_PRP040] Setup tftp boot in u-boot ------
+2018-09-05 17:30:24,618      INFO: tr.CM_PRP040: U-boot access in progress
+2018-09-05 17:30:38,586      INFO: tr.CM_PRP040: U-boot setup default env in progress
+2018-09-05 17:30:49,210      INFO: tr.CM_PRP040: U-boot set setup env in progress
+2018-09-05 17:31:08,015     DEBUG: tr.server.LTECOMServiceClient: saveenv && echo ^C && echo OK^!
+Saving Environment to Flash...
+. done
+Un-Protected 1 sectors
+Erasing Flash...
+. done
+Erased 1 sectors
+Writing to Flash... 
+done
+. done
+Protected 1 sectors
+^C
+OK^!
+Octeon zen=>
+
+2018-09-05 17:31:08,016      INFO: tr.CM_PRP040: U-boot setup for tftp boot successful
+2018-09-05 17:31:08,016      INFO: tr.CM_PRP040: Reset from U-boot in progress
+2018-09-05 17:31:08,352      INFO: tr.CM_PRP041: ------ [CM_PRP041] Update u-boot from u-boot ------
+2018-09-05 17:31:08,365      INFO: tr.CM_PRP041: U-boot access in progress
+2018-09-05 17:31:15,267      INFO: tr.CM_PRP041: U-boot update in progress
+2018-09-05 17:31:16,361     DEBUG: tr.server.LTECOMServiceClient: tftp 0x2000000 u-boot-octeon_tip.bin && echo ^C && echo OK^!
+Interface 0 has 2 ports (SGMII)
+Interface 2 has 4 ports (NPI)
+Interface 3 has 2 ports (LOOP)
+Using octeth0 device
+TFTP from server 10.102.81.50; our IP address is 10.102.81.61
+Filename 'u-boot-octeon_tip.bin'.
+Load address: 0x2000000
+Loading: *octeth0: Up 100 Mbps Full duplex (port  0) (SGMII)
+##################################################
+done
+Bytes transferred = 757024 (b8d20 hex)
+^C
+OK^!
+Octeon zen=>
+
+2018-09-05 17:31:21,772     DEBUG: tr.server.LTECOMServiceClient: protect off 0x17cc0000 +160000 && erase 0x17cc0000 +160000 && cp.b 0x2000000 0x17cc0000 ${filesize} && protect on 0x17cc0000 +160000 && echo ^C && echo OK^!
+........... done
+Un-Protected 11 sectors
+.
+.
+.
+.
+.
+...... done
+Erased 11 sectors
+Copy to Flash... 
+done
+........... done
+Protected 11 sectors
+^C
+OK^!
+Octeon zen=>
+
+2018-09-05 17:31:21,773      INFO: tr.CM_PRP041: U-boot update successful
+2018-09-05 17:31:21,773      INFO: tr.CM_PRP041: Reset from U-boot in progress
+2018-09-05 17:31:22,164      INFO: tr.BB_TSC004: ----- [BB_TSC004] Validate 1000 MHz operation -----
+2018-09-05 17:31:23,829      INFO: tr.criteria: BB_TSC004_CORE_CLOCK: [1000 MHz] == '1000 MHz' : PASS
+2018-09-05 17:31:23,839      INFO: tr: ########################## Reset ##########################
+2018-09-05 17:31:23,848      INFO: tr.BB_TSC015: -------------- [BB_TSC015] SW1 reset --------------
+2018-09-05 17:31:43,240     DEBUG: tr.BB_TSC015: context.tester_interrupt_exception= TesterInterruption('Terminate section requested',)
+2018-09-05 17:31:43,272     DEBUG: tr.server.LTECOMServiceClient: Call blocked !
+2018-09-05 17:31:43,282  CRITICAL: tr: Execution interrupted
+2018-09-05 17:31:43,283  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 17:31:43,285     DEBUG: tr: context.tester_interrupt_exception= None
+2018-09-05 17:31:43,286     DEBUG: tr: Next section
+2018-09-05 17:31:43,286      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 17:31:43,289      INFO: tr: ######################### Cleanup #########################
+2018-09-05 17:31:43,292      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 17:31:43,293     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-05 17:31:43,309   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 17:31:43,312      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 17:31:43,331   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 17:31:43,334      INFO: tr: All sections of batch file were executed
+2018-09-05 17:31:43,381      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpeeua4h\server

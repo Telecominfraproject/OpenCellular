@@ -1,0 +1,46 @@
+2018-08-29 13:51:48,627:DEBUG    
+
+
+2018-08-29 13:51:48,627:INFO     SERVICE INITIALIZED
+2018-08-29 13:52:00,005:DEBUG    LOG =DEBUG
+2018-08-29 13:52:00,005:DEBUG    Configuring switchs path
+2018-08-29 13:52:00,009:DEBUG    Path set up as follow: 
+A.COM      -> ('A.PORT1', 'A.PORT2', 'C.PORT1')
+A.PORT1    -> ('A.COM', 'UUT_RX0')
+A.PORT2    -> ('A.COM', 'UUT_RX1')
+B.COM      -> ('B.PORT1', 'B.PORT2', 'UUT_ANT0')
+B.PORT1    -> ('B.COM', 'C.PORT2')
+B.PORT2    -> ('B.COM', 'G.PORT2')
+C.COM      -> ('D.PORT1', 'C.PORT1', 'C.PORT2')
+C.PORT1    -> ('A.COM', 'C.COM')
+C.PORT2    -> ('B.PORT1', 'C.COM')
+D.COM      -> ('SPECTRUM', 'D.PORT1', 'D.PORT2')
+D.PORT1    -> ('C.COM', 'D.COM')
+D.PORT2    -> ('E.PORT2', 'D.COM')
+E.COM      -> ('E.PORT1', 'E.PORT2', 'UUT_ANT1')
+E.PORT1    -> ('E.COM', 'H.PORT2')
+E.PORT2    -> ('E.COM', 'D.PORT2')
+F.COM      -> ('F.PORT1', 'F.PORT2', 'H.PORT1')
+F.PORT1    -> ('F.COM', 'UUT_TX1')
+F.PORT2    -> ('F.COM', 'UUT_TX0')
+G.COM      -> ('GENERATOR', 'G.PORT1', 'G.PORT2')
+G.PORT1    -> ('H.COM', 'G.COM')
+G.PORT2    -> ('B.PORT2', 'G.COM')
+GENERATOR  -> ('G.COM',)
+H.COM      -> ('G.PORT1', 'H.PORT2', 'H.PORT1')
+H.PORT1    -> ('F.COM', 'H.COM')
+H.PORT2    -> ('E.PORT1', 'H.COM')
+SPECTRUM   -> ('D.COM',)
+UUT_ANT0   -> ('B.COM',)
+UUT_ANT1   -> ('E.COM',)
+UUT_RX0    -> ('A.PORT1',)
+UUT_RX1    -> ('A.PORT2',)
+UUT_TX0    -> ('F.PORT2',)
+UUT_TX1    -> ('F.PORT1',)
+2018-08-29 13:52:00,009:DEBUG    Trying to connect to the RF Switch Matrix... 
+2018-08-29 13:52:00,010:DEBUG    CoInitialize Success
+2018-08-29 13:52:00,023:DEBUG    Dispatch Success
+2018-08-29 13:52:09,145:INFO     Connection sucessful
+2018-08-29 13:52:09,148:DEBUG    Connect Success
+2018-08-29 13:52:09,148:DEBUG    All SUCCESS
+2018-08-29 13:52:09,148:INFO     SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (9.14 s)

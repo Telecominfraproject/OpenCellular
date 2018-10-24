@@ -1,0 +1,1627 @@
+2018-09-05 11:58:06,183:DEBUG    
+
+
+2018-09-05 11:58:06,184:INFO     SERVICE INITIALIZED
+2018-09-05 11:58:17,499:DEBUG    LOG =DEBUG
+2018-09-05 11:58:17,499:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-05 11:58:17,500:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-05 11:58:27,773:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.27 s)
+2018-09-05 11:58:27,786:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-05 11:58:27,805:DEBUG    Exit code= 0
+2018-09-05 11:58:27,805:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1398]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1399]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1399]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1437]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 08:00:35 LSM daemon.info init: starting pid 1842, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:01:01 LSM cron.info crond[1437]: crond: USER root pid 1978 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1437]: crond: USER root pid 2220 cmd /usr/bin/tempcheck.sh
+Jan  2 00:03:01 LSM cron.info crond[1437]: crond: USER root pid 2450 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1437]: crond: USER root pid 2861 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1437]: crond: USER root pid 3441 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1437]: crond: USER root pid 3995 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1437]: crond: USER root pid 4797 cmd /usr/bin/tempcheck.sh
+Jan  2 00:08:01 LSM cron.info crond[1437]: crond: USER root pid 5541 cmd /usr/bin/tempcheck.sh
+Jan  2 00:09:01 LSM cron.info crond[1437]: crond: USER root pid 6249 cmd /usr/bin/tempcheck.sh
+Jan  2 00:10:01 LSM cron.info crond[1437]: crond: USER root pid 6879 cmd /usr/bin/tempcheck.sh
+Jan  2 00:11:01 LSM cron.info crond[1437]: crond: USER root pid 7304 cmd /usr/bin/tempcheck.sh
+2018-09-05 11:58:27,805:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-05 11:58:37,964:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-09-05 11:58:37,996:DEBUG    Exit code= 0
+2018-09-05 11:58:37,996:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-09-05 11:58:37,996:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-05 11:58:38,128:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-05 11:58:38,145:DEBUG    Exit code= 0
+2018-09-05 11:58:38,147:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-05 11:58:39,283:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-05 11:58:39,325:DEBUG    Exit code= 0
+2018-09-05 11:58:39,325:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-05 11:58:39,325:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-05 11:58:39,335:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-05 11:58:39,486:DEBUG    Exit code= 0
+2018-09-05 11:58:39,486:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-05 11:58:39,486:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-09-05 11:58:39,516:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled red on
+2018-09-05 11:58:39,546:DEBUG    Exit code= 0
+2018-09-05 11:58:39,546:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-09-05 12:01:12,138:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled green on
+2018-09-05 12:01:12,158:DEBUG    Exit code= 0
+2018-09-05 12:01:12,160:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.02 s)
+2018-09-05 12:01:18,298:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange on
+2018-09-05 12:01:18,318:DEBUG    Exit code= 0
+2018-09-05 12:01:18,318:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange on (0.02 s)
+2018-09-05 12:01:20,081:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange off
+2018-09-05 12:01:20,101:DEBUG    Exit code= 0
+2018-09-05 12:01:20,101:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange off (0.02 s)
+2018-09-05 12:01:21,046:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024
+2018-09-05 12:01:21,062:DEBUG    Exit code= 0
+2018-09-05 12:01:21,062:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,062:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-05 12:01:21,073:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025
+2018-09-05 12:01:21,121:DEBUG    Exit code= 0
+2018-09-05 12:01:21,121:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,122:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-05 12:01:21,134:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026
+2018-09-05 12:01:21,180:DEBUG    Exit code= 0
+2018-09-05 12:01:21,180:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,180:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-05 12:01:21,190:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027
+2018-09-05 12:01:21,237:DEBUG    Exit code= 0
+2018-09-05 12:01:21,237:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,237:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-05 12:01:21,247:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028
+2018-09-05 12:01:21,296:DEBUG    Exit code= 0
+2018-09-05 12:01:21,296:DEBUG    driver
+iio:device0
+microamps_requested_0-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,296:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-05 12:01:21,306:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040
+2018-09-05 12:01:21,355:DEBUG    Exit code= 0
+2018-09-05 12:01:21,355:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 12:01:21,355:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-05 12:01:21,365:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a
+2018-09-05 12:01:21,413:DEBUG    Exit code= 0
+2018-09-05 12:01:21,414:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:01:21,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-05 12:01:21,423:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051
+2018-09-05 12:01:21,469:DEBUG    Exit code= 0
+2018-09-05 12:01:21,469:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,470:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-05 12:01:21,494:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025
+2018-09-05 12:01:21,525:DEBUG    Exit code= 0
+2018-09-05 12:01:21,526:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,526:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.03 s)
+2018-09-05 12:01:21,536:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026
+2018-09-05 12:01:21,582:DEBUG    Exit code= 0
+2018-09-05 12:01:21,584:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,584:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-05 12:01:21,592:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027
+2018-09-05 12:01:21,640:DEBUG    Exit code= 0
+2018-09-05 12:01:21,640:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,640:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-05 12:01:21,650:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028
+2018-09-05 12:01:21,697:DEBUG    Exit code= 0
+2018-09-05 12:01:21,697:DEBUG    driver
+iio:device1
+microamps_requested_1-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,697:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-05 12:01:21,707:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040
+2018-09-05 12:01:21,755:DEBUG    Exit code= 0
+2018-09-05 12:01:21,755:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-05 12:01:21,755:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-05 12:01:21,765:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a
+2018-09-05 12:01:21,812:DEBUG    Exit code= 0
+2018-09-05 12:01:21,812:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:01:21,813:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-05 12:01:21,838:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020
+2018-09-05 12:01:21,858:DEBUG    Exit code= 0
+2018-09-05 12:01:21,859:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,859:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.02 s)
+2018-09-05 12:01:21,868:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049
+2018-09-05 12:01:21,917:DEBUG    Exit code= 0
+2018-09-05 12:01:21,917:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:01:21,917:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-05 12:01:21,927:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050
+2018-09-05 12:01:21,976:DEBUG    Exit code= 0
+2018-09-05 12:01:21,976:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:21,976:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-05 12:01:21,986:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f
+2018-09-05 12:01:22,033:DEBUG    Exit code= 0
+2018-09-05 12:01:22,033:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-05 12:01:22,035:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-05 12:01:22,042:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e
+2018-09-05 12:01:22,088:DEBUG    Exit code= 0
+2018-09-05 12:01:22,088:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:22,088:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-05 12:01:22,098:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f
+2018-09-05 12:01:22,147:DEBUG    Exit code= 0
+2018-09-05 12:01:22,148:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-05 12:01:22,148:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-05 12:01:22,167:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:01:23,220:DEBUG    Exit code= 0
+2018-09-05 12:01:23,220:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.05 s)
+2018-09-05 12:01:23,230:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:23,414:DEBUG    Exit code= 0
+2018-09-05 12:01:23,414:DEBUG    0
+2018-09-05 12:01:23,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 12:01:23,924:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:24,062:DEBUG    Exit code= 0
+2018-09-05 12:01:24,062:DEBUG    0
+2018-09-05 12:01:24,063:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-05 12:01:24,572:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:24,657:DEBUG    Exit code= 0
+2018-09-05 12:01:24,657:DEBUG    0
+2018-09-05 12:01:24,657:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:01:25,167:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:25,250:DEBUG    Exit code= 0
+2018-09-05 12:01:25,250:DEBUG    -17077
+2018-09-05 12:01:25,250:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:01:25,262:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10
+2018-09-05 12:01:25,312:DEBUG    Exit code= 0
+2018-09-05 12:01:25,312:DEBUG    add FC 00, 5, size 2, 0E 10
+2018-09-05 12:01:25,312:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 12:01:25,322:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8
+2018-09-05 12:01:25,372:DEBUG    Exit code= 0
+2018-09-05 12:01:25,372:DEBUG    add FC 02, 5, size 2, 0E D8
+2018-09-05 12:01:25,372:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 12:01:25,384:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10
+2018-09-05 12:01:25,434:DEBUG    Exit code= 0
+2018-09-05 12:01:25,434:DEBUG    add FC 14, 5, size 2, 0E 10
+2018-09-05 12:01:25,434:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-05 12:01:25,443:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8
+2018-09-05 12:01:25,496:DEBUG    Exit code= 0
+2018-09-05 12:01:25,496:DEBUG    add FC 16, 5, size 2, 0E D8
+2018-09-05 12:01:25,496:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-05 12:01:25,520:DEBUG    Timeout 10.0s, TTY=False. Command: fe-gethdrev
+2018-09-05 12:01:25,539:DEBUG    Exit code= 127
+2018-09-05 12:01:25,539:DEBUG    (STDERR)sh: fe-gethdrev: not found
+2018-09-05 12:01:25,539:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.02 s)
+2018-09-05 12:01:25,569:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20
+2018-09-05 12:01:25,604:DEBUG    Exit code= 0
+2018-09-05 12:01:25,604:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.04 s)
+2018-09-05 12:01:25,614:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:25,668:DEBUG    Exit code= 0
+2018-09-05 12:01:25,668:DEBUG    0
+2018-09-05 12:01:25,668:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-05 12:01:25,680:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:25,729:DEBUG    Exit code= 0
+2018-09-05 12:01:25,729:DEBUG    28471
+2018-09-05 12:01:25,729:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:01:25,737:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-05 12:01:25,795:DEBUG    Exit code= 0
+2018-09-05 12:01:25,796:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.06 s)
+2018-09-05 12:01:25,805:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:25,861:DEBUG    Exit code= 0
+2018-09-05 12:01:25,861:DEBUG    0
+2018-09-05 12:01:25,861:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:01:25,869:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:25,917:DEBUG    Exit code= 0
+2018-09-05 12:01:25,917:DEBUG    28471
+2018-09-05 12:01:25,917:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:01:25,927:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-05 12:01:25,976:DEBUG    Exit code= 0
+2018-09-05 12:01:25,976:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-05 12:01:25,986:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20
+2018-09-05 12:01:26,046:DEBUG    Exit code= 0
+2018-09-05 12:01:26,046:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.06 s)
+2018-09-05 12:01:26,053:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:01:26,111:DEBUG    Exit code= 0
+2018-09-05 12:01:26,111:DEBUG    0
+2018-09-05 12:01:26,111:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:01:26,119:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:01:26,167:DEBUG    Exit code= 0
+2018-09-05 12:01:26,167:DEBUG    28473
+2018-09-05 12:01:26,167:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:01:26,177:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64
+2018-09-05 12:01:26,230:DEBUG    Exit code= 0
+2018-09-05 12:01:26,230:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-05 12:01:26,240:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:01:26,295:DEBUG    Exit code= 0
+2018-09-05 12:01:26,296:DEBUG    0
+2018-09-05 12:01:26,296:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:01:26,303:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:01:26,352:DEBUG    Exit code= 0
+2018-09-05 12:01:26,352:DEBUG    28473
+2018-09-05 12:01:26,352:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:01:26,365:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-05 12:01:26,414:DEBUG    Exit code= 0
+2018-09-05 12:01:26,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-05 12:01:26,423:DEBUG    Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1
+2018-09-05 12:01:28,036:DEBUG    Exit code= 0
+2018-09-05 12:01:28,038:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1 (1.62 s)
+2018-09-05 12:01:32,076:DEBUG    Timeout 10.0s, TTY=False. Command: fe-enable
+2018-09-05 12:01:32,127:DEBUG    Exit code= 0
+2018-09-05 12:01:32,127:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-enable (0.05 s)
+2018-09-05 12:01:32,184:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:01:32,216:DEBUG    Exit code= 0
+2018-09-05 12:01:32,216:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:01:32,217:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.03 s)
+2018-09-05 12:01:34,677:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:01:34,726:DEBUG    Exit code= 0
+2018-09-05 12:01:34,726:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.05 s)
+2018-09-05 12:01:34,736:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:01:34,782:DEBUG    Exit code= 0
+2018-09-05 12:01:34,782:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.05 s)
+2018-09-05 12:01:34,792:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:01:34,839:DEBUG    Exit code= 0
+2018-09-05 12:01:34,841:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:01:34,851:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:01:34,894:DEBUG    Exit code= 0
+2018-09-05 12:01:34,895:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-09-05 12:01:36,746:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:01:36,757:DEBUG    Exit code= 0
+2018-09-05 12:01:36,759:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 12:01:36,767:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:01:36,813:DEBUG    Exit code= 0
+2018-09-05 12:01:36,813:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:01:36,822:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:01:36,868:DEBUG    Exit code= 0
+2018-09-05 12:01:36,868:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:01:36,877:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:01:36,940:DEBUG    Exit code= 0
+2018-09-05 12:01:36,940:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:01:36,940:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-05 12:01:38,951:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:01:38,967:DEBUG    Exit code= 0
+2018-09-05 12:01:38,967:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 12:01:38,977:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:01:39,022:DEBUG    Exit code= 0
+2018-09-05 12:01:39,023:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:01:39,032:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:01:39,076:DEBUG    Exit code= 0
+2018-09-05 12:01:39,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:01:39,105:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:01:39,167:DEBUG    Exit code= 0
+2018-09-05 12:01:39,167:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.06 s)
+2018-09-05 12:01:40,096:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:40,105:DEBUG    > pwm l 37376 q eof
+2018-09-05 12:01:40,141:DEBUG    Exit code= 1
+2018-09-05 12:01:40,141:DEBUG    pwm l 37376 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM low value:set PWM_LOW_TIME 37376(0x9200)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:40,142:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm l 37376 q eof (0.05 s)
+2018-09-05 12:01:40,151:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:40,194:DEBUG    > pwm h 25000 q eof
+2018-09-05 12:01:40,234:DEBUG    Exit code= 1
+2018-09-05 12:01:40,236:DEBUG    pwm h 25000 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 25000(0x61a8)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:40,236:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 25000 q eof (0.08 s)
+2018-09-05 12:01:40,825:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:40,836:DEBUG    > pwm h 24224 q eof
+2018-09-05 12:01:40,864:DEBUG    Exit code= 0
+2018-09-05 12:01:40,864:DEBUG    pwm h 24224 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 24224(0x5ea0)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:40,864:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 24224 q eof (0.04 s)
+2018-09-05 12:01:41,413:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:41,424:DEBUG    > pwm h 23881 q eof
+2018-09-05 12:01:41,463:DEBUG    Exit code= 1
+2018-09-05 12:01:41,463:DEBUG    pwm h 23881 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 23881(0x5d49)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:41,463:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 23881 q eof (0.05 s)
+2018-09-05 12:01:42,013:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:42,026:DEBUG    > pwm h 23732 q eof
+2018-09-05 12:01:42,056:DEBUG    Exit code= 1
+2018-09-05 12:01:42,056:DEBUG    pwm h 23732 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 23732(0x5cb4)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:42,056:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 23732 q eof (0.04 s)
+2018-09-05 12:01:42,612:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:42,622:DEBUG    > pwm h 23669 q eof
+2018-09-05 12:01:42,660:DEBUG    Exit code= 1
+2018-09-05 12:01:42,661:DEBUG    pwm h 23669 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 23669(0x5c75)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:42,661:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 23669 q eof (0.05 s)
+2018-09-05 12:01:43,214:DEBUG    Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver
+2018-09-05 12:01:43,224:DEBUG    > pwm h 23644 q eof
+2018-09-05 12:01:43,266:DEBUG    Exit code= 1
+2018-09-05 12:01:43,266:DEBUG    pwm h 23644 q eof
+Setting affinity to 0x1
+CVMX_SHARED: 0x120300000-0x120320000
+WARNING:
+Parameter checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+CSR address checks are enabled. Expect some performance loss due to the extra checking
+WARNING:
+POW state checks are enabled. Expect some performance loss due to the extra checking
+Active coremask = 0x1
+
+ usage: oct_fusion_rfic_drv-E2E [RFIC type] [DSP version]
+
+RFIC Device Id = 65290
+
+****************************************
+ RF Driver Main Menu, version 2018.05.17
+****************************************
+	 0.SPI Device Select[spi]
+	 1.RFIC Soft Reset[rst]
+	 2.Init[i]
+	 3.Init with File[if]
+	 4.TX Freq[d]
+	 5.RX Freq[u]
+	 6.RX Gain Select[g]
+	 7.TX Attenuator Select[a]
+	 8.TX Power Select[t]
+	 9.RSSI Measure[s]
+	 10.GPIO Set[gpio]
+	 11.DAC Clock Control[dac,dax]
+	 12.PWM Clock Control[pwm]
+	 13.SPI read[r]
+	 14.SPI write[w]
+	 15.Cal TX Power[T]
+	 16.Cal RX RSSI[S]
+	 17.Cal Ref Clock[C]
+	 18.RF EEPROM Control[e]
+	 19.BB EEPROM Control[be]
+	 20.Temp Sensor read[mr,mb,mc]
+	 21.Temp Compensation[tp,td,tx]
+	 22.Dump registers to reg_dump.txt[dr]
+	 23.Read Attenuation & Gain[rag]
+	 24.Quit[q]
+Select the Option:
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: Enter PWM high value:set PWM_HIGH_TIME 23644(0x5c5c)
+
+************************
+ PWM Ref. Clock Control 
+************************
+1.read current setting[r]
+2.enable PWM[e]
+3.disable PWM[d]
+4.set PWM high time[h]
+5.set PWM low time[l]
+6.back to upper level[b]
+7.quit[q]
+select option: PWM Control Exited
+2018-09-05 12:01:43,267:INFO     SERVICE HANDLING - Timeout 0.4s, TTY=True. Command: oncpu 0 cn_rfdriver - > pwm h 23644 q eof (0.05 s)
+2018-09-05 12:01:43,463:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376'
+2018-09-05 12:01:46,000:DEBUG    Exit code= 0
+2018-09-05 12:01:46,000:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.54 s)
+2018-09-05 12:01:46,009:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '23644'
+2018-09-05 12:01:48,559:DEBUG    Exit code= 0
+2018-09-05 12:01:48,559:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '23644' (2.55 s)
+2018-09-05 12:01:48,619:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:01:48,631:DEBUG    Exit code= 0
+2018-09-05 12:01:48,631:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-05 12:01:48,644:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:01:48,690:DEBUG    Exit code= 0
+2018-09-05 12:01:48,690:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:01:48,700:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:01:48,744:DEBUG    Exit code= 0
+2018-09-05 12:01:48,746:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:01:48,756:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:01:48,821:DEBUG    Exit code= 0
+2018-09-05 12:01:48,821:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:01:48,821:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-05 12:01:51,280:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:01:52,302:DEBUG    Exit code= 0
+2018-09-05 12:01:52,302:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-05 12:01:52,312:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:52,493:DEBUG    Exit code= 0
+2018-09-05 12:01:52,493:DEBUG    0
+2018-09-05 12:01:52,493:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 12:01:53,006:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:53,148:DEBUG    Exit code= 0
+2018-09-05 12:01:53,148:DEBUG    0
+2018-09-05 12:01:53,148:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-05 12:01:53,658:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:53,742:DEBUG    Exit code= 0
+2018-09-05 12:01:53,742:DEBUG    0
+2018-09-05 12:01:53,743:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:01:54,256:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:54,349:DEBUG    Exit code= 0
+2018-09-05 12:01:54,349:DEBUG    -5602
+2018-09-05 12:01:54,349:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:01:54,384:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:01:54,433:DEBUG    Exit code= 0
+2018-09-05 12:01:54,433:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.05 s)
+2018-09-05 12:01:54,441:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20
+2018-09-05 12:01:54,502:DEBUG    Exit code= 0
+2018-09-05 12:01:54,502:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.06 s)
+2018-09-05 12:01:54,510:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:54,565:DEBUG    Exit code= 0
+2018-09-05 12:01:54,565:DEBUG    114
+2018-09-05 12:01:54,565:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:01:54,575:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:54,621:DEBUG    Exit code= 0
+2018-09-05 12:01:54,622:DEBUG    28563
+2018-09-05 12:01:54,622:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:01:54,733:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:54,819:DEBUG    Exit code= 0
+2018-09-05 12:01:54,819:DEBUG    -5535
+2018-09-05 12:01:54,819:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:01:54,829:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:54,947:DEBUG    Exit code= 0
+2018-09-05 12:01:54,947:DEBUG    -5535
+2018-09-05 12:01:54,948:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:54,960:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,076:DEBUG    Exit code= 0
+2018-09-05 12:01:55,078:DEBUG    -5535
+2018-09-05 12:01:55,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:55,089:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,214:DEBUG    Exit code= 0
+2018-09-05 12:01:55,214:DEBUG    -5535
+2018-09-05 12:01:55,216:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-05 12:01:55,226:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,342:DEBUG    Exit code= 0
+2018-09-05 12:01:55,342:DEBUG    -5535
+2018-09-05 12:01:55,342:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:55,355:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,467:DEBUG    Exit code= 0
+2018-09-05 12:01:55,467:DEBUG    -5534
+2018-09-05 12:01:55,467:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.11 s)
+2018-09-05 12:01:55,480:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 1 21
+2018-09-05 12:01:55,539:DEBUG    Exit code= 0
+2018-09-05 12:01:55,540:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 21 (0.06 s)
+2018-09-05 12:01:55,552:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:55,605:DEBUG    Exit code= 0
+2018-09-05 12:01:55,605:DEBUG    114
+2018-09-05 12:01:55,605:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-05 12:01:55,615:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:55,661:DEBUG    Exit code= 0
+2018-09-05 12:01:55,663:DEBUG    28563
+2018-09-05 12:01:55,663:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:01:55,676:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,792:DEBUG    Exit code= 0
+2018-09-05 12:01:55,792:DEBUG    -5534
+2018-09-05 12:01:55,792:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:55,802:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:55,918:DEBUG    Exit code= 0
+2018-09-05 12:01:55,918:DEBUG    -5534
+2018-09-05 12:01:55,918:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:55,930:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:56,048:DEBUG    Exit code= 0
+2018-09-05 12:01:56,048:DEBUG    -5896
+2018-09-05 12:01:56,048:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:56,059:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:56,176:DEBUG    Exit code= 0
+2018-09-05 12:01:56,176:DEBUG    -5896
+2018-09-05 12:01:56,176:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:56,187:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:01:56,302:DEBUG    Exit code= 0
+2018-09-05 12:01:56,302:DEBUG    -16401
+2018-09-05 12:01:56,302:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:01:56,313:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-05 12:01:56,367:DEBUG    Exit code= 0
+2018-09-05 12:01:56,367:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.05 s)
+2018-09-05 12:01:56,375:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:56,431:DEBUG    Exit code= 0
+2018-09-05 12:01:56,431:DEBUG    130
+2018-09-05 12:01:56,433:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:01:56,444:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:56,490:DEBUG    Exit code= 0
+2018-09-05 12:01:56,490:DEBUG    28549
+2018-09-05 12:01:56,492:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:01:58,414:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:01:58,433:DEBUG    Exit code= 0
+2018-09-05 12:01:58,433:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:01:58,443:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:01:58,497:DEBUG    Exit code= 0
+2018-09-05 12:01:58,497:DEBUG    364
+2018-09-05 12:01:58,499:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-05 12:01:58,509:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:01:58,555:DEBUG    Exit code= 0
+2018-09-05 12:01:58,556:DEBUG    28336
+2018-09-05 12:01:58,556:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:00,371:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:00,394:DEBUG    Exit code= 0
+2018-09-05 12:02:00,394:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:00,405:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:00,463:DEBUG    Exit code= 0
+2018-09-05 12:02:00,463:DEBUG    362
+2018-09-05 12:02:00,463:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:00,473:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:00,519:DEBUG    Exit code= 0
+2018-09-05 12:02:00,519:DEBUG    28339
+2018-09-05 12:02:00,519:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:02,345:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:02,368:DEBUG    Exit code= 0
+2018-09-05 12:02:02,368:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:02,377:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:02,430:DEBUG    Exit code= 0
+2018-09-05 12:02:02,430:DEBUG    363
+2018-09-05 12:02:02,431:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-05 12:02:02,440:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:02,487:DEBUG    Exit code= 0
+2018-09-05 12:02:02,489:DEBUG    28338
+2018-09-05 12:02:02,489:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:04,305:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:04,326:DEBUG    Exit code= 0
+2018-09-05 12:02:04,326:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:04,336:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:04,394:DEBUG    Exit code= 0
+2018-09-05 12:02:04,394:DEBUG    360
+2018-09-05 12:02:04,394:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:04,404:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:04,451:DEBUG    Exit code= 0
+2018-09-05 12:02:04,451:DEBUG    28340
+2018-09-05 12:02:04,451:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:06,276:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:06,298:DEBUG    Exit code= 0
+2018-09-05 12:02:06,299:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:06,309:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:06,362:DEBUG    Exit code= 0
+2018-09-05 12:02:06,362:DEBUG    360
+2018-09-05 12:02:06,362:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-05 12:02:06,372:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:06,421:DEBUG    Exit code= 0
+2018-09-05 12:02:06,421:DEBUG    28341
+2018-09-05 12:02:06,421:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:08,286:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:08,309:DEBUG    Exit code= 0
+2018-09-05 12:02:08,311:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:08,319:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:08,377:DEBUG    Exit code= 0
+2018-09-05 12:02:08,377:DEBUG    361
+2018-09-05 12:02:08,377:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:08,384:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:08,431:DEBUG    Exit code= 0
+2018-09-05 12:02:08,433:DEBUG    28340
+2018-09-05 12:02:08,433:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:10,250:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:10,267:DEBUG    Exit code= 0
+2018-09-05 12:02:10,267:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:10,279:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:10,335:DEBUG    Exit code= 0
+2018-09-05 12:02:10,335:DEBUG    359
+2018-09-05 12:02:10,335:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:10,348:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:10,394:DEBUG    Exit code= 0
+2018-09-05 12:02:10,394:DEBUG    28338
+2018-09-05 12:02:10,394:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:12,191:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:12,210:DEBUG    Exit code= 0
+2018-09-05 12:02:12,210:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:12,220:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:12,275:DEBUG    Exit code= 0
+2018-09-05 12:02:12,276:DEBUG    361
+2018-09-05 12:02:12,276:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:12,286:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:12,332:DEBUG    Exit code= 0
+2018-09-05 12:02:12,332:DEBUG    28339
+2018-09-05 12:02:12,332:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:14,193:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:14,213:DEBUG    Exit code= 0
+2018-09-05 12:02:14,214:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:14,229:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:14,266:DEBUG    Exit code= 0
+2018-09-05 12:02:14,267:DEBUG    361
+2018-09-05 12:02:14,267:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.04 s)
+2018-09-05 12:02:14,278:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:14,325:DEBUG    Exit code= 0
+2018-09-05 12:02:14,325:DEBUG    28339
+2018-09-05 12:02:14,325:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:16,197:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10
+2018-09-05 12:02:16,219:DEBUG    Exit code= 0
+2018-09-05 12:02:16,219:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 10 (0.02 s)
+2018-09-05 12:02:16,230:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-05 12:02:16,285:DEBUG    Exit code= 0
+2018-09-05 12:02:16,285:DEBUG    360
+2018-09-05 12:02:16,286:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.06 s)
+2018-09-05 12:02:16,295:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input
+2018-09-05 12:02:16,342:DEBUG    Exit code= 0
+2018-09-05 12:02:16,342:DEBUG    28340
+2018-09-05 12:02:16,342:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/in1_input (0.05 s)
+2018-09-05 12:02:18,210:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:18,296:DEBUG    Exit code= 0
+2018-09-05 12:02:18,296:DEBUG    -6017
+2018-09-05 12:02:18,296:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:18,365:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:18,453:DEBUG    Exit code= 0
+2018-09-05 12:02:18,453:DEBUG    -11443
+2018-09-05 12:02:18,453:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:18,463:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-05 12:02:18,512:DEBUG    Exit code= 0
+2018-09-05 12:02:18,512:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-05 12:02:18,723:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:18,809:DEBUG    Exit code= 0
+2018-09-05 12:02:18,809:DEBUG    -11443
+2018-09-05 12:02:18,809:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:18,819:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:18,938:DEBUG    Exit code= 0
+2018-09-05 12:02:18,938:DEBUG    -11443
+2018-09-05 12:02:18,938:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:18,947:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,062:DEBUG    Exit code= 0
+2018-09-05 12:02:19,063:DEBUG    -5456
+2018-09-05 12:02:19,063:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,073:DEBUG    Timeout 10.0s, TTY=False. Command: echo 62 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-05 12:02:19,121:DEBUG    Exit code= 0
+2018-09-05 12:02:19,121:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 62 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-05 12:02:19,131:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,256:DEBUG    Exit code= 0
+2018-09-05 12:02:19,256:DEBUG    -5456
+2018-09-05 12:02:19,256:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-05 12:02:19,266:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,387:DEBUG    Exit code= 0
+2018-09-05 12:02:19,387:DEBUG    -5456
+2018-09-05 12:02:19,388:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,398:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,513:DEBUG    Exit code= 0
+2018-09-05 12:02:19,513:DEBUG    -5456
+2018-09-05 12:02:19,515:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,526:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,644:DEBUG    Exit code= 0
+2018-09-05 12:02:19,644:DEBUG    -5456
+2018-09-05 12:02:19,644:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,655:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,772:DEBUG    Exit code= 0
+2018-09-05 12:02:19,772:DEBUG    -6125
+2018-09-05 12:02:19,772:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,780:DEBUG    Timeout 10.0s, TTY=False. Command: echo 60 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-05 12:02:19,828:DEBUG    Exit code= 0
+2018-09-05 12:02:19,828:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 60 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-05 12:02:19,839:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:19,957:DEBUG    Exit code= 0
+2018-09-05 12:02:19,957:DEBUG    -6125
+2018-09-05 12:02:19,957:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:19,967:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:20,082:DEBUG    Exit code= 0
+2018-09-05 12:02:20,084:DEBUG    -6125
+2018-09-05 12:02:20,084:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:20,094:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:20,209:DEBUG    Exit code= 0
+2018-09-05 12:02:20,210:DEBUG    -6125
+2018-09-05 12:02:20,210:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:20,220:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:20,338:DEBUG    Exit code= 0
+2018-09-05 12:02:20,338:DEBUG    -5932
+2018-09-05 12:02:20,338:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:20,346:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:20,463:DEBUG    Exit code= 0
+2018-09-05 12:02:20,464:DEBUG    -6014
+2018-09-05 12:02:20,464:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-05 12:02:20,505:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:20,586:DEBUG    Exit code= 0
+2018-09-05 12:02:20,586:DEBUG    -5932
+2018-09-05 12:02:20,588:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:02:20,598:DEBUG    Timeout 10.0s, TTY=False. Command: fe-clearrfpalcal -c 1
+2018-09-05 12:02:29,654:DEBUG    Exit code= 0
+2018-09-05 12:02:29,654:DEBUG    add 01 00, 7, size 0, 00 00
+2018-09-05 12:02:29,654:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-clearrfpalcal -c 1 (9.06 s)
+2018-09-05 12:02:29,664:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:29,750:DEBUG    Exit code= 0
+2018-09-05 12:02:29,750:DEBUG    -6029
+2018-09-05 12:02:29,750:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:29,759:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:02:30,815:DEBUG    Exit code= 0
+2018-09-05 12:02:30,815:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.06 s)
+2018-09-05 12:02:30,836:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:31,006:DEBUG    Exit code= 0
+2018-09-05 12:02:31,006:DEBUG    0
+2018-09-05 12:02:31,006:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.17 s)
+2018-09-05 12:02:31,517:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:31,653:DEBUG    Exit code= 0
+2018-09-05 12:02:31,653:DEBUG    0
+2018-09-05 12:02:31,653:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.14 s)
+2018-09-05 12:02:32,164:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:32,250:DEBUG    Exit code= 0
+2018-09-05 12:02:32,250:DEBUG    0
+2018-09-05 12:02:32,250:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:32,759:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:32,845:DEBUG    Exit code= 0
+2018-09-05 12:02:32,846:DEBUG    -6107
+2018-09-05 12:02:32,846:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:38,220:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setrfpalcal -c 1
+2018-09-05 12:02:42,243:DEBUG    Exit code= 0
+2018-09-05 12:02:42,243:DEBUG    add 01 00, 8, size 0, 00 00
+2018-09-05 12:02:42,244:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setrfpalcal -c 1 (4.02 s)
+2018-09-05 12:02:42,253:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:42,436:DEBUG    Exit code= 0
+2018-09-05 12:02:42,436:DEBUG    0
+2018-09-05 12:02:42,436:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 12:02:42,947:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:43,029:DEBUG    Exit code= 0
+2018-09-05 12:02:43,029:DEBUG    -6025
+2018-09-05 12:02:43,029:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:02:43,085:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-05 12:02:43,098:DEBUG    Exit code= 0
+2018-09-05 12:02:43,099:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.01 s)
+2018-09-05 12:02:43,108:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-05 12:02:43,154:DEBUG    Exit code= 0
+2018-09-05 12:02:43,154:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-05 12:02:43,165:DEBUG    Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa1/state
+2018-09-05 12:02:43,210:DEBUG    Exit code= 0
+2018-09-05 12:02:43,210:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "1" > /sys/devices/soc.0/0.pa1/state (0.05 s)
+2018-09-05 12:02:43,220:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv bw
+2018-09-05 12:02:43,282:DEBUG    Exit code= 0
+2018-09-05 12:02:43,282:DEBUG    Environment Name = 'bw', Value= '20'.
+2018-09-05 12:02:43,282:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv bw (0.06 s)
+2018-09-05 12:02:45,269:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:02:46,292:DEBUG    Exit code= 0
+2018-09-05 12:02:46,292:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.02 s)
+2018-09-05 12:02:46,302:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:46,486:DEBUG    Exit code= 0
+2018-09-05 12:02:46,486:DEBUG    0
+2018-09-05 12:02:46,486:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.18 s)
+2018-09-05 12:02:46,996:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:47,142:DEBUG    Exit code= 0
+2018-09-05 12:02:47,144:DEBUG    0
+2018-09-05 12:02:47,144:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.15 s)
+2018-09-05 12:02:47,654:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:47,740:DEBUG    Exit code= 0
+2018-09-05 12:02:47,740:DEBUG    0
+2018-09-05 12:02:47,740:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:48,250:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:02:48,338:DEBUG    Exit code= 0
+2018-09-05 12:02:48,338:DEBUG    -6113
+2018-09-05 12:02:48,338:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:02:48,369:DEBUG    Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845
+2018-09-05 12:02:48,424:DEBUG    Exit code= 0
+2018-09-05 12:02:48,424:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-settxfreq 1845 (0.05 s)
+2018-09-05 12:02:48,433:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20
+2018-09-05 12:02:48,494:DEBUG    Exit code= 0
+2018-09-05 12:02:48,494:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.06 s)
+2018-09-05 12:02:48,505:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:48,559:DEBUG    Exit code= 0
+2018-09-05 12:02:48,559:DEBUG    102
+2018-09-05 12:02:48,559:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:02:48,569:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:48,615:DEBUG    Exit code= 0
+2018-09-05 12:02:48,615:DEBUG    28353
+2018-09-05 12:02:48,615:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:48,727:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:48,812:DEBUG    Exit code= 0
+2018-09-05 12:02:48,812:DEBUG    -4935
+2018-09-05 12:02:48,813:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.09 s)
+2018-09-05 12:02:48,823:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:48,943:DEBUG    Exit code= 0
+2018-09-05 12:02:48,943:DEBUG    -4935
+2018-09-05 12:02:48,943:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:48,951:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,069:DEBUG    Exit code= 0
+2018-09-05 12:02:49,069:DEBUG    -4935
+2018-09-05 12:02:49,069:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,078:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,197:DEBUG    Exit code= 0
+2018-09-05 12:02:49,197:DEBUG    -4935
+2018-09-05 12:02:49,197:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,206:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,325:DEBUG    Exit code= 0
+2018-09-05 12:02:49,325:DEBUG    -4935
+2018-09-05 12:02:49,326:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,335:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,451:DEBUG    Exit code= 0
+2018-09-05 12:02:49,453:DEBUG    -4944
+2018-09-05 12:02:49,453:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,464:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 2 22
+2018-09-05 12:02:49,526:DEBUG    Exit code= 0
+2018-09-05 12:02:49,526:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 22 (0.06 s)
+2018-09-05 12:02:49,536:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:49,591:DEBUG    Exit code= 0
+2018-09-05 12:02:49,591:DEBUG    102
+2018-09-05 12:02:49,591:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:02:49,599:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:49,648:DEBUG    Exit code= 0
+2018-09-05 12:02:49,648:DEBUG    28355
+2018-09-05 12:02:49,648:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:49,658:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,775:DEBUG    Exit code= 0
+2018-09-05 12:02:49,775:DEBUG    -4944
+2018-09-05 12:02:49,776:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,783:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:49,903:DEBUG    Exit code= 0
+2018-09-05 12:02:49,904:DEBUG    -4944
+2018-09-05 12:02:49,904:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:49,914:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:50,032:DEBUG    Exit code= 0
+2018-09-05 12:02:50,032:DEBUG    -5651
+2018-09-05 12:02:50,032:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:50,042:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:50,158:DEBUG    Exit code= 0
+2018-09-05 12:02:50,158:DEBUG    -5651
+2018-09-05 12:02:50,158:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:50,167:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:02:50,292:DEBUG    Exit code= 0
+2018-09-05 12:02:50,292:DEBUG    -16818
+2018-09-05 12:02:50,292:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:02:50,301:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64
+2018-09-05 12:02:50,355:DEBUG    Exit code= 0
+2018-09-05 12:02:50,355:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-05 12:02:50,367:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:50,421:DEBUG    Exit code= 0
+2018-09-05 12:02:50,421:DEBUG    118
+2018-09-05 12:02:50,421:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:02:50,430:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:50,476:DEBUG    Exit code= 0
+2018-09-05 12:02:50,476:DEBUG    28348
+2018-09-05 12:02:50,476:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:52,398:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 67
+2018-09-05 12:02:52,421:DEBUG    Exit code= 0
+2018-09-05 12:02:52,421:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 67 (0.02 s)
+2018-09-05 12:02:52,431:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:52,487:DEBUG    Exit code= 0
+2018-09-05 12:02:52,487:DEBUG    117
+2018-09-05 12:02:52,487:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:02:52,496:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:52,543:DEBUG    Exit code= 0
+2018-09-05 12:02:52,543:DEBUG    28348
+2018-09-05 12:02:52,545:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:54,351:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 70
+2018-09-05 12:02:54,374:DEBUG    Exit code= 0
+2018-09-05 12:02:54,374:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 70 (0.02 s)
+2018-09-05 12:02:54,384:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:54,438:DEBUG    Exit code= 0
+2018-09-05 12:02:54,438:DEBUG    115
+2018-09-05 12:02:54,438:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:02:54,448:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:54,496:DEBUG    Exit code= 0
+2018-09-05 12:02:54,496:DEBUG    28349
+2018-09-05 12:02:54,496:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:56,309:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 73
+2018-09-05 12:02:56,328:DEBUG    Exit code= 0
+2018-09-05 12:02:56,328:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 73 (0.02 s)
+2018-09-05 12:02:56,338:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:56,392:DEBUG    Exit code= 0
+2018-09-05 12:02:56,392:DEBUG    112
+2018-09-05 12:02:56,392:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:02:56,403:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:56,448:DEBUG    Exit code= 0
+2018-09-05 12:02:56,448:DEBUG    28351
+2018-09-05 12:02:56,448:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:02:58,259:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 72
+2018-09-05 12:02:58,279:DEBUG    Exit code= 0
+2018-09-05 12:02:58,279:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 72 (0.02 s)
+2018-09-05 12:02:58,292:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:02:58,345:DEBUG    Exit code= 0
+2018-09-05 12:02:58,345:DEBUG    113
+2018-09-05 12:02:58,345:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:02:58,355:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:02:58,404:DEBUG    Exit code= 0
+2018-09-05 12:02:58,404:DEBUG    28350
+2018-09-05 12:02:58,404:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:00,217:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10
+2018-09-05 12:03:00,239:DEBUG    Exit code= 0
+2018-09-05 12:03:00,239:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10 (0.02 s)
+2018-09-05 12:03:00,247:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:00,312:DEBUG    Exit code= 0
+2018-09-05 12:03:00,312:DEBUG    397
+2018-09-05 12:03:00,312:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.07 s)
+2018-09-05 12:03:00,323:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:00,371:DEBUG    Exit code= 0
+2018-09-05 12:03:00,371:DEBUG    28401
+2018-09-05 12:03:00,371:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:02,194:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10
+2018-09-05 12:03:02,217:DEBUG    Exit code= 0
+2018-09-05 12:03:02,217:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10 (0.02 s)
+2018-09-05 12:03:02,226:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:02,280:DEBUG    Exit code= 0
+2018-09-05 12:03:02,280:DEBUG    391
+2018-09-05 12:03:02,282:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:03:02,289:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:02,336:DEBUG    Exit code= 0
+2018-09-05 12:03:02,336:DEBUG    28401
+2018-09-05 12:03:02,336:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:04,177:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10
+2018-09-05 12:03:04,200:DEBUG    Exit code= 0
+2018-09-05 12:03:04,200:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10 (0.02 s)
+2018-09-05 12:03:04,210:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:04,265:DEBUG    Exit code= 0
+2018-09-05 12:03:04,265:DEBUG    388
+2018-09-05 12:03:04,266:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:03:04,276:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:04,322:DEBUG    Exit code= 0
+2018-09-05 12:03:04,322:DEBUG    28400
+2018-09-05 12:03:04,322:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:06,147:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10
+2018-09-05 12:03:06,168:DEBUG    Exit code= 0
+2018-09-05 12:03:06,168:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 10 (0.02 s)
+2018-09-05 12:03:06,177:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:06,232:DEBUG    Exit code= 0
+2018-09-05 12:03:06,233:DEBUG    388
+2018-09-05 12:03:06,233:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-05 12:03:06,243:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:06,289:DEBUG    Exit code= 0
+2018-09-05 12:03:06,290:DEBUG    28403
+2018-09-05 12:03:06,290:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:08,088:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 17
+2018-09-05 12:03:08,108:DEBUG    Exit code= 0
+2018-09-05 12:03:08,108:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 17 (0.02 s)
+2018-09-05 12:03:08,121:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:08,174:DEBUG    Exit code= 0
+2018-09-05 12:03:08,174:DEBUG    293
+2018-09-05 12:03:08,174:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:03:08,184:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:08,233:DEBUG    Exit code= 0
+2018-09-05 12:03:08,233:DEBUG    28410
+2018-09-05 12:03:08,233:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:10,055:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 14
+2018-09-05 12:03:10,076:DEBUG    Exit code= 0
+2018-09-05 12:03:10,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 14 (0.02 s)
+2018-09-05 12:03:10,088:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-05 12:03:10,141:DEBUG    Exit code= 0
+2018-09-05 12:03:10,141:DEBUG    338
+2018-09-05 12:03:10,142:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.05 s)
+2018-09-05 12:03:10,151:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-05 12:03:10,200:DEBUG    Exit code= 0
+2018-09-05 12:03:10,200:DEBUG    28409
+2018-09-05 12:03:10,200:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-05 12:03:11,993:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,079:DEBUG    Exit code= 0
+2018-09-05 12:03:12,079:DEBUG    -5638
+2018-09-05 12:03:12,079:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.09 s)
+2018-09-05 12:03:12,134:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,216:DEBUG    Exit code= 0
+2018-09-05 12:03:12,216:DEBUG    -12300
+2018-09-05 12:03:12,216:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.08 s)
+2018-09-05 12:03:12,226:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-05 12:03:12,273:DEBUG    Exit code= 0
+2018-09-05 12:03:12,273:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-05 12:03:12,484:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,569:DEBUG    Exit code= 0
+2018-09-05 12:03:12,569:DEBUG    -5977
+2018-09-05 12:03:12,571:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.09 s)
+2018-09-05 12:03:12,579:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,697:DEBUG    Exit code= 0
+2018-09-05 12:03:12,697:DEBUG    -5977
+2018-09-05 12:03:12,697:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:12,707:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,825:DEBUG    Exit code= 0
+2018-09-05 12:03:12,825:DEBUG    -5977
+2018-09-05 12:03:12,825:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:12,835:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:12,951:DEBUG    Exit code= 0
+2018-09-05 12:03:12,951:DEBUG    -5977
+2018-09-05 12:03:12,951:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:12,961:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,081:DEBUG    Exit code= 0
+2018-09-05 12:03:13,081:DEBUG    -6174
+2018-09-05 12:03:13,082:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,092:DEBUG    Timeout 10.0s, TTY=False. Command: echo 54 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-05 12:03:13,141:DEBUG    Exit code= 0
+2018-09-05 12:03:13,141:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 54 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-05 12:03:13,151:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,269:DEBUG    Exit code= 0
+2018-09-05 12:03:13,269:DEBUG    -6174
+2018-09-05 12:03:13,269:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,279:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,397:DEBUG    Exit code= 0
+2018-09-05 12:03:13,397:DEBUG    -6174
+2018-09-05 12:03:13,398:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,407:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,523:DEBUG    Exit code= 0
+2018-09-05 12:03:13,525:DEBUG    -6174
+2018-09-05 12:03:13,525:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,535:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,651:DEBUG    Exit code= 0
+2018-09-05 12:03:13,651:DEBUG    -6048
+2018-09-05 12:03:13,653:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,663:DEBUG    Timeout 10.0s, TTY=False. Command: echo 53 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-05 12:03:13,713:DEBUG    Exit code= 0
+2018-09-05 12:03:13,713:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 53 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.05 s)
+2018-09-05 12:03:13,721:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,839:DEBUG    Exit code= 0
+2018-09-05 12:03:13,841:DEBUG    -6048
+2018-09-05 12:03:13,841:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,851:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:13,969:DEBUG    Exit code= 0
+2018-09-05 12:03:13,969:DEBUG    -6048
+2018-09-05 12:03:13,970:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:13,977:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:14,095:DEBUG    Exit code= 0
+2018-09-05 12:03:14,096:DEBUG    -6048
+2018-09-05 12:03:14,096:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:14,105:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:14,223:DEBUG    Exit code= 0
+2018-09-05 12:03:14,223:DEBUG    -5996
+2018-09-05 12:03:14,223:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:14,234:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:14,358:DEBUG    Exit code= 0
+2018-09-05 12:03:14,358:DEBUG    -5662
+2018-09-05 12:03:14,358:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.12 s)
+2018-09-05 12:03:14,407:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p
+2018-09-05 12:03:14,487:DEBUG    Exit code= 0
+2018-09-05 12:03:14,487:DEBUG    -5996
+2018-09-05 12:03:14,487:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF FB RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 1p (0.08 s)
+2018-09-05 12:03:14,497:DEBUG    Timeout 10.0s, TTY=False. Command: fe-clearrfpalcal -c 2
+2018-09-05 12:03:23,555:DEBUG    Exit code= 0
+2018-09-05 12:03:23,555:DEBUG    add 00 00, 7, size 0, 00 00
+2018-09-05 12:03:23,556:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-clearrfpalcal -c 2 (9.06 s)
+2018-09-05 12:03:23,565:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:23,648:DEBUG    Exit code= 0
+2018-09-05 12:03:23,648:DEBUG    -6118
+2018-09-05 12:03:23,650:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:03:23,660:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-05 12:03:24,714:DEBUG    Exit code= 0
+2018-09-05 12:03:24,714:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.05 s)
+2018-09-05 12:03:24,724:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:24,914:DEBUG    Exit code= 0
+2018-09-05 12:03:24,914:DEBUG    0
+2018-09-05 12:03:24,914:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.19 s)
+2018-09-05 12:03:25,426:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:25,553:DEBUG    Exit code= 0
+2018-09-05 12:03:25,553:DEBUG    0
+2018-09-05 12:03:25,553:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.13 s)
+2018-09-05 12:03:26,065:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:26,148:DEBUG    Exit code= 0
+2018-09-05 12:03:26,148:DEBUG    0
+2018-09-05 12:03:26,150:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:03:26,660:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:26,744:DEBUG    Exit code= 0
+2018-09-05 12:03:26,744:DEBUG    0
+2018-09-05 12:03:26,744:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.08 s)
+2018-09-05 12:03:27,255:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-05 12:03:27,342:DEBUG    Exit code= 0
+2018-09-05 12:03:27,342:DEBUG    -6224
+2018-09-05 12:03:27,342:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.09 s)
+2018-09-05 12:03:41,588:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-05 12:03:41,604:DEBUG    Exit code= 0
+2018-09-05 12:03:41,604:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-05 12:03:41,618:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-05 12:03:41,664:DEBUG    Exit code= 0
+2018-09-05 12:03:41,664:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-05 12:03:41,674:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-05 12:03:41,720:DEBUG    Exit code= 0
+2018-09-05 12:03:41,720:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-05 12:03:41,733:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-05 12:03:41,779:DEBUG    Exit code= 0
+2018-09-05 12:03:41,779:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-05 12:03:41,795:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-05 12:03:41,841:DEBUG    Exit code= 0
+2018-09-05 12:03:41,842:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-05 12:03:41,851:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-05 12:03:41,894:DEBUG    Exit code= 0
+2018-09-05 12:03:41,894:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)

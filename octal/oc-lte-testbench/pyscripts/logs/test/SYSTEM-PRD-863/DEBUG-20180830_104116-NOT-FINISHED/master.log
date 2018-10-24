@@ -1,0 +1,63 @@
+2018-08-30 10:41:15,934      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmprxe3ns
+2018-08-30 10:41:16,257      INFO: tr.server: Loading services from config file
+2018-08-30 10:41:16,709      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-30 10:41:16,713      INFO: tr: ##################### SystemTestbench #####################
+2018-08-30 10:41:16,713      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-08-30 10:41:16,716      INFO: tr.SY_PRP000: TESTER STEP:
+2018-08-30 10:41:16,716      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-08-30 10:41:18,637      INFO: tr.SY_PRP000: Tester continued the test
+2018-08-30 10:41:18,651      INFO: tr: ####################### Preparation #######################
+2018-08-30 10:41:18,674      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-30 10:41:18,680      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-30 10:41:18,683      INFO: tr.artifactory: Retrieving artifact oc-lte/v1.2
+2018-08-30 10:41:20,944      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-08-30 10:41:20,947      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v1.2] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.2
+2018-08-30 10:41:21,095      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-08-30 10:41:21,131      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-08-30 10:41:22,302      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-08-30 10:41:22,344      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-30 10:41:22,348      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-30 10:41:22,351      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 10:41:47,579      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-30 10:45:25,716      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-08-30 10:45:35,835      INFO: tr: #################### RevertUpdateFinal ####################
+2018-08-30 10:45:35,841      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-08-30 10:45:35,875      INFO: tr.SY_PRP003: Setup env in progress
+2018-08-30 10:46:09,221      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-08-30 10:46:09,223      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-30 10:47:02,775      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-30 10:49:12,003      INFO: tr: ####################### UpdateSetup #######################
+2018-08-30 10:49:12,007      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-08-30 10:49:12,009      INFO: tr.CM_PRP042: Updating setup file list...
+2018-08-30 10:49:24,657      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-08-30 10:49:24,663      INFO: tr: ######################## LedBoard ########################
+2018-08-30 10:49:24,667      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-08-30 10:49:24,710      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-08-30 10:49:24,710      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-08-30 10:59:28,665      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-08-30 10:59:28,673      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-08-30 10:59:28,698      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-08-30 10:59:28,700      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-08-30 10:59:29,312      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-08-30 10:59:29,318      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-08-30 10:59:29,345      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-08-30 10:59:29,345      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-08-30 10:59:30,012      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-08-30 10:59:30,016      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-08-30 10:59:30,043      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-08-30 10:59:30,045      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-08-30 10:59:33,203  CRITICAL: tr: Execution interrupted
+2018-08-30 10:59:33,204  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-08-30 10:59:33,209      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-30 10:59:33,210      INFO: tr: ######################### Cleanup #########################
+2018-08-30 10:59:33,210      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-30 10:59:33,500      INFO: tr.FE_CLN001: TXs are off
+2018-08-30 10:59:33,503      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-30 10:59:33,516   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-30 10:59:33,520      INFO: tr: All sections of batch file were executed
+2018-08-30 10:59:33,555      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmprxe3ns\server

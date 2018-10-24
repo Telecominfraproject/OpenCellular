@@ -1,0 +1,71 @@
+2018-09-05 16:12:10,484      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpfysmez
+2018-09-05 16:12:10,510      INFO: tr.server: Loading services from config file
+2018-09-05 16:12:11,127      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:12:11,150      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 16:12:11,153      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate BB Scan -----------
+2018-09-05 16:12:11,157      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 16:12:11,158      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-05 16:12:11,161      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-05 16:12:11,213      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan FE ---------------
+2018-09-05 16:12:11,243      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-05 16:12:11,244      INFO: tr.CM_PRP002: Please scan the FE Unit
+2018-09-05 16:12:17,444      INFO: tr.CM_PRP002: Scanned: PRD-854-101D3;NTQ0131618
+2018-09-05 16:12:17,471      INFO: tr: ##################### BoardTestbench #####################
+2018-09-05 16:12:17,493      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-05 16:12:17,496      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:12:17,496      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-05 16:12:19,477      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:12:19,479      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:12:19,480      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-05 16:12:20,295      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:12:20,295      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 16:12:20,296      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-05 16:12:21,211      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 16:12:21,239      INFO: tr: ####################### Preparation #######################
+2018-09-05 16:12:21,262      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 16:12:21,266      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 16:12:21,269      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 16:12:28,049      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 16:12:28,049      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 16:12:28,160      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 16:12:28,161      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 16:12:28,184      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 16:12:28,282      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 16:12:34,604      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 16:12:34,756      INFO: tr: ######################## Firstboot ########################
+2018-09-05 16:12:34,782      INFO: tr.CM_PRP040: ------ [CM_PRP040] Setup tftp boot in u-boot ------
+2018-09-05 16:12:34,788      INFO: tr.CM_PRP040: U-boot access in progress
+2018-09-05 16:12:45,108      INFO: tr.CM_PRP040: U-boot setup default env in progress
+2018-09-05 16:12:55,658      INFO: tr.CM_PRP040: U-boot set setup env in progress
+2018-09-05 16:13:02,453     ERROR: tr.CM_PRP040: IOError: [Errno 2] No such file or directory: u'\\\\ravel\\Production\\Produits\\PRD-865_OCLTE_BB\\Test\\TestLogs\\MACAddr_log\\NTQ0131490.csv'
+2018-09-05 16:13:02,454     ERROR: tr.CM_PRP040: TEST FAILED
+2018-09-05 16:13:02,454  CRITICAL: tr.CM_PRP040: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-05 16:13:02,456  CRITICAL: tr: Execution interrupted
+2018-09-05 16:13:02,457  CRITICAL: tr: IOError: [Errno 2] No such file or directory: u'\\\\ravel\\Production\\Produits\\PRD-865_OCLTE_BB\\Test\\TestLogs\\MACAddr_log\\NTQ0131490.csv'
+2018-09-05 16:13:02,457      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 16:13:02,460      INFO: tr: ######################### Cleanup #########################
+2018-09-05 16:13:02,461      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 16:13:02,480   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 16:13:02,486      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 16:13:02,506   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 16:13:02,517      INFO: tr: All sections of batch file were executed
+2018-09-05 16:13:02,585      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpfysmez\server

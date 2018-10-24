@@ -1,0 +1,153 @@
+2018-09-04 15:13:02,480:DEBUG    
+
+
+2018-09-04 15:13:02,480:INFO     SERVICE INITIALIZED
+2018-09-04 15:13:11,174:DEBUG    LOG =DEBUG
+2018-09-04 15:13:11,176:DEBUG    Configuring interface
+2018-09-04 15:13:11,176:DEBUG    COM10, 115200 bps
+2018-09-04 15:13:11,177:DEBUG    Starting daemon threads
+2018-09-04 15:13:11,178:DEBUG    SUCCESS
+2018-09-04 15:13:11,178:INFO     SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.0 s)
+2018-09-04 15:13:34,210:DEBUG    sx150x 1-003e: i2c read fail: can't read
+2018-09-04 15:13:34,283:DEBUG    from 11: -5
+2018-09-04 15:13:34,288:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,292:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,296:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,299:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,303:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,306:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,311:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,315:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,318:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,322:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,325:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,329:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,334:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,336:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,339:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,345:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,348:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,351:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,355:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,359:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,364:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:34,367:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:34,371:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,473:DEBUG    sx150x 1-003e: i2c read fail: can't
+2018-09-04 15:13:37,546:DEBUG    read from 11: -5
+2018-09-04 15:13:37,551:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,558:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,563:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,568:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,572:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,578:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,582:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,586:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,592:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,596:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,601:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,604:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,609:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,614:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,617:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,621:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,625:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,630:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,634:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,637:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,644:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:37,648:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:37,651:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,095:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,098:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,101:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,107:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,111:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,115:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,118:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,122:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,128:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,131:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,134:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,138:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,144:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,148:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,151:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,154:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,160:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,163:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,167:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,170:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,174:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,178:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:39,183:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:39,186:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,476:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,480:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,483:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,486:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,490:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,493:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,497:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,500:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,503:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,509:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,513:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,516:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,519:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,523:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,528:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,530:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,535:DEBUG    sx150x 1-003f: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,539:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,543:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,546:DEBUG    sx150x 1-003e: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,551:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,553:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:40,559:DEBUG    sx150x 1-003f: i2c read fail: can't read from 11: -5
+2018-09-04 15:13:40,562:DEBUG    sx150x 1-003e: i2c read fail: can't read from 10: -5
+2018-09-04 15:13:48,630:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,644:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,650:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,655:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,663:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,671:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,677:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,765:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,767:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,772:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,775:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,778:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,780:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:48,783:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,858:DEBUG    pca953x 1-0027: faile
+2018-09-04 15:13:54,940:DEBUG    d writing register
+2018-09-04 15:13:54,946:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,950:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,953:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,956:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,957:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,961:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,964:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,969:DEBUG    pca953x 1-0027: failed writing register
+2018-09-04 15:13:54,971:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,976:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,979:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,984:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,987:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,990:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,994:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:54,999:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,003:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,006:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,010:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,016:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,020:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,025:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,028:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,032:DEBUG    pca953x 1-0025: failed writing register
+2018-09-04 15:13:55,036:DEBUG    pca953x 1-0026: failed writing register
+2018-09-04 15:13:55,039:DEBUG    pca953x 1-0026: failed writing register
+2018-09-04 15:13:55,042:DEBUG    pca953x 1-0026: failed writing register
+2018-09-04 15:13:57,548:DEBUG    pca953x 1-0026: failed writing register
+2018-09-04 15:13:57,599:DEBUG    pca953x 1-0026: failed writing register

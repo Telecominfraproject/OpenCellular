@@ -1,0 +1,7 @@
+name,eval,value,result,exec,user_id
+GLOBAL_TRANSMISSION_RUN_LENGHT,"""30 < value < 70""",None,NOT TESTED,,
+GLOBAL_UUT_UNIT_MRP,"""'PRD-863-503000FF' in value or 'PRD-863-603000FF' in value""",None,NOT TESTED,,
+GLOBAL_UUT_UNIT_SERIAL_NO,"""value""",None,NOT TESTED,,
+GLOBAL_RECEPTION_MBS,"""12 < value""",None,NOT TESTED,,
+GLOBAL_RECEPTION_RUN_LENGHT,"""30 < value < 70""",None,NOT TESTED,,
+GLOBAL_TRANSMISSION_MBS,"""8 < value""",None,NOT TESTED,,

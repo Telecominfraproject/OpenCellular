@@ -1,0 +1,24 @@
+2018-08-30 11:20:19,835:DEBUG    
+
+
+2018-08-30 11:20:19,835:INFO     SERVICE INITIALIZED
+2018-08-30 11:20:29,255:DEBUG    LOG =DEBUG
+2018-08-30 11:20:29,255:INFO     All parameters present
+2018-08-30 11:20:29,256:INFO     Connecting to instrument [USB0::0x2A8D::0x0B0B::US47520105::INSTR]
+2018-08-30 11:20:29,282:INFO     SERVICE CONFIGURATION - LOG =DEBUG (0.03 s)
+2018-08-30 11:20:29,288:DEBUG    Timeout is 10.0 seconds
+2018-08-30 11:20:29,289:INFO     Sending command: *RST
+2018-08-30 11:20:29,289:DEBUG    Waiting for operations to finish...
+2018-08-30 11:20:30,338:INFO     SERVICE HANDLING -  (1.05 s)
+2018-08-30 11:20:30,345:DEBUG    Timeout is 5.0 seconds
+2018-08-30 11:20:30,346:INFO     Sending command: :INIT:CONT ON
+2018-08-30 11:20:30,346:INFO     Sending command: :SENS:POW:RF:EATT 0
+2018-08-30 11:20:30,348:INFO     Sending command: :SENS:POW:RF:ATT 30
+2018-08-30 11:20:30,348:DEBUG    Waiting for operations to finish...
+2018-08-30 11:20:30,349:INFO     SERVICE HANDLING -  (0.0 s)
+2018-08-30 11:20:30,354:DEBUG    Timeout is 5.0 seconds
+2018-08-30 11:20:30,354:INFO     Sending command: :INIT:CONT ON
+2018-08-30 11:20:30,355:INFO     Sending command: :SENS:POW:RF:EATT 0
+2018-08-30 11:20:30,355:INFO     Sending command: :SENS:POW:RF:ATT 20
+2018-08-30 11:20:30,355:DEBUG    Waiting for operations to finish...
+2018-08-30 11:20:30,355:INFO     SERVICE HANDLING -  (0.0 s)

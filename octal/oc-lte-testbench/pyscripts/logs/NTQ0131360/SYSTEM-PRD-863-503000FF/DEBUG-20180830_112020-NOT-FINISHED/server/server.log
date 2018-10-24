@@ -1,0 +1,48 @@
+2018-08-30 11:20:19,713: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmp776otq
+2018-08-30 11:20:19,736: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,776: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,815: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,835: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,894: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,914: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:19,954: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:20,015: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:20,045: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:20,092: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-08-30 11:20:20,135: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpz8pxbn\server
+2018-08-30 11:20:29,190: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.03 s)
+2018-08-30 11:20:29,236: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM4, 115200 bps - SUCCESS (0.02 s)
+2018-08-30 11:20:29,255: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-08-30 11:20:29,256: server.service.VISAService@spectrum               : INFO    Connecting to instrument [USB0::0x2A8D::0x0B0B::US47520105::INSTR]
+2018-08-30 11:20:29,282: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.03 s)
+2018-08-30 11:20:29,289: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-08-30 11:20:30,338: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (1.05 s)
+2018-08-30 11:20:30,346: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-08-30 11:20:30,346: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-08-30 11:20:30,348: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-08-30 11:20:30,349: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.0 s)
+2018-08-30 11:20:30,354: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-08-30 11:20:30,355: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-08-30 11:20:30,355: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 20
+2018-08-30 11:20:30,355: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.0 s)
+2018-08-30 11:20:30,397: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-08-30 11:20:30,397: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (0.02 s)
+2018-08-30 11:20:40,516: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.1 s)
+2018-08-30 11:20:40,536: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-30 11:20:40,555: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-08-30 11:20:50,645: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.09 s)
+2018-08-30 11:20:50,691: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-08-30 11:20:50,813: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put etm-start-tmp.sh from support\files\ to /bin/ (0.1 s)
+2018-08-30 11:20:50,835: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.01 s)
+2018-08-30 11:20:53,036: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put wfm.tar from support\files\ to /tmp/ (2.19 s)
+2018-08-30 11:20:53,085: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-08-30 11:20:53,236: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-08-30 11:20:53,286: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-08-30 11:20:59,944: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-08-30 11:21:00,002: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-08-30 11:21:00,053: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-08-30 11:21:00,104: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-08-30 11:21:00,154: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-08-30 11:21:00,204: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)
+2018-08-30 11:21:00,223: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-08-30 11:21:00,243: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpz8pxbn\server

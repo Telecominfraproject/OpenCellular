@@ -1,0 +1,263 @@
+2018-09-05 11:42:24,496      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpajdvnk
+2018-09-05 11:42:24,638      INFO: tr.server: Loading services from config file
+2018-09-05 11:42:25,367      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 11:42:25,377      INFO: tr: ##################### SystemTestbench #####################
+2018-09-05 11:42:25,377      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-05 11:42:25,377      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-05 11:42:25,377      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-05 11:42:27,569      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-05 11:42:27,575      INFO: tr: ####################### Preparation #######################
+2018-09-05 11:42:27,581      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 11:42:27,584      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 11:42:27,584      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 11:42:34,365      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 11:42:34,367      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 11:42:34,395      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 11:42:34,398      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 11:42:34,407      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 11:42:34,454      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 11:42:35,634      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 11:42:44,732      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 11:42:44,736      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 11:42:44,740      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 11:43:58,256      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 11:44:08,423      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 11:44:18,568      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 11:44:18,572      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 11:44:18,619      INFO: tr.SY_PRP003: Setup env in progress
+2018-09-05 11:44:57,624      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-05 11:44:57,624      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 11:46:46,996      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 11:47:13,365      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 11:47:13,371      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 11:47:13,374      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 11:47:25,121      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 11:47:25,125      INFO: tr: ######################## LedBoard ########################
+2018-09-05 11:47:25,131      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-05 11:47:25,176      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-05 11:47:25,176      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-05 11:49:43,584      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-05 11:49:43,591      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-05 11:49:43,630      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-05 11:49:43,631      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-05 11:49:45,112      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-05 11:49:45,119      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-05 11:49:45,157      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-05 11:49:45,158      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-05 11:49:46,592      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-05 11:49:46,598      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-05 11:49:46,628      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-05 11:49:46,630      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-05 11:49:48,059      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-05 11:49:48,069      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 11:49:48,075      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 11:49:48,516      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 11:49:48,858      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 11:49:49,191      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 11:49:52,515      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 11:49:52,568      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 11:49:52,578     ERROR: tr.FE_TSC016: AssertionError: [fe-gethdrev] returned exit code 127, expected 0
+2018-09-05 11:49:52,579     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-05 11:49:52,581      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 11:49:52,581      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 11:49:52,582      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 11:49:52,582      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 11:49:52,585      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 11:49:52,585      INFO: tr: ###################### BBPreparation ######################
+2018-09-05 11:49:52,588      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-05 11:49:53,424      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-05 11:49:55,036      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-05 11:49:59,038      INFO: tr: ################### PrepareCalibration ###################
+2018-09-05 11:49:59,039      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-05 11:49:59,045      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-05 11:50:12,645      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-05 11:50:12,648      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-05 11:50:28,142      INFO: tr.BB_TSC020: Frequency error too high (-3080 Hz), calibrating OCXO
+2018-09-05 11:50:28,292      INFO: tr.BB_TSC020.ocxo: Calibrating OCXO Freq
+2018-09-05 11:50:37,134      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([5546]) < 50 : FAIL
+2018-09-05 11:50:37,140     ERROR: tr.BB_TSC020: AssertionError: BB_TSC020_OCXO_FREQ_ERROR: abs([5546]) < 50 : FAIL
+2018-09-05 11:50:37,141     ERROR: tr.BB_TSC020: TEST FAILED
+2018-09-05 11:50:37,142      INFO: tr: #################### RFPALCalibration ####################
+2018-09-05 11:50:37,144      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-05 11:50:50,924      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=21.0, 	in_pwr=-17.22, 	fb=-48.26
+2018-09-05 11:50:53,009   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-40.75
+2018-09-05 11:50:54,947   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:50:56,895   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:50:58,898   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:00,880   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:02,819   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:04,776   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:06,694   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:08,644   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:10,578   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:12,780      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-17.62, 	out_pwr=-30.34, 	fb=-33.42
+2018-09-05 11:51:14,617      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=15.25, 	in_pwr=-17.70, 	out_pwr=-30.37, 	fb=-17.53
+2018-09-05 11:51:37,023      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-0.06999] < -45 : FAIL
+2018-09-05 11:51:37,030     ERROR: tr.FE_TSC120: AssertionError: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-0.06999] < -45 : FAIL
+2018-09-05 11:51:37,032     ERROR: tr.FE_TSC120: TEST FAILED
+2018-09-05 11:51:37,032      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-05 11:51:53,006      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=22.0, 	in_pwr=-16.50, 	fb=-49.80
+2018-09-05 11:51:55,069   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-40.75
+2018-09-05 11:51:57,023   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:51:59,009   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:00,961   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:02,953   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:04,917   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:06,900   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:08,845   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:10,809   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:12,766   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:14,940      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-16.49, 	out_pwr=-30.24, 	fb=-34.64
+2018-09-05 11:52:16,631      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=15.0, 	in_pwr=-16.50, 	out_pwr=-30.25, 	fb=-17.53
+2018-09-05 11:52:39,618      INFO: tr.criteria: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-0.159] < -45 : FAIL
+2018-09-05 11:52:39,621     ERROR: tr.FE_TSC220: AssertionError: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-0.159] < -45 : FAIL
+2018-09-05 11:52:39,622     ERROR: tr.FE_TSC220: TEST FAILED
+2018-09-05 11:52:39,624      INFO: tr: #################### SystemCalib20MHz ####################
+2018-09-05 11:52:39,625      INFO: tr.SY_TSC230: -------------- [SY_TSC230] TX2 20 MHz --------------
+2018-09-05 11:52:42,648      INFO: tr.SY_TSC230: Calibrating TX 2 w/ BW of 20 MHz
+2018-09-05 11:52:45,280      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1815 MHz
+2018-09-05 11:52:46,823      INFO: tr.SY_TSC230: [BB] f=1815, 	bb_attn=23.0, 	in_pwr=-17.26, 	fb=-31.72
+2018-09-05 11:52:48,920   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-40.75
+2018-09-05 11:52:50,854   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:52,786   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:54,746   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:56,714   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:52:58,654   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:00,619   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:02,578   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:04,552   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:06,506   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:08,719      INFO: tr.SY_TSC230: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-17.58, 	out_pwr=-30.28, 	fb=-17.37
+2018-09-05 11:53:09,713      INFO: tr.SY_TSC230: [FB] f=1815, 	fb_attn=14, 	in_pwr=-17.56, 	out_pwr=-30.28, 	fb=-17.43
+2018-09-05 11:53:09,713      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1825 MHz
+2018-09-05 11:53:11,510      INFO: tr.SY_TSC230: [BB] f=1825, 	bb_attn=22.0, 	in_pwr=-16.81, 	fb=-16.34
+2018-09-05 11:53:13,631   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.25
+2018-09-05 11:53:15,595   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:17,565   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:19,532   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:21,497   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:23,450   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:25,417   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:27,375   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:29,323   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:31,270   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:33,444      INFO: tr.SY_TSC230: [TX] f=1825, 	tx_attn=2.5, 	in_pwr=-16.85, 	out_pwr=-30.40, 	fb=-16.46
+2018-09-05 11:53:34,976      INFO: tr.SY_TSC230: [FB] f=1825, 	fb_attn=15.0, 	in_pwr=-16.81, 	out_pwr=-30.37, 	fb=-17.46
+2018-09-05 11:53:34,976      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1835 MHz
+2018-09-05 11:53:36,770      INFO: tr.SY_TSC230: [BB] f=1835, 	bb_attn=22.0, 	in_pwr=-17.29, 	fb=-18.35
+2018-09-05 11:53:38,868   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.25
+2018-09-05 11:53:40,841   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:42,803   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:44,750   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:46,717   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:48,674   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:50,630   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:53:52,585   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:54,546   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:56,506   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:53:58,713      INFO: tr.SY_TSC230: [TX] f=1835, 	tx_attn=2.5, 	in_pwr=-17.28, 	out_pwr=-30.37, 	fb=-18.26
+2018-09-05 11:54:00,750      INFO: tr.SY_TSC230: [FB] f=1835, 	fb_attn=14.25, 	in_pwr=-17.28, 	out_pwr=-30.34, 	fb=-17.40
+2018-09-05 11:54:00,750      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1845 MHz
+2018-09-05 11:54:01,976      INFO: tr.SY_TSC230: [BB] f=1845, 	bb_attn=23.0, 	in_pwr=-17.24, 	fb=-17.73
+2018-09-05 11:54:04,042   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.00
+2018-09-05 11:54:05,970   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:07,953   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:09,924   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:11,890   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:13,838   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:15,796   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:17,749   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:19,707   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:21,674   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:23,858      INFO: tr.SY_TSC230: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-17.29, 	out_pwr=-30.30, 	fb=-17.94
+2018-09-05 11:54:25,413      INFO: tr.SY_TSC230: [FB] f=1845, 	fb_attn=13.75, 	in_pwr=-17.25, 	out_pwr=-30.30, 	fb=-17.45
+2018-09-05 11:54:25,414      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1855 MHz
+2018-09-05 11:54:27,198      INFO: tr.SY_TSC230: [BB] f=1855, 	bb_attn=23.0, 	in_pwr=-17.08, 	fb=-17.54
+2018-09-05 11:54:29,296   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.00
+2018-09-05 11:54:31,262   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:33,221   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:35,200   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:37,148   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:39,124   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:41,089   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:43,048   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:54:45,006   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:54:46,969   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:54:49,124      INFO: tr.SY_TSC230: [TX] f=1855, 	tx_attn=2.5, 	in_pwr=-17.07, 	out_pwr=-30.18, 	fb=-17.35
+2018-09-05 11:54:49,973      INFO: tr.SY_TSC230: [FB] f=1855, 	fb_attn=13.75, 	in_pwr=-17.08, 	out_pwr=-30.18, 	fb=-17.41
+2018-09-05 11:54:49,973      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1865 MHz
+2018-09-05 11:54:51,769      INFO: tr.SY_TSC230: [BB] f=1865, 	bb_attn=23.0, 	in_pwr=-16.74, 	fb=-17.19
+2018-09-05 11:54:53,877   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.00
+2018-09-05 11:54:55,825   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:54:57,785   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:54:59,755   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:01,707   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:03,668   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:05,631   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:07,628   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:09,592   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:11,549   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:13,740      INFO: tr.SY_TSC230: [TX] f=1865, 	tx_attn=2.5, 	in_pwr=-16.79, 	out_pwr=-30.04, 	fb=-17.29
+2018-09-05 11:55:15,167      INFO: tr.SY_TSC230: [FB] f=1865, 	fb_attn=14.0, 	in_pwr=-16.76, 	out_pwr=-30.05, 	fb=-17.46
+2018-09-05 11:55:15,167      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1870 MHz
+2018-09-05 11:55:16,963      INFO: tr.SY_TSC230: [BB] f=1870, 	bb_attn=23.0, 	in_pwr=-16.74, 	fb=-17.53
+2018-09-05 11:55:19,055   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.00
+2018-09-05 11:55:21,017   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:22,976   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:24,944   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:26,898   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:28,813   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:30,739   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:32,713   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:34,690   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:36,648   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=-53.75
+2018-09-05 11:55:38,871      INFO: tr.SY_TSC230: [TX] f=1870, 	tx_attn=2.5, 	in_pwr=-16.72, 	out_pwr=-30.11, 	fb=-17.36
+2018-09-05 11:55:39,855      INFO: tr.SY_TSC230: [FB] f=1870, 	fb_attn=14.0, 	in_pwr=-16.72, 	out_pwr=-30.11, 	fb=-17.40
+2018-09-05 11:55:40,075      INFO: tr.SY_TSC130: -------------- [SY_TSC130] TX1 20 MHz --------------
+2018-09-05 11:55:52,101      INFO: tr.SY_TSC130: Calibrating TX 1 w/ BW of 20 MHz
+2018-09-05 11:55:54,688      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1815 MHz
+2018-09-05 11:55:55,907      INFO: tr.SY_TSC130: [BB] f=1815, 	bb_attn=20, 	in_pwr=-16.54, 	fb=-29.54
+2018-09-05 11:55:58,013   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-40.75
+2018-09-05 11:55:59,953   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:01,920   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:03,885   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:05,845   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:07,822   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:09,786   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:11,749   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:13,703   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:15,663   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:17,848      INFO: tr.SY_TSC130: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-17.12, 	out_pwr=-30.38, 	fb=-15.84
+2018-09-05 11:56:19,388      INFO: tr.SY_TSC130: [FB] f=1815, 	fb_attn=15.75, 	in_pwr=-17.12, 	out_pwr=-30.38, 	fb=-17.55
+2018-09-05 11:56:19,388      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1825 MHz
+2018-09-05 11:56:20,230      INFO: tr.SY_TSC130: [BB] f=1825, 	bb_attn=21, 	in_pwr=-17.43, 	fb=-17.77
+2018-09-05 11:56:22,326   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-53.25
+2018-09-05 11:56:24,283   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:26,243   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:28,216   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:30,161   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.00
+2018-09-05 11:56:32,101   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:34,049   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:36,009   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:37,970   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:39,927   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=-54.25
+2018-09-05 11:56:42,125      INFO: tr.SY_TSC130: [TX] f=1825, 	tx_attn=2.5, 	in_pwr=-17.47, 	out_pwr=-30.43, 	fb=-17.97
+2018-09-05 11:56:43,792      INFO: tr.SY_TSC130: [FB] f=1825, 	fb_attn=15.25, 	in_pwr=-17.45, 	out_pwr=-30.41, 	fb=-17.51
+2018-09-05 11:56:43,792      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1835 MHz
+2018-09-05 11:56:45,457      INFO: tr.SY_TSC130: [BB] f=1835, 	bb_attn=21.0, 	in_pwr=-17.28, 	fb=-17.35
+2018-09-05 11:56:45,732  CRITICAL: tr: Execution interrupted
+2018-09-05 11:56:45,733  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 11:56:45,736      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 11:56:45,737      INFO: tr: ######################### Cleanup #########################
+2018-09-05 11:56:45,739      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 11:56:46,045      INFO: tr.FE_CLN001: TXs are off
+2018-09-05 11:56:46,048      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 11:56:46,065   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 11:56:46,069      INFO: tr: All sections of batch file were executed
+2018-09-05 11:56:46,112      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpajdvnk\server

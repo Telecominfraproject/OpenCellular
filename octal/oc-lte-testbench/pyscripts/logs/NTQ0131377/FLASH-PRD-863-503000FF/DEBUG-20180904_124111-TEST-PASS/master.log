@@ -1,0 +1,77 @@
+2018-09-04 12:41:10,687      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmphycpg_
+2018-09-04 12:41:11,022      INFO: tr.server: Loading services from config file
+2018-09-04 12:41:11,346      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 12:41:11,348      INFO: tr: ####################### Preparation #######################
+2018-09-04 12:41:11,349      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 12:41:11,351      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 12:41:11,351      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 12:41:18,130      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 12:41:18,134      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 12:41:18,196      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 12:41:18,197      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 12:41:18,203      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 12:41:18,207      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 12:41:18,209      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 12:41:28,325      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 12:41:28,395      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 12:41:38,549      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 12:41:38,559      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 12:41:38,602      INFO: tr.SY_PRP003: Setup env in progress
+2018-09-04 12:42:17,039      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-04 12:42:17,039      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 12:44:10,226      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 12:44:36,819      INFO: tr: ######################## FlashApp ########################
+2018-09-04 12:44:36,852      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-09-04 12:44:36,861      INFO: tr.CM_CLN002: Clearing mnt/app content
+2018-09-04 12:44:36,894      INFO: tr.CM_CLN002: Updating final file list...
+2018-09-04 12:44:36,894      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-09-04 12:44:47,618      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-09-04 12:53:47,634      INFO: tr.CM_CLN002: Updating u-boot
+2018-09-04 12:53:52,996      INFO: tr.CM_CLN002: Transfering data-model.xml to mnt/app/
+2018-09-04 12:53:53,434      INFO: tr.CM_CLN002: Transfering Dimark_Client.tgz to mnt/app/
+2018-09-04 12:53:58,372      INFO: tr.CM_CLN002: Transfering dsp.tgz to mnt/app/
+2018-09-04 12:53:59,009      INFO: tr.CM_CLN002: Transfering e2eenv.txt to mnt/app/
+2018-09-04 12:53:59,111      INFO: tr.CM_CLN002: Transfering LFMSOFT_OCT_D.tgz to mnt/app/
+2018-09-04 12:54:02,648      INFO: tr.CM_CLN002: Transfering lsmD.gz to mnt/app/
+2018-09-04 12:54:06,377      INFO: tr.CM_CLN002: Transfering rc_post.local to mnt/app/
+2018-09-04 12:54:06,477      INFO: tr.CM_CLN002: Transfering rc_pre.local to mnt/app/
+2018-09-04 12:54:06,628      INFO: tr.CM_CLN002: Transfering rffe.tgz to mnt/app/
+2018-09-04 12:54:06,990      INFO: tr.CM_CLN002: Transfering startup.cfg to mnt/app/
+2018-09-04 12:54:07,084      INFO: tr.CM_CLN002: Transfering tftpenv.txt to mnt/app/
+2018-09-04 12:54:07,163      INFO: tr.CM_CLN002: Transfering update_rffe.sh to mnt/app/
+2018-09-04 12:54:07,372      INFO: tr.CM_CLN002: Final mnt/app content: 
+
+-rw-r--r--    1 root     root       3892930 Jan  2 00:09 Dimark_Client.tgz
+-rw-r--r--    1 root     root       2759575 Jan  2 00:10 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root        635321 Jan  2 00:09 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:09 dsp.tgz
+-rw-r--r--    1 root     root           985 Jan  2 00:09 e2eenv.txt
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2901563 Jan  2 00:10 lsmD.gz
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:10 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:10 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:10 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:10 startup.cfg
+-rw-r--r--    1 root     root          1747 Jan  2 00:10 tftpenv.txt
+-rw-r--r--    1 root     root          2399 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:10 update_rffe.sh
+
+2018-09-04 12:54:07,375      INFO: tr: ####################### UpdateFinal #######################
+2018-09-04 12:54:07,378      INFO: tr.CM_CLN003: - [CM_CLN003] Update final env if was before test -
+2018-09-04 12:54:07,378      INFO: tr.CM_CLN003: Setup final env in progress
+2018-09-04 12:54:07,380      INFO: tr.CM_CLN003: Clearing all unessential env vars and setup final env
+2018-09-04 12:58:08,161      INFO: tr.SY_TSC050: ------- [SY_TSC050] Validate boot from flash -------
+2018-09-04 12:58:09,214      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-04 12:58:09,216      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 12:59:32,617      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 13:01:53,578      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 13:01:53,585      INFO: tr: ######################### Cleanup #########################
+2018-09-04 13:01:53,592      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 13:01:54,006      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 13:01:54,013      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 13:01:54,030   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 13:01:54,036      INFO: tr: All sections of batch file were executed
+2018-09-04 13:01:54,065      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmphycpg_\server

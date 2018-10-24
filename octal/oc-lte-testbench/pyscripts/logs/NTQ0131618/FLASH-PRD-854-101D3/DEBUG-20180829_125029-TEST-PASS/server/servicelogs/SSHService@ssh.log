@@ -1,0 +1,1433 @@
+2018-08-29 12:50:28,997:DEBUG    
+
+
+2018-08-29 12:50:28,997:INFO     SERVICE INITIALIZED
+2018-08-29 12:50:30,009:DEBUG    LOG =DEBUG
+2018-08-29 12:50:30,009:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:30,009:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:32,012:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:32,012:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:32,013:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:32,013:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:33,019:DEBUG    LOG =DEBUG
+2018-08-29 12:50:33,019:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:33,019:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:35,022:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:35,022:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:35,022:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:35,023:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:36,028:DEBUG    LOG =DEBUG
+2018-08-29 12:50:36,028:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:36,028:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:38,028:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:38,029:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:38,029:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:38,030:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:39,039:DEBUG    LOG =DEBUG
+2018-08-29 12:50:39,039:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:39,039:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:41,039:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:41,040:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:41,040:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:41,042:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:42,052:DEBUG    LOG =DEBUG
+2018-08-29 12:50:42,052:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:42,052:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:44,055:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:44,055:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:44,055:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:44,059:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:45,075:DEBUG    LOG =DEBUG
+2018-08-29 12:50:45,075:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:45,075:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:47,075:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:47,076:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:47,078:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:47,081:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:48,095:DEBUG    LOG =DEBUG
+2018-08-29 12:50:48,095:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:48,095:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:50,095:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:50,095:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:50,096:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:50,098:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:51,105:DEBUG    LOG =DEBUG
+2018-08-29 12:50:51,105:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:51,105:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:53,107:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:53,108:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:53,108:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:53,109:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:54,117:DEBUG    LOG =DEBUG
+2018-08-29 12:50:54,117:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:54,117:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:56,118:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:56,118:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:56,118:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:56,121:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:57,131:DEBUG    LOG =DEBUG
+2018-08-29 12:50:57,132:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:50:57,132:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:50:59,132:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:50:59,134:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:50:59,134:WARNING  Client error [timed out timed out]
+2018-08-29 12:50:59,137:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: timed out timed out
+
+2018-08-29 12:51:00,148:DEBUG    LOG =DEBUG
+2018-08-29 12:51:00,148:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:51:00,148:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:51:01,161:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:51:01,163:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:01,163:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-08-29 12:51:01,165:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:02,174:DEBUG    LOG =DEBUG
+2018-08-29 12:51:02,174:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:51:02,174:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:51:03,176:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:51:03,176:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:03,177:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-08-29 12:51:03,177:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:04,183:DEBUG    LOG =DEBUG
+2018-08-29 12:51:04,183:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:51:04,183:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:51:05,196:DEBUG    Unexpected error occured while handling request
+2018-08-29 12:51:05,196:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:05,197:WARNING  Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-08-29 12:51:05,197:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 41, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\ssh_service.py", line 52, in connect
+    raise ServiceError("%s %s" % (str(e), e.message))
+ServiceError: [Errno None] Unable to connect to port 22 on 10.102.81.61 
+
+2018-08-29 12:51:06,203:DEBUG    LOG =DEBUG
+2018-08-29 12:51:06,203:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-08-29 12:51:06,203:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-08-29 12:51:16,799:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.6 s)
+2018-08-29 12:51:16,815:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:16,831:DEBUG    Exit code= 0
+2018-08-29 12:51:16,831:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:16,831:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:51:18,844:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:18,858:DEBUG    Exit code= 0
+2018-08-29 12:51:18,859:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:18,859:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:51:20,868:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:20,878:DEBUG    Exit code= 0
+2018-08-29 12:51:20,880:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:20,880:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:22,884:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:22,898:DEBUG    Exit code= 0
+2018-08-29 12:51:22,898:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:22,898:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:24,903:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:24,914:DEBUG    Exit code= 0
+2018-08-29 12:51:24,914:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:24,914:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:26,924:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:26,937:DEBUG    Exit code= 0
+2018-08-29 12:51:26,937:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:26,937:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:28,947:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:28,960:DEBUG    Exit code= 0
+2018-08-29 12:51:28,960:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:28,960:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:30,970:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:30,983:DEBUG    Exit code= 0
+2018-08-29 12:51:30,983:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:30,984:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:32,992:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:33,005:DEBUG    Exit code= 0
+2018-08-29 12:51:33,005:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:33,005:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:35,015:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:35,029:DEBUG    Exit code= 0
+2018-08-29 12:51:35,029:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:35,029:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:37,038:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:37,051:DEBUG    Exit code= 0
+2018-08-29 12:51:37,052:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:37,052:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:39,059:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:39,072:DEBUG    Exit code= 0
+2018-08-29 12:51:39,073:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:39,073:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:41,086:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:41,099:DEBUG    Exit code= 0
+2018-08-29 12:51:41,099:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:41,099:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:43,108:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:43,122:DEBUG    Exit code= 0
+2018-08-29 12:51:43,122:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:43,124:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:51:45,134:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:45,147:DEBUG    Exit code= 0
+2018-08-29 12:51:45,148:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:45,148:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:47,154:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:47,167:DEBUG    Exit code= 0
+2018-08-29 12:51:47,167:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:47,167:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:49,177:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:49,190:DEBUG    Exit code= 0
+2018-08-29 12:51:49,190:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:49,190:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:51,198:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:51,211:DEBUG    Exit code= 0
+2018-08-29 12:51:51,213:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:51,213:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:53,223:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:53,237:DEBUG    Exit code= 0
+2018-08-29 12:51:53,239:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:53,239:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:51:55,247:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:55,260:DEBUG    Exit code= 0
+2018-08-29 12:51:55,260:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:55,260:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:57,269:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:57,282:DEBUG    Exit code= 0
+2018-08-29 12:51:57,282:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:57,282:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:51:59,295:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:51:59,318:DEBUG    Exit code= 0
+2018-08-29 12:51:59,318:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:51:59,319:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:01,332:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:01,344:DEBUG    Exit code= 0
+2018-08-29 12:52:01,344:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:52:01,345:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:03,355:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:03,371:DEBUG    Exit code= 0
+2018-08-29 12:52:03,371:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:52:03,371:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:05,385:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:05,401:DEBUG    Exit code= 0
+2018-08-29 12:52:05,401:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:52:05,401:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:07,411:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:07,424:DEBUG    Exit code= 0
+2018-08-29 12:52:07,424:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+2018-08-29 12:52:07,426:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:09,438:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:09,453:DEBUG    Exit code= 0
+2018-08-29 12:52:09,453:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:09,453:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:11,476:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:11,489:DEBUG    Exit code= 0
+2018-08-29 12:52:11,490:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:11,490:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:13,500:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:13,519:DEBUG    Exit code= 0
+2018-08-29 12:52:13,519:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:13,519:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:15,529:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:15,545:DEBUG    Exit code= 0
+2018-08-29 12:52:15,545:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:15,546:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:17,555:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:17,571:DEBUG    Exit code= 0
+2018-08-29 12:52:17,571:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:17,572:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:19,584:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:19,601:DEBUG    Exit code= 0
+2018-08-29 12:52:19,601:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:19,601:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:21,612:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:21,630:DEBUG    Exit code= 0
+2018-08-29 12:52:21,630:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:21,630:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:23,640:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:23,651:DEBUG    Exit code= 0
+2018-08-29 12:52:23,653:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:23,653:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:25,664:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:25,677:DEBUG    Exit code= 0
+2018-08-29 12:52:25,677:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:25,677:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:27,687:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:27,700:DEBUG    Exit code= 0
+2018-08-29 12:52:27,700:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:27,700:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:29,711:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:29,726:DEBUG    Exit code= 0
+2018-08-29 12:52:29,727:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:29,727:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:31,737:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:31,753:DEBUG    Exit code= 0
+2018-08-29 12:52:31,753:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:31,753:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:33,763:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:33,778:DEBUG    Exit code= 0
+2018-08-29 12:52:33,778:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:33,779:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:35,788:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:35,802:DEBUG    Exit code= 0
+2018-08-29 12:52:35,802:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:35,802:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:37,812:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:37,825:DEBUG    Exit code= 0
+2018-08-29 12:52:37,825:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:37,826:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:39,835:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:39,848:DEBUG    Exit code= 0
+2018-08-29 12:52:39,848:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:39,849:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:41,861:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:41,877:DEBUG    Exit code= 0
+2018-08-29 12:52:41,877:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:41,877:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:43,888:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:43,904:DEBUG    Exit code= 0
+2018-08-29 12:52:43,904:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:43,904:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:45,917:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:45,928:DEBUG    Exit code= 0
+2018-08-29 12:52:45,928:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:45,928:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:47,937:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:47,947:DEBUG    Exit code= 0
+2018-08-29 12:52:47,947:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:47,948:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:49,956:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:49,970:DEBUG    Exit code= 0
+2018-08-29 12:52:49,970:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:49,970:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:51,979:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:51,990:DEBUG    Exit code= 0
+2018-08-29 12:52:51,992:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:51,992:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:54,000:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:54,015:DEBUG    Exit code= 0
+2018-08-29 12:52:54,015:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:54,015:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:52:56,025:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:56,038:DEBUG    Exit code= 0
+2018-08-29 12:52:56,038:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:56,038:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:52:58,048:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:52:58,062:DEBUG    Exit code= 0
+2018-08-29 12:52:58,062:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:52:58,062:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:00,072:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:00,085:DEBUG    Exit code= 0
+2018-08-29 12:53:00,085:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:00,085:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:02,095:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:02,111:DEBUG    Exit code= 0
+2018-08-29 12:53:02,112:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:02,112:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:04,122:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:04,137:DEBUG    Exit code= 0
+2018-08-29 12:53:04,138:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:04,138:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:06,148:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:06,164:DEBUG    Exit code= 0
+2018-08-29 12:53:06,165:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:06,165:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:08,177:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:08,191:DEBUG    Exit code= 0
+2018-08-29 12:53:08,191:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:08,193:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:10,201:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:10,217:DEBUG    Exit code= 0
+2018-08-29 12:53:10,217:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:10,217:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:12,229:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:12,244:DEBUG    Exit code= 0
+2018-08-29 12:53:12,244:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:12,244:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:14,255:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:14,266:DEBUG    Exit code= 0
+2018-08-29 12:53:14,266:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:14,266:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:16,278:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:16,292:DEBUG    Exit code= 0
+2018-08-29 12:53:16,292:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:16,292:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:18,302:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:18,316:DEBUG    Exit code= 0
+2018-08-29 12:53:18,318:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:18,318:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:20,328:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:20,342:DEBUG    Exit code= 0
+2018-08-29 12:53:20,342:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:20,342:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:22,354:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:22,369:DEBUG    Exit code= 0
+2018-08-29 12:53:22,369:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:22,371:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-08-29 12:53:24,381:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:24,394:DEBUG    Exit code= 0
+2018-08-29 12:53:24,394:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:24,395:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:26,404:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:26,414:DEBUG    Exit code= 0
+2018-08-29 12:53:26,414:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:26,414:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:28,420:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:28,430:DEBUG    Exit code= 0
+2018-08-29 12:53:28,430:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:28,430:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:30,436:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:30,447:DEBUG    Exit code= 0
+2018-08-29 12:53:30,447:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+2018-08-29 12:53:30,447:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:32,451:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-08-29 12:53:32,463:DEBUG    Exit code= 0
+2018-08-29 12:53:32,463:DEBUG    Jan  1 00:00:19 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1363]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1364]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1364]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1402]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 00:01:01 LSM cron.info crond[1402]: crond: USER root pid 2986 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1402]: crond: USER root pid 5242 cmd /usr/bin/tempcheck.sh
+Jan  2 08:02:23 LSM daemon.info init: starting pid 5625, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+2018-08-29 12:53:32,463:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-08-29 12:53:42,588:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-08-29 12:53:42,615:DEBUG    Exit code= 0
+2018-08-29 12:53:42,615:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-08-29 12:53:42,615:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-08-29 12:53:42,628:DEBUG    Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \;
+2018-08-29 12:53:44,825:DEBUG    Exit code= 0
+2018-08-29 12:53:44,825:DEBUG    (STDERR)rm: can't remove '.' or '..'
+2018-08-29 12:53:44,825:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (2.2 s)
+2018-08-29 12:53:45,447:DEBUG    Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz
+2018-08-29 12:56:08,634:DEBUG    Exit code= 0
+2018-08-29 12:56:08,634:DEBUG    Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os0' ... 
+OK.
+Updating file '/tmp/lsm_os.gz' to device '/dev/flash_os1' ... 
+OK.
+2018-08-29 12:56:08,634:INFO     SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (143.19 s)
+2018-08-29 12:56:15,088:DEBUG    Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz
+2018-08-29 13:05:37,424:DEBUG    Exit code= 0
+2018-08-29 13:05:37,424:DEBUG    Updating file '/tmp/lsm_rd.gz' to device '/dev/flash_rd0' ... 
+OK.
+Updating file '/tmp/lsm_rd.gz' to device '/dev/flash_rd1' ... 
+OK.
+2018-08-29 13:05:37,424:INFO     SERVICE HANDLING - Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz (562.34 s)
+2018-08-29 13:05:37,592:DEBUG    Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin
+2018-08-29 13:05:43,924:DEBUG    Exit code= 0
+2018-08-29 13:05:43,924:DEBUG    Updating Normal u-boot...
+2018-08-29 13:05:43,924:DEBUG    (STDERR)2+1 records in
+2+1 records out
+757024 bytes (739.3KB) copied, 6.278461 seconds, 117.7KB/s
+2018-08-29 13:05:43,924:INFO     SERVICE HANDLING - Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin (6.33 s)
+2018-08-29 13:05:58,421:DEBUG    Timeout 10.0s, TTY=False. Command: ls -l /mnt/app
+2018-08-29 13:05:58,433:DEBUG    Exit code= 0
+2018-08-29 13:05:58,433:DEBUG    -rw-r--r--    1 root     root       3892930 Jan  2 00:14 Dimark_Client.tgz
+-rw-r--r--    1 root     root       2759575 Jan  2 00:14 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root        635321 Jan  2 00:14 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:14 dsp.tgz
+-rw-r--r--    1 root     root           985 Jan  2 00:14 e2eenv.txt
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2901563 Jan  2 00:14 lsmD.gz
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:14 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:14 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:14 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:14 startup.cfg
+-rw-r--r--    1 root     root          1747 Jan  2 00:14 tftpenv.txt
+-rw-r--r--    1 root     root          1862 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:14 update_rffe.sh
+2018-08-29 13:05:58,433:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls -l /mnt/app (0.01 s)
+2018-08-29 13:05:58,444:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv
+2018-08-29 13:05:58,506:DEBUG    Exit code= 0
+2018-08-29 13:05:58,506:DEBUG    CRC check OK(0x970d3133)
+
+atten1=18
+atten2=18
+autoload=n
+baudrate_uart1=19200
+bf=bootoct $(flash_unused_addr) forceboot numcores=$(numcores)
+boardname=zen
+bootby=tftp
+bootcbyflash=gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcbytftp=tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;
+bootcmd=run i2cinit; run namedalloc; run bootcby${bootby}
+bootdelay=0
+burn_app=erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)
+bw=20
+cfgloadby=tftp
+dhcpenable=0
+dnsip=8.8.8.8
+enable_zen5_gpio18=1
+enbctrlrf=1
+ethact=octeth0
+ethaddr=00:D0:CC:20:14:06
+gain1=25
+gain2=25
+gatewayip=10.102.81.1
+httpdenable=1
+i2cinit=i2c dev 0; i2c probe; i2c dev 1; i2c probe
+ipaddr=10.102.81.61
+linux_cf=fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)
+loadaddr=0x20000000
+logdispen=2
+ls=fatls ide 0
+mk_ubootenv=1
+mode=pltd
+mode_test=dl
+namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+netmask=255.255.255.0
+numcores=4
+ovrdrfdsp=1
+partition=nor0,5
+pseudowww=1
+ptp1ppsen=0
+ptpenable=0
+pwdb_in_flash=1
+rftarget=ad9362
+rxfreq=1730
+serverip=10.102.81.50
+startapp=0
+swloadby=tftp
+syncby=gps
+target=zen
+tcxo=pwm
+tip=1
+txfreq=1825
+txpower=30
+ucliovrd=0
+web_pass=456b7016a916a4b178dd72b947c152b7
+web_pass1=a81be4e9b20632860d20a64c054c4150
+web_user=admin
+web_user1=user
+webuilog=1
+pwmreglow=37376
+pwmreghigh=24744
+named_block_size=0x2800000
+mtdids=nor0=octeon_nor0
+named_block_addr=0x30800000
+2018-08-29 13:05:58,506:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv (0.06 s)
+2018-08-29 13:05:58,512:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376'
+2018-08-29 13:06:00,767:DEBUG    Exit code= 0
+2018-08-29 13:06:00,767:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.26 s)
+2018-08-29 13:06:00,773:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25'
+2018-08-29 13:06:02,997:DEBUG    Exit code= 0
+2018-08-29 13:06:02,997:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25' (2.22 s)
+2018-08-29 13:06:03,003:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000'
+2018-08-29 13:06:05,267:DEBUG    Exit code= 0
+2018-08-29 13:06:05,267:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000' (2.26 s)
+2018-08-29 13:06:05,273:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61'
+2018-08-29 13:06:07,517:DEBUG    Exit code= 0
+2018-08-29 13:06:07,517:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61' (2.24 s)
+2018-08-29 13:06:07,523:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0'
+2018-08-29 13:06:09,757:DEBUG    Exit code= 0
+2018-08-29 13:06:09,757:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0' (2.23 s)
+2018-08-29 13:06:09,763:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n'
+2018-08-29 13:06:12,046:DEBUG    Exit code= 0
+2018-08-29 13:06:12,046:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n' (2.28 s)
+2018-08-29 13:06:12,052:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps'
+2018-08-29 13:06:14,338:DEBUG    Exit code= 0
+2018-08-29 13:06:14,338:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps' (2.29 s)
+2018-08-29 13:06:14,344:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen'
+2018-08-29 13:06:16,586:DEBUG    Exit code= 0
+2018-08-29 13:06:16,586:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen' (2.24 s)
+2018-08-29 13:06:16,592:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000'
+2018-08-29 13:06:18,828:DEBUG    Exit code= 0
+2018-08-29 13:06:18,828:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000' (2.24 s)
+2018-08-29 13:06:18,832:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '1'
+2018-08-29 13:06:21,078:DEBUG    Exit code= 0
+2018-08-29 13:06:21,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '1' (2.25 s)
+2018-08-29 13:06:21,084:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp'
+2018-08-29 13:06:23,308:DEBUG    Exit code= 0
+2018-08-29 13:06:23,308:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp' (2.22 s)
+2018-08-29 13:06:23,312:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2'
+2018-08-29 13:06:25,588:DEBUG    Exit code= 0
+2018-08-29 13:06:25,588:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2' (2.28 s)
+2018-08-29 13:06:25,592:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0'
+2018-08-29 13:06:27,858:DEBUG    Exit code= 0
+2018-08-29 13:06:27,858:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0' (2.27 s)
+2018-08-29 13:06:27,864:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1'
+2018-08-29 13:06:30,088:DEBUG    Exit code= 0
+2018-08-29 13:06:30,088:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1' (2.22 s)
+2018-08-29 13:06:30,092:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200'
+2018-08-29 13:06:32,359:DEBUG    Exit code= 0
+2018-08-29 13:06:32,359:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200' (2.27 s)
+2018-08-29 13:06:32,365:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp'
+2018-08-29 13:06:34,528:DEBUG    Exit code= 0
+2018-08-29 13:06:34,528:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp' (2.16 s)
+2018-08-29 13:06:34,532:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0'
+2018-08-29 13:06:36,828:DEBUG    Exit code= 0
+2018-08-29 13:06:36,828:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0' (2.3 s)
+2018-08-29 13:06:36,858:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;'
+2018-08-29 13:06:39,068:DEBUG    Exit code= 0
+2018-08-29 13:06:39,068:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;' (2.21 s)
+2018-08-29 13:06:39,072:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1'
+2018-08-29 13:06:41,348:DEBUG    Exit code= 0
+2018-08-29 13:06:41,348:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1' (2.28 s)
+2018-08-29 13:06:41,352:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7'
+2018-08-29 13:06:43,608:DEBUG    Exit code= 0
+2018-08-29 13:06:43,608:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7' (2.26 s)
+2018-08-29 13:06:43,612:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825'
+2018-08-29 13:06:45,848:DEBUG    Exit code= 0
+2018-08-29 13:06:45,848:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825' (2.24 s)
+2018-08-29 13:06:45,854:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1'
+2018-08-29 13:06:48,108:DEBUG    Exit code= 0
+2018-08-29 13:06:48,108:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1' (2.25 s)
+2018-08-29 13:06:48,112:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730'
+2018-08-29 13:06:50,339:DEBUG    Exit code= 0
+2018-08-29 13:06:50,339:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730' (2.23 s)
+2018-08-29 13:06:50,344:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv target 'zen'
+2018-08-29 13:06:52,657:DEBUG    Exit code= 0
+2018-08-29 13:06:52,657:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv target 'zen' (2.31 s)
+2018-08-29 13:06:52,663:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1'
+2018-08-29 13:06:54,977:DEBUG    Exit code= 0
+2018-08-29 13:06:54,979:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1' (2.32 s)
+2018-08-29 13:06:54,983:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1'
+2018-08-29 13:06:57,239:DEBUG    Exit code= 0
+2018-08-29 13:06:57,239:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1' (2.26 s)
+2018-08-29 13:06:57,243:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd'
+2018-08-29 13:06:59,509:DEBUG    Exit code= 0
+2018-08-29 13:06:59,509:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd' (2.27 s)
+2018-08-29 13:06:59,513:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25'
+2018-08-29 13:07:01,769:DEBUG    Exit code= 0
+2018-08-29 13:07:01,769:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25' (2.26 s)
+2018-08-29 13:07:01,773:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe'
+2018-08-29 13:07:04,059:DEBUG    Exit code= 0
+2018-08-29 13:07:04,059:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe' (2.29 s)
+2018-08-29 13:07:04,065:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user'
+2018-08-29 13:07:06,378:DEBUG    Exit code= 0
+2018-08-29 13:07:06,380:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user' (2.31 s)
+2018-08-29 13:07:06,384:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'
+2018-08-29 13:07:08,698:DEBUG    Exit code= 0
+2018-08-29 13:07:08,698:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.31 s)
+2018-08-29 13:07:08,703:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0'
+2018-08-29 13:07:10,979:DEBUG    Exit code= 0
+2018-08-29 13:07:10,980:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0' (2.28 s)
+2018-08-29 13:07:10,983:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)'
+2018-08-29 13:07:13,348:DEBUG    Exit code= 0
+2018-08-29 13:07:13,348:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)' (2.37 s)
+2018-08-29 13:07:13,352:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1'
+2018-08-29 13:07:15,749:DEBUG    Exit code= 0
+2018-08-29 13:07:15,749:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1' (2.4 s)
+2018-08-29 13:07:15,753:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0'
+2018-08-29 13:07:18,078:DEBUG    Exit code= 0
+2018-08-29 13:07:18,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0' (2.33 s)
+2018-08-29 13:07:18,084:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18'
+2018-08-29 13:07:20,440:DEBUG    Exit code= 0
+2018-08-29 13:07:20,441:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18' (2.36 s)
+2018-08-29 13:07:20,446:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18'
+2018-08-29 13:07:22,789:DEBUG    Exit code= 0
+2018-08-29 13:07:22,789:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18' (2.34 s)
+2018-08-29 13:07:22,795:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}'
+2018-08-29 13:07:25,118:DEBUG    Exit code= 0
+2018-08-29 13:07:25,119:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}' (2.33 s)
+2018-08-29 13:07:25,125:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl'
+2018-08-29 13:07:27,459:DEBUG    Exit code= 0
+2018-08-29 13:07:27,459:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl' (2.33 s)
+2018-08-29 13:07:27,463:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0'
+2018-08-29 13:07:29,799:DEBUG    Exit code= 0
+2018-08-29 13:07:29,801:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0' (2.34 s)
+2018-08-29 13:07:29,805:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000'
+2018-08-29 13:07:32,170:DEBUG    Exit code= 0
+2018-08-29 13:07:32,170:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000' (2.36 s)
+2018-08-29 13:07:32,174:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)'
+2018-08-29 13:07:34,551:DEBUG    Exit code= 0
+2018-08-29 13:07:34,552:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)' (2.38 s)
+2018-08-29 13:07:34,555:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv tip '1'
+2018-08-29 13:07:36,900:DEBUG    Exit code= 0
+2018-08-29 13:07:36,900:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tip '1' (2.34 s)
+2018-08-29 13:07:36,904:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150'
+2018-08-29 13:07:39,250:DEBUG    Exit code= 0
+2018-08-29 13:07:39,250:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150' (2.35 s)
+2018-08-29 13:07:39,256:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)'
+2018-08-29 13:07:41,631:DEBUG    Exit code= 0
+2018-08-29 13:07:41,631:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)' (2.38 s)
+2018-08-29 13:07:41,635:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0'
+2018-08-29 13:07:43,999:DEBUG    Exit code= 0
+2018-08-29 13:07:44,000:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0' (2.36 s)
+2018-08-29 13:07:44,003:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1'
+2018-08-29 13:07:46,348:DEBUG    Exit code= 0
+2018-08-29 13:07:46,348:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1' (2.34 s)
+2018-08-29 13:07:46,351:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50'
+2018-08-29 13:07:48,729:DEBUG    Exit code= 0
+2018-08-29 13:07:48,730:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50' (2.38 s)
+2018-08-29 13:07:48,733:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv txpower '30'
+2018-08-29 13:07:51,059:DEBUG    Exit code= 0
+2018-08-29 13:07:51,059:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txpower '30' (2.33 s)
+2018-08-29 13:07:51,065:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1'
+2018-08-29 13:07:53,410:DEBUG    Exit code= 0
+2018-08-29 13:07:53,410:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1' (2.35 s)
+2018-08-29 13:07:53,414:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bw '20'
+2018-08-29 13:07:55,759:DEBUG    Exit code= 0
+2018-08-29 13:07:55,759:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bw '20' (2.35 s)
+2018-08-29 13:07:55,765:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'
+2018-08-29 13:07:58,150:DEBUG    Exit code= 0
+2018-08-29 13:07:58,150:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.39 s)
+2018-08-29 13:07:58,154:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8'
+2018-08-29 13:08:00,549:DEBUG    Exit code= 0
+2018-08-29 13:08:00,549:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8' (2.39 s)
+2018-08-29 13:08:00,555:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm'
+2018-08-29 13:08:02,950:DEBUG    Exit code= 0
+2018-08-29 13:08:02,950:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm' (2.39 s)
+2018-08-29 13:08:02,956:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin'
+2018-08-29 13:08:05,341:DEBUG    Exit code= 0
+2018-08-29 13:08:05,341:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin' (2.38 s)
+2018-08-29 13:08:05,345:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1'
+2018-08-29 13:08:07,680:DEBUG    Exit code= 0
+2018-08-29 13:08:07,680:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1' (2.34 s)
+2018-08-29 13:08:07,686:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv numcores '4'
+2018-08-29 13:08:10,009:DEBUG    Exit code= 0
+2018-08-29 13:08:10,009:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv numcores '4' (2.32 s)
+2018-08-29 13:08:10,013:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv gpsenable ''
+2018-08-29 13:08:12,369:DEBUG    Exit code= 0
+2018-08-29 13:08:12,369:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenable '' (2.36 s)
+2018-08-29 13:08:12,375:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5'
+2018-08-29 13:08:14,719:DEBUG    Exit code= 0
+2018-08-29 13:08:14,719:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5' (2.34 s)
+2018-08-29 13:08:14,724:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv startapp '0'
+2018-08-29 13:08:17,118:DEBUG    Exit code= 0
+2018-08-29 13:08:17,118:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv startapp '0' (2.39 s)
+2018-08-29 13:08:17,124:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744'
+2018-08-29 13:08:19,450:DEBUG    Exit code= 0
+2018-08-29 13:08:19,450:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744' (2.33 s)
+2018-08-29 13:08:19,453:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp'
+2018-08-29 13:08:21,769:DEBUG    Exit code= 0
+2018-08-29 13:08:21,769:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp' (2.32 s)
+2018-08-29 13:08:21,773:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362'
+2018-08-29 13:08:24,099:DEBUG    Exit code= 0
+2018-08-29 13:08:24,099:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362' (2.33 s)
+2018-08-29 13:08:24,105:DEBUG    Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0'
+2018-08-29 13:08:26,470:DEBUG    Exit code= 0
+2018-08-29 13:08:26,470:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0' (2.37 s)
+2018-08-29 13:08:26,486:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-08-29 13:08:26,530:DEBUG    Exit code= 0
+2018-08-29 13:08:26,530:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.04 s)
+2018-08-29 13:08:26,535:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-08-29 13:08:26,578:DEBUG    Exit code= 0
+2018-08-29 13:08:26,578:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.04 s)
+2018-08-29 13:08:26,584:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-08-29 13:08:26,628:DEBUG    Exit code= 0
+2018-08-29 13:08:26,628:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.04 s)
+2018-08-29 13:08:26,634:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-08-29 13:08:26,677:DEBUG    Exit code= 0
+2018-08-29 13:08:26,677:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.04 s)
+2018-08-29 13:08:26,683:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-08-29 13:08:26,726:DEBUG    Exit code= 0
+2018-08-29 13:08:26,726:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.04 s)
+2018-08-29 13:08:26,732:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-08-29 13:08:26,772:DEBUG    Exit code= 0
+2018-08-29 13:08:26,773:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)

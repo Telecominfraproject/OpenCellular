@@ -1,0 +1,931 @@
+2018-09-05 17:30:09,188: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpbv8k4o
+2018-09-05 17:30:09,210: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,262: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,319: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,345: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,394: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,415: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,457: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,526: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,549: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,596: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-05 17:30:09,637: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpeeua4h\server
+2018-09-05 17:30:18,811: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.01 s)
+2018-09-05 17:30:18,881: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM11, 115200 bps - SUCCESS (0.02 s)
+2018-09-05 17:30:18,914: server.service.VISAService@generator              : INFO    All parameters present
+2018-09-05 17:30:18,914: server.service.VISAService@generator              : INFO    Connecting to instrument [TCPIP0::A-N5182B-50490.local::inst0::INSTR]
+2018-09-05 17:30:24,091: server.service.VISAService@generator              : INFO    SERVICE CONFIGURATION - LOG =DEBUG (5.18 s)
+2018-09-05 17:30:24,099: server.service.VISAService@generator              : INFO    Sending command: *RST
+2018-09-05 17:30:24,206: server.service.VISAService@generator              : INFO    SERVICE HANDLING -  (0.11 s)
+2018-09-05 17:30:24,219: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-05 17:30:24,220: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-05 17:30:24,273: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.05 s)
+2018-09-05 17:30:24,286: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-05 17:30:24,391: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.11 s)
+2018-09-05 17:30:24,403: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 17:30:24,404: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 17:30:24,407: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 17:30:24,421: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.02 s)
+2018-09-05 17:30:24,434: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 17:30:24,437: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 17:30:24,440: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 17:30:24,447: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-05 17:30:24,466: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 17:30:24,467: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 17:30:24,470: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 0
+2018-09-05 17:30:24,476: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-05 17:30:24,591: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-09-05 17:30:24,592: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (0.08 s)
+2018-09-05 17:30:24,627: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:33,983: server.service.COMService@comport                 : INFO    Message Target: Found MMC:   
+2018-09-05 17:30:33,984: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:33,996: server.service.COMService@comport                 : INFO    >u'c'
+2018-09-05 17:30:33,997: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:38,582: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:38,584: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:38,595: server.service.COMService@comport                 : INFO    >u'env default -f && echo ^C && echo OK^!\n'
+2018-09-05 17:30:38,598: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:38,710: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:38,710: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:38,723: server.service.COMService@comport                 : INFO    >u'setenv bootcbyflash\n'
+2018-09-05 17:30:38,724: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:38,836: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:38,838: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:38,848: server.service.COMService@comport                 : INFO    >u'printenv bootcbyflash\n'
+2018-09-05 17:30:38,849: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:38,961: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:38,963: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:38,973: server.service.COMService@comport                 : INFO    >u'setenv gain2\n'
+2018-09-05 17:30:38,976: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,086: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,088: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,098: server.service.COMService@comport                 : INFO    >u'printenv gain2\n'
+2018-09-05 17:30:39,099: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,210: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,211: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,223: server.service.COMService@comport                 : INFO    >u'setenv ethact\n'
+2018-09-05 17:30:39,224: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,336: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,338: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,348: server.service.COMService@comport                 : INFO    >u'printenv ethact\n'
+2018-09-05 17:30:39,349: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,463: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,464: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,476: server.service.COMService@comport                 : INFO    >u'setenv burn_app\n'
+2018-09-05 17:30:39,479: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,591: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,592: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,607: server.service.COMService@comport                 : INFO    >u'printenv burn_app\n'
+2018-09-05 17:30:39,608: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,720: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,720: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,733: server.service.COMService@comport                 : INFO    >u'setenv httpdenable\n'
+2018-09-05 17:30:39,734: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:39,846: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:39,846: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:39,859: server.service.COMService@comport                 : INFO    >u'printenv httpdenable\n'
+2018-09-05 17:30:39,861: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,025: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,026: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,038: server.service.COMService@comport                 : INFO    >u'setenv startapp\n'
+2018-09-05 17:30:40,039: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,151: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,151: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,164: server.service.COMService@comport                 : INFO    >u'printenv startapp\n'
+2018-09-05 17:30:40,165: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,276: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,276: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,286: server.service.COMService@comport                 : INFO    >u'setenv atten2\n'
+2018-09-05 17:30:40,288: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,414: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,414: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,428: server.service.COMService@comport                 : INFO    >u'printenv atten2\n'
+2018-09-05 17:30:40,430: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,543: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,545: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,558: server.service.COMService@comport                 : INFO    >u'setenv atten1\n'
+2018-09-05 17:30:40,559: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,671: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,673: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,684: server.service.COMService@comport                 : INFO    >u'printenv atten1\n'
+2018-09-05 17:30:40,687: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,803: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,805: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,818: server.service.COMService@comport                 : INFO    >u'setenv bootcmd\n'
+2018-09-05 17:30:40,819: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:40,933: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:40,934: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:40,944: server.service.COMService@comport                 : INFO    >u'printenv bootcmd\n'
+2018-09-05 17:30:40,947: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,059: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,059: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,071: server.service.COMService@comport                 : INFO    >u'setenv boardname\n'
+2018-09-05 17:30:41,072: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,184: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,186: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,197: server.service.COMService@comport                 : INFO    >u'printenv boardname\n'
+2018-09-05 17:30:41,197: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,309: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,311: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,323: server.service.COMService@comport                 : INFO    >u'setenv loadaddr\n'
+2018-09-05 17:30:41,325: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,438: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,440: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,450: server.service.COMService@comport                 : INFO    >u'printenv loadaddr\n'
+2018-09-05 17:30:41,453: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,565: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,565: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,578: server.service.COMService@comport                 : INFO    >u'setenv ucliovrd\n'
+2018-09-05 17:30:41,579: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,694: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,694: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,706: server.service.COMService@comport                 : INFO    >u'printenv ucliovrd\n'
+2018-09-05 17:30:41,707: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,819: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,821: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,835: server.service.COMService@comport                 : INFO    >u'setenv swloadby\n'
+2018-09-05 17:30:41,838: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:41,950: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:41,951: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:41,964: server.service.COMService@comport                 : INFO    >u'printenv swloadby\n'
+2018-09-05 17:30:41,967: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,078: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,078: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,089: server.service.COMService@comport                 : INFO    >u'setenv bootdelay\n'
+2018-09-05 17:30:42,092: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,203: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,203: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,214: server.service.COMService@comport                 : INFO    >u'printenv bootdelay\n'
+2018-09-05 17:30:42,217: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,328: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,329: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,341: server.service.COMService@comport                 : INFO    >u'setenv linux_cf\n'
+2018-09-05 17:30:42,342: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,453: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,456: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,466: server.service.COMService@comport                 : INFO    >u'printenv linux_cf\n'
+2018-09-05 17:30:42,467: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,631: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,631: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,644: server.service.COMService@comport                 : INFO    >u'setenv gain1\n'
+2018-09-05 17:30:42,645: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,759: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,759: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,770: server.service.COMService@comport                 : INFO    >u'printenv gain1\n'
+2018-09-05 17:30:42,773: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:42,884: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:42,884: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:42,898: server.service.COMService@comport                 : INFO    >u'setenv ipaddr\n'
+2018-09-05 17:30:42,900: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,010: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,012: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,023: server.service.COMService@comport                 : INFO    >u'printenv ipaddr\n'
+2018-09-05 17:30:43,023: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,148: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,150: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,161: server.service.COMService@comport                 : INFO    >u'setenv bootby\n'
+2018-09-05 17:30:43,163: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,273: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,275: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,286: server.service.COMService@comport                 : INFO    >u'printenv bootby\n'
+2018-09-05 17:30:43,288: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,401: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,401: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,414: server.service.COMService@comport                 : INFO    >u'setenv ls\n'
+2018-09-05 17:30:43,415: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,529: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,529: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,542: server.service.COMService@comport                 : INFO    >u'printenv ls\n'
+2018-09-05 17:30:43,543: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,707: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,709: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,720: server.service.COMService@comport                 : INFO    >u'setenv namedalloc\n'
+2018-09-05 17:30:43,721: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:43,835: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:43,835: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:43,849: server.service.COMService@comport                 : INFO    >u'printenv namedalloc\n'
+2018-09-05 17:30:43,851: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,013: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,015: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,026: server.service.COMService@comport                 : INFO    >u'setenv pseudowww\n'
+2018-09-05 17:30:44,029: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,140: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,141: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,153: server.service.COMService@comport                 : INFO    >u'printenv pseudowww\n'
+2018-09-05 17:30:44,154: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,269: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,269: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,280: server.service.COMService@comport                 : INFO    >u'setenv txfreq\n'
+2018-09-05 17:30:44,282: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,395: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,397: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,408: server.service.COMService@comport                 : INFO    >u'printenv txfreq\n'
+2018-09-05 17:30:44,410: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,520: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,522: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,532: server.service.COMService@comport                 : INFO    >u'setenv bf\n'
+2018-09-05 17:30:44,535: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,645: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,647: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,660: server.service.COMService@comport                 : INFO    >u'printenv bf\n'
+2018-09-05 17:30:44,661: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,773: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,775: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,786: server.service.COMService@comport                 : INFO    >u'setenv gatewayip\n'
+2018-09-05 17:30:44,788: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:44,900: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:44,901: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:44,913: server.service.COMService@comport                 : INFO    >u'printenv gatewayip\n'
+2018-09-05 17:30:44,914: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,026: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,028: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,040: server.service.COMService@comport                 : INFO    >u'setenv serverip\n'
+2018-09-05 17:30:45,042: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,155: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,157: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,167: server.service.COMService@comport                 : INFO    >u'printenv serverip\n'
+2018-09-05 17:30:45,170: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,279: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,280: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,302: server.service.COMService@comport                 : INFO    >u'setenv autoload\n'
+2018-09-05 17:30:45,302: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,414: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,415: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,427: server.service.COMService@comport                 : INFO    >u'printenv autoload\n'
+2018-09-05 17:30:45,430: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,540: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,542: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,552: server.service.COMService@comport                 : INFO    >u'setenv mk_ubootenv\n'
+2018-09-05 17:30:45,555: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,667: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,667: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,678: server.service.COMService@comport                 : INFO    >u'printenv mk_ubootenv\n'
+2018-09-05 17:30:45,680: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,790: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,792: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,805: server.service.COMService@comport                 : INFO    >u'setenv bw\n'
+2018-09-05 17:30:45,808: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:45,921: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:45,921: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:45,937: server.service.COMService@comport                 : INFO    >u'printenv bw\n'
+2018-09-05 17:30:45,938: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,055: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,055: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,066: server.service.COMService@comport                 : INFO    >u'setenv cfgloadby\n'
+2018-09-05 17:30:46,069: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,180: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,181: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,194: server.service.COMService@comport                 : INFO    >u'printenv cfgloadby\n'
+2018-09-05 17:30:46,196: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,358: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,359: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,371: server.service.COMService@comport                 : INFO    >u'setenv bootcbytftp\n'
+2018-09-05 17:30:46,372: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,484: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,486: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,497: server.service.COMService@comport                 : INFO    >u'printenv bootcbytftp\n'
+2018-09-05 17:30:46,500: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,611: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,611: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,624: server.service.COMService@comport                 : INFO    >u'setenv numcores\n'
+2018-09-05 17:30:46,627: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,740: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,740: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,753: server.service.COMService@comport                 : INFO    >u'printenv numcores\n'
+2018-09-05 17:30:46,755: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,868: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,869: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:46,881: server.service.COMService@comport                 : INFO    >u'setenv rxfreq\n'
+2018-09-05 17:30:46,884: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:46,996: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:46,997: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,009: server.service.COMService@comport                 : INFO    >u'printenv rxfreq\n'
+2018-09-05 17:30:47,010: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,121: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,122: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,132: server.service.COMService@comport                 : INFO    >u'setenv target\n'
+2018-09-05 17:30:47,134: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,247: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,249: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,260: server.service.COMService@comport                 : INFO    >u'printenv target\n'
+2018-09-05 17:30:47,263: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,375: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,375: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,385: server.service.COMService@comport                 : INFO    >u'setenv tcxo\n'
+2018-09-05 17:30:47,388: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,499: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,500: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,513: server.service.COMService@comport                 : INFO    >u'printenv tcxo\n'
+2018-09-05 17:30:47,515: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,625: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,625: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,638: server.service.COMService@comport                 : INFO    >u'setenv partition\n'
+2018-09-05 17:30:47,640: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,750: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,752: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,773: server.service.COMService@comport                 : INFO    >u'printenv partition\n'
+2018-09-05 17:30:47,776: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:47,887: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:47,888: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:47,901: server.service.COMService@comport                 : INFO    >u'setenv netmask\n'
+2018-09-05 17:30:47,903: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,016: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,016: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,029: server.service.COMService@comport                 : INFO    >u'printenv netmask\n'
+2018-09-05 17:30:48,030: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,142: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,144: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,155: server.service.COMService@comport                 : INFO    >u'setenv enbctrlrf\n'
+2018-09-05 17:30:48,157: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,269: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,270: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,280: server.service.COMService@comport                 : INFO    >u'printenv enbctrlrf\n'
+2018-09-05 17:30:48,282: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,394: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,394: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,405: server.service.COMService@comport                 : INFO    >u'setenv mode\n'
+2018-09-05 17:30:48,407: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,520: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,522: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,532: server.service.COMService@comport                 : INFO    >u'printenv mode\n'
+2018-09-05 17:30:48,535: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,647: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,648: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,660: server.service.COMService@comport                 : INFO    >u'setenv i2cinit\n'
+2018-09-05 17:30:48,661: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,773: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,775: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,786: server.service.COMService@comport                 : INFO    >u'printenv i2cinit\n'
+2018-09-05 17:30:48,788: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:48,898: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:48,900: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:48,911: server.service.COMService@comport                 : INFO    >u'setenv rftarget\n'
+2018-09-05 17:30:48,913: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,026: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,026: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,039: server.service.COMService@comport                 : INFO    >u'printenv rftarget\n'
+2018-09-05 17:30:49,040: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,204: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,206: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,217: server.service.COMService@comport                 : INFO    >u"setenv web_user1 'user'\n"
+2018-09-05 17:30:49,219: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,332: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,332: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,345: server.service.COMService@comport                 : INFO    >u'printenv web_user1\n'
+2018-09-05 17:30:49,346: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,460: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,460: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,473: server.service.COMService@comport                 : INFO    >u"setenv pwmreglow '37376'\n"
+2018-09-05 17:30:49,474: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,586: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,588: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,596: server.service.COMService@comport                 : INFO    >u'printenv pwmreglow\n'
+2018-09-05 17:30:49,598: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,710: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,711: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,723: server.service.COMService@comport                 : INFO    >u"setenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'\n"
+2018-09-05 17:30:49,724: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:49,888: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:49,888: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:49,901: server.service.COMService@comport                 : INFO    >u'printenv bootcbyflash\n'
+2018-09-05 17:30:49,901: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,065: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,066: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,078: server.service.COMService@comport                 : INFO    >u"setenv gain2 '25'\n"
+2018-09-05 17:30:50,081: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,190: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,191: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,203: server.service.COMService@comport                 : INFO    >u'printenv gain2\n'
+2018-09-05 17:30:50,204: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,318: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,319: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,329: server.service.COMService@comport                 : INFO    >u"setenv ethact 'octeth0'\n"
+2018-09-05 17:30:50,332: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,444: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,447: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,457: server.service.COMService@comport                 : INFO    >u'printenv ethact\n'
+2018-09-05 17:30:50,459: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,571: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,572: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,585: server.service.COMService@comport                 : INFO    >u"setenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)'\n"
+2018-09-05 17:30:50,586: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,749: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,750: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,762: server.service.COMService@comport                 : INFO    >u'printenv burn_app\n'
+2018-09-05 17:30:50,763: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:50,878: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:50,878: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:50,891: server.service.COMService@comport                 : INFO    >u"setenv tip '1'\n"
+2018-09-05 17:30:50,892: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,005: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,006: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,016: server.service.COMService@comport                 : INFO    >u'printenv tip\n'
+2018-09-05 17:30:51,017: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,128: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,128: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,138: server.service.COMService@comport                 : INFO    >u"setenv ptp1ppsen '0'\n"
+2018-09-05 17:30:51,141: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,253: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,253: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,266: server.service.COMService@comport                 : INFO    >u'printenv ptp1ppsen\n'
+2018-09-05 17:30:51,266: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,378: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,380: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,391: server.service.COMService@comport                 : INFO    >u"setenv autoload 'n'\n"
+2018-09-05 17:30:51,391: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,506: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,506: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,516: server.service.COMService@comport                 : INFO    >u'printenv autoload\n'
+2018-09-05 17:30:51,519: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,630: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,631: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,641: server.service.COMService@comport                 : INFO    >u"setenv startapp '0'\n"
+2018-09-05 17:30:51,644: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,755: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,756: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,766: server.service.COMService@comport                 : INFO    >u'printenv startapp\n'
+2018-09-05 17:30:51,769: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:51,881: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:51,881: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:51,894: server.service.COMService@comport                 : INFO    >u"setenv atten2 '18'\n"
+2018-09-05 17:30:51,895: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,009: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,009: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,019: server.service.COMService@comport                 : INFO    >u'printenv atten2\n'
+2018-09-05 17:30:52,022: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,135: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,135: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,148: server.service.COMService@comport                 : INFO    >u"setenv atten1 '18'\n"
+2018-09-05 17:30:52,151: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,263: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,263: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,276: server.service.COMService@comport                 : INFO    >u'printenv atten1\n'
+2018-09-05 17:30:52,279: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,391: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,391: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,403: server.service.COMService@comport                 : INFO    >u"setenv syncby 'gps'\n"
+2018-09-05 17:30:52,404: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,515: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,516: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,526: server.service.COMService@comport                 : INFO    >u'printenv syncby\n'
+2018-09-05 17:30:52,528: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,645: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,647: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,671: server.service.COMService@comport                 : INFO    >u"setenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}'\n"
+2018-09-05 17:30:52,673: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,785: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,786: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,798: server.service.COMService@comport                 : INFO    >u'printenv bootcmd\n'
+2018-09-05 17:30:52,799: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:52,911: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:52,913: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:52,924: server.service.COMService@comport                 : INFO    >u"setenv boardname 'zen'\n"
+2018-09-05 17:30:52,926: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,038: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,039: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,049: server.service.COMService@comport                 : INFO    >u'printenv boardname\n'
+2018-09-05 17:30:53,052: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,178: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,180: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,190: server.service.COMService@comport                 : INFO    >u"setenv mode_test 'dl'\n"
+2018-09-05 17:30:53,193: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,303: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,305: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,315: server.service.COMService@comport                 : INFO    >u'printenv mode_test\n'
+2018-09-05 17:30:53,316: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,433: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,434: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,450: server.service.COMService@comport                 : INFO    >u"setenv dhcpenable '0'\n"
+2018-09-05 17:30:53,451: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,565: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,565: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,582: server.service.COMService@comport                 : INFO    >u'printenv dhcpenable\n'
+2018-09-05 17:30:53,585: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,697: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,697: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,709: server.service.COMService@comport                 : INFO    >u"setenv loadaddr '0x20000000'\n"
+2018-09-05 17:30:53,710: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,822: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,822: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,834: server.service.COMService@comport                 : INFO    >u'printenv loadaddr\n'
+2018-09-05 17:30:53,835: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:53,947: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:53,948: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:53,960: server.service.COMService@comport                 : INFO    >u"setenv ucliovrd '1'\n"
+2018-09-05 17:30:53,960: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,073: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,075: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,088: server.service.COMService@comport                 : INFO    >u'printenv ucliovrd\n'
+2018-09-05 17:30:54,088: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,200: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,203: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,213: server.service.COMService@comport                 : INFO    >u"setenv swloadby 'tftp'\n"
+2018-09-05 17:30:54,214: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,326: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,328: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,338: server.service.COMService@comport                 : INFO    >u'printenv swloadby\n'
+2018-09-05 17:30:54,341: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,453: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,453: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,464: server.service.COMService@comport                 : INFO    >u"setenv logdispen '2'\n"
+2018-09-05 17:30:54,466: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,589: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,591: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,601: server.service.COMService@comport                 : INFO    >u'printenv logdispen\n'
+2018-09-05 17:30:54,605: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,720: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,720: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,730: server.service.COMService@comport                 : INFO    >u"setenv bootdelay '0'\n"
+2018-09-05 17:30:54,733: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,851: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,851: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,864: server.service.COMService@comport                 : INFO    >u'printenv bootdelay\n'
+2018-09-05 17:30:54,865: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:54,976: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:54,977: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:54,987: server.service.COMService@comport                 : INFO    >u"setenv named_block_addr '0x30800000'\n"
+2018-09-05 17:30:54,990: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,101: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,102: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,112: server.service.COMService@comport                 : INFO    >u'printenv named_block_addr\n'
+2018-09-05 17:30:55,115: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,226: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,226: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,237: server.service.COMService@comport                 : INFO    >u"setenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)'\n"
+2018-09-05 17:30:55,240: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,351: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,352: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,365: server.service.COMService@comport                 : INFO    >u'printenv linux_cf\n'
+2018-09-05 17:30:55,367: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,530: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,532: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,542: server.service.COMService@comport                 : INFO    >u"setenv enable_zen5_gpio18 '1'\n"
+2018-09-05 17:30:55,545: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,657: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,657: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,670: server.service.COMService@comport                 : INFO    >u'printenv enable_zen5_gpio18\n'
+2018-09-05 17:30:55,671: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,783: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,785: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,796: server.service.COMService@comport                 : INFO    >u"setenv ipaddr '10.102.81.61'\n"
+2018-09-05 17:30:55,798: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:55,910: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:55,911: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:55,921: server.service.COMService@comport                 : INFO    >u'printenv ipaddr\n'
+2018-09-05 17:30:55,924: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,036: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,036: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,048: server.service.COMService@comport                 : INFO    >u"setenv baudrate_uart1 '19200'\n"
+2018-09-05 17:30:56,049: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,161: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,161: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,174: server.service.COMService@comport                 : INFO    >u'printenv baudrate_uart1\n'
+2018-09-05 17:30:56,176: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,299: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,299: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,312: server.service.COMService@comport                 : INFO    >u"setenv bootby 'tftp'\n"
+2018-09-05 17:30:56,313: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,426: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,427: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,446: server.service.COMService@comport                 : INFO    >u'printenv bootby\n'
+2018-09-05 17:30:56,447: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,559: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,559: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,571: server.service.COMService@comport                 : INFO    >u"setenv txfreq '1825'\n"
+2018-09-05 17:30:56,573: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,684: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,686: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,698: server.service.COMService@comport                 : INFO    >u'printenv txfreq\n'
+2018-09-05 17:30:56,700: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,813: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,813: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,825: server.service.COMService@comport                 : INFO    >u"setenv ls 'fatls ide 0'\n"
+2018-09-05 17:30:56,826: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:56,940: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:56,940: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:56,951: server.service.COMService@comport                 : INFO    >u'printenv ls\n'
+2018-09-05 17:30:56,953: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,065: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,065: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,076: server.service.COMService@comport                 : INFO    >u"setenv web_pass1 'a81be4e9b20632860d20a64c054c4150'\n"
+2018-09-05 17:30:57,078: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,190: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,191: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,203: server.service.COMService@comport                 : INFO    >u'printenv web_pass1\n'
+2018-09-05 17:30:57,206: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,316: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,318: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,329: server.service.COMService@comport                 : INFO    >u"setenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;'\n"
+2018-09-05 17:30:57,332: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,502: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,503: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,513: server.service.COMService@comport                 : INFO    >u'printenv namedalloc\n'
+2018-09-05 17:30:57,515: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,681: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,683: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,697: server.service.COMService@comport                 : INFO    >u"setenv pseudowww '1'\n"
+2018-09-05 17:30:57,697: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,809: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,811: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,822: server.service.COMService@comport                 : INFO    >u'printenv pseudowww\n'
+2018-09-05 17:30:57,822: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:57,936: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:57,937: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:57,947: server.service.COMService@comport                 : INFO    >u"setenv named_block_size '0x2800000'\n"
+2018-09-05 17:30:57,950: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,061: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,061: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,081: server.service.COMService@comport                 : INFO    >u'printenv named_block_size\n'
+2018-09-05 17:30:58,082: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,246: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,246: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,257: server.service.COMService@comport                 : INFO    >u"setenv tcxo 'pwm'\n"
+2018-09-05 17:30:58,259: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,371: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,372: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,384: server.service.COMService@comport                 : INFO    >u'printenv tcxo\n'
+2018-09-05 17:30:58,387: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,499: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,500: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,512: server.service.COMService@comport                 : INFO    >u"setenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)'\n"
+2018-09-05 17:30:58,513: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,631: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,631: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,644: server.service.COMService@comport                 : INFO    >u'printenv bf\n'
+2018-09-05 17:30:58,645: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,757: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,759: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,769: server.service.COMService@comport                 : INFO    >u"setenv ptpenable '0'\n"
+2018-09-05 17:30:58,770: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:58,881: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:58,882: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:58,894: server.service.COMService@comport                 : INFO    >u'printenv ptpenable\n'
+2018-09-05 17:30:58,894: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,009: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,009: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,022: server.service.COMService@comport                 : INFO    >u"setenv gatewayip '10.102.81.1'\n"
+2018-09-05 17:30:59,023: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,135: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,137: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,148: server.service.COMService@comport                 : INFO    >u'printenv gatewayip\n'
+2018-09-05 17:30:59,151: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,263: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,265: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,276: server.service.COMService@comport                 : INFO    >u"setenv serverip '10.102.81.50'\n"
+2018-09-05 17:30:59,278: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,390: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,391: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,403: server.service.COMService@comport                 : INFO    >u'printenv serverip\n'
+2018-09-05 17:30:59,404: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,565: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,566: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,578: server.service.COMService@comport                 : INFO    >u"setenv txpower '30'\n"
+2018-09-05 17:30:59,578: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,691: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,691: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,706: server.service.COMService@comport                 : INFO    >u'printenv txpower\n'
+2018-09-05 17:30:59,707: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,819: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,819: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,831: server.service.COMService@comport                 : INFO    >u"setenv mk_ubootenv '1'\n"
+2018-09-05 17:30:59,832: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:30:59,944: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:30:59,944: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:30:59,956: server.service.COMService@comport                 : INFO    >u'printenv mk_ubootenv\n'
+2018-09-05 17:30:59,957: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,078: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,078: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,089: server.service.COMService@comport                 : INFO    >u"setenv bw '20'\n"
+2018-09-05 17:31:00,092: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,203: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,204: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,216: server.service.COMService@comport                 : INFO    >u'printenv bw\n'
+2018-09-05 17:31:00,217: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,328: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,328: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,341: server.service.COMService@comport                 : INFO    >u"setenv cfgloadby 'tftp'\n"
+2018-09-05 17:31:00,342: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,454: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,456: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,467: server.service.COMService@comport                 : INFO    >u'printenv cfgloadby\n'
+2018-09-05 17:31:00,469: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,582: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,582: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,595: server.service.COMService@comport                 : INFO    >u"setenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;'\n"
+2018-09-05 17:31:00,598: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,759: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,762: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,773: server.service.COMService@comport                 : INFO    >u'printenv bootcbytftp\n'
+2018-09-05 17:31:00,775: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:00,937: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:00,938: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:00,950: server.service.COMService@comport                 : INFO    >u"setenv dnsip '8.8.8.8'\n"
+2018-09-05 17:31:00,951: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,065: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,065: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,076: server.service.COMService@comport                 : INFO    >u'printenv dnsip\n'
+2018-09-05 17:31:01,078: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,190: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,191: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,203: server.service.COMService@comport                 : INFO    >u"setenv numcores '4'\n"
+2018-09-05 17:31:01,204: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,316: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,318: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,328: server.service.COMService@comport                 : INFO    >u'printenv numcores\n'
+2018-09-05 17:31:01,331: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,441: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,443: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,456: server.service.COMService@comport                 : INFO    >u"setenv mtdids 'nor0=octeon_nor0'\n"
+2018-09-05 17:31:01,457: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,568: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,569: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,578: server.service.COMService@comport                 : INFO    >u'printenv mtdids\n'
+2018-09-05 17:31:01,579: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,694: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,696: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,711: server.service.COMService@comport                 : INFO    >u"setenv web_pass '456b7016a916a4b178dd72b947c152b7'\n"
+2018-09-05 17:31:01,713: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,825: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,826: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,851: server.service.COMService@comport                 : INFO    >u'printenv web_pass\n'
+2018-09-05 17:31:01,854: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:01,966: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:01,966: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:01,976: server.service.COMService@comport                 : INFO    >u"setenv webuilog '1'\n"
+2018-09-05 17:31:01,979: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,092: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,092: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,102: server.service.COMService@comport                 : INFO    >u'printenv webuilog\n'
+2018-09-05 17:31:02,105: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,217: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,217: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,229: server.service.COMService@comport                 : INFO    >u"setenv web_user 'admin'\n"
+2018-09-05 17:31:02,230: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,341: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,342: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,355: server.service.COMService@comport                 : INFO    >u'printenv web_user\n'
+2018-09-05 17:31:02,357: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,469: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,470: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,482: server.service.COMService@comport                 : INFO    >u"setenv rxfreq '1730'\n"
+2018-09-05 17:31:02,483: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,595: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,596: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,608: server.service.COMService@comport                 : INFO    >u'printenv rxfreq\n'
+2018-09-05 17:31:02,609: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,721: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,723: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,733: server.service.COMService@comport                 : INFO    >u"setenv ovrdrfdsp '1'\n"
+2018-09-05 17:31:02,736: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,848: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,848: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,861: server.service.COMService@comport                 : INFO    >u'printenv ovrdrfdsp\n'
+2018-09-05 17:31:02,862: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:02,973: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:02,973: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:02,986: server.service.COMService@comport                 : INFO    >u"setenv target 'zen'\n"
+2018-09-05 17:31:02,986: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,101: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,101: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,115: server.service.COMService@comport                 : INFO    >u'printenv target\n'
+2018-09-05 17:31:03,118: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,233: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,233: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,243: server.service.COMService@comport                 : INFO    >u"setenv pwdb_in_flash '1'\n"
+2018-09-05 17:31:03,246: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,358: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,358: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,384: server.service.COMService@comport                 : INFO    >u'printenv pwdb_in_flash\n'
+2018-09-05 17:31:03,388: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,500: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,500: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,510: server.service.COMService@comport                 : INFO    >u'setenv gpsenable\n'
+2018-09-05 17:31:03,513: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,631: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,632: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,644: server.service.COMService@comport                 : INFO    >u'printenv gpsenable\n'
+2018-09-05 17:31:03,644: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,767: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,769: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,779: server.service.COMService@comport                 : INFO    >u"setenv partition 'nor0,5'\n"
+2018-09-05 17:31:03,782: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:03,892: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:03,894: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:03,907: server.service.COMService@comport                 : INFO    >u'printenv partition\n'
+2018-09-05 17:31:03,907: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,020: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,020: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,032: server.service.COMService@comport                 : INFO    >u"setenv netmask '255.255.255.0'\n"
+2018-09-05 17:31:04,033: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,145: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,145: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,158: server.service.COMService@comport                 : INFO    >u'printenv netmask\n'
+2018-09-05 17:31:04,160: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,272: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,273: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,286: server.service.COMService@comport                 : INFO    >u"setenv enbctrlrf '1'\n"
+2018-09-05 17:31:04,288: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,398: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,400: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,411: server.service.COMService@comport                 : INFO    >u'printenv enbctrlrf\n'
+2018-09-05 17:31:04,414: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,526: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,526: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,539: server.service.COMService@comport                 : INFO    >u"setenv httpdenable '1'\n"
+2018-09-05 17:31:04,540: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,654: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,654: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,671: server.service.COMService@comport                 : INFO    >u'printenv httpdenable\n'
+2018-09-05 17:31:04,671: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,783: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,783: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,796: server.service.COMService@comport                 : INFO    >u"setenv pwmreghigh '24744'\n"
+2018-09-05 17:31:04,798: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:04,908: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:04,910: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:04,923: server.service.COMService@comport                 : INFO    >u'printenv pwmreghigh\n'
+2018-09-05 17:31:04,924: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,036: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,036: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,049: server.service.COMService@comport                 : INFO    >u"setenv mode 'pltd'\n"
+2018-09-05 17:31:05,049: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,161: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,161: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,174: server.service.COMService@comport                 : INFO    >u'printenv mode\n'
+2018-09-05 17:31:05,176: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,289: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,289: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,301: server.service.COMService@comport                 : INFO    >u"setenv gain1 '25'\n"
+2018-09-05 17:31:05,302: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,415: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,417: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,427: server.service.COMService@comport                 : INFO    >u'printenv gain1\n'
+2018-09-05 17:31:05,430: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,542: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,542: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,555: server.service.COMService@comport                 : INFO    >u"setenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe'\n"
+2018-09-05 17:31:05,556: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,667: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,668: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,681: server.service.COMService@comport                 : INFO    >u'printenv i2cinit\n'
+2018-09-05 17:31:05,683: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,796: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,798: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,808: server.service.COMService@comport                 : INFO    >u"setenv rftarget 'ad9362'\n"
+2018-09-05 17:31:05,809: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:05,920: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:05,921: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:05,933: server.service.COMService@comport                 : INFO    >u'printenv rftarget\n'
+2018-09-05 17:31:05,934: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:06,048: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:06,049: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:06,059: server.service.COMService@comport                 : INFO    >u"setenv ethaddr '00:D0:CC:20:14:33'\n"
+2018-09-05 17:31:06,062: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:06,173: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:06,174: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:06,186: server.service.COMService@comport                 : INFO    >u'printenv ethaddr\n'
+2018-09-05 17:31:06,187: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:06,299: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:06,301: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:06,312: server.service.COMService@comport                 : INFO    >u"setenv ethaddr '00:D0:CC:20:14:33'\n"
+2018-09-05 17:31:06,315: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:06,438: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:06,440: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:06,450: server.service.COMService@comport                 : INFO    >u'printenv ethaddr\n'
+2018-09-05 17:31:06,453: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:06,565: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:06,565: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:06,575: server.service.COMService@comport                 : INFO    >u'saveenv && echo ^C && echo OK^!\n'
+2018-09-05 17:31:06,576: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:08,009: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:08,010: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:08,023: server.service.COMService@comport                 : INFO    >u'reset\n'
+2018-09-05 17:31:08,025: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:08,339: server.service.COMService@comport                 : INFO    Message Target: Found Jumping to start of image at address
+2018-09-05 17:31:08,341: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:08,372: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:10,667: server.service.COMService@comport                 : INFO    Message Target: Found MMC:   
+2018-09-05 17:31:10,667: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:10,678: server.service.COMService@comport                 : INFO    >u'c'
+2018-09-05 17:31:10,680: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:15,263: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:15,265: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:15,278: server.service.COMService@comport                 : INFO    >u'tftp 0x2000000 u-boot-octeon_tip.bin && echo ^C && echo OK^!\n'
+2018-09-05 17:31:15,279: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:16,355: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:16,357: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:16,371: server.service.COMService@comport                 : INFO    >u'protect off 0x17cc0000 +160000 && erase 0x17cc0000 +160000 && cp.b 0x2000000 0x17cc0000 ${filesize} && protect on 0x17cc0000 +160000 && echo ^C && echo OK^!\n'
+2018-09-05 17:31:16,371: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:21,766: server.service.COMService@comport                 : INFO    Message Target: Found Octeon zen=>
+2018-09-05 17:31:21,767: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:21,782: server.service.COMService@comport                 : INFO    >u'reset\n'
+2018-09-05 17:31:21,783: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/0 lines (0.0 s)
+2018-09-05 17:31:22,151: server.service.COMService@comport                 : INFO    Message Target: Found Jumping to start of image at address
+2018-09-05 17:31:22,153: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:22,186: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 0/2 lines (0.0 s)
+2018-09-05 17:31:23,825: server.service.COMService@comport                 : INFO    Message Target: Found Core clock:
+2018-09-05 17:31:23,825: server.service.COMService@comport                 : INFO    SERVICE HANDLING -  (0.0 s)
+2018-09-05 17:31:23,858: server.service.COMService@comport                 : INFO    SERVICE HANDLING - KEEP 1000/1 lines (0.0 s)
+2018-09-05 17:31:43,301: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 17:31:43,325: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 17:31:43,348: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpeeua4h\server

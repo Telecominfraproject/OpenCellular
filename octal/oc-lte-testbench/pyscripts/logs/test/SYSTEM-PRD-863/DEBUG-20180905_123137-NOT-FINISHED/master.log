@@ -1,0 +1,107 @@
+2018-09-05 12:31:36,793      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpcxxlbo
+2018-09-05 12:31:36,816      INFO: tr.server: Loading services from config file
+2018-09-05 12:31:37,252      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 12:31:37,257      INFO: tr: ##################### SystemTestbench #####################
+2018-09-05 12:31:37,259      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-05 12:31:37,262      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-05 12:31:37,262      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-05 12:31:39,098      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-05 12:31:39,108      INFO: tr: ####################### Preparation #######################
+2018-09-05 12:31:39,115      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 12:31:39,117      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 12:31:39,118      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 12:31:41,963      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 12:31:41,963      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 12:31:42,069      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 12:31:42,071      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 12:31:42,078      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 12:31:42,122      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 12:31:42,384      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 12:31:42,493      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 12:31:42,503      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 12:31:42,506      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:31:52,730      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 12:31:52,766      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 12:32:02,917      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-05 12:32:02,926      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-05 12:32:02,983      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 12:32:02,990      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 12:32:02,993      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 12:32:04,641      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 12:32:04,650      INFO: tr: ######################## LedBoard ########################
+2018-09-05 12:32:04,655      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-05 12:32:04,703      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-05 12:32:04,703      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-05 12:32:07,559      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-05 12:32:07,568      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-05 12:32:07,604      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-05 12:32:07,605      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-05 12:32:08,780      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-05 12:32:08,788      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-05 12:32:08,825      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-05 12:32:08,826      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-05 12:32:09,697      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-05 12:32:09,703      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-05 12:32:09,737      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-05 12:32:09,739      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-05 12:32:10,509      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-05 12:32:10,516      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 12:32:10,520      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 12:32:10,957      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 12:32:11,305      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 12:32:11,648      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 12:32:14,992      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 12:32:15,045     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-05 12:32:15,046     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-05 12:32:15,046      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 12:32:15,048      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 12:32:15,049      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 12:32:15,049      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 12:32:15,049      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 12:32:15,051      INFO: tr: ###################### BBPreparation ######################
+2018-09-05 12:32:15,052      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-05 12:32:15,885      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-05 12:32:17,484      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-05 12:32:21,487      INFO: tr: ################### PrepareCalibration ###################
+2018-09-05 12:32:21,490      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-05 12:32:21,494      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-05 12:32:25,091      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-05 12:32:25,092      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-05 12:32:27,673      INFO: tr.BB_TSC020: Skipped OCXO Calibration, frequency error = -2 Hz
+2018-09-05 12:32:27,674      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([2.371]) < 50 : PASS
+2018-09-05 12:32:27,676      INFO: tr: #################### RFPALCalibration ####################
+2018-09-05 12:32:27,677      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-05 12:32:33,825      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=20, 	in_pwr=-17.28, 	fb=-48.27
+2018-09-05 12:32:40,088      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=5.75, 	in_pwr=-17.38, 	out_pwr=28.12, 	fb=-37.24
+2018-09-05 12:32:43,181      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=11.25, 	in_pwr=-17.33, 	out_pwr=27.76, 	fb=-17.62
+2018-09-05 12:33:11,288      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-38.82] < -45 : FAIL
+2018-09-05 12:33:11,292     ERROR: tr.FE_TSC120: AssertionError: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-38.82] < -45 : FAIL
+2018-09-05 12:33:11,293     ERROR: tr.FE_TSC120: TEST FAILED
+2018-09-05 12:33:11,293      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-05 12:33:17,891      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=21.0, 	in_pwr=-16.54, 	fb=-49.64
+2018-09-05 12:33:27,131      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=5.75, 	in_pwr=-16.44, 	out_pwr=28.35, 	fb=-39.54
+2018-09-05 12:33:29,131      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=10.0, 	in_pwr=-16.46, 	out_pwr=27.78, 	fb=-17.61
+2018-09-05 12:33:57,342      INFO: tr.criteria: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-38.8] < -45 : FAIL
+2018-09-05 12:33:57,345     ERROR: tr.FE_TSC220: AssertionError: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-38.8] < -45 : FAIL
+2018-09-05 12:33:57,345     ERROR: tr.FE_TSC220: TEST FAILED
+2018-09-05 12:33:57,346      INFO: tr: #################### SystemCalib20MHz ####################
+2018-09-05 12:33:57,351      INFO: tr.SY_TSC230: -------------- [SY_TSC230] TX2 20 MHz --------------
+2018-09-05 12:33:57,385      INFO: tr.SY_TSC230: Calibrating TX 2 w/ BW of 20 MHz
+2018-09-05 12:33:57,430      INFO: tr.SY_TSC230: Changing bandwidth; requires reboot.
+2018-09-05 12:34:01,085      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-05 12:34:01,085      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 12:34:28,378  CRITICAL: tr: Execution interrupted
+2018-09-05 12:34:28,378  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 12:34:28,381      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 12:34:28,382      INFO: tr: ######################### Cleanup #########################
+2018-09-05 12:34:28,384      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 12:34:30,404   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 12:34:30,407      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 12:34:30,423   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 12:34:30,426      INFO: tr: All sections of batch file were executed
+2018-09-05 12:34:30,477      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpcxxlbo\server

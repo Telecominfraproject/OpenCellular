@@ -1,0 +1,45 @@
+# When 1st character of a line is #, this is a comment line which is ignored
+# Line format: filename, localpath, remotepath, filecommand, filecmdtimeout
+# filename: base filename (if not provided, localpath and remotepath must include full file pathname)
+# localpath: local file directory path, relative or absolute, or full path if filename is not provided
+# remotepath: remote file directory path, relative or absolute, or full path if filename is not provided
+# filecommand: ssh command executed after the file transfer (if not empty)
+# filecmdtimeout: if filecommand is provided, force this ssh time out value instead of default
+# if filename, localpath and remotepath are all not provided, no scp transfer will occur
+# Equivalent operations (default remote file access will be 644 if remote file does not exist):
+# scp localpath+filename remotepath+filename
+# ssh filecommand
+#
+# This is the list of calibration files to update in flash through scp with associated optionnaly needed ssh commands
+,,,mkdir -p /tmp/calib,
+bbrxatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_10_ant2.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_20_ant1.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_20_ant2.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_5_ant1.cal,calib\,/tmp/calib/,,
+bbrxatten_b3_5_ant2.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_10_ant2.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_20_ant1.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_20_ant2.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_5_ant1.cal,calib\,/tmp/calib/,,
+bbtxatten_b3_5_ant2.cal,calib\,/tmp/calib/,,
+fefbatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+fefbatten_b3_10_ant2.cal,calib\,/tmp/calib/,,
+fefbatten_b3_20_ant1.cal,calib\,/tmp/calib/,,
+fefbatten_b3_20_ant2.cal,calib\,/tmp/calib/,,
+fefbatten_b3_5_ant1.cal,calib\,/tmp/calib/,,
+fefbatten_b3_5_ant2.cal,calib\,/tmp/calib/,,
+ferxatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+ferxatten_b3_10_ant2.cal,calib\,/tmp/calib/,,
+ferxatten_b3_20_ant1.cal,calib\,/tmp/calib/,,
+ferxatten_b3_20_ant2.cal,calib\,/tmp/calib/,,
+ferxatten_b3_5_ant1.cal,calib\,/tmp/calib/,,
+ferxatten_b3_5_ant2.cal,calib\,/tmp/calib/,,
+fetxatten_b3_10_ant1.cal,calib\,/tmp/calib/,,
+fetxatten_b3_10_ant2.cal,calib\,/tmp/calib/,,
+fetxatten_b3_20_ant1.cal,calib\,/tmp/calib/,,
+fetxatten_b3_20_ant2.cal,calib\,/tmp/calib/,,
+fetxatten_b3_5_ant1.cal,calib\,/tmp/calib/,,
+fetxatten_b3_5_ant2.cal,calib\,/tmp/calib/,cd /tmp && chmod -R 777 ./calib/* && tar -C /tmp/calib -zcf /tmp/cal.tgz . && cp /tmp/cal.tgz /mnt/app/cal.tgz,

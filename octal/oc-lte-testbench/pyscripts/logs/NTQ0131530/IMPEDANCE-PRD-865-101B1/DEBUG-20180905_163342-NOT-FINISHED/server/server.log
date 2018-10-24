@@ -1,0 +1,13 @@
+2018-09-05 16:33:42,476: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpywofta
+2018-09-05 16:33:42,497: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,549: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,594: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,621: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,663: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,684: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,729: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,789: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,811: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,861: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-05 16:33:42,901: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmp7leppg\server
+2018-09-05 16:33:57,943: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmp7leppg\server

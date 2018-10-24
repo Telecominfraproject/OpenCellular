@@ -1,0 +1,30 @@
+# When 1st character of a line is #, this is a comment line which is ignored
+# Line format: filename, localpath, remotepath, filecommand, filecmdtimeout
+# filename: base filename (if not provided, localpath and remotepath must include full file pathname)
+# localpath: local file directory path, relative or absolute, or full path if filename is not provided
+# remotepath: remote file directory path, relative or absolute, or full path if filename is not provided
+# filecommand: ssh command executed after the file transfer (if not empty)
+# filecmdtimeout: if filecommand is provided, force this ssh time out value instead of default
+# if filename, localpath and remotepath are all not provided, no scp transfer will occur
+# Equivalent operations (default remote file access will be 644 if remote file does not exist):
+# scp localpath+filename remotepath+filename
+# ssh filecommand
+#
+# This is the final list of files to update in flash through scp with associated optionnaly needed ssh commands
+LFMSOFT_OCT_D.tgz,,/mnt/app/,,
+lsmD.gz,,/mnt/app/,,
+dsp.tgz,,/mnt/app/,,
+startup.cfg,,/mnt/app/,,
+ETM_10MHz_TV.tgz,,/mnt/app/,,
+rffe.tgz,,/mnt/app/,,
+data-model.xml,,/mnt/app/,,
+Dimark_Client.tgz,,/mnt/app/,,
+rc_pre.local,,/mnt/app/,,
+rc_post.local,,/mnt/app/,,
+# Updates the flash with update -ob. -o updates the default partition, -b the backup one.
+lsm_os.gz,,/tmp/,update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz,200
+lsm_rd.gz,,/tmp/,update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz,1200
+# this will copy the flash_app0 flash mount to the recovery version flash_app1 (may be not necessary as flash_app1 appears not used)
+#,,,sync && mount | grep "/dev/flash_app0" && umount /dev/flash_app0;mount | grep "/dev/flash_app0" && umount /dev/flash_app0,
+#,,,dd if=/dev/flash_app0 of=/dev/flash_app1 bs=1024 count=15232,130
+#,,,fsetenv bootby flash && fsetenv swloadby flash && fsetenv cfgloadby flash,

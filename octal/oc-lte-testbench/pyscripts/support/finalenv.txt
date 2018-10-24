@@ -1,0 +1,24 @@
+bootby=flash
+boot_linux=bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M img=${img_no}
+load_imgs=cp.l ${flash_rd_addr} 0x30800000 0xA00000 && gunzip ${flash_os_addr} 0x20000000
+default_load=setenv flash_rd_addr 0x18320000 && setenv flash_os_addr 0x17E20000 && setenv img_no 0 && run load_imgs
+factory_load=setenv flash_rd_addr 0x1C200000 && setenv flash_os_addr 0x1BD00000 && setenv img_no 1 && run load_imgs
+bootcbyflash=run default_load || run factory_load; run boot_linux
+bootfile=pxelinux.0
+cfgloadby=flash
+dhcpenable=0
+i2cinit=i2c reset
+mode=e2e
+bw=10
+namedalloc=namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc pf4cazac 0x13000 0x84000000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;
+serverip=10.102.81.50
+startapp=1
+swloadby=flash
+target=zen
+tcxo=pwm
+ucliovrd=0
+acsenable=0
+acsurl=
+gpsenable=
+gpstestinterval=10
+gpsenablecount=5

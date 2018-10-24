@@ -1,0 +1,16 @@
+#!/bin/sh
+
+source /tmp/system.conf
+
+if [ "$SYNCBY" == "gps" ];then 
+cat << EOF >> /var/spool/cron/crontabs/root
+*/2	*	*	*	*	/usr/bin/fault_manager.sh gps
+EOF
+fi
+
+cp /mnt/app/rffe.tgz /.
+cd /
+tar xzvf rffe.tgz
+fe-enable
+fe-manager -t 1825 &
+sleep 30

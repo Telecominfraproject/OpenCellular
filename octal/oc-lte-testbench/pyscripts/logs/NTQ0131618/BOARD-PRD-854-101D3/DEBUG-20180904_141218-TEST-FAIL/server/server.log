@@ -1,0 +1,44 @@
+2018-09-04 14:12:18,220: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmp9mpssk
+2018-09-04 14:12:18,239: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,276: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,315: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,332: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,355: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,365: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,384: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,424: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,434: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,464: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 14:12:18,496: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpyw2hy2\server
+2018-09-04 14:12:42,739: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.12 s)
+2018-09-04 14:12:42,793: server.service.COMService@comport                 : ERROR   Server error [could not open port u'COM10': WindowsError(5, 'Acc\xe8s refus\xe9.')]
+2018-09-04 14:12:42,799: server.service.COMService@comport                 : ERROR   Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\iointerface_service.py", line 66, in service_config
+    interface = self.configure_interface(config)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\iointerface_service.py", line 207, in configure_interface
+    interface = COMInterface(config.port, config.baudrate)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\support\iointerface.py", line 28, in __init__
+    self.serial = Serial(port=port, baudrate=baudrate, timeout=0.05)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\serial\serialwin32.py", line 31, in __init__
+    super(Serial, self).__init__(*args, **kwargs)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\serial\serialutil.py", line 240, in __init__
+    self.open()
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\serial\serialwin32.py", line 62, in open
+    raise SerialException("could not open port {!r}: {!r}".format(self.portstr, ctypes.WinError()))
+SerialException: could not open port u'COM10': WindowsError(5, 'Acc\xe8s refus\xe9.')
+
+2018-09-04 14:12:42,838: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 14:12:42,851: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 14:12:42,880: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpyw2hy2\server

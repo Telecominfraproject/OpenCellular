@@ -1,0 +1,402 @@
+2018-09-04 16:45:48,654:DEBUG    
+
+
+2018-09-04 16:45:48,654:INFO     SERVICE INITIALIZED
+2018-09-04 16:45:58,976:DEBUG    LOG =DEBUG
+2018-09-04 16:45:58,976:DEBUG    Initiating SSH connection at 10.102.81.61
+2018-09-04 16:45:58,976:DEBUG    10.102.81.61:22, user=root, password=cavium.lte
+2018-09-04 16:46:09,094:INFO     SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.12 s)
+2018-09-04 16:46:09,104:DEBUG    Timeout 10.0s, TTY=False. Command: cat /var/log/messages
+2018-09-04 16:46:09,121:DEBUG    Exit code= 0
+2018-09-04 16:46:09,121:DEBUG    Jan  1 00:00:18 (none) syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM syslog.info syslogd started: BusyBox v1.20.2
+Jan  2 00:00:05 LSM daemon.crit mini_httpd[1371]: bind 0.0.0.0 - Address already in use
+Jan  2 00:00:05 LSM daemon.warn mini_httpd[1373]: started as root without requesting chroot(), warning only
+Jan  2 00:00:05 LSM daemon.notice mini_httpd[1373]: mini_httpd/1.19 19dec2003 starting on LSM, port 443
+Jan  2 00:00:10 LSM cron.info crond[1412]: crond: crond (busybox 1.20.2) started, log level 8
+Jan  2 08:00:35 LSM daemon.info init: starting pid 1817, tty '/dev/ttyS0': '/sbin/getty -L ttyS0 115200 vt100 '
+Jan  2 00:01:01 LSM cron.info crond[1412]: crond: USER root pid 1981 cmd /usr/bin/tempcheck.sh
+Jan  2 00:02:01 LSM cron.info crond[1412]: crond: USER root pid 2300 cmd /usr/bin/tempcheck.sh
+Jan  2 00:03:01 LSM cron.info crond[1412]: crond: USER root pid 2585 cmd /usr/bin/tempcheck.sh
+Jan  2 00:04:01 LSM cron.info crond[1412]: crond: USER root pid 2858 cmd /usr/bin/tempcheck.sh
+Jan  2 00:05:01 LSM cron.info crond[1412]: crond: USER root pid 3102 cmd /usr/bin/tempcheck.sh
+Jan  2 00:06:01 LSM cron.info crond[1412]: crond: USER root pid 3346 cmd /usr/bin/tempcheck.sh
+Jan  2 00:07:01 LSM cron.info crond[1412]: crond: USER root pid 3588 cmd /usr/bin/tempcheck.sh
+Jan  2 00:08:01 LSM cron.info crond[1412]: crond: USER root pid 3865 cmd /usr/bin/tempcheck.sh
+Jan  2 00:09:01 LSM cron.info crond[1412]: crond: USER root pid 4110 cmd /usr/bin/tempcheck.sh
+Jan  2 00:10:01 LSM cron.info crond[1412]: crond: USER root pid 4354 cmd /usr/bin/tempcheck.sh
+Jan  2 00:11:01 LSM cron.info crond[1412]: crond: USER root pid 4596 cmd /usr/bin/tempcheck.sh
+Jan  2 00:12:01 LSM cron.info crond[1412]: crond: USER root pid 4840 cmd /usr/bin/tempcheck.sh
+Jan  2 00:13:01 LSM cron.info crond[1412]: crond: USER root pid 5113 cmd /usr/bin/tempcheck.sh
+Jan  2 00:14:01 LSM cron.info crond[1412]: crond: USER root pid 5415 cmd /usr/bin/tempcheck.sh
+Jan  2 00:15:01 LSM cron.info crond[1412]: crond: USER root pid 5707 cmd /usr/bin/tempcheck.sh
+Jan  2 00:16:01 LSM cron.info crond[1412]: crond: USER root pid 5991 cmd /usr/bin/tempcheck.sh
+Jan  2 00:17:01 LSM cron.info crond[1412]: crond: USER root pid 6233 cmd /usr/bin/tempcheck.sh
+Jan  2 00:18:01 LSM cron.info crond[1412]: crond: USER root pid 6473 cmd /usr/bin/tempcheck.sh
+Jan  2 00:19:01 LSM cron.info crond[1412]: crond: USER root pid 6715 cmd /usr/bin/tempcheck.sh
+Jan  2 00:20:01 LSM cron.info crond[1412]: crond: USER root pid 6947 cmd /usr/bin/tempcheck.sh
+Jan  2 00:21:01 LSM cron.info crond[1412]: crond: USER root pid 7189 cmd /usr/bin/tempcheck.sh
+Jan  2 00:22:01 LSM cron.info crond[1412]: crond: USER root pid 7429 cmd /usr/bin/tempcheck.sh
+Jan  2 00:23:01 LSM cron.info crond[1412]: crond: USER root pid 7671 cmd /usr/bin/tempcheck.sh
+Jan  2 00:24:01 LSM cron.info crond[1412]: crond: USER root pid 7913 cmd /usr/bin/tempcheck.sh
+Jan  2 00:25:01 LSM cron.info crond[1412]: crond: USER root pid 8155 cmd /usr/bin/tempcheck.sh
+2018-09-04 16:46:09,121:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 16:46:19,273:DEBUG    Timeout 10.0s, TTY=False. Command: fprintenv mode
+2018-09-04 16:46:19,303:DEBUG    Exit code= 0
+2018-09-04 16:46:19,303:DEBUG    Environment Name = 'mode', Value= 'pltd'.
+2018-09-04 16:46:19,303:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 16:46:19,456:DEBUG    Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp
+2018-09-04 16:46:19,470:DEBUG    Exit code= 0
+2018-09-04 16:46:19,471:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp (0.02 s)
+2018-09-04 16:46:20,729:DEBUG    Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm
+2018-09-04 16:46:20,770:DEBUG    Exit code= 0
+2018-09-04 16:46:20,770:DEBUG    wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-04 16:46:20,770:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm (0.04 s)
+2018-09-04 16:46:20,779:DEBUG    Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C /
+2018-09-04 16:46:20,930:DEBUG    Exit code= 0
+2018-09-04 16:46:20,930:DEBUG    bin/
+bin/fe-settxatt
+bin/fe-devicecontrol
+bin/fe-manager
+bin/rfpaleepromtoolset
+bin/fe-resetrfpal
+bin/etm-start
+bin/pltd-enablefe
+bin/fe-readjusttxatt
+bin/cal-unzipcalfiles
+bin/get_stat.sh
+bin/FE_Env
+bin/etm-stop
+bin/cal-getbbrxatt
+bin/bb-settxatt
+bin/cal-getferxatt
+bin/fe-getcurrent
+bin/fe-getoutputpowererror
+bin/e2e-enablefe
+bin/rfpaltoolset
+bin/fe-softresetrfpal
+bin/fe-getreversvalue
+bin/bb-getearfcn
+bin/bb-setrxatt
+bin/etm-settxfreq
+bin/rfpaleepromtoolget
+bin/caleepromtool
+bin/bb-getfreq
+bin/fe-getreturnloss
+bin/fe-gettemperature
+bin/fe-setled
+bin/fe-setfbatt
+bin/fe-enable
+bin/fe-setrxatt
+bin/cal-getbbtxatt
+bin/rfpaltoolget
+bin/fe-gettxpower
+bin/cal-getfetxatt
+bin/cal-getbbatt
+bin/fe-gettxatt
+bin/rfpaltooldump
+bin/fe-setrfpalcal
+bin/cal-getfefbatt
+bin/fe-getrfinrms
+bin/fe-clearrfpalcal
+2018-09-04 16:46:20,930:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: tar -xvf /mnt/app/rffe.tgz -C / (0.15 s)
+2018-09-04 16:46:20,950:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled red on
+2018-09-04 16:46:20,984:DEBUG    Exit code= 0
+2018-09-04 16:46:20,984:DEBUG    (STDERR)/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/red*/brightness: nonexistent directory
+/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/green*/brightness: nonexistent directory
+2018-09-04 16:46:20,984:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled red on (0.03 s)
+2018-09-04 16:46:29,059:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled green on
+2018-09-04 16:46:29,078:DEBUG    Exit code= 0
+2018-09-04 16:46:29,078:DEBUG    (STDERR)/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/red*/brightness: nonexistent directory
+/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/green*/brightness: nonexistent directory
+2018-09-04 16:46:29,078:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled green on (0.02 s)
+2018-09-04 16:46:31,959:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange on
+2018-09-04 16:46:31,976:DEBUG    Exit code= 0
+2018-09-04 16:46:31,976:DEBUG    (STDERR)/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/red*/brightness: nonexistent directory
+/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/green*/brightness: nonexistent directory
+2018-09-04 16:46:31,976:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange on (0.02 s)
+2018-09-04 16:46:35,773:DEBUG    Timeout 10.0s, TTY=False. Command: fe-setled orange off
+2018-09-04 16:46:35,790:DEBUG    Exit code= 0
+2018-09-04 16:46:35,790:DEBUG    (STDERR)/bin/fe-setled: line 106: can't create /sys/devices/soc.0/0.leds/leds/*/brightness: nonexistent directory
+2018-09-04 16:46:35,790:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-setled orange off (0.02 s)
+2018-09-04 16:46:37,092:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024
+2018-09-04 16:46:37,108:DEBUG    Exit code= 0
+2018-09-04 16:46:37,108:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,109:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0024 (0.02 s)
+2018-09-04 16:46:37,117:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025
+2018-09-04 16:46:37,164:DEBUG    Exit code= 0
+2018-09-04 16:46:37,164:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,164:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0025 (0.05 s)
+2018-09-04 16:46:37,174:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026
+2018-09-04 16:46:37,223:DEBUG    Exit code= 0
+2018-09-04 16:46:37,223:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,223:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0026 (0.05 s)
+2018-09-04 16:46:37,232:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027
+2018-09-04 16:46:37,279:DEBUG    Exit code= 0
+2018-09-04 16:46:37,279:DEBUG    driver
+gpio
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,279:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0027 (0.05 s)
+2018-09-04 16:46:37,288:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028
+2018-09-04 16:46:37,336:DEBUG    Exit code= 0
+2018-09-04 16:46:37,336:DEBUG    driver
+iio:device0
+microamps_requested_0-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,338:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0028 (0.05 s)
+2018-09-04 16:46:37,345:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040
+2018-09-04 16:46:37,391:DEBUG    Exit code= 0
+2018-09-04 16:46:37,391:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-04 16:46:37,391:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040 (0.05 s)
+2018-09-04 16:46:37,398:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a
+2018-09-04 16:46:37,446:DEBUG    Exit code= 0
+2018-09-04 16:46:37,446:DEBUG    driver
+hwmon
+modalias
+name
+subsystem
+temp1_input
+temp1_max
+temp1_max_hyst
+uevent
+2018-09-04 16:46:37,447:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a (0.05 s)
+2018-09-04 16:46:37,453:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051
+2018-09-04 16:46:37,500:DEBUG    Exit code= 0
+2018-09-04 16:46:37,500:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,500:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051 (0.05 s)
+2018-09-04 16:46:37,529:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025
+2018-09-04 16:46:37,553:DEBUG    Exit code= 0
+2018-09-04 16:46:37,553:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,555:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0025 (0.03 s)
+2018-09-04 16:46:37,563:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026
+2018-09-04 16:46:37,611:DEBUG    Exit code= 0
+2018-09-04 16:46:37,611:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,611:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0026 (0.05 s)
+2018-09-04 16:46:37,621:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027
+2018-09-04 16:46:37,670:DEBUG    Exit code= 0
+2018-09-04 16:46:37,670:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,671:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0027 (0.05 s)
+2018-09-04 16:46:37,678:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028
+2018-09-04 16:46:37,723:DEBUG    Exit code= 0
+2018-09-04 16:46:37,723:DEBUG    driver
+iio:device1
+microamps_requested_1-0028-vcc
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,723:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028 (0.05 s)
+2018-09-04 16:46:37,732:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040
+2018-09-04 16:46:37,778:DEBUG    Exit code= 0
+2018-09-04 16:46:37,779:DEBUG    curr1_input
+driver
+hwmon
+in0_input
+in1_input
+modalias
+name
+power1_input
+subsystem
+uevent
+2018-09-04 16:46:37,779:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040 (0.05 s)
+2018-09-04 16:46:37,786:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a
+2018-09-04 16:46:37,832:DEBUG    Exit code= 0
+2018-09-04 16:46:37,834:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,834:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a (0.05 s)
+2018-09-04 16:46:37,852:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020
+2018-09-04 16:46:37,881:DEBUG    Exit code= 0
+2018-09-04 16:46:37,881:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,881:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0020 (0.03 s)
+2018-09-04 16:46:37,891:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049
+2018-09-04 16:46:37,937:DEBUG    Exit code= 0
+2018-09-04 16:46:37,937:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,937:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049 (0.05 s)
+2018-09-04 16:46:37,946:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050
+2018-09-04 16:46:37,992:DEBUG    Exit code= 0
+2018-09-04 16:46:37,993:DEBUG    driver
+eeprom
+modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:37,993:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0050 (0.05 s)
+2018-09-04 16:46:38,000:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f
+2018-09-04 16:46:38,048:DEBUG    Exit code= 0
+2018-09-04 16:46:38,048:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:38,048:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f (0.05 s)
+2018-09-04 16:46:38,055:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e
+2018-09-04 16:46:38,101:DEBUG    Exit code= 0
+2018-09-04 16:46:38,102:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:38,102:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003e (0.05 s)
+2018-09-04 16:46:38,111:DEBUG    Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f
+2018-09-04 16:46:38,158:DEBUG    Exit code= 0
+2018-09-04 16:46:38,158:DEBUG    modalias
+name
+subsystem
+uevent
+2018-09-04 16:46:38,160:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-003f (0.05 s)
+2018-09-04 16:46:38,174:DEBUG    Timeout 10.0s, TTY=False. Command: fe-resetrfpal
+2018-09-04 16:46:39,226:DEBUG    Exit code= 0
+2018-09-04 16:46:39,226:DEBUG    (STDERR)/bin/fe-resetrfpal: line 5: can't create /sys/devices/soc.0/0.tip/rfpal_reset: nonexistent directory
+/bin/fe-resetrfpal: line 7: can't create /sys/devices/soc.0/0.tip/rfpal_reset: nonexistent directory
+2018-09-04 16:46:39,226:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-resetrfpal (1.05 s)
+2018-09-04 16:46:39,236:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p
+2018-09-04 16:46:39,354:DEBUG    Exit code= 0
+2018-09-04 16:46:39,354:DEBUG    -18480
+2018-09-04 16:46:39,354:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltooldump 2>&1 | grep 'PMU RF IN RMS Value' | awk '{print $6}' | egrep -o '^[^\.dBM]*' | sed -n 2p (0.12 s)
+2018-09-04 16:46:39,361:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10
+2018-09-04 16:46:39,410:DEBUG    Exit code= 0
+2018-09-04 16:46:39,410:DEBUG    add FC 00, 5, size 2, 0E 10
+2018-09-04 16:46:39,410:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x00 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-04 16:46:39,417:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8
+2018-09-04 16:46:39,467:DEBUG    Exit code= 0
+2018-09-04 16:46:39,467:DEBUG    add FC 02, 5, size 2, 0E D8
+2018-09-04 16:46:39,467:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x02 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 16:46:39,476:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10
+2018-09-04 16:46:39,525:DEBUG    Exit code= 0
+2018-09-04 16:46:39,525:DEBUG    add FC 14, 5, size 2, 0E 10
+2018-09-04 16:46:39,525:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x14 0x05 2 0x0e 0x10 (0.05 s)
+2018-09-04 16:46:39,532:DEBUG    Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8
+2018-09-04 16:46:39,579:DEBUG    Exit code= 0
+2018-09-04 16:46:39,581:DEBUG    add FC 16, 5, size 2, 0E D8
+2018-09-04 16:46:39,581:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: rfpaltoolset 0xfc 0x16 0x05 2 0x0e 0xd8 (0.05 s)
+2018-09-04 16:46:39,592:DEBUG    Timeout 10.0s, TTY=False. Command: fe-gethdrev
+2018-09-04 16:46:39,638:DEBUG    Exit code= 0
+2018-09-04 16:46:39,638:DEBUG    (STDERR)sh: fe-gethdrev: not found
+2018-09-04 16:46:39,638:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-gethdrev (0.05 s)
+2018-09-04 16:46:39,660:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20
+2018-09-04 16:46:39,701:DEBUG    Exit code= 0
+2018-09-04 16:46:39,703:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 1 20 (0.04 s)
+2018-09-04 16:46:39,710:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-04 16:46:39,760:DEBUG    Exit code= 0
+2018-09-04 16:46:39,762:DEBUG    
+2018-09-04 16:46:39,762:DEBUG    (STDERR)cat: read error: Input/output error
+2018-09-04 16:46:39,762:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 16:46:39,770:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64
+2018-09-04 16:46:39,822:DEBUG    Exit code= 0
+2018-09-04 16:46:39,822:DEBUG    (STDERR)/bin/fe-settxatt: line 35: can't create /sys/devices/soc.0/0.tip/tx0_pa_att: nonexistent directory
+2018-09-04 16:46:39,822:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 1 64 (0.05 s)
+2018-09-04 16:46:39,832:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1
+2018-09-04 16:46:39,881:DEBUG    Exit code= 0
+2018-09-04 16:46:39,881:DEBUG    
+2018-09-04 16:46:39,881:DEBUG    (STDERR)cat: read error: Input/output error
+2018-09-04 16:46:39,881:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa1 (0.05 s)
+2018-09-04 16:46:39,891:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att
+2018-09-04 16:46:39,937:DEBUG    Exit code= 0
+2018-09-04 16:46:39,937:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx0_rfpal_att: nonexistent directory
+2018-09-04 16:46:39,937:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx0_rfpal_att (0.05 s)
+2018-09-04 16:46:39,960:DEBUG    Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20
+2018-09-04 16:46:40,003:DEBUG    Exit code= 0
+2018-09-04 16:46:40,003:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: bb-settxatt 2 20 (0.04 s)
+2018-09-04 16:46:40,012:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-04 16:46:40,068:DEBUG    Exit code= 0
+2018-09-04 16:46:40,068:DEBUG    0
+2018-09-04 16:46:40,069:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-04 16:46:40,076:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-04 16:46:40,122:DEBUG    Exit code= 0
+2018-09-04 16:46:40,122:DEBUG    28250
+2018-09-04 16:46:40,124:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 16:46:40,131:DEBUG    Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64
+2018-09-04 16:46:40,183:DEBUG    Exit code= 0
+2018-09-04 16:46:40,184:DEBUG    (STDERR)/bin/fe-settxatt: line 35: can't create /sys/devices/soc.0/0.tip/tx1_pa_att: nonexistent directory
+2018-09-04 16:46:40,184:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-settxatt 2 64 (0.05 s)
+2018-09-04 16:46:40,191:DEBUG    Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2
+2018-09-04 16:46:40,246:DEBUG    Exit code= 0
+2018-09-04 16:46:40,246:DEBUG    0
+2018-09-04 16:46:40,246:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fe-getcurrent pa2 (0.06 s)
+2018-09-04 16:46:40,255:DEBUG    Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input
+2018-09-04 16:46:40,302:DEBUG    Exit code= 0
+2018-09-04 16:46:40,302:DEBUG    28250
+2018-09-04 16:46:40,302:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0040/in1_input (0.05 s)
+2018-09-04 16:46:40,311:DEBUG    Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att
+2018-09-04 16:46:40,355:DEBUG    Exit code= 0
+2018-09-04 16:46:40,355:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx1_rfpal_att: nonexistent directory
+2018-09-04 16:46:40,355:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo 56 > /sys/devices/soc.0/0.tip/tx1_rfpal_att (0.04 s)
+2018-09-04 16:46:40,365:DEBUG    Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1
+2018-09-04 16:46:41,951:DEBUG    Exit code= 0
+2018-09-04 16:46:41,953:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: etm-start-tmp 1.1 (1.59 s)
+2018-09-04 16:46:45,973:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en
+2018-09-04 16:46:45,986:DEBUG    Exit code= 0
+2018-09-04 16:46:45,986:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx0_predriver1_en: nonexistent directory
+2018-09-04 16:46:45,986:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.01 s)
+2018-09-04 16:46:45,994:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en
+2018-09-04 16:46:46,040:DEBUG    Exit code= 0
+2018-09-04 16:46:46,040:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx0_predriver2_en: nonexistent directory
+2018-09-04 16:46:46,040:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.05 s)
+2018-09-04 16:46:46,049:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state
+2018-09-04 16:46:46,095:DEBUG    Exit code= 0
+2018-09-04 16:46:46,095:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.05 s)
+2018-09-04 16:46:46,104:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en
+2018-09-04 16:46:46,151:DEBUG    Exit code= 0
+2018-09-04 16:46:46,151:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx1_predriver1_en: nonexistent directory
+2018-09-04 16:46:46,151:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.05 s)
+2018-09-04 16:46:46,158:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en
+2018-09-04 16:46:46,204:DEBUG    Exit code= 0
+2018-09-04 16:46:46,204:DEBUG    (STDERR)sh: can't create /sys/devices/soc.0/0.tip/tx1_predriver2_en: nonexistent directory
+2018-09-04 16:46:46,204:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.05 s)
+2018-09-04 16:46:46,213:DEBUG    Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state
+2018-09-04 16:46:46,257:DEBUG    Exit code= 0
+2018-09-04 16:46:46,257:INFO     SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.04 s)

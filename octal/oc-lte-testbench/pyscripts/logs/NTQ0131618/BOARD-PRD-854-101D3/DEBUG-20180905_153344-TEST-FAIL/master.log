@@ -1,0 +1,155 @@
+2018-09-05 15:33:44,007      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpdlmyor
+2018-09-05 15:33:44,038      INFO: tr.server: Loading services from config file
+2018-09-05 15:33:44,569      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 15:33:44,586      INFO: tr: ###################### BoardTestScan ######################
+2018-09-05 15:33:44,589      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-05 15:33:44,612      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-05 15:33:44,631      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-05 15:33:44,631      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-05 15:34:05,005      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-05 15:34:05,007      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-05 15:34:05,009      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-05 15:34:05,010      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-05 15:34:05,026      INFO: tr: ##################### BoardTestbench #####################
+2018-09-05 15:34:05,042      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-05 15:34:05,043      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:05,045      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-05 15:34:06,973      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:06,974      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:06,974      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-05 15:34:08,042      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:08,042      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-05 15:34:08,045      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-05 15:34:09,009      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-05 15:34:09,026      INFO: tr: ####################### Preparation #######################
+2018-09-05 15:34:09,042      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-05 15:34:09,043      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-05 15:34:09,045      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-05 15:34:15,821      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-05 15:34:15,822      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-05 15:34:15,933      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-05 15:34:15,934      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-05 15:34:15,960      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-05 15:34:16,036      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-05 15:34:22,438      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-05 15:34:22,622      INFO: tr: ######################### Powerup #########################
+2018-09-05 15:34:22,644      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-05 15:34:22,796      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-09-05 15:34:25,329      INFO: tr.CM_PRP030: Power On
+2018-09-05 15:34:26,480      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-05 15:34:26,496      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-05 15:34:26,500      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-05 15:34:36,729      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-05 15:34:36,782      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-05 15:34:46,957      INFO: tr: ####################### UpdateSetup #######################
+2018-09-05 15:34:46,986      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-05 15:34:46,989      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-05 15:34:48,496      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-05 15:34:48,516      INFO: tr: ####################### DigitalComm #######################
+2018-09-05 15:34:48,532      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-05 15:34:48,993      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-05 15:34:49,361      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-05 15:34:49,733      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-05 15:34:53,095      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-05 15:34:53,141      INFO: tr.server.LTESSHServiceClient: [fe-gethdrev] returned exit code 127, expected 0
+sh: fe-gethdrev: not found
+2018-09-05 15:34:53,170      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-05 15:34:53,171      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-05 15:34:53,171      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-05 15:34:53,173      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-05 15:34:53,174      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-05 15:34:53,174      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-05 15:34:53,201      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-05 15:34:53,285      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-05 15:34:53,308      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-05 15:34:53,332      INFO: tr: ################### TXEnableValidation ###################
+2018-09-05 15:34:53,357      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-05 15:35:15,227      INFO: tr.criteria: TSC131_PRE_DRIVER1_GAIN_dB: 25 < [3.612] < 40 : FAIL
+2018-09-05 15:35:36,145      INFO: tr.criteria: TSC131_PRE_DRIVER2_GAIN_dB: 25 < [-1.54] < 40 : FAIL
+2018-09-05 15:35:44,917     ERROR: tr.FE_TSC131: RemoteServerError: [500] SERVICE call @spectrum: AttributeError: 'NoneType' object has no attribute 'write'
+2018-09-05 15:35:44,917     ERROR: tr.FE_TSC131: TEST FAILED
+2018-09-05 15:35:44,918      INFO: tr.FE_TSC231: ------ [FE_TSC231] Validate TX2 Enables Gains ------
+2018-09-05 15:35:45,088     ERROR: tr.FE_TSC231: RemoteServerError: [500] SERVICE call @ssh: EOFError: 
+2018-09-05 15:35:45,088     ERROR: tr.FE_TSC231: TEST FAILED
+2018-09-05 15:35:45,088      INFO: tr: #################### TXAttnValidation ####################
+2018-09-05 15:35:45,092      INFO: tr.FE_TSC132: ---------- [FE_TSC132] Validate TX1 Attn ----------
+2018-09-05 15:35:45,111     ERROR: tr.FE_TSC132: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:45,111     ERROR: tr.FE_TSC132: TEST FAILED
+2018-09-05 15:35:45,112      INFO: tr.FE_TSC133: ---------- [FE_TSC133] Validate FB1 Attn ----------
+2018-09-05 15:35:46,130     ERROR: tr.FE_TSC133: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18238330>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:46,131     ERROR: tr.FE_TSC133: TEST FAILED
+2018-09-05 15:35:46,131      INFO: tr.FE_TSC232: ---------- [FE_TSC232] Validate TX2 Attn ----------
+2018-09-05 15:35:47,145     ERROR: tr.FE_TSC232: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/rfswitch (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x18227310>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:47,147     ERROR: tr.FE_TSC232: TEST FAILED
+2018-09-05 15:35:47,147      INFO: tr.FE_TSC233: ---------- [FE_TSC233] Validate FB2 Attn ----------
+2018-09-05 15:35:48,161     ERROR: tr.FE_TSC233: ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /service/ssh (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x17E41D70>: Failed to establish a new connection: [Errno 10061] Aucune connexion n\x92a pu \xeatre \xe9tablie car l\x92ordinateur cible l\x92a express\xe9ment refus\xe9e',))
+2018-09-05 15:35:48,163     ERROR: tr.FE_TSC233: TEST FAILED
+2018-09-05 15:35:48,163      INFO: tr: ###################### TRXIsolation ######################
+2018-09-05 15:35:48,164      INFO: tr.FE_TSC136: ------- [FE_TSC136] Validate TRX1 Isolation -------
+2018-09-05 15:35:48,681     ERROR: tr.FE_TSC136: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,681     ERROR: tr.FE_TSC136: TEST FAILED
+2018-09-05 15:35:48,683      INFO: tr.FE_TSC236: ------- [FE_TSC236] Validate TRX2 Isolation -------
+2018-09-05 15:35:48,694     ERROR: tr.FE_TSC236: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,696     ERROR: tr.FE_TSC236: TEST FAILED
+2018-09-05 15:35:48,697      INFO: tr: ################# TXRMSDetectorValidation #################
+2018-09-05 15:35:48,697      INFO: tr.FE_TSC137: ---- [FE_TSC137] Validate TX1 RMS Detector FWD ----
+2018-09-05 15:35:48,713     ERROR: tr.FE_TSC137: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,713     ERROR: tr.FE_TSC137: TEST FAILED
+2018-09-05 15:35:48,713      INFO: tr.FE_TSC237: ---- [FE_TSC237] Validate TX2 RMS Detector FWD ----
+2018-09-05 15:35:48,727     ERROR: tr.FE_TSC237: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,727     ERROR: tr.FE_TSC237: TEST FAILED
+2018-09-05 15:35:48,730      INFO: tr: ###################### SetupRXSwitch ######################
+2018-09-05 15:35:48,736      INFO: tr.FE_PRP040: -------- [FE_PRP040] Set RX Sniffer switch --------
+2018-09-05 15:35:48,752     ERROR: tr.FE_PRP040: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,753     ERROR: tr.FE_PRP040: TEST FAILED
+2018-09-05 15:35:48,753      INFO: tr.FE_PRP041: ------------- [FE_PRP041] Turn off TX -------------
+2018-09-05 15:35:48,769     ERROR: tr.FE_PRP041: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,769     ERROR: tr.FE_PRP041: TEST FAILED
+2018-09-05 15:35:48,770      INFO: tr: ################# RXAttenuatorValidation #################
+2018-09-05 15:35:48,776      INFO: tr.FE_TSC040: ---- [FE_TSC040] Validate RX 1 Attenuator bits ----
+2018-09-05 15:35:48,792     ERROR: tr.FE_TSC040: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,793     ERROR: tr.FE_TSC040: TEST FAILED
+2018-09-05 15:35:48,795      INFO: tr.FE_TSC140: ---- [FE_TSC140] Validate RX 2 Attenuator bits ----
+2018-09-05 15:35:48,806     ERROR: tr.FE_TSC140: RemoteServerError: [404] SERVICE call @rfswitch: ServiceError: No Service at url rfswitch.
+2018-09-05 15:35:48,808     ERROR: tr.FE_TSC140: TEST FAILED
+2018-09-05 15:35:48,809      INFO: tr: ################### RXEnableValidation ###################
+2018-09-05 15:35:48,812      INFO: tr.FE_TSC041: -------- [FE_TSC041] Validate RX1 LNA Gain --------
+2018-09-05 15:35:48,835     ERROR: tr.FE_TSC041: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,836     ERROR: tr.FE_TSC041: TEST FAILED
+2018-09-05 15:35:48,838      INFO: tr.FE_TSC141: -------- [FE_TSC141] Validate RX2 LNA Gain --------
+2018-09-05 15:35:48,854     ERROR: tr.FE_TSC141: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,854     ERROR: tr.FE_TSC141: TEST FAILED
+2018-09-05 15:35:48,855      INFO: tr: ###################### AssembleUnit ######################
+2018-09-05 15:35:48,858      INFO: tr.CM_PRP060: --------- [CM_PRP060] BB and FE RF Jumpers ---------
+2018-09-05 15:35:48,877     ERROR: tr.CM_PRP060: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,878     ERROR: tr.CM_PRP060: TEST FAILED
+2018-09-05 15:35:48,881  CRITICAL: tr.CM_PRP060: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-05 15:35:48,881  CRITICAL: tr: Execution interrupted
+2018-09-05 15:35:48,882  CRITICAL: tr: RemoteServerError: [404] SERVICE call @ssh: ServiceError: No Service at url ssh.
+2018-09-05 15:35:48,884      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-05 15:35:48,887      INFO: tr: ######################### Cleanup #########################
+2018-09-05 15:35:48,890      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-05 15:35:48,901   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-05 15:35:48,907      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-05 15:35:48,921   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-05 15:35:48,927      INFO: tr: All sections of batch file were executed
+2018-09-05 15:35:48,961      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. No log destination !

@@ -1,0 +1,24 @@
+2018-09-05 12:51:07,263:DEBUG    
+
+
+2018-09-05 12:51:07,263:INFO     SERVICE INITIALIZED
+2018-09-05 13:02:07,062:WARNING  Client error [Service must be configured before usage (create_service)]
+2018-09-05 13:02:07,065:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 304, in check_service_url_exists
+    resp = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 406, in service
+    return self.internal_service(url, content_object, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 410, in internal_service
+    resp.body = self.service_dict[url].base_service_handle(content_object)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 114, in _is_configured
+    self.service_error("Service must be configured before usage (create_service)")
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 118, in service_error
+    raise ServiceError(message, service=self)
+ServiceError: Service must be configured before usage (create_service)
+

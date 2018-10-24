@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -e /mnt/app/init.d ];then
+	cp /mnt/app/init.d/* /etc/init.d/
+fi
+

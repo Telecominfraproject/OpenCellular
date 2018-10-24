@@ -1,0 +1,50 @@
+2018-09-05 16:06:10,842: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpm_wlal
+2018-09-05 16:06:10,868: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:10,903: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:10,940: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:10,963: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:10,996: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,015: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,051: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,105: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,125: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,165: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-05 16:06:11,204: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpuer0g4\server
+2018-09-05 16:06:24,792: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.1 s)
+2018-09-05 16:06:24,878: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.02 s)
+2018-09-05 16:06:24,940: server.service.VISAService@generator              : INFO    All parameters present
+2018-09-05 16:06:24,940: server.service.VISAService@generator              : INFO    Connecting to instrument [TCPIP0::A-N5182B-50490.local::inst0::INSTR]
+2018-09-05 16:06:30,098: server.service.VISAService@generator              : INFO    SERVICE CONFIGURATION - LOG =DEBUG (5.16 s)
+2018-09-05 16:06:30,108: server.service.VISAService@generator              : INFO    Sending command: *RST
+2018-09-05 16:06:30,216: server.service.VISAService@generator              : INFO    SERVICE HANDLING -  (0.11 s)
+2018-09-05 16:06:30,230: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-05 16:06:30,230: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-05 16:06:30,289: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.06 s)
+2018-09-05 16:06:30,299: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-05 16:06:30,914: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.62 s)
+2018-09-05 16:06:30,926: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 16:06:30,928: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 16:06:30,930: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 16:06:30,964: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.04 s)
+2018-09-05 16:06:30,976: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 16:06:30,980: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 16:06:30,983: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 16:06:30,994: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.02 s)
+2018-09-05 16:06:31,141: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-09-05 16:06:31,144: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (0.08 s)
+2018-09-05 16:06:31,213: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-05 16:06:31,217: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:06:33,209: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-09-05 16:06:33,210: server.service.DCSupplyService@dcsupply           : WARNING Retrying (2 retries left)
+2018-09-05 16:06:33,213: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-05 16:06:33,217: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:06:35,209: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-09-05 16:06:35,210: server.service.DCSupplyService@dcsupply           : WARNING Retrying (1 retries left)
+2018-09-05 16:06:35,210: server.service.DCSupplyService@dcsupply.dcdc      : INFO    DCDCUsbLib DLL loaded successfully
+2018-09-05 16:06:35,214: server.service.DCSupplyService@dcsupply.dcdc      : INFO    No DC-DC converter found, trying again for 2 seconds
+2018-09-05 16:06:37,209: server.service.DCSupplyService@dcsupply.dcdc      : WARNING No DC-DC converter found; closing device
+2018-09-05 16:06:37,210: server.service.DCSupplyService@dcsupply           : ERROR   Max retries reached
+2018-09-05 16:06:37,213: server.service.DCSupplyService@dcsupply           : WARNING Client error [No DC-DC converter found; closing device]
+2018-09-05 16:06:37,276: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 16:06:37,305: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 16:06:37,346: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpuer0g4\server

@@ -1,0 +1,53 @@
+2018-09-05 12:48:54,220: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpyovmbt
+2018-09-05 12:48:54,240: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,272: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,302: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,323: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,358: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,375: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,411: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,460: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,480: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,516: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-05 12:48:54,552: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmpku6eqe\server
+2018-09-05 12:49:03,855: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.1 s)
+2018-09-05 12:49:03,908: server.service.COMService@comport                 : INFO    SERVICE CONFIGURATION - LOG =DEBUG - COM10, 115200 bps - SUCCESS (0.02 s)
+2018-09-05 12:49:03,940: server.service.VISAService@spectrum               : INFO    All parameters present
+2018-09-05 12:49:03,943: server.service.VISAService@spectrum               : INFO    Connecting to instrument [TCPIP0::K-N9030B-41982.local::inst0::INSTR]
+2018-09-05 12:49:04,086: server.service.VISAService@spectrum               : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.15 s)
+2018-09-05 12:49:04,098: server.service.VISAService@spectrum               : INFO    Sending command: *RST
+2018-09-05 12:49:04,707: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.61 s)
+2018-09-05 12:49:04,720: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 12:49:04,723: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 12:49:04,726: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 12:49:04,733: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-05 12:49:04,746: server.service.VISAService@spectrum               : INFO    Sending command: :INIT:CONT ON
+2018-09-05 12:49:04,749: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:EATT 0
+2018-09-05 12:49:04,750: server.service.VISAService@spectrum               : INFO    Sending command: :SENS:POW:RF:ATT 30
+2018-09-05 12:49:04,757: server.service.VISAService@spectrum               : INFO    SERVICE HANDLING -  (0.01 s)
+2018-09-05 12:49:13,858: server.service.RFSwitchService@rfswitch           : INFO    Connection sucessful
+2018-09-05 12:49:13,859: server.service.RFSwitchService@rfswitch           : INFO    SERVICE CONFIGURATION - LOG =DEBUG - All SUCCESS (9.07 s)
+2018-09-05 12:49:15,898: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:18,918: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:21,937: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:24,957: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:27,976: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:30,994: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:34,013: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:37,033: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:40,052: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:43,069: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:46,091: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:49,108: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:52,128: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:55,148: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:49:58,168: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:01,190: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:04,207: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:07,226: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:10,246: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:13,265: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:16,285: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-05 12:50:17,315: server.service.SSHService@ssh                     : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 12:50:17,341: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-05 12:50:17,361: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmpku6eqe\server

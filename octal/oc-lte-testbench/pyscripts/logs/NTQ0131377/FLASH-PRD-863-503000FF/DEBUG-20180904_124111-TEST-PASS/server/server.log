@@ -1,0 +1,437 @@
+2018-09-04 12:41:11,022: server                                            : INFO    Logging started @ C:\Users\william.laroche\appdata\local\temp\tmpbuhgiy
+2018-09-04 12:41:11,032: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,062: server.service.RFSwitchService@rfswitch           : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,092: server.service.SSHService@e2e_ssh                 : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,112: server.service.VISAService@spectrum               : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,140: server.service.DCSupplyService@dcsupply           : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,154: server.service.SCPService@scp                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,184: server.service.VISAService@generator              : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,223: server.service.DHCPService@dhcp                   : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,240: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,269: server.service.COMService@comport                 : INFO    SERVICE INITIALIZED
+2018-09-04 12:41:11,296: server                                            : INFO    Logs will be moved to C:\Users\william.laroche\appdata\local\temp\tmphycpg_\server
+2018-09-04 12:41:18,191: server.service.TFTPService@tftp                   : INFO    SERVICE CONFIGURATION - LOG =DEBUG (0.04 s)
+2018-09-04 12:41:28,315: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.1 s)
+2018-09-04 12:41:28,367: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:41:28,411: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 12:41:38,529: server.service.SCPService@scp                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG (10.12 s)
+2018-09-04 12:41:38,599: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv mode (0.03 s)
+2018-09-04 12:41:41,082: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'gunzip 0x17e20000 0x20000000; cp.l 0x18320000 0x30800000 0xA00000; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.47 s)
+2018-09-04 12:41:43,552: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv startapp '0' (2.46 s)
+2018-09-04 12:41:46,062: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0' (2.51 s)
+2018-09-04 12:41:48,582: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '1' (2.52 s)
+2018-09-04 12:41:51,112: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'tftp' (2.53 s)
+2018-09-04 12:41:53,562: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootby 'tftp' (2.45 s)
+2018-09-04 12:41:56,052: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;' (2.49 s)
+2018-09-04 12:41:58,512: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm' (2.45 s)
+2018-09-04 12:42:01,023: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50' (2.51 s)
+2018-09-04 12:42:03,483: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bw '20' (2.46 s)
+2018-09-04 12:42:05,982: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'tftp' (2.49 s)
+2018-09-04 12:42:08,493: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv target 'zen' (2.5 s)
+2018-09-04 12:42:10,963: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenable '' (2.47 s)
+2018-09-04 12:42:13,453: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode 'pltd' (2.49 s)
+2018-09-04 12:42:15,992: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c dev 0; i2c probe; i2c dev 1; i2c probe' (2.54 s)
+2018-09-04 12:42:17,036: server.service.SSHService@ssh                     : INFO    COMMAND TIMEOUT REACHED
+2018-09-04 12:42:17,036: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 1.0s, TTY=False. Command: reboot (1.04 s)
+2018-09-04 12:42:17,042: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:17,048: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:19,052: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:20,078: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:20,109: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:22,115: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:23,140: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:23,164: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:25,170: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:26,197: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:26,220: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:28,226: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:29,253: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:29,283: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:31,290: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:32,316: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:32,341: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:34,348: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:35,380: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:35,405: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:37,411: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:38,431: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:38,456: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:40,460: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:41,480: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:41,502: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:43,505: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:44,526: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:44,551: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:46,555: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:47,573: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:47,598: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:49,601: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:50,618: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:50,638: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:52,645: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:53,673: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:53,687: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:55,691: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:56,714: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:56,727: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:42:58,733: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:42:59,753: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:42:59,779: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:01,786: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:02,813: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:02,832: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:04,836: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:05,855: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:05,872: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:07,878: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:08,895: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:08,910: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:10,915: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:11,944: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:11,967: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:13,973: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:14,993: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:15,016: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:17,022: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:18,042: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:18,065: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:20,073: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:21,102: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:21,125: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:23,131: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:24,158: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:24,184: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:26,190: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:27,216: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:27,236: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:29,243: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:30,270: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:30,292: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:32,299: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:33,325: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:33,349: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:35,357: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:43:36,384: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:36,411: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:38,006: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:39,032: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:39,049: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:40,059: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:41,082: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:41,095: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:42,115: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:43,140: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:43,157: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:44,164: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:45,186: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:45,210: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:46,230: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:47,253: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:47,279: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:48,292: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:49,321: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:49,338: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:50,346: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:51,367: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:51,398: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:52,404: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:53,424: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:53,450: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:54,461: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:55,482: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:55,496: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:56,506: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:57,532: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:57,553: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:43:58,563: server.service.SSHService@ssh                     : WARNING Client error [[Errno None] Unable to connect to port 22 on 10.102.81.61 ]
+2018-09-04 12:43:59,588: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:43:59,611: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:44:10,220: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.61 s)
+2018-09-04 12:44:10,256: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:12,286: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:14,326: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:44:16,371: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:44:18,415: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:20,460: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:22,503: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:24,545: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:26,588: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:44:28,632: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:30,674: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:32,716: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:44:34,759: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:44:36,802: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:44:36,890: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cd /mnt/app; find -maxdepth 1 ! -name ssh ! -name .ssh ! -name env ! -name ubootenv ! -name .sign1985 ! -name passwd ! -name shadow -exec rm -rf {} \; (0.02 s)
+2018-09-04 12:44:36,901: server.service.SCPService@scp                     : INFO    Connection is no longer alive
+2018-09-04 12:44:36,901: server.service.SCPService@scp                     : INFO    Initiating SSH connection at 10.102.81.61
+2018-09-04 12:44:47,545: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsm_os.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (10.64 s)
+2018-09-04 12:44:47,618: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 200.0s, TTY=False. Command: update -o /tmp/lsm_os.gz; update -b /tmp/lsm_os.gz (0.05 s)
+2018-09-04 12:44:52,006: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsm_rd.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (4.38 s)
+2018-09-04 12:53:47,631: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 1200.0s, TTY=False. Command: update -o /tmp/lsm_rd.gz; update -b /tmp/lsm_rd.gz (535.61 s)
+2018-09-04 12:53:47,763: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put u-boot-octeon_tip.bin from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /tmp/ (0.13 s)
+2018-09-04 12:53:52,993: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 50.0s, TTY=False. Command: update-uboot -n /tmp/u-boot-octeon_tip.bin (5.23 s)
+2018-09-04 12:53:53,427: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put data-model.xml from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.43 s)
+2018-09-04 12:53:58,361: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put Dimark_Client.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (4.91 s)
+2018-09-04 12:53:58,999: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put dsp.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.61 s)
+2018-09-04 12:53:59,105: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put e2eenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.08 s)
+2018-09-04 12:54:02,637: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put LFMSOFT_OCT_D.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (3.52 s)
+2018-09-04 12:54:06,365: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put lsmD.gz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (3.7 s)
+2018-09-04 12:54:06,476: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rc_post.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.09 s)
+2018-09-04 12:54:06,618: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rc_pre.local from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.14 s)
+2018-09-04 12:54:06,977: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put rffe.tgz from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.34 s)
+2018-09-04 12:54:07,079: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put startup.cfg from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.07 s)
+2018-09-04 12:54:07,161: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put tftpenv.txt from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.07 s)
+2018-09-04 12:54:07,332: server.service.SCPService@scp                     : INFO    SERVICE HANDLING - Put update_rffe.sh from c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1 to /mnt/app/ (0.16 s)
+2018-09-04 12:54:07,371: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: ls -l /mnt/app (0.02 s)
+2018-09-04 12:54:07,448: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fprintenv (0.06 s)
+2018-09-04 12:54:09,956: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreglow '37376' (2.5 s)
+2018-09-04 12:54:12,467: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain2 '25' (2.51 s)
+2018-09-04 12:54:14,947: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_size '0x2800000' (2.48 s)
+2018-09-04 12:54:17,486: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ipaddr '10.102.81.61' (2.53 s)
+2018-09-04 12:54:19,979: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptp1ppsen '0' (2.49 s)
+2018-09-04 12:54:22,486: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv autoload 'n' (2.5 s)
+2018-09-04 12:54:24,934: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv syncby 'gps' (2.44 s)
+2018-09-04 12:54:27,494: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx_slope_sec '' (2.56 s)
+2018-09-04 12:54:30,046: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv boardname 'zen' (2.55 s)
+2018-09-04 12:54:32,617: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv loadaddr '0x20000000' (2.57 s)
+2018-09-04 12:54:35,137: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logparserip '' (2.51 s)
+2018-09-04 12:54:37,655: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ucliovrd '0' (2.51 s)
+2018-09-04 12:54:40,196: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv swloadby 'flash' (2.54 s)
+2018-09-04 12:54:42,687: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispen '2' (2.48 s)
+2018-09-04 12:54:45,246: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootdelay '0' (2.56 s)
+2018-09-04 12:54:47,796: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enable_zen5_gpio18 '1' (2.54 s)
+2018-09-04 12:54:50,348: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv default_load 'setenv flash_rd_addr 0x18320000 && setenv flash_os_addr 0x17E20000 && setenv img_no 0 && run load_imgs' (2.55 s)
+2018-09-04 12:54:52,898: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate_uart1 '19200' (2.55 s)
+2018-09-04 12:54:55,398: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootby 'flash' (2.5 s)
+2018-09-04 12:54:57,967: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ls 'fatls ide 0' (2.57 s)
+2018-09-04 12:55:00,528: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv namedalloc 'namedalloc dsp-dump 0x400000 0x7f4D0000; namedalloc cazac 0x630000 0x7f8D0000; namedalloc pf4cazac 0x13000 0x84000000; namedalloc cpu-dsp-if 0x100000 0x7ff00000; namedalloc dsp-log-buf 0x4000000 0x80000000; namedalloc initrd 0x2800000 0x30800000;' (2.56 s)
+2018-09-04 12:55:03,036: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pseudowww '1' (2.5 s)
+2018-09-04 12:55:05,576: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rssi_slope_prim '' (2.54 s)
+2018-09-04 12:55:08,147: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rssi_offset_prim '' (2.57 s)
+2018-09-04 12:55:10,749: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpstestinterval '10' (2.6 s)
+2018-09-04 12:55:13,357: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass '456b7016a916a4b178dd72b947c152b7' (2.6 s)
+2018-09-04 12:55:15,915: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txfreq '1825' (2.56 s)
+2018-09-04 12:55:18,476: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv factory_load 'setenv flash_rd_addr 0x1C200000 && setenv flash_os_addr 0x1BD00000 && setenv img_no 1 && run load_imgs' (2.55 s)
+2018-09-04 12:55:20,986: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv webuilog '1' (2.51 s)
+2018-09-04 12:55:23,476: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rxfreq '1730' (2.49 s)
+2018-09-04 12:55:25,986: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv logdispport '' (2.51 s)
+2018-09-04 12:55:28,506: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv target 'zen' (2.52 s)
+2018-09-04 12:55:31,105: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenablecount '5' (2.59 s)
+2018-09-04 12:55:33,661: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwdb_in_flash '1' (2.55 s)
+2018-09-04 12:55:36,266: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv telnetdenable '' (2.6 s)
+2018-09-04 12:55:38,816: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv enbctrlrf '1' (2.55 s)
+2018-09-04 12:55:41,387: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx2_i_offset '' (2.57 s)
+2018-09-04 12:55:43,996: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode 'e2e' (2.6 s)
+2018-09-04 12:55:46,576: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gain1 '25' (2.58 s)
+2018-09-04 12:55:49,138: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv i2cinit 'i2c reset' (2.56 s)
+2018-09-04 12:55:51,706: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ver '' (2.56 s)
+2018-09-04 12:55:54,276: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user1 'user' (2.57 s)
+2018-09-04 12:55:56,890: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rssi_slope_sec '' (2.61 s)
+2018-09-04 12:55:59,476: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbyflash 'run default_load || run factory_load; run boot_linux' (2.58 s)
+2018-09-04 12:56:02,019: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ethact 'octeth0' (2.54 s)
+2018-09-04 12:56:04,536: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txco '' (2.51 s)
+2018-09-04 12:56:07,105: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv burn_app 'erase $(flash_unused_addr) +$(filesize);cp.b $(fileaddr) $(flash_unused_addr) $(filesize)' (2.57 s)
+2018-09-04 12:56:09,687: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv httpdenable '1' (2.58 s)
+2018-09-04 12:56:12,236: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mtdids 'nor0=octeon_nor0' (2.55 s)
+2018-09-04 12:56:14,835: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten2 '18' (2.6 s)
+2018-09-04 12:56:17,407: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv atten1 '18' (2.57 s)
+2018-09-04 12:56:19,977: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcmd 'run i2cinit; run namedalloc; run bootcby${bootby}' (2.57 s)
+2018-09-04 12:56:22,568: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mode_test 'dl' (2.59 s)
+2018-09-04 12:56:25,167: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dhcpenable '0' (2.59 s)
+2018-09-04 12:56:27,746: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx2_q_offset '' (2.58 s)
+2018-09-04 12:56:30,306: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rssi_offset_sec '' (2.56 s)
+2018-09-04 12:56:32,887: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv named_block_addr '0x30800000' (2.58 s)
+2018-09-04 12:56:35,437: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv linux_cf 'fatload ide 0 $(loadaddr) vmlinux.64;bootoctlinux $(loadaddr)' (2.55 s)
+2018-09-04 12:56:37,967: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv load_imgs 'cp.l ${flash_rd_addr} 0x30800000 0xA00000 && gunzip ${flash_os_addr} 0x20000000' (2.53 s)
+2018-09-04 12:56:40,568: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx_offset_sec '' (2.6 s)
+2018-09-04 12:56:43,181: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tip '1' (2.61 s)
+2018-09-04 12:56:45,766: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv acsurl '' (2.58 s)
+2018-09-04 12:56:48,335: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootfile 'pxelinux.0' (2.56 s)
+2018-09-04 12:56:50,957: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv baudrate '' (2.62 s)
+2018-09-04 12:56:53,486: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_pass1 'a81be4e9b20632860d20a64c054c4150' (2.52 s)
+2018-09-04 12:56:56,076: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootloader_flash_update '' (2.59 s)
+2018-09-04 12:56:58,687: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pltd '' (2.61 s)
+2018-09-04 12:57:01,280: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bf 'bootoct $(flash_unused_addr) forceboot numcores=$(numcores)' (2.59 s)
+2018-09-04 12:57:03,848: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ptpenable '0' (2.56 s)
+2018-09-04 12:57:06,426: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gatewayip '10.102.81.1' (2.57 s)
+2018-09-04 12:57:09,055: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv serverip '10.102.81.50' (2.63 s)
+2018-09-04 12:57:11,588: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv acsenable '0' (2.53 s)
+2018-09-04 12:57:14,148: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv txpower '30' (2.56 s)
+2018-09-04 12:57:16,736: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv mk_ubootenv '1' (2.58 s)
+2018-09-04 12:57:19,346: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bw '10' (2.61 s)
+2018-09-04 12:57:21,915: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv bootcbytftp 'tftp 0x21000000 lsm_os.gz; gunzip 0x21000000 0x20000000 0x1000000; tftp 0x30800000 lsm_rd.gz; bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M;' (2.56 s)
+2018-09-04 12:57:24,496: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv dnsip '8.8.8.8' (2.58 s)
+2018-09-04 12:57:27,085: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tcxo 'pwm' (2.58 s)
+2018-09-04 12:57:29,696: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv web_user 'admin' (2.61 s)
+2018-09-04 12:57:32,246: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx1_q_offset '' (2.55 s)
+2018-09-04 12:57:34,808: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv ovrdrfdsp '1' (2.56 s)
+2018-09-04 12:57:37,358: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx_slope_prim '' (2.55 s)
+2018-09-04 12:57:39,947: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv numcores '4' (2.59 s)
+2018-09-04 12:57:42,536: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv gpsenable '' (2.59 s)
+2018-09-04 12:57:45,138: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx1_i_offset '' (2.6 s)
+2018-09-04 12:57:47,667: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv partition 'nor0,5' (2.53 s)
+2018-09-04 12:57:50,207: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv startapp '1' (2.54 s)
+2018-09-04 12:57:52,776: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv tx_offset_prim '' (2.57 s)
+2018-09-04 12:57:55,326: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv pwmreghigh '24744' (2.55 s)
+2018-09-04 12:57:57,897: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv boot_linux 'bootoctlinux 0x20000000 coremask=0x7 endbootargs rd_name=initrd mem=512M img=${img_no}' (2.57 s)
+2018-09-04 12:58:00,447: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv cfgloadby 'flash' (2.54 s)
+2018-09-04 12:58:03,026: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv rftarget 'ad9362' (2.58 s)
+2018-09-04 12:58:05,599: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv netmask '255.255.255.0' (2.57 s)
+2018-09-04 12:58:08,157: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: fsetenv etm '' (2.55 s)
+2018-09-04 12:58:08,167: server.service.TFTPService@tftp                   : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:08,173: server.service.TFTPService@tftp                   : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:09,213: server.service.SSHService@ssh                     : INFO    COMMAND TIMEOUT REACHED
+2018-09-04 12:58:09,213: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 1.0s, TTY=False. Command: reboot (1.04 s)
+2018-09-04 12:58:09,219: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:09,223: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:11,226: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:12,253: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:12,278: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:14,282: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:15,308: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:15,332: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:17,338: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:18,358: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:18,375: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:20,382: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:21,410: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:21,430: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:23,434: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:24,460: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:24,482: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:26,489: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:27,513: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:27,536: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:29,542: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:30,566: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:30,578: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:32,582: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:33,609: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:33,631: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:35,638: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:36,664: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:36,688: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:38,694: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:39,720: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:39,742: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:41,747: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:42,776: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:42,793: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:44,798: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:45,826: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:45,849: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:47,854: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:48,880: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:48,904: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:50,910: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:51,937: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:51,960: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:53,967: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:54,994: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:55,017: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:58:57,023: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:58:58,049: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:58:58,072: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:00,079: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:01,107: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:01,128: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:03,134: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:04,160: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:04,183: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:06,188: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:07,217: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:07,237: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:09,243: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:10,269: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:10,292: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:12,298: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:13,323: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:13,346: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:15,354: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:16,381: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:16,411: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:18,417: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:19,459: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:19,480: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:21,482: server.service.SSHService@ssh                     : WARNING Client error [timed out timed out]
+2018-09-04 12:59:22,494: server.service.SSHService@ssh                     : INFO    SERVICE SHUTDOWN COMPLETE
+2018-09-04 12:59:22,500: server.service.SSHService@ssh                     : INFO    SERVICE INITIALIZED
+2018-09-04 12:59:32,608: server.service.SSHService@ssh                     : INFO    SERVICE CONFIGURATION - LOG =DEBUG - 10.102.81.61:22, user=root, password=cavium.lte (10.11 s)
+2018-09-04 12:59:32,654: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:59:34,693: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:36,736: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:38,776: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:59:40,822: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:42,865: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:44,910: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:46,950: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:59:48,974: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 12:59:51,009: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:59:53,055: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:55,098: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 12:59:57,144: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 12:59:59,184: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:01,224: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:03,266: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:05,308: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:07,351: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:09,392: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:11,436: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:13,483: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:15,526: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:17,569: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:19,614: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:21,658: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:23,698: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:25,742: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:27,782: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:29,825: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:31,868: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:33,914: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:35,960: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:37,999: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:40,038: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:42,078: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:44,124: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:00:46,167: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:48,213: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:50,263: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:52,313: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.04 s)
+2018-09-04 13:00:54,359: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:56,404: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:00:58,448: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:00,496: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:02,536: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:04,582: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:06,611: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:08,651: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:10,696: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:12,743: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:14,789: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:16,835: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:18,880: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:20,918: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:22,961: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:25,007: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:27,049: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:29,092: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:31,131: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:33,171: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:35,217: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:37,259: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:39,302: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:41,326: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.01 s)
+2018-09-04 13:01:43,365: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:45,403: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:47,444: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:49,482: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:51,519: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.02 s)
+2018-09-04 13:01:53,559: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: cat /var/log/messages (0.03 s)
+2018-09-04 13:01:53,628: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver1_en (0.02 s)
+2018-09-04 13:01:53,680: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx0_predriver2_en (0.03 s)
+2018-09-04 13:01:53,759: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa0/state (0.08 s)
+2018-09-04 13:01:53,848: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver1_en (0.08 s)
+2018-09-04 13:01:53,944: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.tip/tx1_predriver2_en (0.09 s)
+2018-09-04 13:01:54,000: server.service.SSHService@ssh                     : INFO    SERVICE HANDLING - Timeout 10.0s, TTY=False. Command: echo "0" > /sys/devices/soc.0/0.pa1/state (0.03 s)
+2018-09-04 13:01:54,023: server.service.DCSupplyService@dcsupply           : WARNING Client error [Service must be configured before usage (create_service)]
+2018-09-04 13:01:54,042: server                                            : INFO    Moving server logs to C:\Users\william.laroche\appdata\local\temp\tmphycpg_\server

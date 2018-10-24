@@ -1,0 +1,335 @@
+2018-09-04 14:21:08,634      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpwc7lig
+2018-09-04 14:21:08,881      INFO: tr.server: Loading services from config file
+2018-09-04 14:21:09,306      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 14:21:09,322      INFO: tr: ###################### BoardTestScan ######################
+2018-09-04 14:21:09,325      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-04 14:21:09,328      INFO: tr.criteria: UUT_FE_MRP: 'PRD-854-101' in [PRD-854-101D3] : PASS
+2018-09-04 14:21:09,329      INFO: tr.criteria: UUT_FE_SERIAL_NO: [NTQ0131618] : PASS
+2018-09-04 14:21:09,349      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-04 14:21:09,369      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-04 14:21:09,371      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-04 14:21:13,032      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-04 14:21:13,036      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-04 14:21:13,038      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-04 14:21:13,039      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-04 14:21:13,055      INFO: tr: ##################### BoardTestbench #####################
+2018-09-04 14:21:13,071      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-04 14:21:13,072      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:21:13,073      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-04 14:21:14,599      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:21:14,602      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:21:14,605      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-04 14:21:15,269      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:21:15,270      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:21:15,272      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-04 14:21:15,934      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:21:15,996      INFO: tr: ####################### Preparation #######################
+2018-09-04 14:21:16,019      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 14:21:16,022      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 14:21:16,023      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 14:21:22,805      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 14:21:22,812      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 14:21:22,946      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 14:21:22,947      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 14:21:22,967      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 14:21:23,023      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 14:21:28,411      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 14:21:37,671      INFO: tr: ######################### Powerup #########################
+2018-09-04 14:21:37,687      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-04 14:21:38,012      INFO: tr.CM_PRP030: --------------- [CM_PRP030] Power-up ---------------
+2018-09-04 14:21:40,530      INFO: tr.CM_PRP030: Power On
+2018-09-04 14:21:41,671      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 14:21:41,694      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 14:21:41,697      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 14:23:26,029      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 14:25:39,453      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 14:25:49,602      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 14:25:49,622      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 14:25:49,625      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 14:25:51,312      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 14:25:51,331      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 14:25:51,349      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 14:25:51,763      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 14:25:52,085      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 14:25:52,415      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 14:25:55,778      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 14:25:55,834     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-04 14:25:55,835     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 14:25:55,835      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 14:25:55,835      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 14:25:55,836      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 14:25:55,838      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 14:25:55,838      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 14:25:55,838      INFO: tr: ################### FrontEndPreparation ###################
+2018-09-04 14:25:55,841      INFO: tr.FE_PRP030: -------------- [FE_PRP030] Enable FE --------------
+2018-09-04 14:25:55,897      INFO: tr.FE_PRP0301: ------------ [FE_PRP0301] Program RFPAL ------------
+2018-09-04 14:25:55,900      INFO: tr.FE_PRP0301: RFPAL programming skipped, only supported by RevE +
+2018-09-04 14:25:55,903      INFO: tr: ################### TXEnableValidation ###################
+2018-09-04 14:25:55,904      INFO: tr.FE_TSC131: ------ [FE_TSC131] Validate TX1 Enables Gains ------
+2018-09-04 14:26:10,273      INFO: tr.criteria: TSC131_PRE_DRIVER1_GAIN_dB: 25 < [33.41] < 40 : PASS
+2018-09-04 14:26:11,765      INFO: tr.criteria: TSC131_PRE_DRIVER2_GAIN_dB: 25 < [29.8] < 40 : PASS
+2018-09-04 14:26:22,918      INFO: tr.criteria: TSC131_PA_GAIN_dB: 50 < [55.68] < 65 : PASS
+2018-09-04 14:26:23,039      INFO: tr.FE_TSC231: ------ [FE_TSC231] Validate TX2 Enables Gains ------
+2018-09-04 14:26:34,201      INFO: tr.criteria: TSC231_PRE_DRIVER1_GAIN_dB: 25 < [33.03] < 40 : PASS
+2018-09-04 14:26:36,069      INFO: tr.criteria: TSC231_PRE_DRIVER2_GAIN_dB: 25 < [29.89] < 40 : PASS
+2018-09-04 14:26:47,256      INFO: tr.criteria: TSC231_PA_GAIN_dB: 50 < [55.23] < 65 : PASS
+2018-09-04 14:26:47,378      INFO: tr: #################### TXAttnValidation ####################
+2018-09-04 14:26:47,380      INFO: tr.FE_TSC132: ---------- [FE_TSC132] Validate TX1 Attn ----------
+2018-09-04 14:27:05,967      INFO: tr.FE_TSC132: Set attenuator to initial value 127
+2018-09-04 14:27:07,828      INFO: tr.criteria: FE_TSC132_B6_B5_GAIN: 18.0 < [24.47] < 28.0 : PASS
+2018-09-04 14:27:09,296      INFO: tr.criteria: FE_TSC132_B5_INVERT_GAIN: -0.5 < [-0.08033] < 0.5 : PASS
+2018-09-04 14:27:10,694      INFO: tr.criteria: FE_TSC132_B0_GAIN: -0.45 < [-0.333] < -0.05 : PASS
+2018-09-04 14:27:12,115      INFO: tr.criteria: FE_TSC132_B1_GAIN: -0.7 < [-0.467] < -0.2 : PASS
+2018-09-04 14:27:13,533      INFO: tr.criteria: FE_TSC132_B2_GAIN: -1.4 < [-1.013] < -0.7 : PASS
+2018-09-04 14:27:14,967      INFO: tr.criteria: FE_TSC132_B3_GAIN: -2.8 < [-2.16] < -1.4 : PASS
+2018-09-04 14:27:16,385      INFO: tr.criteria: FE_TSC132_B4_GAIN: -4.8 < [-4.185] < -3.2 : PASS
+2018-09-04 14:27:16,391      INFO: tr.FE_TSC133: ---------- [FE_TSC133] Validate FB1 Attn ----------
+2018-09-04 14:27:39,201      INFO: tr.FE_TSC133: Set attenuator to initial value 127
+2018-09-04 14:27:42,234      INFO: tr.criteria: FE_TSC133_B6_B5_GAIN: 18.0 < [20.69] < 28.0 : PASS
+2018-09-04 14:27:44,246      INFO: tr.criteria: FE_TSC133_B5_INVERT_GAIN: -0.5 < [-0.1911] < 0.5 : PASS
+2018-09-04 14:27:46,255      INFO: tr.criteria: FE_TSC133_B0_GAIN: -0.45 < [-0.3616] < -0.05 : PASS
+2018-09-04 14:27:48,299      INFO: tr.criteria: FE_TSC133_B1_GAIN: -0.7 < [-0.5173] < -0.2 : PASS
+2018-09-04 14:27:50,338      INFO: tr.criteria: FE_TSC133_B2_GAIN: -1.4 < [-0.9171] < -0.7 : PASS
+2018-09-04 14:27:52,364      INFO: tr.criteria: FE_TSC133_B3_GAIN: -2.8 < [-1.999] < -1.4 : PASS
+2018-09-04 14:27:54,378      INFO: tr.criteria: FE_TSC133_B4_GAIN: -4.8 < [-3.886] < -3.2 : PASS
+2018-09-04 14:27:54,384      INFO: tr.FE_TSC232: ---------- [FE_TSC232] Validate TX2 Attn ----------
+2018-09-04 14:28:10,444      INFO: tr.FE_TSC232: Set attenuator to initial value 127
+2018-09-04 14:28:12,062      INFO: tr.criteria: FE_TSC232_B6_B5_GAIN: 18.0 < [25.22] < 28.0 : PASS
+2018-09-04 14:28:13,460      INFO: tr.criteria: FE_TSC232_B5_INVERT_GAIN: -0.5 < [-0.1597] < 0.5 : PASS
+2018-09-04 14:28:14,878      INFO: tr.criteria: FE_TSC232_B0_GAIN: -0.45 < [-0.339] < -0.05 : PASS
+2018-09-04 14:28:16,296      INFO: tr.criteria: FE_TSC232_B1_GAIN: -0.7 < [-0.4907] < -0.2 : PASS
+2018-09-04 14:28:17,707      INFO: tr.criteria: FE_TSC232_B2_GAIN: -1.4 < [-1.078] < -0.7 : PASS
+2018-09-04 14:28:19,124      INFO: tr.criteria: FE_TSC232_B3_GAIN: -2.8 < [-2.284] < -1.4 : PASS
+2018-09-04 14:28:20,566      INFO: tr.criteria: FE_TSC232_B4_GAIN: -4.8 < [-4.296] < -3.2 : PASS
+2018-09-04 14:28:20,572      INFO: tr.FE_TSC233: ---------- [FE_TSC233] Validate FB2 Attn ----------
+2018-09-04 14:28:41,125      INFO: tr.FE_TSC233: Set attenuator to initial value 127
+2018-09-04 14:28:44,207      INFO: tr.criteria: FE_TSC233_B6_B5_GAIN: 18.0 < [22.14] < 28.0 : PASS
+2018-09-04 14:28:46,221      INFO: tr.criteria: FE_TSC233_B5_INVERT_GAIN: -0.5 < [-0.1675] < 0.5 : PASS
+2018-09-04 14:28:48,239      INFO: tr.criteria: FE_TSC233_B0_GAIN: -0.45 < [-0.2675] < -0.05 : PASS
+2018-09-04 14:28:50,311      INFO: tr.criteria: FE_TSC233_B1_GAIN: -0.7 < [-0.4968] < -0.2 : PASS
+2018-09-04 14:28:52,325      INFO: tr.criteria: FE_TSC233_B2_GAIN: -1.4 < [-1.105] < -0.7 : PASS
+2018-09-04 14:28:54,368      INFO: tr.criteria: FE_TSC233_B3_GAIN: -2.8 < [-2.034] < -1.4 : PASS
+2018-09-04 14:28:56,447      INFO: tr.criteria: FE_TSC233_B4_GAIN: -4.8 < [-4.248] < -3.2 : PASS
+2018-09-04 14:28:56,451      INFO: tr: ###################### TRXIsolation ######################
+2018-09-04 14:28:56,453      INFO: tr.FE_TSC136: ------- [FE_TSC136] Validate TRX1 Isolation -------
+2018-09-04 14:29:26,177      INFO: tr.FE_TSC136: Power at output = 12.37. Power at RX = -58.58
+2018-09-04 14:29:26,177      INFO: tr.criteria: FE_TSC136_BOTTOM_TX_TO_RX_ISOLATION: [70.95] > 66 : PASS
+2018-09-04 14:29:52,436      INFO: tr.FE_TSC136: Power at output = 14.56. Power at RX = -57.05
+2018-09-04 14:29:52,437      INFO: tr.criteria: FE_TSC136_MIDDLE_TX_TO_RX_ISOLATION: [71.61] > 66 : PASS
+2018-09-04 14:30:18,753      INFO: tr.FE_TSC136: Power at output = 14.20. Power at RX = -55.02
+2018-09-04 14:30:18,755      INFO: tr.criteria: FE_TSC136_TOP_TX_TO_RX_ISOLATION: [69.23] > 66 : PASS
+2018-09-04 14:30:18,756      INFO: tr.criteria: FE_TSC136_AVERAGE_TX_TO_RX_ISOLATION: [70.6] > 68 : PASS
+2018-09-04 14:30:18,760      INFO: tr.FE_TSC236: ------- [FE_TSC236] Validate TRX2 Isolation -------
+2018-09-04 14:31:00,088      INFO: tr.FE_TSC236: Power at output = 12.13. Power at RX = -56.95
+2018-09-04 14:31:00,088      INFO: tr.criteria: FE_TSC236_BOTTOM_TX_TO_RX_ISOLATION: [69.07] > 66 : PASS
+2018-09-04 14:31:20,299      INFO: tr.FE_TSC236: Power at output = 14.66. Power at RX = -63.12
+2018-09-04 14:31:20,299      INFO: tr.criteria: FE_TSC236_MIDDLE_TX_TO_RX_ISOLATION: [77.77] > 66 : PASS
+2018-09-04 14:31:46,490      INFO: tr.FE_TSC236: Power at output = 13.29. Power at RX = -73.28
+2018-09-04 14:31:46,490      INFO: tr.criteria: FE_TSC236_TOP_TX_TO_RX_ISOLATION: [86.57] > 66 : PASS
+2018-09-04 14:31:46,492      INFO: tr.criteria: FE_TSC236_AVERAGE_TX_TO_RX_ISOLATION: [77.81] > 68 : PASS
+2018-09-04 14:31:46,496      INFO: tr: ################# TXRMSDetectorValidation #################
+2018-09-04 14:31:46,500      INFO: tr.FE_TSC137: ---- [FE_TSC137] Validate TX1 RMS Detector FWD ----
+2018-09-04 14:32:06,380      INFO: tr.criteria: FWD_RMS: [711] > 200 : PASS
+2018-09-04 14:32:06,381      INFO: tr.criteria: REV_RMS: [598] > 80 : PASS
+2018-09-04 14:32:06,536      INFO: tr.FE_TSC237: ---- [FE_TSC237] Validate TX2 RMS Detector FWD ----
+2018-09-04 14:32:26,390      INFO: tr.criteria: FWD_RMS: [712] > 200 : PASS
+2018-09-04 14:32:26,391      INFO: tr.criteria: REV_RMS: [603] > 80 : PASS
+2018-09-04 14:32:26,543      INFO: tr: ###################### SetupRXSwitch ######################
+2018-09-04 14:32:26,546      INFO: tr.FE_PRP040: -------- [FE_PRP040] Set RX Sniffer switch --------
+2018-09-04 14:32:26,599      INFO: tr.FE_PRP041: ------------- [FE_PRP041] Turn off TX -------------
+2018-09-04 14:32:26,910      INFO: tr: ################# RXAttenuatorValidation #################
+2018-09-04 14:32:26,911      INFO: tr.FE_TSC040: ---- [FE_TSC040] Validate RX 1 Attenuator bits ----
+2018-09-04 14:32:39,821      INFO: tr.FE_TSC040: Set attenuator to initial value 127
+2018-09-04 14:32:41,134      INFO: tr.criteria: FE_TSC140_B6_B5_GAIN: 15.0 < [23.72] < 26.0 : PASS
+2018-09-04 14:32:42,483      INFO: tr.criteria: FE_TSC140_B5_INVERT_GAIN: -0.5 < [-0.3005] < 0.5 : PASS
+2018-09-04 14:32:43,885      INFO: tr.criteria: FE_TSC140_B0_GAIN: -0.35 < [-0.2113] < 0.1 : PASS
+2018-09-04 14:32:45,266      INFO: tr.criteria: FE_TSC140_B1_GAIN: -0.7 < [-0.4338] < -0.3 : PASS
+2018-09-04 14:32:46,529      INFO: tr.criteria: FE_TSC140_B2_GAIN: -1.4 < [-1.03] < -0.7 : PASS
+2018-09-04 14:32:47,884      INFO: tr.criteria: FE_TSC140_B3_GAIN: -2.8 < [-1.958] < -1.4 : PASS
+2018-09-04 14:32:49,210      INFO: tr.criteria: FE_TSC140_B4_GAIN: -4.8 < [-4.001] < -3.2 : PASS
+2018-09-04 14:32:49,216      INFO: tr.FE_TSC140: ---- [FE_TSC140] Validate RX 2 Attenuator bits ----
+2018-09-04 14:33:08,082      INFO: tr.FE_TSC140: Set attenuator to initial value 127
+2018-09-04 14:33:10,032      INFO: tr.criteria: FE_TSC240_B6_B5_GAIN: 15.0 < [24.17] < 26.0 : PASS
+2018-09-04 14:33:11,286      INFO: tr.criteria: FE_TSC240_B5_INVERT_GAIN: -0.5 < [-0.316] < 0.5 : PASS
+2018-09-04 14:33:12,542      INFO: tr.criteria: FE_TSC240_B0_GAIN: -0.35 < [-0.1772] < 0.1 : PASS
+2018-09-04 14:33:13,838      INFO: tr.criteria: FE_TSC240_B1_GAIN: -0.7 < [-0.419] < -0.3 : PASS
+2018-09-04 14:33:15,121      INFO: tr.criteria: FE_TSC240_B2_GAIN: -1.4 < [-1.006] < -0.7 : PASS
+2018-09-04 14:33:16,401      INFO: tr.criteria: FE_TSC240_B3_GAIN: -2.8 < [-2.055] < -1.4 : PASS
+2018-09-04 14:33:17,680      INFO: tr.criteria: FE_TSC240_B4_GAIN: -4.8 < [-4.058] < -3.2 : PASS
+2018-09-04 14:33:17,687      INFO: tr: ################### RXEnableValidation ###################
+2018-09-04 14:33:17,688      INFO: tr.FE_TSC041: -------- [FE_TSC041] Validate RX1 LNA Gain --------
+2018-09-04 14:33:45,361      INFO: tr.criteria: FE_TSC142_ON_OFF_LNA_GAIN_dB: 25 < [45.44] < 55 : PASS
+2018-09-04 14:33:45,361      INFO: tr.criteria: FE_TSC142_LNA_GAIN_dB: 10 < [8.522] < 15 : FAIL
+2018-09-04 14:33:45,368     ERROR: tr.FE_TSC041: AssertionError: FE_TSC142_LNA_GAIN_dB: 10 < [8.522] < 15 : FAIL
+2018-09-04 14:33:45,368     ERROR: tr.FE_TSC041: TEST FAILED
+2018-09-04 14:33:45,368      INFO: tr.FE_TSC141: -------- [FE_TSC141] Validate RX2 LNA Gain --------
+2018-09-04 14:34:16,609      INFO: tr.criteria: FE_TSC242_ON_OFF_LNA_GAIN_dB: 25 < [45.95] < 55 : PASS
+2018-09-04 14:34:16,611      INFO: tr.criteria: FE_TSC242_LNA_GAIN_dB: 10 < [6.757] < 15 : FAIL
+2018-09-04 14:34:16,618     ERROR: tr.FE_TSC141: AssertionError: FE_TSC242_LNA_GAIN_dB: 10 < [6.757] < 15 : FAIL
+2018-09-04 14:34:16,621     ERROR: tr.FE_TSC141: TEST FAILED
+2018-09-04 14:34:16,621      INFO: tr: ###################### AssembleUnit ######################
+2018-09-04 14:34:16,624      INFO: tr.CM_PRP060: --------- [CM_PRP060] BB and FE RF Jumpers ---------
+2018-09-04 14:34:17,921      INFO: tr.CM_PRP060: TESTER STEP:
+2018-09-04 14:34:17,923      INFO: tr.CM_PRP060: Please disconnect Front-End TXs, RXs from the RFSwitch and link the BB and FE TXs, RXs with jumpers.
+2018-09-04 14:37:30,506      INFO: tr.CM_PRP060: Tester continued the test
+2018-09-04 14:37:30,509      INFO: tr: ###################### BBPreparation ######################
+2018-09-04 14:37:30,510      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-04 14:37:31,408      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-04 14:37:33,052      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-04 14:37:37,056      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-04 14:37:37,058      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-04 14:37:47,579      INFO: tr.BB_TSC020: Frequency error too high (340 Hz), calibrating OCXO
+2018-09-04 14:37:47,707      INFO: tr.BB_TSC020.ocxo: Calibrating OCXO Freq
+2018-09-04 14:37:55,473      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([14.18]) < 50 : PASS
+2018-09-04 14:37:55,476      INFO: tr: ################# TransceiverTXValidation #################
+2018-09-04 14:37:55,480      INFO: tr.FE_PRP031: ------- [FE_PRP031] Validate comm. w/ RFPAL -------
+2018-09-04 14:37:55,694      INFO: tr.FE_TSC130: ------- [FE_TSC130] Validate TX1 RFPAL Range -------
+2018-09-04 14:38:14,782      INFO: tr.criteria: TSC130_RFPAL_INPUT_RANGE_dBm: -23 < [-17.83] < -15 : PASS
+2018-09-04 14:38:14,786      INFO: tr.FE_TSC230: ------- [FE_TSC230] Validate TX2 RFPAL Range -------
+2018-09-04 14:38:27,371      INFO: tr.criteria: TSC230_RFPAL_INPUT_RANGE_dBm: -23 < [-16.87] < -15 : PASS
+2018-09-04 14:38:27,375      INFO: tr.BB_TSC039: ------- [BB_TSC039] Validate 28V under load -------
+2018-09-04 14:38:27,605      INFO: tr: ################# TransceiverRXValidation #################
+2018-09-04 14:38:27,607      INFO: tr.BB_PRP050: -------------- [BB_PRP050] Set TX off --------------
+2018-09-04 14:38:27,920      INFO: tr.BB_TSC150: ----------- [BB_TSC150] Transceiver RX1 -----------
+2018-09-04 14:38:37,062      INFO: tr.criteria: BB_TSC151_RX_RSSI_WITH_SIGNAL_30_dBm: -33 < [-27.5] <= -26 : PASS
+2018-09-04 14:38:37,582      INFO: tr.criteria: BB_TSC151_RX_RSSI_WITH_SIGNAL_40_dBm: -43 < [-38] <= -36 : PASS
+2018-09-04 14:38:38,127      INFO: tr.criteria: BB_TSC151_RX_RSSI_WITH_SIGNAL_50_dBm: -53 < [-47] <= -46 : PASS
+2018-09-04 14:38:38,128      INFO: tr.criteria: BB_TSC151_RX_RSSI_WITHOUT_SIGNAL: [140] >= 160 - 40 : PASS
+2018-09-04 14:38:38,171      INFO: tr.BB_TSC250: ----------- [BB_TSC250] Transceiver RX2 -----------
+2018-09-04 14:38:53,311      INFO: tr.criteria: BB_TSC251_RX_RSSI_WITH_SIGNAL_30_dBm: -33 < [-28.5] <= -26 : PASS
+2018-09-04 14:38:53,836      INFO: tr.criteria: BB_TSC251_RX_RSSI_WITH_SIGNAL_40_dBm: -43 < [-38.5] <= -36 : PASS
+2018-09-04 14:38:54,358      INFO: tr.criteria: BB_TSC251_RX_RSSI_WITH_SIGNAL_50_dBm: -53 < [-48] <= -46 : PASS
+2018-09-04 14:38:54,358      INFO: tr.criteria: BB_TSC251_RX_RSSI_WITHOUT_SIGNAL: [152] >= 160 - 40 : PASS
+2018-09-04 14:38:54,384      INFO: tr: #################### RFPALCalibration ####################
+2018-09-04 14:38:54,387      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-04 14:39:07,789      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=19.0, 	in_pwr=-17.09, 	fb=-48.56
+2018-09-04 14:39:15,868      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=4.5, 	in_pwr=-17.08, 	out_pwr=28.19, 	fb=-34.12
+2018-09-04 14:39:17,835      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=14.25, 	in_pwr=-17.17, 	out_pwr=28.00, 	fb=-17.52
+2018-09-04 14:39:44,280      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-49] < -41 : PASS
+2018-09-04 14:39:44,434      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-04 14:39:57,168      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=20, 	in_pwr=-17.00, 	fb=-49.19
+2018-09-04 14:40:05,270      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=4.75, 	in_pwr=-16.30, 	out_pwr=28.06, 	fb=-36.49
+2018-09-04 14:40:07,243      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=13.25, 	in_pwr=-16.36, 	out_pwr=27.81, 	fb=-17.57
+2018-09-04 14:40:33,700      INFO: tr.criteria: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-48.53] < -41 : PASS
+2018-09-04 14:40:33,857      INFO: tr: ############## RMS1DetectorOutputValidation ##############
+2018-09-04 14:40:33,858      INFO: tr.FE_TSC134: ------ [FE_TSC134] Validate Output Power TX1 ------
+2018-09-04 14:40:49,903      INFO: tr.FE_TSC134: [BB] f=1845, 	bb_attn=19.0, 	in_pwr=-17.18, 	fb=-17.51
+2018-09-04 14:40:56,065      INFO: tr.FE_TSC134: [TX] f=1845, 	tx_attn=4.5, 	in_pwr=-17.11, 	out_pwr=27.97, 	fb=-17.39
+2018-09-04 14:40:57,943      INFO: tr.FE_TSC134: [FB] f=1845, 	fb_attn=14.25, 	in_pwr=-17.15, 	out_pwr=27.91, 	fb=-17.48
+2018-09-04 14:41:04,134      INFO: tr.criteria: FE_TSC134_OUTPUT_POWER: 27 < [27.76] < 30 : PASS
+2018-09-04 14:41:04,177      INFO: tr.criteria: FE_TSC134_PA_CURRENT: [0.327] < 0.4 : PASS
+2018-09-04 14:41:04,180      INFO: tr.criteria: FE_TSC134_EVM: [1.197] < 4 : PASS
+2018-09-04 14:41:04,181      INFO: tr.criteria: FE_TSC134_ACLR_dBc: [-49.08] < -41.0 : PASS
+2018-09-04 14:41:04,187      INFO: tr.FE_TSC135: - [FE_TSC135] Validate TX1 RMS Detector Output On -
+2018-09-04 14:41:06,357      INFO: tr.FE_TSC135: FWD value = 759, REV value = 632, Power out = 27.79
+2018-09-04 14:41:06,469      INFO: tr.criteria: FE_TSC135_FWD_VALUE_30_dBm: [759] > 50 : PASS
+2018-09-04 14:41:06,470      INFO: tr.criteria: FE_TSC135_REV_VALUE_30_dBm: [631] > 50 : PASS
+2018-09-04 14:41:06,470      INFO: tr.criteria: FE_TSC135_FWD_ERROR_30_dBm: [107.4] : PASS
+2018-09-04 14:41:06,471      INFO: tr.criteria: FE_TSC135_REV_ERROR_30_dBm: [218.6] : PASS
+2018-09-04 14:41:06,477      INFO: tr: ############## RMS2DetectorOutputValidation ##############
+2018-09-04 14:41:06,480      INFO: tr.FE_TSC234: ------ [FE_TSC234] Validate Output Power TX2 ------
+2018-09-04 14:41:19,025      INFO: tr.FE_TSC234: [BB] f=1845, 	bb_attn=20, 	in_pwr=-16.58, 	fb=-17.90
+2018-09-04 14:41:27,151      INFO: tr.FE_TSC234: [TX] f=1845, 	tx_attn=4.25, 	in_pwr=-16.53, 	out_pwr=27.87, 	fb=-17.45
+2018-09-04 14:41:29,691      INFO: tr.FE_TSC234: [FB] f=1845, 	fb_attn=13.25, 	in_pwr=-16.58, 	out_pwr=27.87, 	fb=-17.48
+2018-09-04 14:41:39,388      INFO: tr.criteria: FE_TSC234_OUTPUT_POWER: 27 < [27.81] < 30 : PASS
+2018-09-04 14:41:39,418      INFO: tr.criteria: FE_TSC234_PA_CURRENT: [0.331] < 0.4 : PASS
+2018-09-04 14:41:39,420      INFO: tr.criteria: FE_TSC234_EVM: [1.342] < 4 : PASS
+2018-09-04 14:41:39,421      INFO: tr.criteria: FE_TSC234_ACLR_dBc: [-46.69] < -41.0 : PASS
+2018-09-04 14:41:39,427      INFO: tr.FE_TSC235: - [FE_TSC235] Validate TX2 RMS Detector Output On -
+2018-09-04 14:41:41,612      INFO: tr.FE_TSC235: FWD value = 751, REV value = 654, Power out = 27.83
+2018-09-04 14:41:41,759      INFO: tr.criteria: FE_TSC235_FWD_VALUE_30_dBm: [751] > 50 : PASS
+2018-09-04 14:41:41,760      INFO: tr.criteria: FE_TSC235_REV_VALUE_30_dBm: [655] > 50 : PASS
+2018-09-04 14:41:41,762      INFO: tr.criteria: FE_TSC235_FWD_ERROR_30_dBm: [115.9] : PASS
+2018-09-04 14:41:41,762      INFO: tr.criteria: FE_TSC235_REV_ERROR_30_dBm: [197.1] : PASS
+2018-09-04 14:41:41,767      INFO: tr: ############### RMS1DetectorInputValidation ###############
+2018-09-04 14:41:41,769      INFO: tr.FE_TSC143: --- [FE_TSC143] Validate TX1 RMS Detector Input ---
+2018-09-04 14:41:41,769      INFO: tr: ############### RMS2DetectorInputValidation ###############
+2018-09-04 14:41:41,772      INFO: tr.FE_TSC243: --- [FE_TSC243] Validate TX2 RMS Detector Input ---
+2018-09-04 14:41:41,773      INFO: tr: ####################### ChooseCalib #######################
+2018-09-04 14:41:41,775      INFO: tr.SY_PRP041: ------------- [SY_PRP041] Choose calib -------------
+2018-09-04 14:41:41,779      INFO: tr: ####################### SnifferTest #######################
+2018-09-04 14:41:41,779   WARNING: tr: Skipped SnifferTest (execute=False)
+2018-09-04 14:41:41,779      INFO: tr: ######################## FlashApp ########################
+2018-09-04 14:41:41,782      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-09-04 14:41:41,783      INFO: tr.CM_CLN002: Updating final file list...
+2018-09-04 14:41:41,783      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-09-04 14:41:42,368      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-09-04 14:41:47,315      INFO: tr.CM_CLN002: Updating u-boot
+2018-09-04 14:41:53,292      INFO: tr.CM_CLN002: Transfering data-model.xml to mnt/app/
+2018-09-04 14:41:53,855      INFO: tr.CM_CLN002: Transfering Dimark_Client.tgz to mnt/app/
+2018-09-04 14:42:22,607      INFO: tr.CM_CLN002: Transfering dsp.tgz to mnt/app/
+2018-09-04 14:42:25,660      INFO: tr.CM_CLN002: Transfering e2eenv.txt to mnt/app/
+2018-09-04 14:42:25,763      INFO: tr.CM_CLN002: Transfering LFMSOFT_OCT_D.tgz to mnt/app/
+2018-09-04 14:42:46,588      INFO: tr.CM_CLN002: Transfering lsmD.gz to mnt/app/
+2018-09-04 14:43:08,380      INFO: tr.CM_CLN002: Transfering rc_post.local to mnt/app/
+2018-09-04 14:43:08,484      INFO: tr.CM_CLN002: Transfering rc_pre.local to mnt/app/
+2018-09-04 14:43:08,592      INFO: tr.CM_CLN002: Transfering rffe.tgz to mnt/app/
+2018-09-04 14:43:09,809      INFO: tr.CM_CLN002: Transfering startup.cfg to mnt/app/
+2018-09-04 14:43:09,948      INFO: tr.CM_CLN002: Transfering tftpenv.txt to mnt/app/
+2018-09-04 14:43:10,065      INFO: tr.CM_CLN002: Transfering update_rffe.sh to mnt/app/
+2018-09-04 14:43:10,191      INFO: tr.CM_CLN002: Final mnt/app content: 
+
+-rw-r--r--    1 root     root       3892930 Jan  2 00:19 Dimark_Client.tgz
+-rw-r--r--    1 root     root       2759575 Jan  2 00:19 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root        635321 Jan  2 00:18 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:19 dsp.tgz
+-rw-r--r--    1 root     root           985 Jan  2 00:19 e2eenv.txt
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2901563 Jan  2 00:19 lsmD.gz
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:19 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:19 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:19 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:19 startup.cfg
+-rw-r--r--    1 root     root          1747 Jan  2 00:19 tftpenv.txt
+-rw-r--r--    1 root     root          1862 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:19 update_rffe.sh
+
+2018-09-04 14:43:10,194      INFO: tr: ##################### TEMPDisableGPS #####################
+2018-09-04 14:43:10,196      INFO: tr.BB_CLN003: ----------- [BB_CLN003] TEMP Disable GPS -----------
+2018-09-04 14:43:10,197      INFO: tr.BB_CLN003: Disabling GPS (for e2e temp)
+2018-09-04 14:43:15,073      INFO: tr: ######################## LedBoard ########################
+2018-09-04 14:43:15,075      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-04 14:43:15,135      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-04 14:43:15,135      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-04 14:45:57,946      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-04 14:45:57,948      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-04 14:45:57,976      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-04 14:45:57,976      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-04 14:45:59,407      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-04 14:45:59,411      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-04 14:45:59,443      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-04 14:45:59,444      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-04 14:46:01,177      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-04 14:46:01,180      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-04 14:46:01,210      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-04 14:46:01,210      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-04 14:46:02,634      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-04 14:46:02,637      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 14:46:02,638      INFO: tr: ######################### Cleanup #########################
+2018-09-04 14:46:02,640      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 14:46:02,915      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 14:46:02,918      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 14:46:03,036      INFO: tr: All sections of batch file were executed
+2018-09-04 14:46:03,085      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpwc7lig\server

@@ -1,0 +1,57 @@
+2018-09-04 14:14:08,269:DEBUG    
+
+
+2018-09-04 14:14:08,269:INFO     SERVICE INITIALIZED
+2018-09-04 14:14:23,447:DEBUG    LOG =DEBUG
+2018-09-04 14:14:23,448:INFO     All parameters present
+2018-09-04 14:14:23,450:INFO     Connecting to instrument [TCPIP0::A-N5182B-50490::inst0::INSTR]
+2018-09-04 14:14:26,342:DEBUG    Unexpected error occured while handling request
+2018-09-04 14:14:26,346:DEBUG    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 60, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 69, in connect
+    self.instr = resource_manager.open_resource(self.instr_name, open_timeout=self.open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1724, in open_resource
+    res.open(access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\resources\resource.py", line 209, in open
+    self.session, status = self._resource_manager.open_bare_resource(self._resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1681, in open_bare_resource
+    return self.visalib.open(self.session, resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\functions.py", line 1213, in open
+    ret = library.viOpen(session, resource_name, access_mode, open_timeout, byref(out_session))
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\highlevel.py", line 188, in _return_handler
+    raise errors.VisaIOError(ret_value)
+VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+
+2018-09-04 14:14:26,348:ERROR    Server error [VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.]
+2018-09-04 14:14:26,351:ERROR    Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 205, in exception_handling
+    response_object = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 193, in process_std_route
+    response_object = function(self, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base.py", line 371, in new_service
+    service.base_service_config(config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 101, in _log_entry
+    return_value = function(self, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 150, in base_service_config
+    self._standard_function_error_handling(self.service_config, config)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\service\base_service.py", line 155, in _standard_function_error_handling
+    return function(*args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 60, in service_config
+    self.connect()
+  File "c:\git_files\oc-lte-testbench\src\opentest\opentest\services\visa_service.py", line 69, in connect
+    self.instr = resource_manager.open_resource(self.instr_name, open_timeout=self.open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1724, in open_resource
+    res.open(access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\resources\resource.py", line 209, in open
+    self.session, status = self._resource_manager.open_bare_resource(self._resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\highlevel.py", line 1681, in open_bare_resource
+    return self.visalib.open(self.session, resource_name, access_mode, open_timeout)
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\functions.py", line 1213, in open
+    ret = library.viOpen(session, resource_name, access_mode, open_timeout, byref(out_session))
+  File "C:\Users\william.laroche\AppData\Local\conda\conda\envs\oc-lte-testbench\lib\site-packages\pyvisa\ctwrapper\highlevel.py", line 188, in _return_handler
+    raise errors.VisaIOError(ret_value)
+VisaIOError: VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system.
+

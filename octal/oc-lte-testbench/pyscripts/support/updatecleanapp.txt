@@ -1,0 +1,15 @@
+# When 1st character of a line is #, this is a comment line which is ignored
+# Line format: filename, localpath, remotepath, filecommand, filecmdtimeout
+# filename: base filename (if not provided, localpath and remotepath must include full file pathname)
+# localpath: local file directory path, relative or absolute, or full path if filename is not provided
+# remotepath: remote file directory path, relative or absolute, or full path if filename is not provided
+# filecommand: ssh command executed after the file transfer (if not empty)
+# filecmdtimeout: if filecommand is provided, force this ssh time out value instead of default
+# if filename, localpath and remotepath are all not provided, no scp transfer will occur
+# Equivalent operations (default remote file access will be 644 if remote file does not exist):
+# scp localpath+filename remotepath+filename
+# ssh filecommand
+#
+# This is a needed file to clean target /mnt/app and recreate it from scratch, send though SCP
+# with optionnal SSH command
+appcleanup.sh,support\,/tmp/,/bin/chmod 755 /tmp/appcleanup.sh && /tmp/appcleanup.sh,110

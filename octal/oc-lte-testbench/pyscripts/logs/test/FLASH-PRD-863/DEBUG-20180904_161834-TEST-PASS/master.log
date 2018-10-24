@@ -1,0 +1,76 @@
+2018-09-04 16:18:34,493      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp3gwwvd
+2018-09-04 16:18:34,513      INFO: tr.server: Loading services from config file
+2018-09-04 16:18:34,957      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 16:18:34,957      INFO: tr: ####################### Preparation #######################
+2018-09-04 16:18:34,959      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 16:18:34,960      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 16:18:34,960      INFO: tr.artifactory: Retrieving artifact oc-lte/v1.1
+2018-09-04 16:18:37,838      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 16:18:37,842      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v1.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v1.1
+2018-09-04 16:18:37,907      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 16:18:37,914      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 16:18:37,915      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 16:20:31,539      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 16:20:58,227      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 16:21:08,364      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 16:21:08,374      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 16:21:08,438      INFO: tr: ######################## FlashApp ########################
+2018-09-04 16:21:08,450      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-09-04 16:21:08,453      INFO: tr.CM_CLN002: Clearing mnt/app content
+2018-09-04 16:21:10,076      INFO: tr.CM_CLN002: Updating final file list...
+2018-09-04 16:21:10,076      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-09-04 16:23:29,147      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-09-04 16:33:03,526      INFO: tr.CM_CLN002: Updating u-boot
+2018-09-04 16:33:09,566      INFO: tr.CM_CLN002: Transfering bringup to mnt/app/
+2018-09-04 16:33:09,611      INFO: tr.CM_CLN002: Transfering cal.tar to mnt/app/
+2018-09-04 16:33:09,710      INFO: tr.CM_CLN002: Transfering cal.tgz to mnt/app/
+2018-09-04 16:33:09,789      INFO: tr.CM_CLN002: Transfering data-model.xml to mnt/app/
+2018-09-04 16:33:10,285      INFO: tr.CM_CLN002: Transfering Dimark_Client.tgz to mnt/app/
+2018-09-04 16:33:15,308      INFO: tr.CM_CLN002: Transfering dsp.tgz to mnt/app/
+2018-09-04 16:33:15,986      INFO: tr.CM_CLN002: Transfering ETM_10MHz_TV.tgz to mnt/app/
+2018-09-04 16:33:20,601      INFO: tr.CM_CLN002: Transfering LFMSOFT_OCT_D.tgz to mnt/app/
+2018-09-04 16:33:24,107      INFO: tr.CM_CLN002: Transfering lsmD.gz to mnt/app/
+2018-09-04 16:33:28,617      INFO: tr.CM_CLN002: Transfering md5.txt to mnt/app/
+2018-09-04 16:33:28,746      INFO: tr.CM_CLN002: Transfering rc_post.local to mnt/app/
+2018-09-04 16:33:28,871      INFO: tr.CM_CLN002: Transfering rc_pre.local to mnt/app/
+2018-09-04 16:33:28,990      INFO: tr.CM_CLN002: Transfering README.txt to mnt/app/
+2018-09-04 16:33:29,128      INFO: tr.CM_CLN002: Transfering rffe.tgz to mnt/app/
+2018-09-04 16:33:30,364      INFO: tr.CM_CLN002: Transfering startup.cfg to mnt/app/
+2018-09-04 16:33:30,519      INFO: tr.CM_CLN002: Transfering update_rffe.sh to mnt/app/
+2018-09-04 16:33:30,700      INFO: tr.CM_CLN002: Final mnt/app content: 
+
+-rw-r--r--    1 root     root       3907433 Jan  2 00:12 Dimark_Client.tgz
+-rw-r--r--    1 root     root       3712061 Jan  2 00:12 ETM_10MHz_TV.tgz
+-rw-r--r--    1 root     root       2759313 Jan  2 00:13 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root           102 Jan  2 00:13 README.txt
+-rw-r--r--    1 root     root          5503 Jan  2 00:12 bringup
+-rw-r--r--    1 root     root         40960 Jan  2 00:12 cal.tar
+-rw-r--r--    1 root     root          1417 Jan  2 00:12 cal.tgz
+-rw-r--r--    1 root     root        635868 Jan  2 00:12 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:12 dsp.tgz
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2902244 Jan  2 00:13 lsmD.gz
+-rw-r--r--    1 root     root           616 Jan  2 00:13 md5.txt
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:13 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:13 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:13 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:13 startup.cfg
+-rw-r--r--    1 root     root          1881 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:13 update_rffe.sh
+
+2018-09-04 16:33:30,710      INFO: tr: ####################### UpdateFinal #######################
+2018-09-04 16:33:30,720      INFO: tr.CM_CLN003: - [CM_CLN003] Update final env if was before test -
+2018-09-04 16:33:30,720      INFO: tr.CM_CLN003: Clearing all unessential env vars and setup TFTP env
+2018-09-04 16:36:07,137      INFO: tr.SY_TSC050: ------- [SY_TSC050] Validate boot from flash -------
+2018-09-04 16:36:07,137      INFO: tr.SY_TSC050: No reboot required
+2018-09-04 16:36:07,147      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 16:36:07,147      INFO: tr: ######################### Cleanup #########################
+2018-09-04 16:36:07,147      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 16:36:07,496      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 16:36:07,506      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 16:36:07,546   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 16:36:07,549      INFO: tr: All sections of batch file were executed
+2018-09-04 16:36:07,599      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp3gwwvd\server

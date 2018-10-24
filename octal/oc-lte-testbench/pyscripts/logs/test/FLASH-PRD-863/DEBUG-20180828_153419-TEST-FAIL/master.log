@@ -1,0 +1,20 @@
+2018-08-28 15:34:18,617      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmp_ulbfh
+2018-08-28 15:34:18,707      INFO: tr.server: Loading services from config file
+2018-08-28 15:34:19,108      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-28 15:34:19,111      INFO: tr: ####################### Preparation #######################
+2018-08-28 15:34:19,111      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-28 15:34:19,114      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-28 15:34:19,115      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-08-28 15:34:21,388     ERROR: tr.CM_PRP011: ConnectionError: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',))
+2018-08-28 15:34:21,391     ERROR: tr.CM_PRP011: TEST FAILED
+2018-08-28 15:34:21,394  CRITICAL: tr.CM_PRP011: SECTION CRITICAL FAILED: EXITING SECTION
+2018-08-28 15:34:21,395  CRITICAL: tr: Execution interrupted
+2018-08-28 15:34:21,400  CRITICAL: tr: ConnectionError: HTTPConnectionPool(host='nudb', port=80): Max retries exceeded with url: /artifactory/api/storage/oc-lte/v2.1 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1889BFF0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed',))
+2018-08-28 15:34:21,401      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-28 15:34:21,403      INFO: tr: ######################### Cleanup #########################
+2018-08-28 15:34:21,404      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-28 15:34:21,414   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-08-28 15:34:21,420      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-28 15:34:21,431   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-28 15:34:21,434      INFO: tr: All sections of batch file were executed
+2018-08-28 15:34:21,463      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmp_ulbfh\server

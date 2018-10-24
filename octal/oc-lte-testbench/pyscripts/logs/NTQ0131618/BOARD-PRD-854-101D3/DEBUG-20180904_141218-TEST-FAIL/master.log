@@ -1,0 +1,66 @@
+2018-09-04 14:12:18,176      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpyw2hy2
+2018-09-04 14:12:18,229      INFO: tr.server: Loading services from config file
+2018-09-04 14:12:18,638      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 14:12:18,651      INFO: tr: ###################### BoardTestScan ######################
+2018-09-04 14:12:18,654      INFO: tr.CM_PRP001: ----------- [CM_PRP001] Validate FE Scan -----------
+2018-09-04 14:12:18,657      INFO: tr.criteria: UUT_FE_MRP: 'PRD-854-101' in [PRD-854-101D3] : PASS
+2018-09-04 14:12:18,657      INFO: tr.criteria: UUT_FE_SERIAL_NO: [NTQ0131618] : PASS
+2018-09-04 14:12:18,678      INFO: tr.CM_PRP002: --------------- [CM_PRP002] Scan BB ---------------
+2018-09-04 14:12:18,710      INFO: tr.CM_PRP002: TESTER SCAN:
+2018-09-04 14:12:18,710      INFO: tr.CM_PRP002: Please scan the BB Unit
+2018-09-04 14:12:28,039      INFO: tr.CM_PRP002: Scanned: PRD-865-101B1;NTQ0131490;00-D0-CC-20-14-06
+2018-09-04 14:12:28,046      INFO: tr.criteria: UUT_BB_MRP: 'PRD-865-101' in [PRD-865-101B1] : PASS
+2018-09-04 14:12:28,049      INFO: tr.criteria: UUT_BB_SERIAL_NO: [NTQ0131490] : PASS
+2018-09-04 14:12:28,051      INFO: tr.criteria: UUT_BB_MAC: [00-D0-CC-20-14-06] : PASS
+2018-09-04 14:12:28,101      INFO: tr: ##################### BoardTestbench #####################
+2018-09-04 14:12:28,118      INFO: tr.CM_PRP000: -------------- [CM_PRP000] Setup unit --------------
+2018-09-04 14:12:28,119      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:12:28,121      INFO: tr.CM_PRP000: 
+[BB] Plug in the COM port USB cable
+[BB] Plug in the Ethernet cable
+[BB] Plug in the GPS antenna
+[BB] Plug in the four TRX cables based on their identifications
+[BB] Place an SD card in the MMC card slot
+
+[BB] Plug in the four BB TRX u.fl cables on the BB Board
+[FE] Plug in the four FE TRX u.fl cables on the FE Board
+[FE] Screw in the two ANT SMA cables on the FE board
+[FE] Plug in the LED BOARD
+
+[BB+FE] Slide the two boards together
+
+[BB] Plug in the 12V power header
+        
+2018-09-04 14:12:33,157      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:12:33,160      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:12:33,161      INFO: tr.CM_PRP000: 
+Make sure the four TX/RX cables from the switch are connected in their respective FE TX/RX
+        
+2018-09-04 14:12:34,131      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:12:34,138      INFO: tr.CM_PRP000: TESTER STEP:
+2018-09-04 14:12:34,148      INFO: tr.CM_PRP000: 
+Make sure the four jumpers are present on the BB Board
+        
+2018-09-04 14:12:35,729      INFO: tr.CM_PRP000: Tester continued the test
+2018-09-04 14:12:35,785      INFO: tr: ####################### Preparation #######################
+2018-09-04 14:12:35,815      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 14:12:35,821      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 14:12:35,822      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 14:12:42,601      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 14:12:42,605      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 14:12:42,742      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 14:12:42,743      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 14:12:42,759      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 14:12:42,825     ERROR: tr.CM_PRP013: RemoteServerError: [500] NEW SERVICE call @comport: SerialException: could not open port u'COM10': WindowsError(5, 'Acc\xe8s refus\xe9.')
+2018-09-04 14:12:42,825     ERROR: tr.CM_PRP013: TEST FAILED
+2018-09-04 14:12:42,826  CRITICAL: tr.CM_PRP013: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-04 14:12:42,828  CRITICAL: tr: Execution interrupted
+2018-09-04 14:12:42,828  CRITICAL: tr: RemoteServerError: [500] NEW SERVICE call @comport: SerialException: could not open port u'COM10': WindowsError(5, 'Acc\xe8s refus\xe9.')
+2018-09-04 14:12:42,828      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 14:12:42,831      INFO: tr: ######################### Cleanup #########################
+2018-09-04 14:12:42,832      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 14:12:42,842   WARNING: tr.FE_CLN001: Failed to set TXs off
+2018-09-04 14:12:42,845      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 14:12:42,858   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 14:12:42,862      INFO: tr: All sections of batch file were executed
+2018-09-04 14:12:42,901      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpyw2hy2\server

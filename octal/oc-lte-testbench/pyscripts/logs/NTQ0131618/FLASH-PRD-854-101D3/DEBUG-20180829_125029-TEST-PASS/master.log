@@ -1,0 +1,69 @@
+2018-08-29 12:50:28,819      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmppc1rx5
+2018-08-29 12:50:28,967      INFO: tr.server: Loading services from config file
+2018-08-29 12:50:29,351      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-08-29 12:50:29,355      INFO: tr: ####################### Preparation #######################
+2018-08-29 12:50:29,355      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-08-29 12:50:29,358      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-08-29 12:50:29,358      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-08-29 12:50:29,891      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-08-29 12:50:29,996      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-08-29 12:50:29,997      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-08-29 12:50:30,000      INFO: tr: ####################### SSHFixedIp #######################
+2018-08-29 12:50:30,005      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-08-29 12:50:30,006      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-08-29 12:51:16,805      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-08-29 12:53:32,466      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-08-29 12:53:42,582      INFO: tr: #################### RevertUpdateFinal ####################
+2018-08-29 12:53:42,585      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-08-29 12:53:42,619      INFO: tr: ######################## FlashApp ########################
+2018-08-29 12:53:42,621      INFO: tr.CM_CLN002: ------- [CM_CLN002] Copy boot by flash files -------
+2018-08-29 12:53:42,624      INFO: tr.CM_CLN002: Clearing mnt/app content
+2018-08-29 12:53:44,826      INFO: tr.CM_CLN002: Updating final file list...
+2018-08-29 12:53:44,826      INFO: tr.CM_CLN002: Updating lsm_os.gz, timeout is 200
+2018-08-29 12:56:08,637      INFO: tr.CM_CLN002: Updating lsm_rd.gz, timeout is 1200
+2018-08-29 13:05:37,427      INFO: tr.CM_CLN002: Updating u-boot
+2018-08-29 13:05:43,928      INFO: tr.CM_CLN002: Transfering data-model.xml to mnt/app/
+2018-08-29 13:05:44,400      INFO: tr.CM_CLN002: Transfering Dimark_Client.tgz to mnt/app/
+2018-08-29 13:05:49,351      INFO: tr.CM_CLN002: Transfering dsp.tgz to mnt/app/
+2018-08-29 13:05:50,010      INFO: tr.CM_CLN002: Transfering e2eenv.txt to mnt/app/
+2018-08-29 13:05:50,154      INFO: tr.CM_CLN002: Transfering LFMSOFT_OCT_D.tgz to mnt/app/
+2018-08-29 13:05:53,694      INFO: tr.CM_CLN002: Transfering lsmD.gz to mnt/app/
+2018-08-29 13:05:57,440      INFO: tr.CM_CLN002: Transfering rc_post.local to mnt/app/
+2018-08-29 13:05:57,589      INFO: tr.CM_CLN002: Transfering rc_pre.local to mnt/app/
+2018-08-29 13:05:57,726      INFO: tr.CM_CLN002: Transfering rffe.tgz to mnt/app/
+2018-08-29 13:05:58,081      INFO: tr.CM_CLN002: Transfering startup.cfg to mnt/app/
+2018-08-29 13:05:58,186      INFO: tr.CM_CLN002: Transfering tftpenv.txt to mnt/app/
+2018-08-29 13:05:58,276      INFO: tr.CM_CLN002: Transfering update_rffe.sh to mnt/app/
+2018-08-29 13:05:58,434      INFO: tr.CM_CLN002: Final mnt/app content: 
+
+-rw-r--r--    1 root     root       3892930 Jan  2 00:14 Dimark_Client.tgz
+-rw-r--r--    1 root     root       2759575 Jan  2 00:14 LFMSOFT_OCT_D.tgz
+-rw-r--r--    1 root     root        635321 Jan  2 00:14 data-model.xml
+-rw-r--r--    1 root     root        448960 Jan  2 00:14 dsp.tgz
+-rw-r--r--    1 root     root           985 Jan  2 00:14 e2eenv.txt
+drwxr-xr-x    2 root     root             0 Dec 31 16:00 env
+-rw-r--r--    1 root     root       2901563 Jan  2 00:14 lsmD.gz
+-rw-r--r--    1 root     root           101 Dec 31 16:01 passwd
+-rw-r--r--    1 root     root           161 Jan  2 00:14 rc_post.local
+-rw-r--r--    1 root     root            81 Jan  2 00:14 rc_pre.local
+-rw-r--r--    1 root     root        185723 Jan  2 00:14 rffe.tgz
+-rw-r--r--    1 root     root            68 Dec 31 16:01 shadow
+drwxr-xr-x    2 root     root             0 Jan  2 00:00 ssh
+-rw-r--r--    1 root     root         47798 Jan  2 00:14 startup.cfg
+-rw-r--r--    1 root     root          1747 Jan  2 00:14 tftpenv.txt
+-rw-r--r--    1 root     root          1862 Dec 31 16:00 ubootenv
+-rw-r--r--    1 root     root           157 Jan  2 00:14 update_rffe.sh
+
+2018-08-29 13:05:58,437      INFO: tr: ####################### UpdateFinal #######################
+2018-08-29 13:05:58,438      INFO: tr.CM_CLN003: - [CM_CLN003] Update final env if was before test -
+2018-08-29 13:05:58,440      INFO: tr.CM_CLN003: Clearing all unessential env vars and setup TFTP env
+2018-08-29 13:08:26,473      INFO: tr.SY_TSC050: ------- [SY_TSC050] Validate boot from flash -------
+2018-08-29 13:08:26,476      INFO: tr.SY_TSC050: No reboot required
+2018-08-29 13:08:26,480      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-08-29 13:08:26,483      INFO: tr: ######################### Cleanup #########################
+2018-08-29 13:08:26,483      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-08-29 13:08:26,773      INFO: tr.FE_CLN001: TXs are off
+2018-08-29 13:08:26,778      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-08-29 13:08:26,950   WARNING: tr.BB_CLN001: Failed to set power off
+2018-08-29 13:08:26,951      INFO: tr: All sections of batch file were executed
+2018-08-29 13:08:26,979      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmppc1rx5\server

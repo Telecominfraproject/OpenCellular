@@ -1,0 +1,344 @@
+2018-09-04 14:21:09,046:DEBUG    
+
+
+2018-09-04 14:21:09,046:INFO     SERVICE INITIALIZED
+2018-09-04 14:21:23,045:DEBUG    LOG =DEBUG
+2018-09-04 14:21:23,045:INFO     All parameters present
+2018-09-04 14:21:23,046:INFO     Connecting to instrument [TCPIP0::A-N5182B-50490.local::inst0::INSTR]
+2018-09-04 14:21:28,065:INFO     SERVICE CONFIGURATION - LOG =DEBUG (5.02 s)
+2018-09-04 14:21:28,069:DEBUG    Timeout is 10.0 seconds
+2018-09-04 14:21:28,069:INFO     Sending command: *RST
+2018-09-04 14:21:28,072:DEBUG    Waiting for operations to finish...
+2018-09-04 14:21:28,176:INFO     SERVICE HANDLING -  (0.11 s)
+2018-09-04 14:26:08,434:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:26:08,434:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:26:08,438:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:26:08,440:DEBUG    Waiting for operations to finish...
+2018-09-04 14:26:08,448:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:26:08,456:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:26:08,456:INFO     Sending command: :OUTP ON
+2018-09-04 14:26:08,457:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:26:08,460:DEBUG    Waiting for operations to finish...
+2018-09-04 14:26:08,469:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:26:32,663:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:26:32,663:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:26:32,665:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:26:32,667:DEBUG    Waiting for operations to finish...
+2018-09-04 14:26:32,677:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:26:32,683:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:26:32,683:INFO     Sending command: :OUTP ON
+2018-09-04 14:26:32,686:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:26:32,687:DEBUG    Waiting for operations to finish...
+2018-09-04 14:26:32,697:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:05,808:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:05,808:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:27:05,811:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:27:05,813:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:05,822:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:05,828:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:05,828:INFO     Sending command: :OUTP ON
+2018-09-04 14:27:05,831:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:27:05,832:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:05,842:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:38,644:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:38,644:INFO     Sending command: :RADio:ARB:SCLock:RATE 15.36MHz
+2018-09-04 14:27:38,645:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:38,650:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:38,654:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:38,654:INFO     Sending command: :MEM:COPY "10MHZ_FRCA13_RO_0", "WFM1:TEMP"
+2018-09-04 14:27:38,657:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:38,690:INFO     SERVICE HANDLING -  (0.04 s)
+2018-09-04 14:27:38,696:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:38,697:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:38,703:DEBUG    +0,"No error"
+2018-09-04 14:27:38,703:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:38,710:DEBUG    Timeout is 10 seconds
+2018-09-04 14:27:38,710:INFO     Sending command: :RAD:ARB:WAV "WFM1:TEMP"
+2018-09-04 14:27:38,713:INFO     Sending command: :RAD:ARB:RSC 25
+2018-09-04 14:27:38,714:INFO     Sending command: :RAD:ARB ON
+2018-09-04 14:27:38,717:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:38,990:INFO     SERVICE HANDLING -  (0.28 s)
+2018-09-04 14:27:39,012:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:39,013:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:27:39,015:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:27:39,016:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:39,026:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:27:39,032:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:27:39,032:INFO     Sending command: :OUTP ON
+2018-09-04 14:27:39,035:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:27:39,036:DEBUG    Waiting for operations to finish...
+2018-09-04 14:27:39,048:INFO     SERVICE HANDLING -  (0.02 s)
+2018-09-04 14:28:10,285:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:10,285:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:28:10,289:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:28:10,292:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:10,301:INFO     SERVICE HANDLING -  (0.02 s)
+2018-09-04 14:28:10,308:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:10,308:INFO     Sending command: :OUTP ON
+2018-09-04 14:28:10,309:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:28:10,312:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:10,321:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:28:40,584:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:40,584:INFO     Sending command: :RADio:ARB:SCLock:RATE 15.36MHz
+2018-09-04 14:28:40,586:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,592:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:28:40,598:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:40,598:INFO     Sending command: :MEM:COPY "10MHZ_FRCA13_RO_0", "WFM1:TEMP"
+2018-09-04 14:28:40,601:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,631:INFO     SERVICE HANDLING -  (0.03 s)
+2018-09-04 14:28:40,638:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:40,638:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,645:DEBUG    +0,"No error"
+2018-09-04 14:28:40,647:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:28:40,654:DEBUG    Timeout is 10 seconds
+2018-09-04 14:28:40,654:INFO     Sending command: :RAD:ARB:WAV "WFM1:TEMP"
+2018-09-04 14:28:40,655:INFO     Sending command: :RAD:ARB:RSC 25
+2018-09-04 14:28:40,658:INFO     Sending command: :RAD:ARB ON
+2018-09-04 14:28:40,661:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,940:INFO     SERVICE HANDLING -  (0.29 s)
+2018-09-04 14:28:40,960:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:40,960:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:28:40,963:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:28:40,964:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,973:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:28:40,980:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:28:40,980:INFO     Sending command: :OUTP ON
+2018-09-04 14:28:40,983:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:28:40,984:DEBUG    Waiting for operations to finish...
+2018-09-04 14:28:40,994:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:29:06,408:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:06,408:INFO     Sending command: :FREQ 1805 MHz
+2018-09-04 14:29:06,411:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:29:06,414:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:06,423:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:29:06,430:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:06,430:INFO     Sending command: :OUTP ON
+2018-09-04 14:29:06,433:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:29:06,434:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:06,444:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:29:35,607:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:35,607:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:29:35,608:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:29:35,611:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:35,619:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:29:35,625:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:35,625:INFO     Sending command: :OUTP ON
+2018-09-04 14:29:35,628:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:29:35,631:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:35,640:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:29:58,848:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:58,848:INFO     Sending command: :FREQ 1880 MHz
+2018-09-04 14:29:58,852:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:29:58,855:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:58,864:INFO     SERVICE HANDLING -  (0.02 s)
+2018-09-04 14:29:58,874:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:29:58,874:INFO     Sending command: :OUTP ON
+2018-09-04 14:29:58,877:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:29:58,878:DEBUG    Waiting for operations to finish...
+2018-09-04 14:29:58,888:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:30:37,296:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:30:37,296:INFO     Sending command: :FREQ 1805 MHz
+2018-09-04 14:30:37,299:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:30:37,302:DEBUG    Waiting for operations to finish...
+2018-09-04 14:30:37,309:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:30:37,315:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:30:37,315:INFO     Sending command: :OUTP ON
+2018-09-04 14:30:37,318:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:30:37,319:DEBUG    Waiting for operations to finish...
+2018-09-04 14:30:37,328:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:31:00,500:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:31:00,502:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:31:00,503:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:31:00,506:DEBUG    Waiting for operations to finish...
+2018-09-04 14:31:00,515:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:31:00,520:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:31:00,520:INFO     Sending command: :OUTP ON
+2018-09-04 14:31:00,523:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:31:00,526:DEBUG    Waiting for operations to finish...
+2018-09-04 14:31:00,533:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:31:23,707:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:31:23,707:INFO     Sending command: :FREQ 1880 MHz
+2018-09-04 14:31:23,710:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:31:23,711:DEBUG    Waiting for operations to finish...
+2018-09-04 14:31:23,720:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:31:23,726:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:31:23,726:INFO     Sending command: :OUTP ON
+2018-09-04 14:31:23,729:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:31:23,732:DEBUG    Waiting for operations to finish...
+2018-09-04 14:31:23,740:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:04,904:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:04,904:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:32:04,907:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:32:04,908:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:04,917:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:04,923:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:04,924:INFO     Sending command: :OUTP ON
+2018-09-04 14:32:04,926:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:32:04,928:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:04,937:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:24,953:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:24,954:INFO     Sending command: :FREQ 1845 MHz
+2018-09-04 14:32:24,957:INFO     Sending command: :POW -23.0 dBm
+2018-09-04 14:32:24,960:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:24,969:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:24,976:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:24,976:INFO     Sending command: :OUTP ON
+2018-09-04 14:32:24,977:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:32:24,980:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:24,989:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:39,351:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:39,351:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:32:39,355:INFO     Sending command: :POW 1.5 dBm
+2018-09-04 14:32:39,357:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:39,365:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:32:39,374:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:32:39,375:INFO     Sending command: :OUTP ON
+2018-09-04 14:32:39,377:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:32:39,378:DEBUG    Waiting for operations to finish...
+2018-09-04 14:32:39,388:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:33:07,621:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:33:07,622:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:33:07,625:INFO     Sending command: :POW 1.5 dBm
+2018-09-04 14:33:07,628:DEBUG    Waiting for operations to finish...
+2018-09-04 14:33:07,635:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:33:07,644:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:33:07,644:INFO     Sending command: :OUTP ON
+2018-09-04 14:33:07,647:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:33:07,648:DEBUG    Waiting for operations to finish...
+2018-09-04 14:33:07,657:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:33:33,105:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:33:33,105:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:33:33,108:INFO     Sending command: :POW 1.5 dBm
+2018-09-04 14:33:33,111:DEBUG    Waiting for operations to finish...
+2018-09-04 14:33:33,119:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:33:33,125:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:33:33,125:INFO     Sending command: :OUTP ON
+2018-09-04 14:33:33,128:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:33:33,131:DEBUG    Waiting for operations to finish...
+2018-09-04 14:33:33,138:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:34:09,812:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:34:09,812:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:34:09,815:INFO     Sending command: :POW 1.5 dBm
+2018-09-04 14:34:09,818:DEBUG    Waiting for operations to finish...
+2018-09-04 14:34:09,825:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:34:09,832:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:34:09,832:INFO     Sending command: :OUTP ON
+2018-09-04 14:34:09,835:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:34:09,836:DEBUG    Waiting for operations to finish...
+2018-09-04 14:34:09,845:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:34,016:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:34,016:INFO     Sending command: :OUTP OFF
+2018-09-04 14:38:34,019:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:34,022:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:34,029:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:36,125:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:36,125:INFO     Sending command: :MEM:COPY "10MHZ_FRCA13_RO_0", "WFM1:TEMP"
+2018-09-04 14:38:36,128:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,157:INFO     SERVICE HANDLING -  (0.03 s)
+2018-09-04 14:38:36,163:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:36,164:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,170:DEBUG    +0,"No error"
+2018-09-04 14:38:36,170:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:36,176:DEBUG    Timeout is 10 seconds
+2018-09-04 14:38:36,176:INFO     Sending command: :RAD:ARB:WAV "WFM1:TEMP"
+2018-09-04 14:38:36,178:INFO     Sending command: :RAD:ARB:RSC 25
+2018-09-04 14:38:36,180:INFO     Sending command: :RAD:ARB ON
+2018-09-04 14:38:36,184:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,464:INFO     SERVICE HANDLING -  (0.29 s)
+2018-09-04 14:38:36,471:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:36,473:INFO     Sending command: :RAD:ARB:SCL:RATE 15.36MHz
+2018-09-04 14:38:36,473:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,480:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:36,542:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:36,542:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:36,545:INFO     Sending command: :POW -17.022 dBm
+2018-09-04 14:38:36,546:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,555:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:36,562:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:36,562:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:36,565:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:36,566:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:36,575:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:37,065:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:37,065:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:37,066:INFO     Sending command: :POW -27.022 dBm
+2018-09-04 14:38:37,069:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:37,078:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:37,084:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:37,085:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:37,086:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:37,088:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:37,098:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:37,585:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:37,586:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:37,588:INFO     Sending command: :POW -37.022 dBm
+2018-09-04 14:38:37,591:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:37,599:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:37,605:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:37,605:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:37,607:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:37,608:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:37,618:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:38,141:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:38,141:INFO     Sending command: :OUTP OFF
+2018-09-04 14:38:38,144:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:38:38,148:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:38,155:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:50,273:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:50,273:INFO     Sending command: :OUTP OFF
+2018-09-04 14:38:50,276:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:50,278:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:50,286:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:52,374:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:52,374:INFO     Sending command: :MEM:COPY "10MHZ_FRCA13_RO_0", "WFM1:TEMP"
+2018-09-04 14:38:52,375:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,407:INFO     SERVICE HANDLING -  (0.03 s)
+2018-09-04 14:38:52,411:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:52,413:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,420:DEBUG    +0,"No error"
+2018-09-04 14:38:52,420:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:52,424:DEBUG    Timeout is 10 seconds
+2018-09-04 14:38:52,424:INFO     Sending command: :RAD:ARB:WAV "WFM1:TEMP"
+2018-09-04 14:38:52,427:INFO     Sending command: :RAD:ARB:RSC 25
+2018-09-04 14:38:52,430:INFO     Sending command: :RAD:ARB ON
+2018-09-04 14:38:52,431:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,711:INFO     SERVICE HANDLING -  (0.29 s)
+2018-09-04 14:38:52,719:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:52,719:INFO     Sending command: :RAD:ARB:SCL:RATE 15.36MHz
+2018-09-04 14:38:52,721:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,727:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:52,786:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:52,786:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:52,789:INFO     Sending command: :POW -15.257 dBm
+2018-09-04 14:38:52,790:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,799:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:52,815:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:52,815:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:52,816:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:52,819:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:52,828:INFO     SERVICE HANDLING -  (0.02 s)
+2018-09-04 14:38:53,315:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:53,315:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:53,319:INFO     Sending command: :POW -25.257 dBm
+2018-09-04 14:38:53,321:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:53,329:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:53,335:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:53,335:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:53,338:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:53,339:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:53,349:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:53,839:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:53,841:INFO     Sending command: :FREQ 1750 MHz
+2018-09-04 14:38:53,842:INFO     Sending command: :POW -35.257 dBm
+2018-09-04 14:38:53,845:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:53,854:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:53,858:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:53,858:INFO     Sending command: :OUTP ON
+2018-09-04 14:38:53,861:INFO     Sending command: :OUTP:MOD ON
+2018-09-04 14:38:53,862:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:53,871:INFO     SERVICE HANDLING -  (0.01 s)
+2018-09-04 14:38:54,361:DEBUG    Timeout is 5.0 seconds
+2018-09-04 14:38:54,362:INFO     Sending command: :OUTP OFF
+2018-09-04 14:38:54,365:INFO     Sending command: :OUTP:MOD OFF
+2018-09-04 14:38:54,368:DEBUG    Waiting for operations to finish...
+2018-09-04 14:38:54,375:INFO     SERVICE HANDLING -  (0.01 s)

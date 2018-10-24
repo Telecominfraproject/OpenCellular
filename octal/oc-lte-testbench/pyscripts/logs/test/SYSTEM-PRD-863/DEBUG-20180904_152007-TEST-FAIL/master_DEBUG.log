@@ -1,0 +1,1093 @@
+2018-09-04 15:20:07,153      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpe9c3nt
+2018-09-04 15:20:07,154     DEBUG: tr: context._test_interface= <nute.core.interface.WebTestRunnerInterface object at 0x17F8CEF0>
+2018-09-04 15:20:07,154     DEBUG: tr: context.server= <nute.service.serverinterface.ServerInterface object at 0x17F51E70>
+2018-09-04 15:20:07,401      INFO: tr.server: Loading services from config file
+2018-09-04 15:20:07,414     DEBUG: tr.server: Client sensor (tools.lte.lte_ssh_client.SensorSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,430     DEBUG: tr.server: Client led (tools.lte.lte_ssh_client.LEDSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,450     DEBUG: tr.server: Client rfswitch (LossRFSwitchServiceClient -> RFSwitchService@rfswitch)
+2018-09-04 15:20:07,463     DEBUG: tr.server: Client sdcard (tools.lte.lte_ssh_client.SDCardSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,487     DEBUG: tr.server: Client e2e_ssh (tools.lte.lte_ssh_client.E2ESSHServiceClient -> SSHService@e2e_ssh)
+2018-09-04 15:20:07,507     DEBUG: tr.server: Client spectrum (KeysightEXASpectrumClient -> VISAService@spectrum)
+2018-09-04 15:20:07,526     DEBUG: tr.server: Client ssh (tools.lte.lte_ssh_client.LTESSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,546     DEBUG: tr.server: Client dcsupply (DCSupplyServiceClient -> DCSupplyService@dcsupply)
+2018-09-04 15:20:07,565     DEBUG: tr.server: Client scp (SCPServiceClient -> SCPService@scp)
+2018-09-04 15:20:07,578     DEBUG: tr.server: Client i2c (tools.lte.lte_ssh_client.I2CDetectSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,601     DEBUG: tr.server: Client generator (KeysightEXGGeneratorClient -> VISAService@generator)
+2018-09-04 15:20:07,615     DEBUG: tr.server: Client env_var (tools.lte.lte_ssh_client.EnvVarSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,631     DEBUG: tr.server: Client ssh_rms (tools.lte.lte_ssh_client.RMSSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,651     DEBUG: tr.server: Client dhcp (DHCPServiceClient -> DHCPService@dhcp)
+2018-09-04 15:20:07,671     DEBUG: tr.server: Client tftp (tools.lte.lte_software.LTETFTPServiceClient -> TFTPService@tftp)
+2018-09-04 15:20:07,687     DEBUG: tr.server: Client ssh_eeprom (tools.lte.lte_ssh_client.EEPROMSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,707     DEBUG: tr.server: Client com (tools.lte.lte_comport.LTECOMServiceClient -> COMService@comport)
+2018-09-04 15:20:07,724     DEBUG: tr.server: Client gps (tools.lte.lte_ssh_client.GPSSSHServiceClient -> SSHService@ssh)
+2018-09-04 15:20:07,825     DEBUG: tr: context.TEST_= <nute.core.testrunner.SpecificLoadedTest object at 0x1827BC70>
+2018-09-04 15:20:07,832     DEBUG: tr: Next section
+2018-09-04 15:20:07,832      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-04 15:20:07,838      INFO: tr: ##################### SystemTestbench #####################
+2018-09-04 15:20:07,839      INFO: tr.SY_PRP000: -------------- [SY_PRP000] Setup unit --------------
+2018-09-04 15:20:07,842      INFO: tr.SY_PRP000: TESTER STEP:
+2018-09-04 15:20:07,842      INFO: tr.SY_PRP000: 
+Plug in the Ethernet cable
+Plug in the GPS antenna
+Plug in the two TRX cables based on their identifications
+Plug in the power cord
+        
+2018-09-04 15:20:09,641      INFO: tr.SY_PRP000: Tester continued the test
+2018-09-04 15:20:09,667      INFO: tr: ####################### Preparation #######################
+2018-09-04 15:20:09,677      INFO: tr.CM_PRP011: --------- [CM_PRP011] Launch TFTP Service ---------
+2018-09-04 15:20:09,680      INFO: tr.server.LTETFTPServiceClient: Updating image from repo
+2018-09-04 15:20:09,680      INFO: tr.artifactory: Retrieving artifact oc-lte/v2.1
+2018-09-04 15:20:16,464      INFO: tr.artifactory: [OFFLINE] Unable to retrieve artifact, using cached.
+2018-09-04 15:20:16,467      INFO: tr.server.LTETFTPServiceClient: Image [oc-lte/v2.1] is located at c:\users\willia~1.lar\appdata\local\temp\nute-artifactory\oc-lte\v2.1
+2018-09-04 15:20:16,526     DEBUG: tr.CM_PRP011: context.UPDATEFINAL_FILE_LOCAL_PATH= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1'
+2018-09-04 15:20:16,528      INFO: tr.CM_PRP011: Using TFTP env file from artifact
+2018-09-04 15:20:16,529     DEBUG: tr.CM_PRP011: context.UBOOT_SETUPFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\tftpenv.txt'
+2018-09-04 15:20:16,529      INFO: tr.CM_PRP011: Using E2E env file from artifact
+2018-09-04 15:20:16,530     DEBUG: tr.CM_PRP011: context.UBOOT_FINALFILEENV= 'c:\\users\\willia~1.lar\\appdata\\local\\temp\\nute-artifactory\\oc-lte\\v2.1\\e2eenv.txt'
+2018-09-04 15:20:16,542      INFO: tr.CM_PRP013: ---------- [CM_PRP013] Launch COM Service ----------
+2018-09-04 15:20:16,584      INFO: tr.CM_PRP014: -------- [CM_PRP014] Launch ComponentTester --------
+2018-09-04 15:20:16,591     DEBUG: tr.server.KeysightEXASpectrumClient: Connecting to TCPIP0::K-N9030B-41982.local::inst0::INSTR
+2018-09-04 15:20:17,575      INFO: tr.CM_PRP015: ------- [CM_PRP015] Launch RFSwitch Service -------
+2018-09-04 15:20:17,624      INFO: tr: ####################### SSHFixedIp #######################
+2018-09-04 15:20:17,632      INFO: tr.BB_TSC003: ----------- [BB_TSC003] Boot Validation -----------
+2018-09-04 15:20:17,634      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 15:22:01,375      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 15:22:27,706      INFO: tr.BB_PRP006: ---------- [BB_PRP006] Launch SCP Service ----------
+2018-09-04 15:22:37,832      INFO: tr: #################### RevertUpdateFinal ####################
+2018-09-04 15:22:37,836      INFO: tr.SY_PRP003: ----- [SY_PRP003] Revert to TFTP if final env -----
+2018-09-04 15:22:37,875     DEBUG: tr.SY_PRP003: context.WAS_FINALENV= False
+2018-09-04 15:22:37,881      INFO: tr: ####################### UpdateSetup #######################
+2018-09-04 15:22:37,891      INFO: tr.CM_PRP042: ---------- [CM_PRP042] Update Test Setup ----------
+2018-09-04 15:22:37,891      INFO: tr.CM_PRP042: Updating setup file list...
+2018-09-04 15:22:37,892     DEBUG: tr.CM_PRP042: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-04 15:22:38,023     DEBUG: tr.CM_PRP042: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-04 15:22:38,023     DEBUG: tr.CM_PRP042: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-04 15:22:39,424     DEBUG: tr.CM_PRP042: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-04 15:22:39,615      INFO: tr.CM_PRP042: Updating setup file list... Done
+2018-09-04 15:22:39,624      INFO: tr: ######################## LedBoard ########################
+2018-09-04 15:22:39,628      INFO: tr.LD_TSC000_0: ----------- [LD_TSC000_0] RED Leds test -----------
+2018-09-04 15:22:39,671      INFO: tr.LD_TSC000_0: TESTER STEP:
+2018-09-04 15:22:39,671      INFO: tr.LD_TSC000_0: All presents LEDs are red
+2018-09-04 15:23:25,454      INFO: tr.LD_TSC000_0: Tester continued the test
+2018-09-04 15:23:25,460      INFO: tr.LD_TSC000_1: ---------- [LD_TSC000_1] Green Leds test ----------
+2018-09-04 15:23:25,490      INFO: tr.LD_TSC000_1: TESTER STEP:
+2018-09-04 15:23:25,492      INFO: tr.LD_TSC000_1: All presents LEDs are green
+2018-09-04 15:23:28,497      INFO: tr.LD_TSC000_1: Tester continued the test
+2018-09-04 15:23:28,503      INFO: tr.LD_TSC000_2: ---------- [LD_TSC000_2] Orange Leds test ----------
+2018-09-04 15:23:28,536      INFO: tr.LD_TSC000_2: TESTER STEP:
+2018-09-04 15:23:28,536      INFO: tr.LD_TSC000_2: All presents LEDs are orange
+2018-09-04 15:23:29,711      INFO: tr.LD_TSC000_2: Tester continued the test
+2018-09-04 15:23:29,717      INFO: tr.LD_TSC000_3: ------------ [LD_TSC000_3] Led off test ------------
+2018-09-04 15:23:29,750      INFO: tr.LD_TSC000_3: TESTER STEP:
+2018-09-04 15:23:29,750      INFO: tr.LD_TSC000_3: All presents LEDs are off
+2018-09-04 15:23:30,875      INFO: tr.LD_TSC000_3: Tester continued the test
+2018-09-04 15:23:30,884      INFO: tr: ####################### DigitalComm #######################
+2018-09-04 15:23:30,888      INFO: tr.FE_TSC010: -------------- [FE_TSC010] I2C0 Scan --------------
+2018-09-04 15:23:31,305      INFO: tr.FE_TSC011: -------------- [FE_TSC011] I2C1 Scan --------------
+2018-09-04 15:23:31,650      INFO: tr.FE_TSC012: -------------- [FE_TSC012] I2C4 Scan --------------
+2018-09-04 15:23:31,989      INFO: tr.FE_TSC013: -------------- [FE_TSC013] SPI RFPAL --------------
+2018-09-04 15:23:31,993     DEBUG: tr.FE_TSC013: Reset RFPAL
+2018-09-04 15:23:35,292      INFO: tr.FE_TSC016: ----------- [FE_TSC016] Validate FE Rev -----------
+2018-09-04 15:23:35,341     DEBUG: tr.FE_TSC016: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\board\fe_digitalcomm.py", line 66, in FE_TSC016
+    assert rev == context.FE_REV, "Scanned FE Rev [%s] does not match with on-board Rev [%s]" % (context.FE_REV, rev)
+AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+
+2018-09-04 15:23:35,342     ERROR: tr.FE_TSC016: AssertionError: Scanned FE Rev [D] does not match with on-board Rev [sh: fe-gethdrev: not found]
+2018-09-04 15:23:35,342     ERROR: tr.FE_TSC016: TEST FAILED
+2018-09-04 15:23:35,342      INFO: tr.FE_TSC014_0: ----------- [FE_TSC014_0] Temp tx0 Alert -----------
+2018-09-04 15:23:35,344      INFO: tr.FE_TSC014_1: ----------- [FE_TSC014_1] Temp tx1 Alert -----------
+2018-09-04 15:23:35,344      INFO: tr.FE_TSC014_2: ----------- [FE_TSC014_2] Temp fe Alert -----------
+2018-09-04 15:23:35,345      INFO: tr.FE_TSC015_0: --------- [FE_TSC015_0] Current Tx0 Alerts ---------
+2018-09-04 15:23:35,345      INFO: tr.FE_TSC015_1: --------- [FE_TSC015_1] Current Tx1 Alerts ---------
+2018-09-04 15:23:35,345      INFO: tr: ###################### BBPreparation ######################
+2018-09-04 15:23:35,348      INFO: tr.BB_PRP010: -------- [BB_PRP010] Enable BB Transceiver --------
+2018-09-04 15:23:35,400     DEBUG: tr.BB_PRP010: BB Attn 1 set to 20.00 dB
+2018-09-04 15:23:35,515     DEBUG: tr.BB_PRP010: PA 1 = (28.256 V, 0.0 A)
+2018-09-04 15:23:35,576     DEBUG: tr.BB_PRP010: TX Attn 1 set to 16.00 dB
+2018-09-04 15:23:35,694     DEBUG: tr.BB_PRP010: PA 1 = (28.255 V, 0.0 A)
+2018-09-04 15:23:35,750     DEBUG: tr.BB_PRP010: FB Attn 1 set to 14.00 dB
+2018-09-04 15:23:35,815     DEBUG: tr.BB_PRP010: BB Attn 2 set to 20.00 dB
+2018-09-04 15:23:35,934     DEBUG: tr.BB_PRP010: PA 2 = (28.254 V, 0.0 A)
+2018-09-04 15:23:35,996     DEBUG: tr.BB_PRP010: TX Attn 2 set to 16.00 dB
+2018-09-04 15:23:36,114     DEBUG: tr.BB_PRP010: PA 2 = (28.253 V, 0.0 A)
+2018-09-04 15:23:36,167     DEBUG: tr.BB_PRP010: FB Attn 2 set to 14.00 dB
+2018-09-04 15:23:36,167      INFO: tr.BB_PRP010: Start ETM1.1
+2018-09-04 15:23:37,776      INFO: tr.BB_PRP010: Waiting for RF output...
+2018-09-04 15:23:41,779      INFO: tr: ################### PrepareCalibration ###################
+2018-09-04 15:23:41,779      INFO: tr.SY_PRP011: ------ [SY_PRP011] Create calibration folder ------
+2018-09-04 15:23:41,780     DEBUG: tr.SY_PRP011: context.CALIBRATION_PREPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpe9c3nt\\measures'
+2018-09-04 15:23:41,782     DEBUG: tr.SY_PRP011: context.CALIBRATION_POSTPROCESS_FOLDER= 'C:\\Users\\william.laroche\\appdata\\local\\temp\\tmpe9c3nt\\calib'
+2018-09-04 15:23:41,783      INFO: tr.SY_PRP012: ------------- [SY_PRP012] Check Output -------------
+2018-09-04 15:23:41,846     DEBUG: tr.SY_PRP012: 
+2018-09-04 15:23:41,887     DEBUG: tr.SY_PRP012: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-04 15:23:44,397     DEBUG: tr.SY_PRP012: TX 1 Predriver1 set to 1
+2018-09-04 15:23:44,444     DEBUG: tr.SY_PRP012: TX 1 Predriver2 set to 1
+2018-09-04 15:23:44,496     DEBUG: tr.SY_PRP012: TX 1 PA set to 1
+2018-09-04 15:23:46,311      INFO: tr: ##################### OCXOCalibration #####################
+2018-09-04 15:23:46,312      INFO: tr.BB_TSC020: ----------- [BB_TSC020] OCXO Calibration -----------
+2018-09-04 15:23:46,345     DEBUG: tr.BB_TSC020: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-04 15:23:46,345     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-04 15:23:46,362     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-04 15:23:46,417     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-04 15:23:48,500     DEBUG: tr.BB_TSC020: TX 1 Predriver1 set to 1
+2018-09-04 15:23:48,520     DEBUG: tr.BB_TSC020: TX 1 Predriver2 set to 1
+2018-09-04 15:23:48,575     DEBUG: tr.BB_TSC020: TX 1 PA set to 1
+2018-09-04 15:23:49,595      INFO: tr.BB_TSC020: Skipped OCXO Calibration, frequency error = 13 Hz
+2018-09-04 15:23:49,596      INFO: tr.criteria: BB_TSC020_OCXO_FREQ_ERROR: abs([13.13]) < 50 : PASS
+2018-09-04 15:23:49,598      INFO: tr: #################### RFPALCalibration ####################
+2018-09-04 15:23:49,599      INFO: tr.FE_TSC120: --------- [FE_TSC120] Calibrate RFPAL TX1 ---------
+2018-09-04 15:23:49,648     DEBUG: tr.FE_TSC120: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-04 15:23:49,648     DEBUG: tr.FE_TSC120: TX 1 Predriver1 set to 1
+2018-09-04 15:23:49,667     DEBUG: tr.FE_TSC120: TX 1 Predriver2 set to 1
+2018-09-04 15:23:49,721     DEBUG: tr.FE_TSC120: TX 1 PA set to 1
+2018-09-04 15:23:52,255     DEBUG: tr.FE_TSC120: Reset RFPAL
+2018-09-04 15:23:55,464     DEBUG: tr.FE_TSC120: BB Attn 1 set to 20.00 dB
+2018-09-04 15:23:55,581     DEBUG: tr.FE_TSC120: PA 1 = (28.314 V, 0.138 A)
+2018-09-04 15:23:56,147     DEBUG: tr.FE_TSC120: RFPAL IN=-17.88, target=-17.00
+2018-09-04 15:23:56,214     DEBUG: tr.FE_TSC120: BB Attn 1 set to 19.00 dB
+2018-09-04 15:23:56,329     DEBUG: tr.FE_TSC120: PA 1 = (28.315 V, 0.138 A)
+2018-09-04 15:23:56,829     DEBUG: tr.FE_TSC120: RFPAL IN=-17.09, target=-17.00
+2018-09-04 15:23:57,082      INFO: tr.FE_TSC120: [BB] f=1845, 	bb_attn=19.0, 	in_pwr=-17.09, 	fb=-48.26
+2018-09-04 15:23:57,144     DEBUG: tr.FE_TSC120: TX Attn 1 set to 16.00 dB
+2018-09-04 15:23:57,262     DEBUG: tr.FE_TSC120: PA 1 = (28.294 V, 0.156 A)
+2018-09-04 15:23:59,165     DEBUG: tr.FE_TSC120: Power out=15.38, target=29.50
+2018-09-04 15:23:59,167   WARNING: tr.FE_TSC120: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:23:59,194     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-04 15:23:59,312     DEBUG: tr.FE_TSC120: PA 1 = (28.173 V, 0.453 A)
+2018-09-04 15:24:01,115     DEBUG: tr.FE_TSC120: Power out=30.00, target=29.50
+2018-09-04 15:24:01,142     DEBUG: tr.FE_TSC120: TX Attn 1 set to 3.00 dB
+2018-09-04 15:24:01,257     DEBUG: tr.FE_TSC120: PA 1 = (28.134 V, 0.417 A)
+2018-09-04 15:24:03,052     DEBUG: tr.FE_TSC120: Power out=29.12, target=29.50
+2018-09-04 15:24:03,076     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.75 dB
+2018-09-04 15:24:03,190     DEBUG: tr.FE_TSC120: PA 1 = (28.129 V, 0.415 A)
+2018-09-04 15:24:05,006     DEBUG: tr.FE_TSC120: Power out=29.30, target=29.50
+2018-09-04 15:24:05,032     DEBUG: tr.FE_TSC120: TX Attn 1 set to 2.50 dB
+2018-09-04 15:24:05,151     DEBUG: tr.FE_TSC120: PA 1 = (28.126 V, 0.413 A)
+2018-09-04 15:24:06,943     DEBUG: tr.FE_TSC120: Power out=29.70, target=29.50
+2018-09-04 15:24:07,157      INFO: tr.FE_TSC120: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-16.91, 	out_pwr=29.70, 	fb=-32.09
+2018-09-04 15:24:07,213     DEBUG: tr.FE_TSC120: FB Attn 1 set to 14.00 dB
+2018-09-04 15:24:07,878     DEBUG: tr.FE_TSC120: RFPAL FB=-14.61, target=-17.50
+2018-09-04 15:24:07,934     DEBUG: tr.FE_TSC120: FB Attn 1 set to 16.75 dB
+2018-09-04 15:24:08,561     DEBUG: tr.FE_TSC120: RFPAL FB=-17.35, target=-17.50
+2018-09-04 15:24:08,617     DEBUG: tr.FE_TSC120: FB Attn 1 set to 17.00 dB
+2018-09-04 15:24:09,249     DEBUG: tr.FE_TSC120: RFPAL FB=-17.59, target=-17.50
+2018-09-04 15:24:09,512      INFO: tr.FE_TSC120: [FB] f=1845, 	fb_attn=17.0, 	in_pwr=-16.93, 	out_pwr=29.68, 	fb=-17.59
+2018-09-04 15:24:09,513     DEBUG: tr.FE_TSC120: TX1 Clear RFPAL Calibration
+2018-09-04 15:24:18,677     DEBUG: tr.FE_TSC120: Reset RFPAL
+2018-09-04 15:24:39,382     DEBUG: tr.server.KeysightEXASpectrumClient: Stabilized get_aclr[ <0.30: avg 2: \/0.00s]. Took 17.60s(timeout=20s) Values=[-36.475448985, -41.343622095, -43.574367605, -43.57584355, -43.8423857, -44.46997514, -44.966078835, -45.293200685, -45.225512120000005, -45.256152775000004]
+2018-09-04 15:24:39,384     DEBUG: tr.FE_TSC120: TX1 Set RFPAL Calibration
+2018-09-04 15:24:44,204      INFO: tr.criteria: FE_TSC120_RFPAL_POST_CALIBRATION_ACLR: [-45.24] < -45 : PASS
+2018-09-04 15:24:44,206     DEBUG: tr.FE_TSC120: TX 1 Predriver1 set to 0
+2018-09-04 15:24:44,266     DEBUG: tr.FE_TSC120: TX 1 Predriver2 set to 0
+2018-09-04 15:24:44,319     DEBUG: tr.FE_TSC120: TX 1 PA set to 0
+2018-09-04 15:24:44,374      INFO: tr.FE_TSC220: --------- [FE_TSC220] Calibrate RFPAL TX2 ---------
+2018-09-04 15:24:44,401     DEBUG: tr.FE_TSC220: Spectrum linked with UUT_ANT1. 21.50 dB loss
+2018-09-04 15:24:44,403     DEBUG: tr.FE_TSC220: TX 2 Predriver1 set to 1
+2018-09-04 15:24:44,421     DEBUG: tr.FE_TSC220: TX 2 Predriver2 set to 1
+2018-09-04 15:24:44,473     DEBUG: tr.FE_TSC220: TX 2 PA set to 1
+2018-09-04 15:24:46,545     DEBUG: tr.FE_TSC220: Reset RFPAL
+2018-09-04 15:24:49,743     DEBUG: tr.FE_TSC220: BB Attn 2 set to 20.00 dB
+2018-09-04 15:24:49,858     DEBUG: tr.FE_TSC220: PA 2 = (28.429 V, 0.127 A)
+2018-09-04 15:24:50,921     DEBUG: tr.FE_TSC220: RFPAL IN=-17.02, target=-17.00
+2018-09-04 15:24:51,173      INFO: tr.FE_TSC220: [BB] f=1845, 	bb_attn=20, 	in_pwr=-17.02, 	fb=-49.43
+2018-09-04 15:24:51,233     DEBUG: tr.FE_TSC220: TX Attn 2 set to 16.00 dB
+2018-09-04 15:24:51,349     DEBUG: tr.FE_TSC220: PA 2 = (28.42 V, 0.145 A)
+2018-09-04 15:24:53,239     DEBUG: tr.FE_TSC220: Power out=14.70, target=29.50
+2018-09-04 15:24:53,240   WARNING: tr.FE_TSC220: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:24:53,266     DEBUG: tr.FE_TSC220: TX Attn 2 set to 2.50 dB
+2018-09-04 15:24:53,388     DEBUG: tr.FE_TSC220: PA 2 = (28.136 V, 0.463 A)
+2018-09-04 15:24:55,180     DEBUG: tr.FE_TSC220: Power out=30.35, target=29.50
+2018-09-04 15:24:55,211     DEBUG: tr.FE_TSC220: TX Attn 2 set to 3.25 dB
+2018-09-04 15:24:55,332     DEBUG: tr.FE_TSC220: PA 2 = (28.154 V, 0.405 A)
+2018-09-04 15:24:57,099     DEBUG: tr.FE_TSC220: Power out=29.25, target=29.50
+2018-09-04 15:24:57,128     DEBUG: tr.FE_TSC220: TX Attn 2 set to 3.00 dB
+2018-09-04 15:24:57,246     DEBUG: tr.FE_TSC220: PA 2 = (28.148 V, 0.422 A)
+2018-09-04 15:24:59,035     DEBUG: tr.FE_TSC220: Power out=29.64, target=29.50
+2018-09-04 15:24:59,066     DEBUG: tr.FE_TSC220: TX Attn 2 set to 3.25 dB
+2018-09-04 15:24:59,190     DEBUG: tr.FE_TSC220: PA 2 = (28.153 V, 0.404 A)
+2018-09-04 15:25:00,977     DEBUG: tr.FE_TSC220: Power out=29.19, target=29.50
+2018-09-04 15:25:01,210      INFO: tr.FE_TSC220: [TX] f=1845, 	tx_attn=3.25, 	in_pwr=-16.29, 	out_pwr=29.20, 	fb=-34.77
+2018-09-04 15:25:01,266     DEBUG: tr.FE_TSC220: FB Attn 2 set to 14.00 dB
+2018-09-04 15:25:02,193     DEBUG: tr.FE_TSC220: RFPAL FB=-16.51, target=-17.50
+2018-09-04 15:25:02,247     DEBUG: tr.FE_TSC220: FB Attn 2 set to 15.00 dB
+2018-09-04 15:25:02,750     DEBUG: tr.FE_TSC220: RFPAL FB=-17.51, target=-17.50
+2018-09-04 15:25:02,994      INFO: tr.FE_TSC220: [FB] f=1845, 	fb_attn=15.0, 	in_pwr=-16.38, 	out_pwr=28.96, 	fb=-17.51
+2018-09-04 15:25:02,996     DEBUG: tr.FE_TSC220: TX2 Clear RFPAL Calibration
+2018-09-04 15:25:12,160     DEBUG: tr.FE_TSC220: Reset RFPAL
+2018-09-04 15:25:28,142     DEBUG: tr.server.KeysightEXASpectrumClient: Stabilized get_aclr[ <0.30: avg 2: \/0.00s]. Took 12.30s(timeout=20s) Values=[-39.176045285, -43.68027245, -44.278061550000004, -44.618235745, -45.201623715, -45.305815955, -45.60135295]
+2018-09-04 15:25:28,144     DEBUG: tr.FE_TSC220: TX2 Set RFPAL Calibration
+2018-09-04 15:25:32,961      INFO: tr.criteria: FE_TSC220_RFPAL_POST_CALIBRATION_ACLR: [-45.45] < -45 : PASS
+2018-09-04 15:25:32,963     DEBUG: tr.FE_TSC220: TX 2 Predriver1 set to 0
+2018-09-04 15:25:33,016     DEBUG: tr.FE_TSC220: TX 2 Predriver2 set to 0
+2018-09-04 15:25:33,075     DEBUG: tr.FE_TSC220: TX 2 PA set to 0
+2018-09-04 15:25:33,130      INFO: tr: #################### SystemCalib20MHz ####################
+2018-09-04 15:25:33,131      INFO: tr.SY_TSC230: -------------- [SY_TSC230] TX2 20 MHz --------------
+2018-09-04 15:25:33,160     DEBUG: tr.SY_TSC230: Spectrum linked with UUT_ANT1. 21.50 dB loss
+2018-09-04 15:25:33,161      INFO: tr.SY_TSC230: Calibrating TX 2 w/ BW of 20 MHz
+2018-09-04 15:25:35,075     DEBUG: tr.SY_TSC230: TX 2 Predriver1 set to 1
+2018-09-04 15:25:35,109     DEBUG: tr.SY_TSC230: TX 2 Predriver2 set to 1
+2018-09-04 15:25:35,165     DEBUG: tr.SY_TSC230: TX 2 PA set to 1
+2018-09-04 15:25:35,282     DEBUG: tr.SY_TSC230: BB Attn 2 set to 20.00 dB
+2018-09-04 15:25:35,397     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.409 A)
+2018-09-04 15:25:35,459     DEBUG: tr.SY_TSC230: TX Attn 2 set to 16.00 dB
+2018-09-04 15:25:35,575     DEBUG: tr.SY_TSC230: PA 2 = (28.418 V, 0.146 A)
+2018-09-04 15:25:35,630     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.00 dB
+2018-09-04 15:25:35,684     DEBUG: tr.server.SensorSSHServiceClient: TX2 PA Temp = 33.50 C
+2018-09-04 15:25:35,686      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1815 MHz
+2018-09-04 15:25:35,835     DEBUG: tr.SY_TSC230: BB Attn 2 set to 20.00 dB
+2018-09-04 15:25:35,951     DEBUG: tr.SY_TSC230: PA 2 = (28.419 V, 0.146 A)
+2018-09-04 15:25:36,885     DEBUG: tr.SY_TSC230: RFPAL IN=-16.52, target=-17.00
+2018-09-04 15:25:37,142      INFO: tr.SY_TSC230: [BB] f=1815, 	bb_attn=20, 	in_pwr=-16.52, 	fb=-29.81
+2018-09-04 15:25:37,204     DEBUG: tr.SY_TSC230: TX Attn 2 set to 16.00 dB
+2018-09-04 15:25:37,325     DEBUG: tr.SY_TSC230: PA 2 = (28.419 V, 0.146 A)
+2018-09-04 15:25:39,219     DEBUG: tr.SY_TSC230: Power out=13.78, target=29.50
+2018-09-04 15:25:39,219   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=0.75
+2018-09-04 15:25:39,252     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:39,355     DEBUG: tr.SY_TSC230: PA 2 = (28.139 V, 0.452 A)
+2018-09-04 15:25:41,161     DEBUG: tr.SY_TSC230: Power out=29.04, target=29.50
+2018-09-04 15:25:41,161   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:25:41,194     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:41,309     DEBUG: tr.SY_TSC230: PA 2 = (28.144 V, 0.438 A)
+2018-09-04 15:25:43,099     DEBUG: tr.SY_TSC230: Power out=28.88, target=29.50
+2018-09-04 15:25:43,101   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:25:43,128     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:43,243     DEBUG: tr.SY_TSC230: PA 2 = (28.145 V, 0.434 A)
+2018-09-04 15:25:45,040     DEBUG: tr.SY_TSC230: Power out=28.86, target=29.50
+2018-09-04 15:25:45,042   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:25:45,068     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:45,187     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.432 A)
+2018-09-04 15:25:46,976     DEBUG: tr.SY_TSC230: Power out=28.80, target=29.50
+2018-09-04 15:25:46,977   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:25:47,003     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:47,118     DEBUG: tr.SY_TSC230: PA 2 = (28.148 V, 0.432 A)
+2018-09-04 15:25:48,914     DEBUG: tr.SY_TSC230: Power out=28.86, target=29.50
+2018-09-04 15:25:48,915   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:25:48,944     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:49,062     DEBUG: tr.SY_TSC230: PA 2 = (28.148 V, 0.432 A)
+2018-09-04 15:25:50,839     DEBUG: tr.SY_TSC230: Power out=28.80, target=29.50
+2018-09-04 15:25:50,839   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:25:50,868     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:50,986     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.432 A)
+2018-09-04 15:25:52,775     DEBUG: tr.SY_TSC230: Power out=28.83, target=29.50
+2018-09-04 15:25:52,775   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:25:52,802     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:52,920     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.432 A)
+2018-09-04 15:25:54,720     DEBUG: tr.SY_TSC230: Power out=28.75, target=29.50
+2018-09-04 15:25:54,720   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:25:54,750     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:54,867     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.429 A)
+2018-09-04 15:25:56,653     DEBUG: tr.SY_TSC230: Power out=28.75, target=29.50
+2018-09-04 15:25:56,654   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:25:56,684     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:25:56,801     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.43 A)
+2018-09-04 15:25:58,601     DEBUG: tr.SY_TSC230: Power out=28.83, target=29.50
+2018-09-04 15:25:58,831      INFO: tr.SY_TSC230: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-16.32, 	out_pwr=28.83, 	fb=-14.98
+2018-09-04 15:25:58,885     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.00 dB
+2018-09-04 15:25:59,676     DEBUG: tr.SY_TSC230: RFPAL FB=-14.99, target=-17.50
+2018-09-04 15:25:59,732     DEBUG: tr.SY_TSC230: FB Attn 2 set to 16.50 dB
+2018-09-04 15:26:00,599     DEBUG: tr.SY_TSC230: RFPAL FB=-17.50, target=-17.50
+2018-09-04 15:26:00,855      INFO: tr.SY_TSC230: [FB] f=1815, 	fb_attn=16.5, 	in_pwr=-16.27, 	out_pwr=28.89, 	fb=-17.50
+2018-09-04 15:26:00,857      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1825 MHz
+2018-09-04 15:26:01,003     DEBUG: tr.SY_TSC230: BB Attn 2 set to 21.00 dB
+2018-09-04 15:26:01,118     DEBUG: tr.SY_TSC230: PA 2 = (28.143 V, 0.445 A)
+2018-09-04 15:26:02,803     DEBUG: tr.SY_TSC230: RFPAL IN=-16.44, target=-17.00
+2018-09-04 15:26:02,871     DEBUG: tr.SY_TSC230: BB Attn 2 set to 22.00 dB
+2018-09-04 15:26:02,986     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.391 A)
+2018-09-04 15:26:03,611     DEBUG: tr.SY_TSC230: RFPAL IN=-17.44, target=-17.00
+2018-09-04 15:26:03,855      INFO: tr.SY_TSC230: [BB] f=1825, 	bb_attn=22.0, 	in_pwr=-17.44, 	fb=-18.62
+2018-09-04 15:26:03,917     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:26:04,035     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.334 A)
+2018-09-04 15:26:05,944     DEBUG: tr.SY_TSC230: Power out=26.78, target=29.50
+2018-09-04 15:26:05,944   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=0.75
+2018-09-04 15:26:05,973     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:06,088     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.374 A)
+2018-09-04 15:26:07,880     DEBUG: tr.SY_TSC230: Power out=27.97, target=29.50
+2018-09-04 15:26:07,881   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:07,911     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:08,026     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.374 A)
+2018-09-04 15:26:09,812     DEBUG: tr.SY_TSC230: Power out=27.94, target=29.50
+2018-09-04 15:26:09,812   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:09,838     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:09,953     DEBUG: tr.SY_TSC230: PA 2 = (28.149 V, 0.374 A)
+2018-09-04 15:26:11,750     DEBUG: tr.SY_TSC230: Power out=27.93, target=29.50
+2018-09-04 15:26:11,750   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:11,779     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:11,898     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.374 A)
+2018-09-04 15:26:13,684     DEBUG: tr.SY_TSC230: Power out=27.92, target=29.50
+2018-09-04 15:26:13,684   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:13,711     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:13,835     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.374 A)
+2018-09-04 15:26:15,635     DEBUG: tr.SY_TSC230: Power out=27.92, target=29.50
+2018-09-04 15:26:15,637   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:15,664     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:15,780     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.373 A)
+2018-09-04 15:26:17,578     DEBUG: tr.SY_TSC230: Power out=27.89, target=29.50
+2018-09-04 15:26:17,578   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:17,608     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:17,724     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.372 A)
+2018-09-04 15:26:19,516     DEBUG: tr.SY_TSC230: Power out=27.87, target=29.50
+2018-09-04 15:26:19,516   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:19,545     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:19,661     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.373 A)
+2018-09-04 15:26:21,457     DEBUG: tr.SY_TSC230: Power out=27.87, target=29.50
+2018-09-04 15:26:21,457   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:21,483     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:21,598     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.372 A)
+2018-09-04 15:26:23,397     DEBUG: tr.SY_TSC230: Power out=27.89, target=29.50
+2018-09-04 15:26:23,398   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:26:23,427     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:23,542     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.373 A)
+2018-09-04 15:26:25,338     DEBUG: tr.SY_TSC230: Power out=27.89, target=29.50
+2018-09-04 15:26:25,565      INFO: tr.SY_TSC230: [TX] f=1825, 	tx_attn=2.5, 	in_pwr=-17.53, 	out_pwr=27.89, 	fb=-18.90
+2018-09-04 15:26:25,621     DEBUG: tr.SY_TSC230: FB Attn 2 set to 16.50 dB
+2018-09-04 15:26:26,660     DEBUG: tr.SY_TSC230: RFPAL FB=-18.90, target=-17.50
+2018-09-04 15:26:26,716     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.25 dB
+2018-09-04 15:26:27,460     DEBUG: tr.SY_TSC230: RFPAL FB=-17.72, target=-17.50
+2018-09-04 15:26:27,516     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.00 dB
+2018-09-04 15:26:28,134     DEBUG: tr.SY_TSC230: RFPAL FB=-17.36, target=-17.50
+2018-09-04 15:26:28,190     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.25 dB
+2018-09-04 15:26:28,809     DEBUG: tr.SY_TSC230: RFPAL FB=-17.67, target=-17.50
+2018-09-04 15:26:29,068      INFO: tr.SY_TSC230: [FB] f=1825, 	fb_attn=15.25, 	in_pwr=-17.50, 	out_pwr=27.72, 	fb=-17.67
+2018-09-04 15:26:29,069      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1835 MHz
+2018-09-04 15:26:29,223     DEBUG: tr.SY_TSC230: BB Attn 2 set to 23.00 dB
+2018-09-04 15:26:29,339     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.335 A)
+2018-09-04 15:26:29,660     DEBUG: tr.SY_TSC230: RFPAL IN=-18.67, target=-17.00
+2018-09-04 15:26:29,727     DEBUG: tr.SY_TSC230: BB Attn 2 set to 21.00 dB
+2018-09-04 15:26:29,845     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.402 A)
+2018-09-04 15:26:30,342     DEBUG: tr.SY_TSC230: RFPAL IN=-16.83, target=-17.00
+2018-09-04 15:26:30,592      INFO: tr.SY_TSC230: [BB] f=1835, 	bb_attn=21.0, 	in_pwr=-16.83, 	fb=-17.22
+2018-09-04 15:26:30,654     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:26:30,769     DEBUG: tr.SY_TSC230: PA 2 = (28.148 V, 0.369 A)
+2018-09-04 15:26:32,667     DEBUG: tr.SY_TSC230: Power out=27.67, target=29.50
+2018-09-04 15:26:32,667   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:26:32,694     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:32,811     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.408 A)
+2018-09-04 15:26:34,602     DEBUG: tr.SY_TSC230: Power out=28.89, target=29.50
+2018-09-04 15:26:34,604   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:34,631     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:34,750     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.406 A)
+2018-09-04 15:26:36,536     DEBUG: tr.SY_TSC230: Power out=28.88, target=29.50
+2018-09-04 15:26:36,538   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:36,568     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:36,687     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.41 A)
+2018-09-04 15:26:38,474     DEBUG: tr.SY_TSC230: Power out=28.93, target=29.50
+2018-09-04 15:26:38,474   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:38,500     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:38,618     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.408 A)
+2018-09-04 15:26:40,413     DEBUG: tr.SY_TSC230: Power out=28.91, target=29.50
+2018-09-04 15:26:40,414   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:40,443     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:40,558     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.408 A)
+2018-09-04 15:26:42,348     DEBUG: tr.SY_TSC230: Power out=28.96, target=29.50
+2018-09-04 15:26:42,348   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:42,378     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:42,493     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.408 A)
+2018-09-04 15:26:44,285     DEBUG: tr.SY_TSC230: Power out=28.95, target=29.50
+2018-09-04 15:26:44,285   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:44,312     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:44,431     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.41 A)
+2018-09-04 15:26:46,220     DEBUG: tr.SY_TSC230: Power out=28.95, target=29.50
+2018-09-04 15:26:46,221   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:46,247     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:46,362     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.409 A)
+2018-09-04 15:26:48,164     DEBUG: tr.SY_TSC230: Power out=28.92, target=29.50
+2018-09-04 15:26:48,165   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:48,191     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:48,309     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.407 A)
+2018-09-04 15:26:50,101     DEBUG: tr.SY_TSC230: Power out=28.92, target=29.50
+2018-09-04 15:26:50,102   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:26:50,128     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:50,246     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.409 A)
+2018-09-04 15:26:52,043     DEBUG: tr.SY_TSC230: Power out=28.96, target=29.50
+2018-09-04 15:26:52,275      INFO: tr.SY_TSC230: [TX] f=1835, 	tx_attn=2.5, 	in_pwr=-16.84, 	out_pwr=28.95, 	fb=-17.25
+2018-09-04 15:26:52,332     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.25 dB
+2018-09-04 15:26:52,750     DEBUG: tr.SY_TSC230: RFPAL FB=-17.20, target=-17.50
+2018-09-04 15:26:52,808     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.50 dB
+2018-09-04 15:26:53,309     DEBUG: tr.SY_TSC230: RFPAL FB=-17.37, target=-17.50
+2018-09-04 15:26:53,556      INFO: tr.SY_TSC230: [FB] f=1835, 	fb_attn=15.5, 	in_pwr=-16.80, 	out_pwr=28.98, 	fb=-17.37
+2018-09-04 15:26:53,558      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1845 MHz
+2018-09-04 15:26:53,709     DEBUG: tr.SY_TSC230: BB Attn 2 set to 22.00 dB
+2018-09-04 15:26:53,828     DEBUG: tr.SY_TSC230: PA 2 = (28.144 V, 0.344 A)
+2018-09-04 15:26:54,654     DEBUG: tr.SY_TSC230: RFPAL IN=-18.58, target=-17.00
+2018-09-04 15:26:54,724     DEBUG: tr.SY_TSC230: BB Attn 2 set to 20.00 dB
+2018-09-04 15:26:54,838     DEBUG: tr.SY_TSC230: PA 2 = (28.148 V, 0.422 A)
+2018-09-04 15:26:55,338     DEBUG: tr.SY_TSC230: RFPAL IN=-16.45, target=-17.00
+2018-09-04 15:26:55,407     DEBUG: tr.SY_TSC230: BB Attn 2 set to 21.00 dB
+2018-09-04 15:26:55,523     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.379 A)
+2018-09-04 15:26:55,898     DEBUG: tr.SY_TSC230: RFPAL IN=-17.48, target=-17.00
+2018-09-04 15:26:56,148      INFO: tr.SY_TSC230: [BB] f=1845, 	bb_attn=21.0, 	in_pwr=-17.48, 	fb=-18.29
+2018-09-04 15:26:56,209     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:26:56,325     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.338 A)
+2018-09-04 15:26:58,194     DEBUG: tr.SY_TSC230: Power out=27.11, target=29.50
+2018-09-04 15:26:58,194   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:26:58,223     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:26:58,339     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.372 A)
+2018-09-04 15:27:00,135     DEBUG: tr.SY_TSC230: Power out=28.28, target=29.50
+2018-09-04 15:27:00,137   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:00,164     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:00,280     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.376 A)
+2018-09-04 15:27:02,071     DEBUG: tr.SY_TSC230: Power out=28.34, target=29.50
+2018-09-04 15:27:02,071   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.50
+2018-09-04 15:27:02,099     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:02,214     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.375 A)
+2018-09-04 15:27:04,003     DEBUG: tr.SY_TSC230: Power out=28.29, target=29.50
+2018-09-04 15:27:04,003   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:04,033     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:04,154     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.38 A)
+2018-09-04 15:27:05,941     DEBUG: tr.SY_TSC230: Power out=28.40, target=29.50
+2018-09-04 15:27:05,943   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.50
+2018-09-04 15:27:05,970     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:06,088     DEBUG: tr.SY_TSC230: PA 2 = (28.155 V, 0.38 A)
+2018-09-04 15:27:07,871     DEBUG: tr.SY_TSC230: Power out=28.38, target=29.50
+2018-09-04 15:27:07,871   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.50
+2018-09-04 15:27:07,901     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:08,017     DEBUG: tr.SY_TSC230: PA 2 = (28.155 V, 0.376 A)
+2018-09-04 15:27:09,806     DEBUG: tr.SY_TSC230: Power out=28.34, target=29.50
+2018-09-04 15:27:09,806   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:09,835     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:09,953     DEBUG: tr.SY_TSC230: PA 2 = (28.149 V, 0.377 A)
+2018-09-04 15:27:11,742     DEBUG: tr.SY_TSC230: Power out=28.33, target=29.50
+2018-09-04 15:27:11,743   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:11,770     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:11,888     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.379 A)
+2018-09-04 15:27:13,673     DEBUG: tr.SY_TSC230: Power out=28.33, target=29.50
+2018-09-04 15:27:13,674   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:13,703     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:13,822     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.376 A)
+2018-09-04 15:27:15,581     DEBUG: tr.SY_TSC230: Power out=28.25, target=29.50
+2018-09-04 15:27:15,582   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:27:15,607     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:15,752     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.373 A)
+2018-09-04 15:27:17,548     DEBUG: tr.SY_TSC230: Power out=28.27, target=29.50
+2018-09-04 15:27:17,782      INFO: tr.SY_TSC230: [TX] f=1845, 	tx_attn=2.5, 	in_pwr=-17.54, 	out_pwr=28.26, 	fb=-18.45
+2018-09-04 15:27:17,838     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.50 dB
+2018-09-04 15:27:18,381     DEBUG: tr.SY_TSC230: RFPAL FB=-18.39, target=-17.50
+2018-09-04 15:27:18,437     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.75 dB
+2018-09-04 15:27:19,055     DEBUG: tr.SY_TSC230: RFPAL FB=-17.66, target=-17.50
+2018-09-04 15:27:19,112     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.50 dB
+2018-09-04 15:27:19,615     DEBUG: tr.SY_TSC230: RFPAL FB=-17.29, target=-17.50
+2018-09-04 15:27:19,670     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.75 dB
+2018-09-04 15:27:20,164     DEBUG: tr.SY_TSC230: RFPAL FB=-17.61, target=-17.50
+2018-09-04 15:27:20,424      INFO: tr.SY_TSC230: [FB] f=1845, 	fb_attn=14.75, 	in_pwr=-17.55, 	out_pwr=28.32, 	fb=-17.61
+2018-09-04 15:27:20,424      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1855 MHz
+2018-09-04 15:27:20,569     DEBUG: tr.SY_TSC230: BB Attn 2 set to 22.00 dB
+2018-09-04 15:27:20,684     DEBUG: tr.SY_TSC230: PA 2 = (28.258 V, 0.309 A)
+2018-09-04 15:27:21,628     DEBUG: tr.SY_TSC230: RFPAL IN=-19.68, target=-17.00
+2018-09-04 15:27:21,696     DEBUG: tr.SY_TSC230: BB Attn 2 set to 19.00 dB
+2018-09-04 15:27:21,812     DEBUG: tr.SY_TSC230: PA 2 = (28.156 V, 0.397 A)
+2018-09-04 15:27:22,309     DEBUG: tr.SY_TSC230: RFPAL IN=-16.83, target=-17.00
+2018-09-04 15:27:22,559      INFO: tr.SY_TSC230: [BB] f=1855, 	bb_attn=19.0, 	in_pwr=-16.83, 	fb=-16.80
+2018-09-04 15:27:22,619     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:27:22,734     DEBUG: tr.SY_TSC230: PA 2 = (28.148 V, 0.36 A)
+2018-09-04 15:27:24,628     DEBUG: tr.SY_TSC230: Power out=27.85, target=29.50
+2018-09-04 15:27:24,628   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:24,655     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:24,772     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.412 A)
+2018-09-04 15:27:26,588     DEBUG: tr.SY_TSC230: Power out=29.05, target=29.50
+2018-09-04 15:27:26,588   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:26,615     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:26,730     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.412 A)
+2018-09-04 15:27:28,526     DEBUG: tr.SY_TSC230: Power out=29.12, target=29.50
+2018-09-04 15:27:28,526   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:27:28,553     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:28,671     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.412 A)
+2018-09-04 15:27:30,470     DEBUG: tr.SY_TSC230: Power out=29.00, target=29.50
+2018-09-04 15:27:30,471   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:30,497     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:30,614     DEBUG: tr.SY_TSC230: PA 2 = (28.149 V, 0.408 A)
+2018-09-04 15:27:32,401     DEBUG: tr.SY_TSC230: Power out=29.02, target=29.50
+2018-09-04 15:27:32,403   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:32,430     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:32,552     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.41 A)
+2018-09-04 15:27:34,341     DEBUG: tr.SY_TSC230: Power out=29.10, target=29.50
+2018-09-04 15:27:34,342   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:34,371     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:34,492     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.411 A)
+2018-09-04 15:27:36,278     DEBUG: tr.SY_TSC230: Power out=29.11, target=29.50
+2018-09-04 15:27:36,279   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:36,308     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:36,424     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.412 A)
+2018-09-04 15:27:38,213     DEBUG: tr.SY_TSC230: Power out=29.13, target=29.50
+2018-09-04 15:27:38,213   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:27:38,242     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:38,358     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.413 A)
+2018-09-04 15:27:40,153     DEBUG: tr.SY_TSC230: Power out=29.11, target=29.50
+2018-09-04 15:27:40,154   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:27:40,180     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:40,296     DEBUG: tr.SY_TSC230: PA 2 = (28.149 V, 0.411 A)
+2018-09-04 15:27:42,098     DEBUG: tr.SY_TSC230: Power out=29.14, target=29.50
+2018-09-04 15:27:42,325      INFO: tr.SY_TSC230: [TX] f=1855, 	tx_attn=2.5, 	in_pwr=-16.86, 	out_pwr=29.14, 	fb=-16.75
+2018-09-04 15:27:42,381     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.75 dB
+2018-09-04 15:27:42,798     DEBUG: tr.SY_TSC230: RFPAL FB=-16.79, target=-17.50
+2018-09-04 15:27:42,854     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.50 dB
+2018-09-04 15:27:43,477     DEBUG: tr.SY_TSC230: RFPAL FB=-17.55, target=-17.50
+2018-09-04 15:27:43,726      INFO: tr.SY_TSC230: [FB] f=1855, 	fb_attn=15.5, 	in_pwr=-16.82, 	out_pwr=29.14, 	fb=-17.55
+2018-09-04 15:27:43,727      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1865 MHz
+2018-09-04 15:27:43,875     DEBUG: tr.SY_TSC230: BB Attn 2 set to 20.00 dB
+2018-09-04 15:27:43,992     DEBUG: tr.SY_TSC230: PA 2 = (28.144 V, 0.435 A)
+2018-09-04 15:27:44,953     DEBUG: tr.SY_TSC230: RFPAL IN=-16.40, target=-17.00
+2018-09-04 15:27:45,019     DEBUG: tr.SY_TSC230: BB Attn 2 set to 21.00 dB
+2018-09-04 15:27:45,135     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.387 A)
+2018-09-04 15:27:45,642     DEBUG: tr.SY_TSC230: RFPAL IN=-17.44, target=-17.00
+2018-09-04 15:27:45,891      INFO: tr.SY_TSC230: [BB] f=1865, 	bb_attn=21.0, 	in_pwr=-17.44, 	fb=-18.32
+2018-09-04 15:27:45,950     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:27:46,068     DEBUG: tr.SY_TSC230: PA 2 = (28.14 V, 0.341 A)
+2018-09-04 15:27:47,973     DEBUG: tr.SY_TSC230: Power out=26.91, target=29.50
+2018-09-04 15:27:47,973   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:48,003     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:48,122     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.383 A)
+2018-09-04 15:27:49,926     DEBUG: tr.SY_TSC230: Power out=28.06, target=29.50
+2018-09-04 15:27:49,927   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:49,956     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:50,071     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.38 A)
+2018-09-04 15:27:51,855     DEBUG: tr.SY_TSC230: Power out=28.06, target=29.50
+2018-09-04 15:27:51,857   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:51,884     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:52,000     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.381 A)
+2018-09-04 15:27:53,793     DEBUG: tr.SY_TSC230: Power out=28.05, target=29.50
+2018-09-04 15:27:53,795   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:53,822     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:53,938     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.381 A)
+2018-09-04 15:27:55,729     DEBUG: tr.SY_TSC230: Power out=28.05, target=29.50
+2018-09-04 15:27:55,729   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:55,757     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:55,872     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.38 A)
+2018-09-04 15:27:57,665     DEBUG: tr.SY_TSC230: Power out=28.05, target=29.50
+2018-09-04 15:27:57,665   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:57,696     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:57,815     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.379 A)
+2018-09-04 15:27:59,605     DEBUG: tr.SY_TSC230: Power out=28.00, target=29.50
+2018-09-04 15:27:59,607   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:27:59,634     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:27:59,753     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.38 A)
+2018-09-04 15:28:01,535     DEBUG: tr.SY_TSC230: Power out=28.06, target=29.50
+2018-09-04 15:28:01,536   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:01,562     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:01,680     DEBUG: tr.SY_TSC230: PA 2 = (28.155 V, 0.381 A)
+2018-09-04 15:28:03,467     DEBUG: tr.SY_TSC230: Power out=28.08, target=29.50
+2018-09-04 15:28:03,469   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.25
+2018-09-04 15:28:03,500     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:03,615     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.38 A)
+2018-09-04 15:28:05,411     DEBUG: tr.SY_TSC230: Power out=28.07, target=29.50
+2018-09-04 15:28:05,411   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:05,441     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:05,561     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.381 A)
+2018-09-04 15:28:07,349     DEBUG: tr.SY_TSC230: Power out=28.08, target=29.50
+2018-09-04 15:28:07,578      INFO: tr.SY_TSC230: [TX] f=1865, 	tx_attn=2.5, 	in_pwr=-17.43, 	out_pwr=28.08, 	fb=-18.38
+2018-09-04 15:28:07,634     DEBUG: tr.SY_TSC230: FB Attn 2 set to 15.50 dB
+2018-09-04 15:28:08,052     DEBUG: tr.SY_TSC230: RFPAL FB=-18.37, target=-17.50
+2018-09-04 15:28:08,109     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.75 dB
+2018-09-04 15:28:08,733     DEBUG: tr.SY_TSC230: RFPAL FB=-17.57, target=-17.50
+2018-09-04 15:28:08,989      INFO: tr.SY_TSC230: [FB] f=1865, 	fb_attn=14.75, 	in_pwr=-17.46, 	out_pwr=28.08, 	fb=-17.57
+2018-09-04 15:28:08,990      INFO: tr.SY_TSC230: Calibrating Attn values for TX 2 @ 1870 MHz
+2018-09-04 15:28:09,138     DEBUG: tr.SY_TSC230: BB Attn 2 set to 22.00 dB
+2018-09-04 15:28:09,256     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.381 A)
+2018-09-04 15:28:09,575     DEBUG: tr.SY_TSC230: RFPAL IN=-17.48, target=-17.00
+2018-09-04 15:28:09,825      INFO: tr.SY_TSC230: [BB] f=1870, 	bb_attn=22.0, 	in_pwr=-17.48, 	fb=-17.57
+2018-09-04 15:28:09,881     DEBUG: tr.SY_TSC230: TX Attn 2 set to 3.50 dB
+2018-09-04 15:28:10,000     DEBUG: tr.SY_TSC230: PA 2 = (28.146 V, 0.335 A)
+2018-09-04 15:28:11,894     DEBUG: tr.SY_TSC230: Power out=26.64, target=29.50
+2018-09-04 15:28:11,894   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=0.75
+2018-09-04 15:28:11,924     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:12,042     DEBUG: tr.SY_TSC230: PA 2 = (28.155 V, 0.378 A)
+2018-09-04 15:28:13,831     DEBUG: tr.SY_TSC230: Power out=27.84, target=29.50
+2018-09-04 15:28:13,832   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:13,859     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:13,979     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.376 A)
+2018-09-04 15:28:15,776     DEBUG: tr.SY_TSC230: Power out=27.80, target=29.50
+2018-09-04 15:28:15,776   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=0.75
+2018-09-04 15:28:15,802     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:15,923     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.376 A)
+2018-09-04 15:28:17,720     DEBUG: tr.SY_TSC230: Power out=27.87, target=29.50
+2018-09-04 15:28:17,720   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:17,750     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:17,871     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.378 A)
+2018-09-04 15:28:19,621     DEBUG: tr.SY_TSC230: Power out=27.84, target=29.50
+2018-09-04 15:28:19,621   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:19,648     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:19,769     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.38 A)
+2018-09-04 15:28:21,562     DEBUG: tr.SY_TSC230: Power out=27.87, target=29.50
+2018-09-04 15:28:21,562   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:21,592     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:21,711     DEBUG: tr.SY_TSC230: PA 2 = (28.151 V, 0.379 A)
+2018-09-04 15:28:23,500     DEBUG: tr.SY_TSC230: Power out=27.90, target=29.50
+2018-09-04 15:28:23,500   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:23,529     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:23,645     DEBUG: tr.SY_TSC230: PA 2 = (28.154 V, 0.378 A)
+2018-09-04 15:28:25,434     DEBUG: tr.SY_TSC230: Power out=27.86, target=29.50
+2018-09-04 15:28:25,436   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:25,466     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:25,585     DEBUG: tr.SY_TSC230: PA 2 = (28.15 V, 0.378 A)
+2018-09-04 15:28:27,369     DEBUG: tr.SY_TSC230: Power out=27.87, target=29.50
+2018-09-04 15:28:27,369   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:27,398     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:27,516     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.379 A)
+2018-09-04 15:28:29,302     DEBUG: tr.SY_TSC230: Power out=27.86, target=29.50
+2018-09-04 15:28:29,302   WARNING: tr.SY_TSC230: TX Attn value clamped ! Desired value=1.00
+2018-09-04 15:28:29,326     DEBUG: tr.SY_TSC230: TX Attn 2 set to 2.50 dB
+2018-09-04 15:28:29,444     DEBUG: tr.SY_TSC230: PA 2 = (28.153 V, 0.378 A)
+2018-09-04 15:28:31,240     DEBUG: tr.SY_TSC230: Power out=27.85, target=29.50
+2018-09-04 15:28:31,479      INFO: tr.SY_TSC230: [TX] f=1870, 	tx_attn=2.5, 	in_pwr=-17.52, 	out_pwr=27.85, 	fb=-17.68
+2018-09-04 15:28:31,539     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.75 dB
+2018-09-04 15:28:32,585     DEBUG: tr.SY_TSC230: RFPAL FB=-17.75, target=-17.50
+2018-09-04 15:28:32,642     DEBUG: tr.SY_TSC230: FB Attn 2 set to 14.50 dB
+2018-09-04 15:28:33,269     DEBUG: tr.SY_TSC230: RFPAL FB=-17.43, target=-17.50
+2018-09-04 15:28:33,519      INFO: tr.SY_TSC230: [FB] f=1870, 	fb_attn=14.5, 	in_pwr=-17.50, 	out_pwr=27.85, 	fb=-17.43
+2018-09-04 15:28:33,578     DEBUG: tr.server.SensorSSHServiceClient: TX2 PA Temp = 34.00 C
+2018-09-04 15:28:33,578     DEBUG: tr.SY_TSC230: TX 2 Predriver1 set to 0
+2018-09-04 15:28:33,632     DEBUG: tr.SY_TSC230: TX 2 Predriver2 set to 0
+2018-09-04 15:28:33,684     DEBUG: tr.SY_TSC230: TX 2 PA set to 0
+2018-09-04 15:28:33,739      INFO: tr.SY_TSC130: -------------- [SY_TSC130] TX1 20 MHz --------------
+2018-09-04 15:28:33,772     DEBUG: tr.SY_TSC130: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-04 15:28:33,773      INFO: tr.SY_TSC130: Calibrating TX 1 w/ BW of 20 MHz
+2018-09-04 15:28:35,747     DEBUG: tr.SY_TSC130: TX 1 Predriver1 set to 1
+2018-09-04 15:28:35,769     DEBUG: tr.SY_TSC130: TX 1 Predriver2 set to 1
+2018-09-04 15:28:35,822     DEBUG: tr.SY_TSC130: TX 1 PA set to 1
+2018-09-04 15:28:35,946     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:28:36,062     DEBUG: tr.SY_TSC130: PA 1 = (28.144 V, 0.429 A)
+2018-09-04 15:28:36,122     DEBUG: tr.SY_TSC130: TX Attn 1 set to 16.00 dB
+2018-09-04 15:28:36,240     DEBUG: tr.SY_TSC130: PA 1 = (28.325 V, 0.244 A)
+2018-09-04 15:28:36,298     DEBUG: tr.SY_TSC130: FB Attn 1 set to 14.00 dB
+2018-09-04 15:28:36,354     DEBUG: tr.server.SensorSSHServiceClient: TX1 PA Temp = 36.00 C
+2018-09-04 15:28:36,355      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1815 MHz
+2018-09-04 15:28:36,500     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:28:36,618     DEBUG: tr.SY_TSC130: PA 1 = (28.415 V, 0.151 A)
+2018-09-04 15:28:37,313     DEBUG: tr.SY_TSC130: RFPAL IN=-18.72, target=-17.00
+2018-09-04 15:28:37,381     DEBUG: tr.SY_TSC130: BB Attn 1 set to 18.00 dB
+2018-09-04 15:28:37,503     DEBUG: tr.SY_TSC130: PA 1 = (28.411 V, 0.157 A)
+2018-09-04 15:28:38,127     DEBUG: tr.SY_TSC130: RFPAL IN=-16.97, target=-17.00
+2018-09-04 15:28:38,372      INFO: tr.SY_TSC130: [BB] f=1815, 	bb_attn=18.0, 	in_pwr=-16.97, 	fb=-28.59
+2018-09-04 15:28:38,434     DEBUG: tr.SY_TSC130: TX Attn 1 set to 16.00 dB
+2018-09-04 15:28:38,552     DEBUG: tr.SY_TSC130: PA 1 = (28.411 V, 0.157 A)
+2018-09-04 15:28:40,447     DEBUG: tr.SY_TSC130: Power out=14.77, target=29.50
+2018-09-04 15:28:40,447   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=1.75
+2018-09-04 15:28:40,474     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:28:40,591     DEBUG: tr.SY_TSC130: PA 1 = (28.221 V, 0.44 A)
+2018-09-04 15:28:42,381     DEBUG: tr.SY_TSC130: Power out=29.40, target=29.50
+2018-09-04 15:28:42,595      INFO: tr.SY_TSC130: [TX] f=1815, 	tx_attn=2.5, 	in_pwr=-16.98, 	out_pwr=29.39, 	fb=-14.46
+2018-09-04 15:28:42,651     DEBUG: tr.SY_TSC130: FB Attn 1 set to 14.00 dB
+2018-09-04 15:28:43,200     DEBUG: tr.SY_TSC130: RFPAL FB=-14.54, target=-17.50
+2018-09-04 15:28:43,257     DEBUG: tr.SY_TSC130: FB Attn 1 set to 16.75 dB
+2018-09-04 15:28:43,882     DEBUG: tr.SY_TSC130: RFPAL FB=-17.32, target=-17.50
+2018-09-04 15:28:43,937     DEBUG: tr.SY_TSC130: FB Attn 1 set to 17.00 dB
+2018-09-04 15:28:44,684     DEBUG: tr.SY_TSC130: RFPAL FB=-17.51, target=-17.50
+2018-09-04 15:28:44,941      INFO: tr.SY_TSC130: [FB] f=1815, 	fb_attn=17.0, 	in_pwr=-16.98, 	out_pwr=29.24, 	fb=-17.51
+2018-09-04 15:28:44,943      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1825 MHz
+2018-09-04 15:28:45,095     DEBUG: tr.SY_TSC130: BB Attn 1 set to 19.00 dB
+2018-09-04 15:28:45,213     DEBUG: tr.SY_TSC130: PA 1 = (28.146 V, 0.426 A)
+2018-09-04 15:28:46,155     DEBUG: tr.SY_TSC130: RFPAL IN=-17.08, target=-17.00
+2018-09-04 15:28:46,410      INFO: tr.SY_TSC130: [BB] f=1825, 	bb_attn=19.0, 	in_pwr=-17.08, 	fb=-17.70
+2018-09-04 15:28:46,473     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.50 dB
+2018-09-04 15:28:46,594     DEBUG: tr.SY_TSC130: PA 1 = (28.15 V, 0.377 A)
+2018-09-04 15:28:48,492     DEBUG: tr.SY_TSC130: Power out=28.22, target=29.50
+2018-09-04 15:28:48,493   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:28:48,528     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:28:48,677     DEBUG: tr.SY_TSC130: PA 1 = (28.146 V, 0.423 A)
+2018-09-04 15:28:50,471     DEBUG: tr.SY_TSC130: Power out=29.31, target=29.50
+2018-09-04 15:28:50,471   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:28:50,502     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:28:50,619     DEBUG: tr.SY_TSC130: PA 1 = (28.146 V, 0.423 A)
+2018-09-04 15:28:52,424     DEBUG: tr.SY_TSC130: Power out=29.29, target=29.50
+2018-09-04 15:28:52,426   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.25
+2018-09-04 15:28:52,454     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:28:52,572     DEBUG: tr.SY_TSC130: PA 1 = (28.146 V, 0.422 A)
+2018-09-04 15:28:54,369     DEBUG: tr.SY_TSC130: Power out=29.31, target=29.50
+2018-09-04 15:28:54,598      INFO: tr.SY_TSC130: [TX] f=1825, 	tx_attn=2.5, 	in_pwr=-17.08, 	out_pwr=29.30, 	fb=-17.81
+2018-09-04 15:28:54,654     DEBUG: tr.SY_TSC130: FB Attn 1 set to 17.00 dB
+2018-09-04 15:28:55,697     DEBUG: tr.SY_TSC130: RFPAL FB=-17.83, target=-17.50
+2018-09-04 15:28:55,756     DEBUG: tr.SY_TSC130: FB Attn 1 set to 16.75 dB
+2018-09-04 15:28:56,506     DEBUG: tr.SY_TSC130: RFPAL FB=-17.59, target=-17.50
+2018-09-04 15:28:56,755      INFO: tr.SY_TSC130: [FB] f=1825, 	fb_attn=16.75, 	in_pwr=-17.10, 	out_pwr=29.30, 	fb=-17.59
+2018-09-04 15:28:56,755      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1835 MHz
+2018-09-04 15:28:56,905     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:28:57,023     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.405 A)
+2018-09-04 15:28:57,971     DEBUG: tr.SY_TSC130: RFPAL IN=-17.46, target=-17.00
+2018-09-04 15:28:58,221      INFO: tr.SY_TSC130: [BB] f=1835, 	bb_attn=20.0, 	in_pwr=-17.46, 	fb=-17.92
+2018-09-04 15:28:58,279     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.50 dB
+2018-09-04 15:28:58,398     DEBUG: tr.SY_TSC130: PA 1 = (28.144 V, 0.361 A)
+2018-09-04 15:29:00,296     DEBUG: tr.SY_TSC130: Power out=27.84, target=29.50
+2018-09-04 15:29:00,296   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:00,325     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:00,441     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.404 A)
+2018-09-04 15:29:02,232     DEBUG: tr.SY_TSC130: Power out=29.00, target=29.50
+2018-09-04 15:29:02,232   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:02,257     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:02,372     DEBUG: tr.SY_TSC130: PA 1 = (28.15 V, 0.406 A)
+2018-09-04 15:29:04,171     DEBUG: tr.SY_TSC130: Power out=29.02, target=29.50
+2018-09-04 15:29:04,171   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:04,200     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:04,315     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.405 A)
+2018-09-04 15:29:06,132     DEBUG: tr.SY_TSC130: Power out=29.04, target=29.50
+2018-09-04 15:29:06,132   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:06,158     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:06,276     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.403 A)
+2018-09-04 15:29:08,065     DEBUG: tr.SY_TSC130: Power out=28.96, target=29.50
+2018-09-04 15:29:08,066   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:08,092     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:08,210     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.401 A)
+2018-09-04 15:29:10,016     DEBUG: tr.SY_TSC130: Power out=28.94, target=29.50
+2018-09-04 15:29:10,016   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:10,045     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:10,161     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.403 A)
+2018-09-04 15:29:11,956     DEBUG: tr.SY_TSC130: Power out=28.93, target=29.50
+2018-09-04 15:29:11,957   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:11,983     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:12,098     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.403 A)
+2018-09-04 15:29:13,897     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:29:13,897   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:13,927     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:14,048     DEBUG: tr.SY_TSC130: PA 1 = (28.151 V, 0.402 A)
+2018-09-04 15:29:15,832     DEBUG: tr.SY_TSC130: Power out=28.89, target=29.50
+2018-09-04 15:29:15,834   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:15,862     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:15,980     DEBUG: tr.SY_TSC130: PA 1 = (28.153 V, 0.403 A)
+2018-09-04 15:29:17,783     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:29:17,785   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:17,815     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:17,878     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:19,676     DEBUG: tr.SY_TSC130: Power out=28.89, target=29.50
+2018-09-04 15:29:19,891      INFO: tr.SY_TSC130: [TX] f=1835, 	tx_attn=2.5, 	in_pwr=-17.51, 	out_pwr=28.89, 	fb=-17.99
+2018-09-04 15:29:19,973     DEBUG: tr.SY_TSC130: FB Attn 1 set to 16.75 dB
+2018-09-04 15:29:20,641     DEBUG: tr.SY_TSC130: RFPAL FB=-18.05, target=-17.50
+2018-09-04 15:29:20,720     DEBUG: tr.SY_TSC130: FB Attn 1 set to 16.25 dB
+2018-09-04 15:29:22,086     DEBUG: tr.SY_TSC130: RFPAL FB=-18.03, target=-17.50
+2018-09-04 15:29:22,165     DEBUG: tr.SY_TSC130: FB Attn 1 set to 15.75 dB
+2018-09-04 15:29:22,921     DEBUG: tr.SY_TSC130: RFPAL FB=-18.09, target=-17.50
+2018-09-04 15:29:23,000     DEBUG: tr.SY_TSC130: FB Attn 1 set to 15.25 dB
+2018-09-04 15:29:23,627     DEBUG: tr.SY_TSC130: RFPAL FB=-18.03, target=-17.50
+2018-09-04 15:29:23,707     DEBUG: tr.SY_TSC130: FB Attn 1 set to 14.75 dB
+2018-09-04 15:29:24,329     DEBUG: tr.SY_TSC130: RFPAL FB=-18.04, target=-17.50
+2018-09-04 15:29:24,411     DEBUG: tr.SY_TSC130: FB Attn 1 set to 14.25 dB
+2018-09-04 15:29:25,165     DEBUG: tr.SY_TSC130: RFPAL FB=-18.05, target=-17.50
+2018-09-04 15:29:25,246     DEBUG: tr.SY_TSC130: FB Attn 1 set to 13.75 dB
+2018-09-04 15:29:25,875     DEBUG: tr.SY_TSC130: RFPAL FB=-18.06, target=-17.50
+2018-09-04 15:29:25,956     DEBUG: tr.SY_TSC130: FB Attn 1 set to 13.25 dB
+2018-09-04 15:29:26,582     DEBUG: tr.SY_TSC130: RFPAL FB=-18.08, target=-17.50
+2018-09-04 15:29:26,671     DEBUG: tr.SY_TSC130: FB Attn 1 set to 12.75 dB
+2018-09-04 15:29:27,418     DEBUG: tr.SY_TSC130: RFPAL FB=-18.13, target=-17.50
+2018-09-04 15:29:27,499     DEBUG: tr.SY_TSC130: FB Attn 1 set to 12.25 dB
+2018-09-04 15:29:28,125     DEBUG: tr.SY_TSC130: RFPAL FB=-18.06, target=-17.50
+2018-09-04 15:29:28,204     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.75 dB
+2018-09-04 15:29:28,835     DEBUG: tr.SY_TSC130: RFPAL FB=-18.03, target=-17.50
+2018-09-04 15:29:29,091      INFO: tr.SY_TSC130: [FB] f=1835, 	fb_attn=11.75, 	in_pwr=-17.47, 	out_pwr=28.89, 	fb=-18.03
+2018-09-04 15:29:29,092      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1845 MHz
+2018-09-04 15:29:29,246     DEBUG: tr.SY_TSC130: BB Attn 1 set to 21.00 dB
+2018-09-04 15:29:29,308     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:29,628     DEBUG: tr.SY_TSC130: RFPAL IN=-18.96, target=-17.00
+2018-09-04 15:29:29,697     DEBUG: tr.SY_TSC130: BB Attn 1 set to 19.00 dB
+2018-09-04 15:29:29,757     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:30,257     DEBUG: tr.SY_TSC130: RFPAL IN=-17.10, target=-17.00
+2018-09-04 15:29:30,507      INFO: tr.SY_TSC130: [BB] f=1845, 	bb_attn=19.0, 	in_pwr=-17.10, 	fb=-17.58
+2018-09-04 15:29:30,592     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.50 dB
+2018-09-04 15:29:30,654     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:32,536     DEBUG: tr.SY_TSC130: Power out=29.49, target=29.50
+2018-09-04 15:29:32,749      INFO: tr.SY_TSC130: [TX] f=1845, 	tx_attn=3.5, 	in_pwr=-17.11, 	out_pwr=29.49, 	fb=-17.57
+2018-09-04 15:29:32,828     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.75 dB
+2018-09-04 15:29:33,358     DEBUG: tr.SY_TSC130: RFPAL FB=-17.61, target=-17.50
+2018-09-04 15:29:33,624      INFO: tr.SY_TSC130: [FB] f=1845, 	fb_attn=11.75, 	in_pwr=-17.14, 	out_pwr=29.50, 	fb=-17.61
+2018-09-04 15:29:33,625      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1855 MHz
+2018-09-04 15:29:33,772     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:29:33,828     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:34,647     DEBUG: tr.SY_TSC130: RFPAL IN=-17.97, target=-17.00
+2018-09-04 15:29:34,714     DEBUG: tr.SY_TSC130: BB Attn 1 set to 19.00 dB
+2018-09-04 15:29:34,773     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:35,392     DEBUG: tr.SY_TSC130: RFPAL IN=-17.21, target=-17.00
+2018-09-04 15:29:35,642      INFO: tr.SY_TSC130: [BB] f=1855, 	bb_attn=19.0, 	in_pwr=-17.21, 	fb=-17.80
+2018-09-04 15:29:35,726     DEBUG: tr.SY_TSC130: TX Attn 1 set to 4.50 dB
+2018-09-04 15:29:35,788     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:37,655     DEBUG: tr.SY_TSC130: Power out=29.55, target=29.50
+2018-09-04 15:29:37,884      INFO: tr.SY_TSC130: [TX] f=1855, 	tx_attn=4.5, 	in_pwr=-17.26, 	out_pwr=29.54, 	fb=-17.86
+2018-09-04 15:29:37,963     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.75 dB
+2018-09-04 15:29:39,494     DEBUG: tr.SY_TSC130: RFPAL FB=-17.83, target=-17.50
+2018-09-04 15:29:39,573     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.50 dB
+2018-09-04 15:29:39,954     DEBUG: tr.SY_TSC130: RFPAL FB=-17.83, target=-17.50
+2018-09-04 15:29:40,035     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.25 dB
+2018-09-04 15:29:40,533     DEBUG: tr.SY_TSC130: RFPAL FB=-17.83, target=-17.50
+2018-09-04 15:29:40,614     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.00 dB
+2018-09-04 15:29:41,230     DEBUG: tr.SY_TSC130: RFPAL FB=-17.85, target=-17.50
+2018-09-04 15:29:41,486      INFO: tr.SY_TSC130: [FB] f=1855, 	fb_attn=11.0, 	in_pwr=-17.25, 	out_pwr=29.52, 	fb=-17.85
+2018-09-04 15:29:41,487      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1865 MHz
+2018-09-04 15:29:41,641     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:29:41,701     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:42,525     DEBUG: tr.SY_TSC130: RFPAL IN=-17.39, target=-17.00
+2018-09-04 15:29:42,778      INFO: tr.SY_TSC130: [BB] f=1865, 	bb_attn=20.0, 	in_pwr=-17.39, 	fb=-18.08
+2018-09-04 15:29:42,865     DEBUG: tr.SY_TSC130: TX Attn 1 set to 5.50 dB
+2018-09-04 15:29:42,924     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:44,808     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:29:44,858     DEBUG: tr.SY_TSC130: TX Attn 1 set to 5.00 dB
+2018-09-04 15:29:44,917     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:46,701     DEBUG: tr.SY_TSC130: Power out=28.94, target=29.50
+2018-09-04 15:29:46,753     DEBUG: tr.SY_TSC130: TX Attn 1 set to 4.50 dB
+2018-09-04 15:29:46,813     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:48,611     DEBUG: tr.SY_TSC130: Power out=28.94, target=29.50
+2018-09-04 15:29:48,664     DEBUG: tr.SY_TSC130: TX Attn 1 set to 4.00 dB
+2018-09-04 15:29:48,723     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:50,522     DEBUG: tr.SY_TSC130: Power out=29.00, target=29.50
+2018-09-04 15:29:50,575     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.50 dB
+2018-09-04 15:29:50,634     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:52,430     DEBUG: tr.SY_TSC130: Power out=28.99, target=29.50
+2018-09-04 15:29:52,482     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.00 dB
+2018-09-04 15:29:52,539     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:54,345     DEBUG: tr.SY_TSC130: Power out=28.96, target=29.50
+2018-09-04 15:29:54,398     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:54,457     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:56,243     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:29:56,244   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:56,298     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:56,358     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:29:58,161     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:29:58,161   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:29:58,210     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:29:58,269     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:00,068     DEBUG: tr.SY_TSC130: Power out=28.96, target=29.50
+2018-09-04 15:30:00,069   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:00,118     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:00,180     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:01,974     DEBUG: tr.SY_TSC130: Power out=28.96, target=29.50
+2018-09-04 15:30:01,976   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:02,025     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:02,084     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:03,878     DEBUG: tr.SY_TSC130: Power out=28.95, target=29.50
+2018-09-04 15:30:04,105      INFO: tr.SY_TSC130: [TX] f=1865, 	tx_attn=2.5, 	in_pwr=-17.40, 	out_pwr=28.95, 	fb=-18.16
+2018-09-04 15:30:04,184     DEBUG: tr.SY_TSC130: FB Attn 1 set to 11.00 dB
+2018-09-04 15:30:04,980     DEBUG: tr.SY_TSC130: RFPAL FB=-18.17, target=-17.50
+2018-09-04 15:30:05,059     DEBUG: tr.SY_TSC130: FB Attn 1 set to 10.25 dB
+2018-09-04 15:30:06,177     DEBUG: tr.SY_TSC130: RFPAL FB=-18.13, target=-17.50
+2018-09-04 15:30:06,256     DEBUG: tr.SY_TSC130: FB Attn 1 set to 9.75 dB
+2018-09-04 15:30:06,891     DEBUG: tr.SY_TSC130: RFPAL FB=-18.16, target=-17.50
+2018-09-04 15:30:06,970     DEBUG: tr.SY_TSC130: FB Attn 1 set to 9.00 dB
+2018-09-04 15:30:07,470     DEBUG: tr.SY_TSC130: RFPAL FB=-18.14, target=-17.50
+2018-09-04 15:30:07,549     DEBUG: tr.SY_TSC130: FB Attn 1 set to 8.50 dB
+2018-09-04 15:30:08,190     DEBUG: tr.SY_TSC130: RFPAL FB=-18.12, target=-17.50
+2018-09-04 15:30:08,272     DEBUG: tr.SY_TSC130: FB Attn 1 set to 8.00 dB
+2018-09-04 15:30:08,775     DEBUG: tr.SY_TSC130: RFPAL FB=-18.14, target=-17.50
+2018-09-04 15:30:08,854     DEBUG: tr.SY_TSC130: FB Attn 1 set to 7.50 dB
+2018-09-04 15:30:09,358     DEBUG: tr.SY_TSC130: RFPAL FB=-18.12, target=-17.50
+2018-09-04 15:30:09,437     DEBUG: tr.SY_TSC130: FB Attn 1 set to 7.00 dB
+2018-09-04 15:30:10,069     DEBUG: tr.SY_TSC130: RFPAL FB=-18.10, target=-17.50
+2018-09-04 15:30:10,148     DEBUG: tr.SY_TSC130: FB Attn 1 set to 6.50 dB
+2018-09-04 15:30:10,772     DEBUG: tr.SY_TSC130: RFPAL FB=-18.13, target=-17.50
+2018-09-04 15:30:10,849     DEBUG: tr.SY_TSC130: FB Attn 1 set to 6.00 dB
+2018-09-04 15:30:11,348     DEBUG: tr.SY_TSC130: RFPAL FB=-18.09, target=-17.50
+2018-09-04 15:30:11,428     DEBUG: tr.SY_TSC130: FB Attn 1 set to 5.50 dB
+2018-09-04 15:30:12,052     DEBUG: tr.SY_TSC130: RFPAL FB=-18.11, target=-17.50
+2018-09-04 15:30:12,289      INFO: tr.SY_TSC130: [FB] f=1865, 	fb_attn=5.5, 	in_pwr=-17.40, 	out_pwr=28.97, 	fb=-18.11
+2018-09-04 15:30:12,289      INFO: tr.SY_TSC130: Calibrating Attn values for TX 1 @ 1870 MHz
+2018-09-04 15:30:12,476     DEBUG: tr.SY_TSC130: BB Attn 1 set to 21.00 dB
+2018-09-04 15:30:12,535     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:13,473     DEBUG: tr.SY_TSC130: RFPAL IN=-18.38, target=-17.00
+2018-09-04 15:30:13,540     DEBUG: tr.SY_TSC130: BB Attn 1 set to 20.00 dB
+2018-09-04 15:30:13,601     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:14,232     DEBUG: tr.SY_TSC130: RFPAL IN=-17.33, target=-17.00
+2018-09-04 15:30:14,480      INFO: tr.SY_TSC130: [BB] f=1870, 	bb_attn=20.0, 	in_pwr=-17.33, 	fb=-18.08
+2018-09-04 15:30:14,566     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.50 dB
+2018-09-04 15:30:14,627     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:16,520     DEBUG: tr.SY_TSC130: Power out=28.92, target=29.50
+2018-09-04 15:30:16,571     DEBUG: tr.SY_TSC130: TX Attn 1 set to 3.00 dB
+2018-09-04 15:30:16,628     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:18,421     DEBUG: tr.SY_TSC130: Power out=28.91, target=29.50
+2018-09-04 15:30:18,470     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:18,529     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:20,316     DEBUG: tr.SY_TSC130: Power out=28.91, target=29.50
+2018-09-04 15:30:20,318   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:20,367     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:20,426     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:22,226     DEBUG: tr.SY_TSC130: Power out=28.91, target=29.50
+2018-09-04 15:30:22,226   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:22,288     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:22,346     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:24,132     DEBUG: tr.SY_TSC130: Power out=28.91, target=29.50
+2018-09-04 15:30:24,132   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:24,183     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:24,242     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:26,033     DEBUG: tr.SY_TSC130: Power out=28.87, target=29.50
+2018-09-04 15:30:26,033   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:26,085     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:26,144     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:27,931     DEBUG: tr.SY_TSC130: Power out=28.91, target=29.50
+2018-09-04 15:30:27,931   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:27,983     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:28,045     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:29,822     DEBUG: tr.SY_TSC130: Power out=28.90, target=29.50
+2018-09-04 15:30:29,822   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:29,871     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:29,930     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:31,730     DEBUG: tr.SY_TSC130: Power out=28.88, target=29.50
+2018-09-04 15:30:31,730   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:31,780     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:31,838     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:33,628     DEBUG: tr.SY_TSC130: Power out=28.92, target=29.50
+2018-09-04 15:30:33,628   WARNING: tr.SY_TSC130: TX Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:33,680     DEBUG: tr.SY_TSC130: TX Attn 1 set to 2.50 dB
+2018-09-04 15:30:33,739     DEBUG: tr.SY_TSC130: Unable to read PA current/voltage
+2018-09-04 15:30:35,523     DEBUG: tr.SY_TSC130: Power out=28.94, target=29.50
+2018-09-04 15:30:35,753      INFO: tr.SY_TSC130: [TX] f=1870, 	tx_attn=2.5, 	in_pwr=-17.33, 	out_pwr=28.94, 	fb=-17.94
+2018-09-04 15:30:35,834     DEBUG: tr.SY_TSC130: FB Attn 1 set to 5.50 dB
+2018-09-04 15:30:36,378     DEBUG: tr.SY_TSC130: RFPAL FB=-17.98, target=-17.50
+2018-09-04 15:30:36,457     DEBUG: tr.SY_TSC130: FB Attn 1 set to 5.00 dB
+2018-09-04 15:30:36,957     DEBUG: tr.SY_TSC130: RFPAL FB=-18.00, target=-17.50
+2018-09-04 15:30:37,035     DEBUG: tr.SY_TSC130: FB Attn 1 set to 4.50 dB
+2018-09-04 15:30:37,536     DEBUG: tr.SY_TSC130: RFPAL FB=-18.04, target=-17.50
+2018-09-04 15:30:37,618     DEBUG: tr.SY_TSC130: FB Attn 1 set to 4.00 dB
+2018-09-04 15:30:38,155     DEBUG: tr.SY_TSC130: RFPAL FB=-18.00, target=-17.50
+2018-09-04 15:30:38,233     DEBUG: tr.SY_TSC130: FB Attn 1 set to 3.50 dB
+2018-09-04 15:30:38,733     DEBUG: tr.SY_TSC130: RFPAL FB=-17.98, target=-17.50
+2018-09-04 15:30:38,815     DEBUG: tr.SY_TSC130: FB Attn 1 set to 3.00 dB
+2018-09-04 15:30:39,323     DEBUG: tr.SY_TSC130: RFPAL FB=-18.02, target=-17.50
+2018-09-04 15:30:39,403     DEBUG: tr.SY_TSC130: FB Attn 1 set to 2.50 dB
+2018-09-04 15:30:39,908     DEBUG: tr.SY_TSC130: RFPAL FB=-18.05, target=-17.50
+2018-09-04 15:30:39,910   WARNING: tr.SY_TSC130: FB Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:39,990     DEBUG: tr.SY_TSC130: FB Attn 1 set to 2.50 dB
+2018-09-04 15:30:40,493     DEBUG: tr.SY_TSC130: RFPAL FB=-18.02, target=-17.50
+2018-09-04 15:30:40,493   WARNING: tr.SY_TSC130: FB Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:40,575     DEBUG: tr.SY_TSC130: FB Attn 1 set to 2.50 dB
+2018-09-04 15:30:41,075     DEBUG: tr.SY_TSC130: RFPAL FB=-18.05, target=-17.50
+2018-09-04 15:30:41,076   WARNING: tr.SY_TSC130: FB Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:41,157     DEBUG: tr.SY_TSC130: FB Attn 1 set to 2.50 dB
+2018-09-04 15:30:41,782     DEBUG: tr.SY_TSC130: RFPAL FB=-18.02, target=-17.50
+2018-09-04 15:30:41,783   WARNING: tr.SY_TSC130: FB Attn value clamped ! Desired value=2.00
+2018-09-04 15:30:41,861     DEBUG: tr.SY_TSC130: FB Attn 1 set to 2.50 dB
+2018-09-04 15:30:42,359     DEBUG: tr.SY_TSC130: RFPAL FB=-17.99, target=-17.50
+2018-09-04 15:30:42,608      INFO: tr.SY_TSC130: [FB] f=1870, 	fb_attn=2.5, 	in_pwr=-17.29, 	out_pwr=28.91, 	fb=-17.99
+2018-09-04 15:30:42,667     DEBUG: tr.server.SensorSSHServiceClient: TX1 PA Temp = 34.50 C
+2018-09-04 15:30:42,667     DEBUG: tr.SY_TSC130: TX 1 Predriver1 set to 0
+2018-09-04 15:30:42,726     DEBUG: tr.SY_TSC130: TX 1 Predriver2 set to 0
+2018-09-04 15:30:42,785     DEBUG: tr.SY_TSC130: TX 1 PA set to 0
+2018-09-04 15:30:42,845      INFO: tr.SY_TSCX31: -------- [SY_TSCX31] Validate Calib 20 MHz --------
+2018-09-04 15:30:45,092     DEBUG: tr.SY_TSCX31: 
+2018-09-04 15:30:45,092      INFO: tr.SY_TSCX31: Start ETM1.1
+2018-09-04 15:30:46,706      INFO: tr.SY_TSCX31: BOTTOM (1815 MHz)
+2018-09-04 15:30:46,707      INFO: tr.SY_TSCX31: TX 1 Validating EEPROM calib frequency 1815 MHz
+2018-09-04 15:30:46,739     DEBUG: tr.SY_TSCX31: Spectrum linked with UUT_ANT0. 21.50 dB loss
+2018-09-04 15:30:55,687     DEBUG: tr.server.KeysightEXASpectrumClient: Stabilized get_aclr[ <0.30: avg 2: \/0.00s]. Took 5.27s(timeout=20s) Values=[-44.81059189, -44.867428585, -45.077098605]
+2018-09-04 15:30:57,907      INFO: tr.SY_TSCX31: Readings: bb_att=18, tx_att=18, fb_att=68, rf_in=-16.95, fb_in=-17.44, pwr_out=29.17
+2018-09-04 15:30:59,026      INFO: tr.criteria: POWER_OUT_dBm: 28.5 < [29.17] < 31.5 : PASS
+2018-09-04 15:30:59,063     DEBUG: tr.SY_TSCX31: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 280, in _declare_criteria
+    return function(_self, _execute, _test_func, context)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\system\system_tx.py", line 42, in SY_TSCX31
+    lte_calib.validate_eeprom_calibration_both_tx_at_BMT_2_rand(context, bw, cal_tgz_path='/tmp/')
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 178, in validate_eeprom_calibration_both_tx_at_BMT_2_rand
+    callback(context, tx, freq)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 178, in validate_eeprom_calibration_both_tx_at_BMT_2_rand
+    callback(context, tx, freq)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 156, in tx_done_callback
+    evaluate_block.evaluate(current_name, context.server.sensor.current_tx(tx))
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_ssh_client.py", line 262, in current_tx
+    return float(value)/float(1000)
+ValueError: could not convert string to float: cat: read error: Input/output error
+
+2018-09-04 15:30:59,065     ERROR: tr.SY_TSCX31: ValueError: could not convert string to float: cat: read error: Input/output error
+2018-09-04 15:30:59,065     ERROR: tr.SY_TSCX31: TEST FAILED
+2018-09-04 15:30:59,066      INFO: tr: #################### SystemCalib10MHz ####################
+2018-09-04 15:30:59,068      INFO: tr.SY_TSC210: -------------- [SY_TSC210] TX2 10 MHz --------------
+2018-09-04 15:30:59,098     DEBUG: tr.SY_TSC210: Spectrum linked with UUT_ANT1. 21.50 dB loss
+2018-09-04 15:30:59,099      INFO: tr.SY_TSC210: Calibrating TX 2 w/ BW of 10 MHz
+2018-09-04 15:30:59,138      INFO: tr.SY_TSC210: Changing bandwidth; requires reboot.
+2018-09-04 15:30:59,138     DEBUG: tr.server.EnvVarSSHServiceClient: bw=10
+2018-09-04 15:31:02,585      INFO: tr.server.LTESSHServiceClient: Rebooting...
+2018-09-04 15:31:02,585      INFO: tr.server.LTESSHServiceClient: Waiting end of boot and launching SSH connection
+2018-09-04 15:32:54,971      INFO: tr.server.LTESSHServiceClient: Waiting end of initialization
+2018-09-04 15:33:31,430      INFO: tr.SY_TSC210: Updating setup file list...
+2018-09-04 15:33:31,431     DEBUG: tr.SY_TSC210: SCP file: etm-start-tmp.sh, lpath: support\files\, rpath: /bin/
+2018-09-04 15:33:31,562     DEBUG: tr.SY_TSC210: mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp >>
+ 
+2018-09-04 15:33:31,562     DEBUG: tr.SY_TSC210: SCP file: wfm.tar, lpath: support\files\, rpath: /tmp/
+2018-09-04 15:33:32,845     DEBUG: tr.SY_TSC210: cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm >>
+ wfm/
+wfm/ETM_10MHz_TV.tgz
+wfm/ETM_15MHz_TV.tgz
+wfm/ETM_20MHz_TV.tgz
+wfm/ETM_5MHz_TV.tgz
+2018-09-04 15:33:33,036      INFO: tr.SY_TSC210: Updating setup file list... Done
+2018-09-04 15:33:33,128     DEBUG: tr.SY_TSC210: /bin/fe-enable: line 7: can't create /sys/devices/soc.0/0.tip/rfpal_reset: nonexistent directory
+/bin/fe-enable: line 8: can't create /sys/devices/soc.0/0.tip/ant1_or_sniffant_to_sniffer_switch: nonexistent directory
+/bin/fe-enable: line 9: can't create /sys/devices/soc.0/0.tip/ant1_or_sniffer_to_rx1_switch: nonexistent directory
+/bin/fe-enable: line 10: can't create /sys/devices/soc.0/0.tip/ant1_to_dup_or_sniffer_switch: nonexistent directory
+/bin/fe-enable: line 15: can't create /sys/devices/soc.0/0.tip/rx0_att_le: nonexistent directory
+/bin/fe-enable: line 16: can't create /sys/devices/soc.0/0.tip/rx0_att: nonexistent directory
+/bin/fe-enable: line 17: can't create /sys/devices/soc.0/0.tip/rx0_lna_en: nonexistent directory
+/bin/fe-enable: line 18: can't create /sys/devices/soc.0/0.tip/rx1_att_le: nonexistent directory
+/bin/fe-enable: line 19: can't create /sys/devices/soc.0/0.tip/rx1_att: nonexistent directory
+/bin/fe-enable: line 20: can't create /sys/devices/soc.0/0.tip/rx1_lna_en: nonexistent directory
+/bin/fe-enable: line 21: can't create /sys/devices/soc.0/0.tip/sniffer_att_le: nonexistent directory
+/bin/fe-enable: line 22: can't create /sys/devices/soc.0/0.tip/sniffer_att: nonexistent directory
+/bin/fe-enable: line 23: can't create /sys/devices/soc.0/0.tip/sniffer_lna_en: nonexistent directory
+/bin/fe-enable: line 28: can't create /sys/devices/soc.0/0.tip/tx0_pa_att_le: nonexistent directory
+/bin/fe-enable: line 29: can't create /sys/devices/soc.0/0.tip/tx0_pa_att: nonexistent directory
+/bin/fe-enable: line 30: can't create /sys/devices/soc.0/0.tip/tx0_rfpal_att_le: nonexistent directory
+/bin/fe-enable: line 31: can't create /sys/devices/soc.0/0.tip/tx0_rfpal_att: nonexistent directory
+/bin/fe-enable: line 32: can't create /sys/devices/soc.0/0.tip/tx1_pa_att_le: nonexistent directory
+/bin/fe-enable: line 33: can't create /sys/devices/soc.0/0.tip/tx1_pa_att: nonexistent directory
+/bin/fe-enable: line 34: can't create /sys/devices/soc.0/0.tip/tx1_rfpal_att_le: nonexistent directory
+/bin/fe-enable: line 35: can't create /sys/devices/soc.0/0.tip/tx1_rfpal_att: nonexistent directory
+/bin/fe-enable: line 38: can't create /sys/devices/soc.0/0.tip/tx0_predriver1_en: nonexistent directory
+/bin/fe-enable: line 39: can't create /sys/devices/soc.0/0.tip/tx0_predriver2_en: nonexistent directory
+/bin/fe-enable: line 40: can't create /sys/devices/soc.0/0.tip/tx1_predriver1_en: nonexistent directory
+/bin/fe-enable: line 41: can't create /sys/devices/soc.0/0.tip/tx1_predriver2_en: nonexistent directory
+/bin/fe-enable: line 45: can't create /sys/devices/soc.0/0.tip/rfpal_reset: nonexistent directory
+2018-09-04 15:33:33,128      INFO: tr.SY_TSC210: Start ETM1.1
+2018-09-04 15:33:34,703     DEBUG: tr.SY_TSC210: TX 1 Predriver1 set to 0
+2018-09-04 15:33:34,756     DEBUG: tr.SY_TSC210: TX 1 Predriver2 set to 0
+2018-09-04 15:33:34,811     DEBUG: tr.SY_TSC210: TX 1 PA set to 0
+2018-09-04 15:33:34,864     DEBUG: tr.SY_TSC210: TX 2 Predriver1 set to 0
+2018-09-04 15:33:34,917     DEBUG: tr.SY_TSC210: TX 2 Predriver2 set to 0
+2018-09-04 15:33:34,970     DEBUG: tr.SY_TSC210: TX 2 PA set to 0
+2018-09-04 15:33:37,121     DEBUG: tr.SY_TSC210: TX 2 Predriver1 set to 1
+2018-09-04 15:33:37,140     DEBUG: tr.SY_TSC210: TX 2 Predriver2 set to 1
+2018-09-04 15:33:37,193     DEBUG: tr.SY_TSC210: TX 2 PA set to 1
+2018-09-04 15:33:37,312     DEBUG: tr.SY_TSC210: BB Attn 2 set to 20.00 dB
+2018-09-04 15:33:37,428     DEBUG: tr.SY_TSC210: PA 2 = (28.156 V, 0.362 A)
+2018-09-04 15:33:37,487     DEBUG: tr.SY_TSC210: TX Attn 2 set to 16.00 dB
+2018-09-04 15:33:37,605     DEBUG: tr.SY_TSC210: PA 2 = (28.154 V, 0.362 A)
+2018-09-04 15:33:37,663     DEBUG: tr.SY_TSC210: FB Attn 2 set to 14.00 dB
+2018-09-04 15:33:37,719     DEBUG: tr.SY_TSC210: Traceback (most recent call last):
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\testtree.py", line 633, in execute_fn
+    self.function(_execute=True, _test_func=self, context=context, *args, **kwargs)
+  File "c:\git_files\oc-lte-testbench\src\nute\nute\core\script_types.py", line 223, in _testcase
+    value = function(_self.get_self_env(), context, **_test_func.get_params())
+  File "C:\GIT_Files\oc-lte-testbench\pyscripts\script\system\system_tx.py", line 55, in SY_TSC210
+    lte_calib.calibrate_tx(context, 1, 10)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 646, in calibrate_tx
+    calibrate_by_freq(context, ssh, spectrum, tx, bw, freq_range)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_calib.py", line 658, in calibrate_by_freq
+    temp_before = context.server.sensor.temp_tx(tx)
+  File "C:\GIT_Files\oc-lte-testbench\tools\lte\lte_ssh_client.py", line 244, in temp_tx
+    value = float(value)/1000.0
+ValueError: could not convert string to float: cat: can't open '/sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input': No such file or directory
+
+2018-09-04 15:33:37,719     ERROR: tr.SY_TSC210: ValueError: could not convert string to float: cat: can't open '/sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input': No such file or directory
+2018-09-04 15:33:37,720     ERROR: tr.SY_TSC210: TEST FAILED
+2018-09-04 15:33:37,720  CRITICAL: tr.SY_TSC210: SECTION CRITICAL FAILED: EXITING SECTION
+2018-09-04 15:33:37,720  CRITICAL: tr: Execution interrupted
+2018-09-04 15:33:37,721  CRITICAL: tr: ValueError: could not convert string to float: cat: can't open '/sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input': No such file or directory
+2018-09-04 15:33:37,721     DEBUG: tr: Next section
+2018-09-04 15:33:37,721      INFO: tr: ******************* Section *** CLEANUP *******************
+2018-09-04 15:33:37,723      INFO: tr: ######################### Cleanup #########################
+2018-09-04 15:33:37,724      INFO: tr.FE_CLN001: ----------- [FE_CLN001] Set TX paths off -----------
+2018-09-04 15:33:37,726     DEBUG: tr.FE_CLN001: TX 1 Predriver1 set to 0
+2018-09-04 15:33:37,782     DEBUG: tr.FE_CLN001: TX 1 Predriver2 set to 0
+2018-09-04 15:33:37,835     DEBUG: tr.FE_CLN001: TX 1 PA set to 0
+2018-09-04 15:33:37,888     DEBUG: tr.FE_CLN001: TX 2 Predriver1 set to 0
+2018-09-04 15:33:37,944     DEBUG: tr.FE_CLN001: TX 2 Predriver2 set to 0
+2018-09-04 15:33:37,999     DEBUG: tr.FE_CLN001: TX 2 PA set to 0
+2018-09-04 15:33:38,052      INFO: tr.FE_CLN001: TXs are off
+2018-09-04 15:33:38,055      INFO: tr.BB_CLN001: -------------- [BB_CLN001] Power off --------------
+2018-09-04 15:33:38,066   WARNING: tr.BB_CLN001: Failed to set power off
+2018-09-04 15:33:38,069      INFO: tr: All sections of batch file were executed
+2018-09-04 15:33:38,108      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpe9c3nt\server

@@ -1,0 +1,17 @@
+2018-09-05 16:43:50,493      INFO: tr: File logs initialized @ C:\Users\william.laroche\appdata\local\temp\tmpu_sem8
+2018-09-05 16:43:50,535      INFO: tr.server: Loading services from config file
+2018-09-05 16:43:50,990      INFO: tr: ****************** Section *** SEQUENCE ******************
+2018-09-05 16:43:50,997      INFO: tr: ####################### Preparation #######################
+2018-09-05 16:43:50,999      INFO: tr.CM_PRP016: ------- [CM_PRP016] Launch DCSupply Service -------
+2018-09-05 16:43:57,017   WARNING: tr.CM_PRP016: Unable to create DC Supply service: [400] NEW SERVICE call @dcsupply: ServiceError: No DC-DC converter found; closing device
+2018-09-05 16:43:57,025      INFO: tr: ####################### FEImpedance #######################
+2018-09-05 16:43:57,032      INFO: tr.FE_TSC001: ---------- [FE_TSC001] FE Impedance Test ----------
+2018-09-05 16:43:57,033      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-05 16:43:57,035      INFO: tr.FE_TSC001: Ground here
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: Tester continued the test
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: TESTER STEP:
+2018-09-05 16:46:20,493      INFO: tr.FE_TSC001: Please probe impedance of point #1 [28V at TP24] and enter value in kOhms in the box below. Expecting [value > 100]
+2018-09-05 16:47:44,645  CRITICAL: tr: Execution interrupted
+2018-09-05 16:47:44,645  CRITICAL: tr: TesterInterruption: Terminate section requested
+2018-09-05 16:47:44,648      INFO: tr: All sections of batch file were executed
+2018-09-05 16:47:44,691      INFO: tr.server: Shutdown executed. Response: Shutdown= False, server still alive. Server logs successfully moved to C:\Users\william.laroche\appdata\local\temp\tmpu_sem8\server

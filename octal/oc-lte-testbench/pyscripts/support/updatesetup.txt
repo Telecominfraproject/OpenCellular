@@ -1,0 +1,24 @@
+# When 1st character of a line is #, this is a comment line which is ignored
+# Line format: filename, localpath, remotepath, filecommand, filecmdtimeout
+# filename: base filename (if not provided, localpath and remotepath must include full file pathname)
+# localpath: local file directory path, relative or absolute, or full path if filename is not provided
+# remotepath: remote file directory path, relative or absolute, or full path if filename is not provided
+# filecommand: ssh command executed after the file transfer (if not empty)
+# filecmdtimeout: if filecommand is provided, force this ssh time out value instead of default
+# if filename, localpath and remotepath are all not provided, no scp transfer will occur
+# Equivalent operations (default remote file access will be 644 if remote file does not exist):
+# scp localpath+filename remotepath+filename
+# ssh filecommand
+#
+# This is a temporary list of files needed to test/calibrate the unit through scp with associated optionnaly needed ssh commands
+# normally all needed files for testing must be installed in /tmp or a subfolder of it
+# next lines are dummy: just edit the following lines to suite the real needs
+#
+#Exemple :
+#testenv.txt,,/tmp/,/bin/chmod 640 /tmp/testenv.txt,
+#,,,mkdir -p /tmp/tmp2,
+#,testenv.txt,/tmp/tmp2/testenv2.txt,,
+#testsetup1.tar.gz,,/tmp/,cd /tmp && tar -zxf ./testsetup1.tar.gz,
+#rffe.tgz,support\files\,/tmp/,cd /tmp && tar -xvf rffe.tgz -C /,
+etm-start-tmp.sh,support\files\,/bin/,mv /bin/etm-start-tmp.sh /bin/etm-start-tmp; chmod 777 /bin/etm-start-tmp,
+wfm.tar,support\files\,/tmp/,cd /tmp && tar -xvf wfm.tar; chmod -R 777 /tmp/wfm,
