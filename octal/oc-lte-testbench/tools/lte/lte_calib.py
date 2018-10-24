@@ -16,8 +16,8 @@ def write_calib(context):
 
     create_cal_tgz_to_remote(context, remote_folder)
     context.server.ssh.execute_command('cd %s; tar -xvf %s' % (remote_folder, file_name))
-    context.server.ssh.execute_command('rm %s%s' % (remote_folder, file_name)) # Remove .tgz for read validation
-
+    #context.server.ssh.execute_command('rm %s%s' % (remote_folder, file_name)) # Remove .tgz for read validation
+    #print ("remote folder = %s" % remote_folder)
     write_cal_folder_to_eeprom(context, remote_folder)
     context.server.ssh.execute_command('mkdir %s' % remote_validation_folder, assertexitcode=None)
     read_eeprom_cal_to_folder(context, remote_validation_folder)
@@ -26,10 +26,18 @@ def write_calib(context):
 def create_cal_tgz_to_remote(context, remote_folder):
     cal_folder = context.CALIBRATION_POSTPROCESS_FOLDER
     file_name = context.CALIBRATION_FILE_NAME
-
-    create_cal_tgz_from_folder(cal_folder, os.path.join(cal_folder, file_name))
+    os.chdir(os.path.join(cal_folder, '..'))
+    full_path = os.getcwd()
+    #context.logger.info('calfolder %s filename %s joined %s ' % (cal_folder,file_name,os.path.join(cal_folder, file_name)))
+    #create_cal_tgz_from_folder(cal_folder, os.path.join(cal_folder, file_name))
+    #print ('full path = %s' % full_path)
+    create_cal_tgz_from_folder(cal_folder, os.path.join(full_path, file_name))
     context.server.ssh.execute_command('mkdir %s' % remote_folder, assertexitcode=None)
-    context.server.scp.putfile(file=file_name, localpath=cal_folder, remotepath=remote_folder)
+    #os.chdir(cal_folder)
+    #context.server.scp.putfile(file=file_name, localpath='.', remotepath=remote_folder)
+    #full_path = os.getcwd()
+    context.server.scp.putfile(file=file_name, localpath=full_path, remotepath=remote_folder)
+    #context.server.scp.putfile(file=file_name, localpath=cal_folder, remotepath=remote_folder)
     context.server.ssh.execute_command('cd %s; tar -xvf %s' % (remote_folder, file_name))
 
 def compare_write_read_eeprom_folders(context, write_folder, read_folder):
@@ -58,24 +66,29 @@ def read_eeprom_cal_to_folder(context, folder):
 def create_cal_tgz_from_folder(cal_folder, tgz_file_name):
     import tarfile
 
-    with tarfile.open(tgz_file_name, 'w:gz') as tar:
-        for root, dirs, files in os.walk(cal_folder):
-            for f in files:
-                f_name, ext = os.path.splitext(f)
-                if ext == '.cal':
-                    tar.add(os.path.join(cal_folder, f), arcname=f)
-
+    # with tarfile.open(tgz_file_name, 'w:gz') as tar:
+    #     for root, dirs, files in os.walk(cal_folder):
+    #         for f in files:
+    #             f_name, ext = os.path.splitext(f)
+    #             if ext == '.cal':
+    #                 tar.add(os.path.join(cal_folder, f), arcname=f)
+    #print("calfolder = %s, tgz = %s" % (cal_folder,tgz_file_name))
+    with tarfile.open(tgz_file_name, "w:gz") as tar:
+        tar.add(cal_folder, arcname=os.path.basename(cal_folder))
 
 def generate_postprocess_tables(context, bw):
     pre_folder = context.CALIBRATION_PREPROCESS_FOLDER
     post_folder = context.CALIBRATION_POSTPROCESS_FOLDER
 
-    for tx in range(2):
+	#FIXME, only ant1 for now
+    for tx in range(1):
         bb_table = calib_utils.LTEBBCalibTable()
         tx_table = calib_utils.LTETXCalibTable()
         fb_table = calib_utils.LTEFBCalibTable()
-
+        #context.logger.info('Reading %s' % pre_folder)
         with utils.stack_chdir(pre_folder):
+            currentdir = os.getcwd()
+            #context.logger.info('current is %s' % currentdir)
             unified_table = utils.load_obj(lte_unified_calib_table_file_name(bw=bw, tx=tx))
 
         unified_table.generate_interpolation_function(kind='linear')
@@ -133,51 +146,121 @@ def validate_calibration_folder_both_tx_random_freq_range(context, folder, bw, m
 
 def validate_eeprom_calibration_both_tx_at_BMT_2_rand(context, bw, cal_tgz_path=None, invert_tx_validation=False):
 
-    with context.criteria.evaluate_block() as evaluate_block:
+    def check_cal(arg1, arg2):
+    if (arg1 != arg2):
+        print ('arg1 %s, != arg2 %s' % (arg1, arg2))
+    #FIXME removing the with for now, everything here was indented under with
+    #with context.criteria.evaluate_block() as evaluate_block:
 
-        def get_tx_done_callback(name):
-            def tx_done_callback(context, tx, freq):
-                real_tx = lte_calibtools.real_tx(tx)
-                power_name = 'POWER_OUT_dBm'
-                current_name = 'PA_CURRENT'
-                aclr_name = 'ACLR'
-                freq_name = 'FREQ'
-                freq_err_name = 'FREQ_ERROR'
-                evm_name = 'EVM'
-                time.sleep(2)
-                aclr = context.server.spectrum.find_stable_aclr()
-                pwr = read_output_power(context, context.server.spectrum)
-                print_power_readings(context, tx)
-                context.server.spectrum.read_evm()
-                freq_error = context.server.spectrum.fetch_freq_error()
-                evm = context.server.spectrum.fetch_evm()
+    def get_tx_done_callback(name):
+        def tx_done_callback(context, tx, freq):
+            real_tx = lte_calibtools.real_tx(tx)
+            power_name = 'POWER_OUT_dBm'
+            current_name = 'PA_CURRENT'
+            aclr_name = 'ACLR'
+            freq_name = 'FREQ'
+            freq_err_name = 'FREQ_ERROR'
+            evm_name = 'EVM'
+            time.sleep(2)
+            aclr = context.server.spectrum.find_stable_aclr()
+            pwr = read_output_power(context, context.server.spectrum)
+            print_power_readings(context, tx)
+            context.server.spectrum.read_evm()
+            freq_error = context.server.spectrum.fetch_freq_error()
+            evm = context.server.spectrum.fetch_evm()
 
-                evaluate_block.evaluate(power_name, pwr)
-                evaluate_block.evaluate(current_name, context.server.sensor.current_tx(tx))
-                evaluate_block.evaluate(aclr_name, aclr)
-                evaluate_block.evaluate(freq_name, freq)
-                evaluate_block.evaluate(freq_err_name, abs(freq_error))
-                evaluate_block.evaluate(evm_name, evm)
-
-            return tx_done_callback
-
-        context.server.spectrum.setup_lte_dl_mode(lte_bw=bw, cont='ON')
-        start_etm_all(context, '1.1')
-
-        lowest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[0]
-        highest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[-1]
-        middle_freq = context.RF_DL_MIDDLE_FREQ
-        freq_low = context.VALIDATION_BOTTOM_RANDOM
-        freq_high = context.VALIDATION_TOP_RANDOM
-        tx_list = [1,0] if invert_tx_validation else [0,1]
-        for tx in tx_list:
-            for freq, name in [(lowest_freq, "BOTTOM"), (middle_freq, "MIDDLE"), (highest_freq, "TOP"), (freq_low, "RANDOM_BOTTOM"), (freq_high, "RANDOM_TOP")]:
-                context.logger.info("%s (%d MHz)" % (name, freq))
-                validate_calibration_point_from_eeprom(context, tx, freq, cal_tgz_path=cal_tgz_path)
-                callback = get_tx_done_callback(name)
-                callback(context, tx, freq)
+			#FIXME need to do better calibration check using calibration_criteria in pyscripts\script\system\system_tx.py
+            # evaluate_block.evaluate(power_name, pwr)
+            # evaluate_block.evaluate(current_name, context.server.sensor.current_tx(tx))
+            # evaluate_block.evaluate(aclr_name, aclr)
+            # evaluate_block.evaluate(freq_name, freq)
+            # evaluate_block.evaluate(freq_err_name, abs(freq_error))
+            # evaluate_block.evaluate(evm_name, evm)
+            check_cal(power_name, pwr)
+            check_cal(current_name, context.server.sensor.current_tx(tx))
+            check_cal(aclr_name, aclr)
+            check_cal(freq_name, freq)
+            check_cal(freq_err_name, abs(freq_error))
+            check_cal(evm_name, evm)
 
 
+        return tx_done_callback
+
+    context.server.spectrum.setup_lte_dl_mode(lte_bw=bw, cont='ON')
+    #etm is already running don't think I need to run again..?
+    #start_etm_all(context, '1.1')
+
+    lowest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[0]
+    highest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[-1]
+    middle_freq = context.RF_DL_MIDDLE_FREQ
+    freq_low = context.VALIDATION_BOTTOM_RANDOM
+    freq_high = context.VALIDATION_TOP_RANDOM
+    tx_list = [1,0] if invert_tx_validation else [0,1]
+    for tx in tx_list:
+        for freq, name in [(lowest_freq, "BOTTOM"), (middle_freq, "MIDDLE"), (highest_freq, "TOP"), (freq_low, "RANDOM_BOTTOM"), (freq_high, "RANDOM_TOP")]:
+            context.logger.info("%s (%d MHz)" % (name, freq))
+            validate_calibration_point_from_eeprom(context, tx, freq, cal_tgz_path=cal_tgz_path)
+            callback = get_tx_done_callback(name)
+            callback(context, tx, freq)
+
+def validate_eeprom_calibration_single_tx_at_BMT_2_rand(context, bw, cal_tgz_path=None, tx=0):
+
+    def check_cal(arg1, arg2):
+        if (arg1 != arg2):
+            print ('arg1 %s, != arg2 %s' % (arg1, arg2))
+
+    #removing the with for now, everything here was indented under with
+    #with context.criteria.evaluate_block() as evaluate_block:
+    def get_tx_done_callback(name):
+        def tx_done_callback(context, tx, freq):
+            real_tx = lte_calibtools.real_tx(tx)
+            power_name = 'POWER_OUT_dBm'
+            current_name = 'PA_CURRENT'
+            aclr_name = 'ACLR'
+            freq_name = 'FREQ'
+            freq_err_name = 'FREQ_ERROR'
+            evm_name = 'EVM'
+            time.sleep(2)
+            aclr = context.server.spectrum.find_stable_aclr()
+            pwr = read_output_power(context, context.server.spectrum)
+            print_power_readings(context, tx)
+            context.server.spectrum.read_evm()
+            freq_error = context.server.spectrum.fetch_freq_error()
+            evm = context.server.spectrum.fetch_evm()
+
+			#FIXME need to do better calibration check using calibration_criteria in pyscripts\script\system\system_tx.py
+            # evaluate_block.evaluate(power_name, pwr)
+            # evaluate_block.evaluate(current_name, context.server.sensor.current_tx(tx))
+            # evaluate_block.evaluate(aclr_name, aclr)
+            # evaluate_block.evaluate(freq_name, freq)
+            # evaluate_block.evaluate(freq_err_name, abs(freq_error))
+            # evaluate_block.evaluate(evm_name, evm)
+            check_cal(power_name, pwr)
+            check_cal(current_name, context.server.sensor.current_tx(tx))
+            check_cal(aclr_name, aclr)
+            check_cal(freq_name, freq)
+            check_cal(freq_err_name, abs(freq_error))
+            check_cal(evm_name, evm)
+
+
+        return tx_done_callback
+
+    context.server.spectrum.setup_lte_dl_mode(lte_bw=bw, cont='ON')
+    #etm is already running don't think I need to run again..?
+    #start_etm_all(context, '1.1')
+
+    lowest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[0]
+    highest_freq = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)[-1]
+    middle_freq = context.RF_DL_MIDDLE_FREQ
+    freq_low = context.VALIDATION_BOTTOM_RANDOM
+    freq_high = context.VALIDATION_TOP_RANDOM
+    tx_list = [tx]
+    for tx in tx_list:
+        for freq, name in [(lowest_freq, "BOTTOM"), (middle_freq, "MIDDLE"), (highest_freq, "TOP"), (freq_low, "RANDOM_BOTTOM"), (freq_high, "RANDOM_TOP")]:
+            context.logger.info("%s (%d MHz)" % (name, freq))
+            validate_calibration_point_from_eeprom(context, tx, freq, cal_tgz_path=cal_tgz_path)
+            callback = get_tx_done_callback(name)
+            callback(context, tx, freq)
 
 def validate_calibration_folder_both_tx_at_all_freqs(context, folder, bw):
 
@@ -443,7 +526,9 @@ def enable_fe(context, tx):
 ##region Calibration
 
 def calibrate_ocxo(context, tx, freq, force_calib=False):
-    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+    context.server.spectrum.instrument_reset()
+	
+	rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
     spectrum = context.server.spectrum
     ssh = context.server.ssh
 
@@ -479,7 +564,7 @@ def calibrate_ocxo_no_setup(context, force_calib=False):
     else:
         context.logger.info("Skipped OCXO Calibration, frequency error = %d Hz" % freq_error)
 
-    context.criteria.evaluate('BB_TSC020_OCXO_FREQ_ERROR', abs(freq_error))
+    # context.criteria.evaluate('BB_TSC020_OCXO_FREQ_ERROR', abs(freq_error))
 
 def calibrate_rfpal(context, tx, freq):
     spectrum = context.server.spectrum
@@ -495,11 +580,11 @@ def calibrate_rfpal(context, tx, freq):
 
     lte_calibtools.setcal_rfpal(context, tx)
 
-    context.criteria.evaluate("FE_TSC%d20_RFPAL_POST_CALIBRATION_ACLR" % lte_calibtools.real_tx(tx), aclr)
+    # context.criteria.evaluate("FE_TSC%d20_RFPAL_POST_CALIBRATION_ACLR" % lte_calibtools.real_tx(tx), aclr)
     lte_calibtools.set_tx_enable(context, tx, 0)
 
 def calibrate_single_freq(context, tx, freq):
-    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+    #rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
     spectrum = context.server.spectrum
     ssh = context.server.ssh
 
@@ -622,7 +707,7 @@ def lte_unified_calib_table_file_name(bw, tx):
     return 'caltable_%dMHz_ant%d' % (bw, tx)
 
 def calibrate_tx(context, tx, bw):
-    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+    # rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
     context.logger.info("Calibrating TX %d w/ BW of %d MHz" % (lte_calibtools.real_tx(tx), bw))
     spectrum = context.server.spectrum
     ssh = context.server.ssh

@@ -1,6 +1,7 @@
 import sys, os
 import opentest
-from opentest.script import testrunner, utils
+#from opentest.script import testrunner, utils
+from nute import utils
 import tools.lte.lte_calibtools as lte_calibtools
 from opentest.integration import rfmeasure, calib_utils
 import time
@@ -8,9 +9,10 @@ import time
 
 
 
-class PrepareCalibration(testrunner.TestSuite):
+# class PrepareCalibration(testrunner.TestSuite):
+class PrepareCalibration():
 
-    @testrunner.testcase("Temp RX tables")
+    #@testrunner.testcase("Temp RX tables")
     def SY_PRP040(self, context):
         for tx in range(2):
             const_name = 'CALIBRATION_BB_RX%d_GAIN' % tx
@@ -27,12 +29,12 @@ class PrepareCalibration(testrunner.TestSuite):
                     calib_utils.LTEFERXCalibTable().set_values(freq_range, pwr_range, temp, fe_rx_attens).save(bandwidth=bw, tx=tx)
                     calib_utils.LTEBBRXCalibTable().set_values(freq_range, bb_rx_attens).save(bandwidth=bw, tx=tx)
 
-    @testrunner.not_implemented
-    @testrunner.testcase("Calibrate RX1", critical=True)
+    #@testrunner.not_implemented
+    #@testrunner.testcase("Calibrate RX1", critical=True)
     def SY_TSC140(self, context):
         pass
 
-    @testrunner.not_implemented
-    @testrunner.testcase("Calibrate RX2", critical=True)
+    #@testrunner.not_implemented
+    #@testrunner.testcase("Calibrate RX2", critical=True)
     def SY_TSC240(self, context):
         pass

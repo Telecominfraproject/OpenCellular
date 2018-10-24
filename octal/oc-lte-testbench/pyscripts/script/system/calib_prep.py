@@ -1,22 +1,23 @@
 import sys, os
 import opentest
-from opentest.script import testrunner, utils
+#from opentest.script import testrunner, utils
+from nute import utils
 from tools.lte import lte_calibtools, lte_calib
 from opentest.integration import rfmeasure
 
 import time
 
 
-class PrepareCalibration(testrunner.TestSuite):
+#class PrepareCalibration(testrunner.TestSuite):
+class PrepareCalibration():
 
-
-    @testrunner.testcase("Create calibration folder", critical=True)
+    #@testrunner.testcase("Create calibration folder", critical=True)
     def SY_PRP011(self, context):
         context.CALIBRATION_PREPROCESS_FOLDER = create_calib_folder(context, context.CALIBRATION_PREPROCESS_FOLDER)
         context.CALIBRATION_POSTPROCESS_FOLDER = create_calib_folder(context, context.CALIBRATION_POSTPROCESS_FOLDER)
 
 
-    @testrunner.testcase("Check Output", critical=True)
+    #@testrunner.testcase("Check Output", critical=True)
     def SY_PRP012(self, context):
 
         tx = 0
@@ -43,8 +44,8 @@ class PrepareCalibration(testrunner.TestSuite):
         #context.wait_tester_feedback('Is there an LTE signal ?')
 
 def create_calib_folder(context, path):
-    path = os.path.join(context.LOGS_PATH, path)
+    # path = os.path.join(context.LOGS_PATH, path)
     if not os.path.exists(path):
         os.mkdir(path)
-
+    context.logger.info("Created folder %s" % path)
     return path

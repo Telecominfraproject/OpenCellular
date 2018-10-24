@@ -34,6 +34,10 @@ class ConfigurationLoader():
             self.load_config_file(os.path.join(base_path, additionnal_path))
         self.load_config_file(os.path.join(self.root_folder, 'testbench', platform.node() + '.ini'), must_exist=False)
         self.load_config_file(os.path.join(base_path, product_folder, '.test.ini'), must_exist=False)
+		# FIXME manually adding the below for calibration
+        self.load_config_file(os.path.join(base_path, '.calib_const.ini'))
+        self.load_config_file(os.path.join(base_path, '.rf_band3.ini'))
+        self.load_config_file(os.path.join(base_path, 'system', '.test.ini'))
 
     def _get_test_type(self, test_type):
         return self.ini_content.items(test_type)
