@@ -175,8 +175,7 @@ int32_t ocmw_frame_postTable_from_schema(const Component *root);
  *
  * @return  NONE
  */
-inline void ocmw_free_global_pointer(void **ptr);
-
+extern inline void ocmw_free_global_pointer(void **ptr);
 /*
  * @param root an output value (by pointer)
  * @param systemInfo an output value (by pointer)

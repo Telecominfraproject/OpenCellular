@@ -81,12 +81,10 @@ void * ocwdg_thread_comm_with_ec(void *pthreadData)
         ecMsgHeader.ocmpTimestamp = OCWDG_NUMBER_ZERO;
 
         /* Frame the Core packet for sending data to ec */
-        /*ecCoreMsg.action = OCMP_AXN_TYPE_REPLY;
-        ecCoreMsg.msgtype = WATCHDOG;
-        ecCoreMsg.componentID = WD;
-        ecCoreMsg.parameters = OCWDG_NUMBER_ZERO;
-        ecCoreMsg.subsystem = WD;
-*/
+        ecCoreMsg.action = OCMP_AXN_TYPE_REPLY;
+        ecCoreMsg.msgtype = OCMP_MSG_TYPE_WATCHDOG;
+        ecCoreMsg.parameters = 0;
+
         /* Construct the final packet */
         ecMsgFrame.header = ecMsgHeader;
         ecMsgFrame.message = ecCoreMsg;
