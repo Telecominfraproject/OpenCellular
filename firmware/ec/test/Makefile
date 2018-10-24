@@ -10,8 +10,8 @@ OCWARE_ROOT ?= ..
 PATHT = suites/
 PATHB = build/
 PATHR = build/results/
-RUNNER_PATH = build/runners/
 PATHC = build/coverage/
+RUNNER_PATH = build/runners/
 
 # Compiler Options
 # =============================================================================
@@ -51,13 +51,14 @@ TESTS ?= $(patsubst $(PATHT)Test%.c,Test%,$(SRCT))
 RESULTS = $(patsubst %,$(PATHR)%.testresults,$(TESTS))
 COVERAGE = $(patsubst %,$(PATHC)%.info,$(TESTS))
 
-# Create the flags to add all individual coverage files
-LCOV_ADD = $(patsubst %,-a %, $(COVERAGE))
-# The directories to ignore in coverage
-LCOV_IGNORE = "*/test/*" "*/Unity/*"
-
 # List of standard files that every test will build (unity, test, test runner)
 STD_FILES=$(PATHB)Test_%$(TARGET_EXTENSION):$(UNITY_ROOT)/src/unity.c $(PATHT)/Test_%.c  build/runners/Test_%_Runner.c
+
+# Create the flags to add all individual coverage files
+LCOV_ADD = $(patsubst %,-a %, $(COVERAGE))
+LCOV_ADD += -a $(PATHC)test-base.info
+# The directories to ignore in coverage
+LCOV_IGNORE = "*/test/*" "*/Unity/*" "*/ti/*"
 
 #We try to detect the OS we are running on, and adjust commands as needed
 ifeq ($(OS),Windows_NT)
@@ -89,6 +90,9 @@ endif
 test: $(BUILD_PATHS) $(RESULTS)
 	ruby $(UNITY_ROOT)/auto/unity_test_summary.rb $(PATHR)
 
+junit: test
+	@ruby $(UNITY_ROOT)/auto/stylize_as_junit.rb -r $(PATHR) -o $(PATHR)/unit-test-results.xml
+
 # Note: we force the rebuild of this target each run to ensure fresh results
 $(PATHR)%.testresults: $(PATHB)%$(TARGET_EXTENSION) FORCE
 	-./$< > $@ 2>&1
@@ -96,13 +100,16 @@ $(PATHR)%.testresults: $(PATHB)%$(TARGET_EXTENSION) FORCE
 $(RUNNER_PATH)Test_%_Runner.c: $(PATHT)Test_%.c
 	ruby $(UNITY_ROOT)/auto/generate_test_runner.rb --suite_setup="extern void suite_setUp(void); suite_setUp();" --suite_teardown="extern void suite_tearDown(void); suite_tearDown(); return num_failures;" $< $@
 
+$(PATHC)test-base.info:
+	@lcov --rc lcov_branch_coverage=1 -c -i -d ../ -o $(PATHC)test-base.info
+
 # Get coverage statistics for every test
 $(COVERAGE): $(PATHC)%.info: $(PATHC)/% $(PATHB)%$(TARGET_EXTENSION) $(PATHC) $(BUILD_PATHS) $(RESULTS)
-	@lcov -c -d $< -o $@ > /dev/null
+	@lcov --rc lcov_branch_coverage=1 -c -d $< -o $@ > /dev/null
 # Combine all test suites coverage info and remove all files that are not src
-coverage: $(COVERAGE) $(PATHC)
-	@lcov $(LCOV_ADD) -o $(PATHC)/test-coverage-all.info > /dev/null
-	@lcov --remove $(PATHC)/test-coverage-all.info  $(LCOV_IGNORE) -o $(PATHC)/test-coverage.info
+coverage: $(COVERAGE) $(PATHC) $(PATHC)test-base.info
+	@lcov --rc lcov_branch_coverage=1 $(LCOV_ADD) -o $(PATHC)/test-coverage-all.info > /dev/null
+	@lcov --rc lcov_branch_coverage=1 --remove $(PATHC)/test-coverage-all.info  $(LCOV_IGNORE) -o $(PATHC)/test-coverage.info
 	
 # Test-specific build rules (add entries here for each new test suite)
 # =============================================================================
@@ -163,25 +170,28 @@ $(PATHB):
 $(PATHR):
 	$(MKDIR) $(PATHR)
 	
-$(RUNNER_PATH):
-	$(MKDIR) $(RUNNER_PATH)
-	
 $(PATHC):
 	$(MKDIR) $(PATHC)
 
+$(RUNNER_PATH):
+	$(MKDIR) $(RUNNER_PATH)
+	
 clean:
 	rm -rf $(PATHB)
 
 .PHONY: clean
 .PHONY: test
+.PHONY: junit
+.PHONY: coverage
 .PHONY: FORCE
 
+# Continuous integration
 ci: CFLAGS += -Werror
 ci: CFLAGS += -ftest-coverage -fprofile-arcs -fprofile-dir=$(PATHC)$*/
 ci: COV_CMDS = @mkdir -p $(PATHC)$* && mv *.gcno $(PATHC)$*
 ci: clean junit coverage
 
-# Add flags and create extra commands to execute after compiler iff coverage is being done. 
+# Test Coverage
 cov: CFLAGS += -ftest-coverage -fprofile-arcs -fprofile-dir=$(PATHC)$*/
 cov: COV_CMDS = @mkdir -p $(PATHC)$* && mv *.gcno $(PATHC)$*
 cov: clean test coverage

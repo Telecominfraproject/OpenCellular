@@ -98,7 +98,11 @@ clean:
 	-rm -rf *.o *.out *.d *.rov.xs $(OUT) $(MAIN_OBJS)
 
 test:
-	cd test && $(MAKE)
+	cd test && $(MAKE) $(TESTFLAGS)
+
+ci: TESTFLAGS = ci
+ci: CFLAGS += -ftest-coverage 
+ci: all test
 
 .PHONY: all oc_connect1 clean test
 
