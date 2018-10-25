@@ -147,8 +147,8 @@ def validate_calibration_folder_both_tx_random_freq_range(context, folder, bw, m
 def validate_eeprom_calibration_both_tx_at_BMT_2_rand(context, bw, cal_tgz_path=None, invert_tx_validation=False):
 
     def check_cal(arg1, arg2):
-    if (arg1 != arg2):
-        print ('arg1 %s, != arg2 %s' % (arg1, arg2))
+        if (arg1 != arg2):
+            print ('arg1 %s, != arg2 %s' % (arg1, arg2))
     #FIXME removing the with for now, everything here was indented under with
     #with context.criteria.evaluate_block() as evaluate_block:
 
