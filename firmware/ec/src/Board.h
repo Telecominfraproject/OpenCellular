@@ -53,7 +53,6 @@ extern "C" {
 #define Board_initUSB               OC_CONNECT1_initUSB
 #define Board_initWatchdog          OC_CONNECT1_initWatchdog
 
-#define Board_EC_FLASH              OC_EC_FLASH_nCS
 #define Board_IOEXP_ALERT           OC_EC_GBC_IOEXP71_ALERT
 #define Board_ECINA_ALERT           OC_EC_GBC_INA_ALERT
 #define Board_APINA_ALERT           OC_EC_GBC_AP_INA_ALERT

@@ -72,7 +72,7 @@ AT45DB_Dev gbc_spi_flash_memory = {
 	            .bus = OC_CONNECT1_SPI0,
 	            .chip_select = &(OcGpio_Pin){ &ec_io, OC_EC_FLASH_nCS },
 	        },
-	        //.pin_evt = NULL,
+	        .pin_alert = NULL,
 	    },
 	    .obj = {},
 };

@@ -5,6 +5,9 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * This file contains SPI driver's API within spi_get_handle, spi_reg_read and
+ * spi_reg_write which ccan be called by device layer to communicate any SPI device.
  */
 
 //*****************************************************************************
@@ -14,7 +17,7 @@
 #include "Board.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/spibus.h"
-#include <inc/global/OC_CONNECT1.h>
+#include "inc/global/OC_CONNECT1.h"
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
 #include <ti/sysbios/knl/Queue.h>
@@ -30,7 +33,17 @@
 #define PIN_LOW  (0)
 #define PIN_HIGH ~(0)
 
-SPI_Handle spi_get_handle(unsigned int index) {
+/*****************************************************************************
+ **    FUNCTION NAME   : spi_get_handle
+ **
+ **    DESCRIPTION     : Initialize SPI Bus
+ **
+ **    ARGUMENTS       : SPI bus index
+ **
+ **    RETURN TYPE     : SPI_Handle (NULL on failure)
+ **
+ *****************************************************************************/
+SPI_Handle spi_get_handle(uint32_t index) {
 
     SPI_Params spiParams;
     SPI_Handle spiHandle;
@@ -44,6 +57,18 @@ SPI_Handle spi_get_handle(unsigned int index) {
     return spiHandle;
 }
 
+/*****************************************************************************
+ **    FUNCTION NAME   : spi_reg_read
+ **
+ **    DESCRIPTION     : Writing device register over SPI bus.
+ **
+ **    ARGUMENTS       : SPI handle, chip select, register address, data, data
+ **
+ **                      length, offset byte, numOfBytes for cmd write count
+ **
+ **    RETURN TYPE     : Success or failure
+ **
+ *****************************************************************************/
 ReturnStatus spi_reg_read(SPI_Handle spiHandle,
                           OcGpio_Pin *chip_select,
                           void *regAddress,
@@ -85,6 +110,18 @@ ReturnStatus spi_reg_read(SPI_Handle spiHandle,
     return (status);
 }
 
+/*****************************************************************************
+ **    FUNCTION NAME   : spi_reg_write
+ **
+ **    DESCRIPTION     : Writing device register over SPI bus.
+ **
+ **    ARGUMENTS       : SPI handle, chip select, register address, data, data
+ **
+ **                      length, offset byte, numOfBytes for cmd write count
+ **
+ **    RETURN TYPE     : Success or failure
+ **
+ *****************************************************************************/
 ReturnStatus spi_reg_write(SPI_Handle spiHandle,
                            OcGpio_Pin *chip_select,
                            void *regAddress,
