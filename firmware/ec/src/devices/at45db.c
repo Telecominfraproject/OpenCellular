@@ -42,7 +42,7 @@
 /*****************************************************************************
  **    FUNCTION NAME   : AT45DB_read_reg
  **
- **    DESCRIPTION     : Write 8 bit value to at45db page or register.
+ **    DESCRIPTION     : Reads 8 bit values from at45db page or register.
  **
  **    ARGUMENTS       : spi device configuration, cmd buffer, register value,
  **                      page offset, numOfBytes to be read, cmd write count.
