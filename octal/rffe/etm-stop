@@ -1,6 +1,5 @@
 #!/bin/sh
 
-cd /usr/bin
 killall pltD 2> /dev/null
 if [ $? -eq 0 ] ; then
 	oncpu 0 /usr/bin/pltD -drv stop > /dev/null

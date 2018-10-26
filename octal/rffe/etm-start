@@ -45,8 +45,7 @@ fi
 etm-stop
 
 tar -zxf ${ETM_TV_DIR}/ETM_${BW}MHz_TV.tgz
-rm -r ${ETM_TV_DIR}/TV
+rm -rf ${ETM_TV_DIR}/TV
 mv -f ${ETM_TV_DIR}/ETM_${BW}MHz_TV/TV ${ETM_TV_DIR}
 rmdir ${ETM_TV_DIR}/ETM_${BW}MHz_TV
-cd /usr/bin
 oncpu 0 /usr/bin/pltD -drv dl -tc 000${etm} -etm ${etm} -ant 2 -c 1 > /dev/null &
