@@ -106,7 +106,7 @@ def validate_pa_current(context, tx):
         pa_volt = context.server.sensor.voltage_tx(tx)
         info = 'PA %d = (%s V, %s A)' % (real_tx(tx), str(pa_volt), str(pa_current))
         context.logger.debug(info)
-        setattr(context.exports, 'PA%d_INFO' % tx, info)
+        # setattr(context.exports, 'PA%d_INFO' % tx, info)
         assert pa_current < context.SAFETY_MAX_PA_CURRENT_A, "PA %d current over limit [%.2f A]" % (tx, pa_current)
         assert pa_volt > context.SAFETY_MIN_PA_VOLTAGE_V, "PA %d voltage under limit [%.2f V]" % (tx, pa_volt)
     except ValueError:
@@ -229,15 +229,16 @@ def ocxo_calibrate(context, iterations, init_pwm):
     pid = PID(p=-2, i=-0.5)
     pid.target = 0
     pwm = init_pwm
-    with context.stack_logger('ocxo'):
-        context.logger.info("Calibrating OCXO Freq")
-        while iterations > 0:
-            context.server.spectrum.read_evm()
-            freq_error = context.server.spectrum.fetch_freq_error()
-            context.logger.debug("Freq error = %d" % freq_error)
-            pwm = int(pwm + pid(freq_error))
-            ocxo_set_pwm_high(context, pwm)
-            iterations = iterations - 1
+    # not sure what stack_logger is , will comment out, all lines after stack_logger and before return were indented
+    # with context.stack_logger('ocxo'):
+    context.logger.info("Calibrating OCXO Freq")
+    while iterations > 0:
+        context.server.spectrum.read_evm()
+        freq_error = context.server.spectrum.fetch_freq_error()
+        context.logger.debug("Freq error = %d" % freq_error)
+        pwm = int(pwm + pid(freq_error))
+        ocxo_set_pwm_high(context, pwm)
+        iterations = iterations - 1
     return pwm
 
 ##endregion
