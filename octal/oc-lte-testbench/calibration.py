@@ -83,12 +83,26 @@ if __name__ == '__main__':
 		#FIXME add ant2
         # rfpal_calibration.FE_TSC220(context)
 
+        from pyscripts.script.system.system_tx import SystemCalib5MHz
+        system_calibration_5MHz = SystemCalib5MHz()
+        system_calibration_5MHz.SY_TSC120(context)
+        # FIXME add ant2
+        # system_calibration_5MHz.SY_TSC220(context)
+        system_calibration_5MHz.SY_TSCX21(context)
+
         from pyscripts.script.system.system_tx import SystemCalib10MHz
         system_calibration_10MHz = SystemCalib10MHz()
         system_calibration_10MHz.SY_TSC110(context)
 		#FIXME add ant2
         # system_calibration_10MHz.SY_TSC210(context)
         system_calibration_10MHz.SY_TSCX11(context)
+
+        from pyscripts.script.system.system_tx import SystemCalib20MHz
+        system_calibration_20MHz = SystemCalib20MHz()
+        system_calibration_20MHz.SY_TSC130(context)
+        # FIXME add ant2
+        # system_calibration_20MHz.SY_TSC230(context)
+        system_calibration_20MHz.SY_TSCX31(context)
 
         from pyscripts.script.system.write_calib import WriteCalibration
         write_calibration = WriteCalibration()
