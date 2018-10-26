@@ -101,7 +101,7 @@ test:
 	cd test && $(MAKE) $(TESTFLAGS)
 
 ci: TESTFLAGS = ci
-ci: CFLAGS += -ftest-coverage 
+ci: CFLAGS += -ftest-coverage
 ci: all test
 
 .PHONY: all oc_connect1 clean test
