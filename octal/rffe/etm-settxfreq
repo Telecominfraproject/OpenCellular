@@ -2,8 +2,9 @@
 
 source /tmp/system.conf
 
-B3_FREQ_MIN=$(expr 1805 + ${BW} / 2)
-B3_FREQ_MAX=$(expr 1880 - ${BW} / 2)
+# Min and Max for all LTE bands using FDD
+FREQ_MIN=$(expr 400 + ${BW} / 2)
+FREQ_MAX=$(expr 3650 - ${BW} / 2)
 
 usage()
 {
@@ -16,10 +17,10 @@ if [ "$#" -ne 1 ]; then
 	usage
 fi
 
-if [ $1 -lt ${B3_FREQ_MIN} ]; then
+if [ $1 -lt ${FREQ_MIN} ]; then
 	echo "Frequency is too low"
 	exit 1
-elif [ $1 -gt ${B3_FREQ_MAX} ]; then
+elif [ $1 -gt ${FREQ_MAX} ]; then
 	echo "Frequency is too high"
 	exit 1
 fi
