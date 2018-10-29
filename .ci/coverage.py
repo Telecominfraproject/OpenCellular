@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from lcov_cobertura import LcovCobertura
 
 LCOV_FILE = 'build/coverage/test-coverage.info'
