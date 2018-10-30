@@ -53,6 +53,7 @@ CONFIGURO = $(XDCTOOLS_DIR)/xs --xdcpath="$(XDCPATH)" \
 # Find all C source/object files.
 SRC_FILE = $(shell find . -name '*.c' ! -path './test/*' ! -path './$(OUT)*')
 MAIN_OBJS = $(SRC_FILE:.c=.o)
+COVERAGE_OBJS = $(SRC_FILE:.c=.gcno)
 
 CC = $(TOOLCHAIN)/bin/arm-none-eabi-gcc
 CFLAGS = -Wall -mcpu=cortex-m4 -mthumb -mabi=aapcs -mapcs-frame @$(OUT)/$(CONFIG)/compiler.opt -O3
@@ -95,10 +96,14 @@ $(OUT)/OpenCellular.bin: $(OUT)/OpenCellular.out
 	$(OBJCOPY) -S -O binary $< $@
 
 clean:
-	-rm -rf *.o *.out *.d *.rov.xs $(OUT) $(MAIN_OBJS)
+	-rm -rf *.o *.out *.d *.rov.xs $(OUT) $(MAIN_OBJS) $(COVERAGE_OBJS)
 
 test:
-	cd test && $(MAKE)
+	cd test && $(MAKE) $(TESTFLAGS)
+
+ci: TESTFLAGS = ci
+ci: CFLAGS += -ftest-coverage
+ci: all test
 
 .PHONY: all oc_connect1 clean test
 
