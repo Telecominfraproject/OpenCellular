@@ -78,6 +78,10 @@ LLIBS += -Wl,--end-group
 
 OBJCOPY = $(TOOLCHAIN)/bin/arm-none-eabi-objcopy
 
+default:
+	$(SHELL) -c 'cd ./platform/oc-sdr/schema; . ./mk_schema.sh'
+	make all
+
 all: oc_connect1
 oc_connect1: $(OUT)/OpenCellular.bin
 
