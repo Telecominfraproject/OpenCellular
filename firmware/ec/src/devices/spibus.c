@@ -150,7 +150,7 @@ ReturnStatus spi_reg_write(SPI_Handle spiHandle,
     spiTransaction.txBuf = data;
     spiTransaction.rxBuf = NULL;
 
-    if(data_size > 0){
+    if(data_size > 0) {
        if (SPI_transfer(spiHandle, &spiTransaction)) {
            status = RETURN_OK;
        } else {
