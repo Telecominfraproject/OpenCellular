@@ -13,6 +13,7 @@
 #include <libgen.h>
 //TEST
 //test2
+//test3
 //#define __filename__    (basename(__FILE__))
 #ifdef CONSOLE_LOG
 #define logit(facility, fmt, ...)                           \
