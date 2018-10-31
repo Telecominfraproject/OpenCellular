@@ -11,7 +11,7 @@
 
 #include <syslog.h>
 #include <libgen.h>
-
+//TEST
 #define __filename__    (basename(__FILE__))
 #ifdef CONSOLE_LOG
 #define logit(facility, fmt, ...)                           \
