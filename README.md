@@ -31,8 +31,8 @@ OpenCellular@fb.com
 
 * Website: oc.telecominfraproject.com
 * github: https://github.com/Telecominfraproject/OpenCellular
-* Project group: http://telecominfraproject.com/project/access-projects/opencellular-wireless-access-platform-design/
-* Mailing list:  
+* Project group: https://www.telecominfraproject.com/opencellular-wireless-access-platform-design/
+* Forum/Mailing list: https://ocforum.telecominfraproject.com/
 
 ## License
 
