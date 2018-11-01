@@ -29,7 +29,8 @@ OpenCellular@fb.com
 
 ## Join the OpenCellular community
 
-* Website: oc.telecominfraproject.com
+* Initial Announcement: https://code.fb.com/connectivity/introducing-opencellular-an-open-source-wireless-access-platform/
+* Website: https://oc.telecominfraproject.com
 * github: https://github.com/Telecominfraproject/OpenCellular
 * Project group: https://www.telecominfraproject.com/opencellular-wireless-access-platform-design/
 * Forum/Mailing list: https://ocforum.telecominfraproject.com/
