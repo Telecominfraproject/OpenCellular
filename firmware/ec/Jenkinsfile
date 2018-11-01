@@ -18,23 +18,15 @@ node {
       }
             
       try {
-          stage('Unit Test') {
-              dir ("firmware/ec/test"){ sh 'make ci' }
+          stage('Build and Unit Test') {
+              dir ("firmware/ec"){ sh 'make ci' }
           }
       } catch (err) {
           currentBuild.result = 'FAILURE'
       } finally {
+        warnings consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']]
         junit 'firmware/ec/test/build/results/unit-test-results.xml'
       }
           
-      try {
-          stage('Firmware Build') {
-            dir ('firmware/ec') { sh 'make clean all' }
-          }
-      } catch (err) {
-        currentBuild.result = 'FAILURE'
-      } finally {
-        warnings consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']]
-      } 
     }
 }

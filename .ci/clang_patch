@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#find . -iname *.h -o -iname *.c -o -iname *.cpp -o -iname *.hpp \
+# Get all files that are different from master and only lint those. 
 fileList=`git --no-pager diff --name-only HEAD master | grep ".\.c$\|.\.h$"`
 for f in $fileList; do
    clang-format -style=file -i ${f}
