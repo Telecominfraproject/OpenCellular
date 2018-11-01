@@ -1,32 +1,37 @@
 node {
   currentBuild.result = 'SUCCESS'
-    withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi", "OCWARE_DIR=./"]) {
-      stage('Checkout') {
-        step([$class: 'WsCleanup'])
-        echo 'Checking out SCM'
-        checkout scm
-      }
-
-      try {
-          stage('Static Analysis') {
-              dir ('firmware/ec') { sh 'bash ../../.ci/clang_patch' }
-          }
-      } catch (err) {
-          currentBuild.result = 'ERROR'
-      } finally {
-        archiveArtifacts '**/clang_format.patch'
-      }
-            
-      try {
-          stage('Build and Unit Test') {
-              dir ("firmware/ec"){ sh 'make ci' }
-          }
-      } catch (err) {
-          currentBuild.result = 'FAILURE'
-      } finally {
-        warnings consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']]
-        junit 'firmware/ec/test/build/results/unit-test-results.xml'
-      }
-          
+  withEnv(["UNITY_ROOT=$HOME/Unity", "TOOLCHAIN=$HOME/gcc-arm-none-eabi", "OCWARE_DIR=./"]) {
+    stage('Checkout') {
+      step([$class: 'WsCleanup'])
+      echo 'Checking out SCM'
+      checkout scm
     }
+
+    try {
+      stage('Static Analysis') {
+        sh 'bash .ci/clang_patch'
+      }
+    } catch (err) {
+      currentBuild.result = 'ERROR'
+    } finally {
+      archiveArtifacts 'clang_format.patch'
+    }
+
+    try {
+      stage('Build and Unit Test') {
+        dir ("firmware/ec"){ 
+          sh 'make ci' 
+          sh 'python ../../.ci/coverage.py'
+        }
+      }
+    } catch (err) {
+      currentBuild.result = 'FAILURE'
+    } finally {
+      warnings consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']]
+      junit 'firmware/ec/test/build/results/unit-test-results.xml'
+      step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false,\
+      coberturaReportFile: '**/test-coverage.xml', failUnhealthy: false, failUnstable: false,\
+      maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+    }
+  }
 }

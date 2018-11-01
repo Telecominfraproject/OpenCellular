@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # Get all files that are different from master and only lint those. 
-fileList=`git --no-pager diff --name-only HEAD master | grep ".\.c$\|.\.h$"`
+fileList=`git --no-pager diff --name-only HEAD master ./firmware/ec | grep ".\.c$\|.\.h$"`
 for f in $fileList; do
    clang-format -style=file -i ${f}
 done
-
+echo "Linting the following files:"
+echo $fileList
 git diff > clang_format.patch
 
 # Delete if 0 size and exit with 0
