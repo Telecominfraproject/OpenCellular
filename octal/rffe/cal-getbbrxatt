@@ -31,8 +31,20 @@ else
     >&2 usage
 fi
 
+#################  Find Band  #####################
+if [ ${RX_FREQ} -ge 703 ] && [ ${RX_FREQ} -le 748 ]; then
+    BAND=28
+elif [ ${RX_FREQ} -ge 824 ] && [ ${RX_FREQ} -le 849 ]; then
+    BAND=5
+elif [ ${RX_FREQ} -ge 1710 ] && [ ${RX_FREQ} -le 1785 ]; then
+    BAND=3
+else
+    #Implement your band above
+    BAND=0
+fi
+
 ##################  Get Calibaration file  ######################
-CAL_FNAME="$CAL_FOLDER/bbrxatten_b3_${BW}_ant${ANT}.cal"
+CAL_FNAME="$CAL_FOLDER/bbrxatten_b${BAND}_${BW}_ant${ANT}.cal"
 
 #################  Check Calibaration file  #####################
 if [ ! -e ${CAL_FNAME} ]; then
