@@ -20,6 +20,16 @@ case $HW_REVISION in
 		echo 127 > ${SNIFF_ATT}
 		echo 0 > ${SNIFF_LNA_EN}
 		;;
+	C)
+		echo "Benetel"
+oncpu 0 /usr/bin/cn_rfdriver << eof > /dev/null
+w
+27
+20
+q
+eof
+		exit 0
+		;;
 	E )
 		
 		fe-setsniffercircuit --off 2> /dev/null

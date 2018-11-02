@@ -5,8 +5,7 @@ VERSION=1.3
 HW_REVISION_SUPPORTED="A D E"
 
 periodCheckAlert=15 #seconds,  period to check alert
-#FIXME periodReadjustTx default is 300, changed to 10 for testing
-periodReadjustTx=10 #seconds, period to readjust tx attenuation
+periodReadjustTx=300 #seconds, period to readjust tx attenuation
 PERIOD_CHECK_CELL_STATE=300 #seconds, period to readjust tx attenuation
 
 EEPROM="/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0051/eeprom"
@@ -336,8 +335,8 @@ loop()
 			log $LOG_LEVEL_EMERGENCY "could not get Front-End temperature"
 			exit 1
 		fi
-		tempLed=$(fe-gettemperature  led)
 		#FIXME commenting out LED for now
+		#tempLed=$(fe-gettemperature  led)
 		#if [ $? -ne 0 ] ; then
 		#	log $LOG_LEVEL_EMERGENCY "could not get LED Board temperature, NO EXIT"
 		#	#exit 1

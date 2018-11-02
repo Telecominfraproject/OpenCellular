@@ -25,8 +25,10 @@ fi
 if [ -r /sys/devices/soc.0/0.tip/fe_version_code ]; then
 	echo $(cat /sys/devices/soc.0/0.tip/fe_version_code);
 else
-	echo "$0 - ERROR hardware revision code is not detected"
-	exit 1
+#	echo "$0 - ERROR hardware revision code is not detected"
+#	exit 1
+#	To Do - fix the rev read so that it returns HW revision
+	echo "C"
 fi
 
 exit 0
