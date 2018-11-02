@@ -17,9 +17,12 @@
 #     3. JSON schema source file has been updated
 #   Else do nothing
 #
-VAL_FNAME="valid_schema.json"
-INPUT_FNAME="sys_schema.json"
-OUTPUT_FNAME="auto_schema.c"
+VAL_FNAME=valid_schema.json
+SCHEMAPATH=../../ec/platform/oc-sdr/schema
+JSON_FNAME=sys_schema.json
+C_FNAME=auto_schema.c
+INPUT_FNAME=$SCHEMAPATH/$JSON_FNAME
+OUTPUT_FNAME=$SCHEMAPATH/$C_FNAME
 
 gen_schema()
 {
@@ -27,19 +30,19 @@ gen_schema()
 }
 
 if [ ! -e $INPUT_FNAME ]; then
-   echo "ERROR: $INPUT_FNAME does not exist" 1>&2
+   echo "ERROR: $JSON_FNAME does not exist" 1>&2
    exit 1
 fi
 
 if [ ! -e $OUTPUT_FNAME ]; then
-   echo "Generating $OUTPUT_FNAME because it does not exist"
+   echo "Generating $C_FNAME because it does not exist"
    gen_schema
 elif [ ! -e $VAL_FNAME ]; then
-   echo "Generating $OUTPUT_FNAME because validation file does not exist"
+   echo "Generating $C_FNAME because validation file does not exist"
    gen_schema
 elif [ $INPUT_FNAME -nt $VAL_FNAME ] || [ $INPUT_FNAME -nt $OUTPUT_FNAME ]; then
-   echo "Generating $OUTPUT_FNAME because $INPUT_FNAME has been updated"
+   echo "Generating $C_FNAME because $JSON_FNAME has been updated"
    gen_schema
 else
-   echo "$OUTPUT_FNAME does not need an update"
+   echo "$C_FNAME does not need an update"
 fi

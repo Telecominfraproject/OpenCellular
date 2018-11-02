@@ -18,7 +18,7 @@
   Example 1:
       Check the JSON schema declaration and generate the C-file
       required by the firmware and middleware
-      $ python3 sdtester.py -j sys_schema.json -c auto_schema.c -d d4
+      $ python3 sdtester.py -j ../../ec/platform/oc-sdr/schema/sys_schema.json -c ../../ec/platform/oc-sdr/schema/auto_schema.c -d d4
 
   Example 2:
       Same as previous example but with all defaults
@@ -26,7 +26,7 @@
 
   Example 3:
       Generate the JSON schema from a given C-file
-      $ python3 sdtester.py -g -c schema.c -j sys_schema.json
+      $ python3 sdtester.py -g -c ../../ec/platform/oc-sdr/schema/schema.c -j ../../ec/platform/oc-sdr/schema/sys_schema.json
 
   Example 4:
       Same as previous example but with all defaults
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         '-j',
         dest='json_fname',
         action='store',
-        default='sys_schema.json',
+        default='../../ec/platform/oc-sdr/schema/sys_schema.json',
         type=str,
         help='JSON file where configuration schema is declared',
     )
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         '-c',
         dest='c_fname',
         action='store',
-        default='auto_schema.c',
+        default='../../ec/platform/oc-sdr/schema/auto_schema.c',
         type=str,
         help='Name of C-file to be read from or written to',
     )

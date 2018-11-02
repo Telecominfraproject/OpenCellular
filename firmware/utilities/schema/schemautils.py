@@ -72,10 +72,6 @@ class SchemaUtils:
         """
         Write C-file from validated schema
         """
-        # with open('valid_schema.json', 'r') as f:
-        #     lines = f.readlines()
-        # schema = ''.join(str(line) for line in lines)
-        #
         # Remove all JSON format features
         schema, decls = SchemaUtils.strip(self.sys_schema)
         # Format values as required for each data type
@@ -268,6 +264,10 @@ class SchemaUtils:
         cpw.append('* found in the LICENSE file in the root directory of this')
         cpw.append('* source tree. An additional grant of patent rights can be')
         cpw.append('* found in the PATENTS file in the same directory.')
+        cpw.append('*')
+        cpw.append('* WARNING: Do not modify this file by hand.  It is auto')
+        cpw.append('*          generated from the json schema definition.')
+        cpw.append('*          Refer to sdtester.py')
         cpw.append('*/\n')
         cpw.append('#include "auto_schema.h"\n\n')
         f.write('\n'.join(line for line in cpw))
