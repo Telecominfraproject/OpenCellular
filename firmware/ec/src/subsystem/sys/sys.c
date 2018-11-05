@@ -6,20 +6,43 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/subsystem/sys/sys.h"
 
 #include "common/inc/global/Framework.h"
+#include "helpers/memory.h"
+#include "inc/common/bigbrother.h"
+#include "inc/common/global_header.h"
 #include "inc/common/post.h"
 #include "inc/devices/eeprom.h"
 #include "inc/subsystem/gpp/gpp.h" /* For resetting AP */
-
+#include "inc/subsystem/sys/sys.h"
+#include "inc/utils/ocmp_util.h"
+#include "src/filesystem/fs_wrapper.h"
 #include <driverlib/flash.h>
 #include <driverlib/sysctl.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Semaphore.h>
+#include <ti/sysbios/knl/Queue.h>
+#include <ti/sysbios/knl/Task.h>
+#include <xdc/std.h>
+#include <xdc/cfg/global.h>
+#include <xdc/runtime/System.h>
 
-#include <stdio.h>
-#include <string.h>
+#define FRAME_SIZE 64
+#define OCFS_TASK_PRIORITY 5
+#define OCFS_TASK_STACK_SIZE 4096
 
-#define OC_MAC_ADDRESS_SIZE 13
+Task_Struct ocFSTask;
+Char ocFSTaskStack[OCFS_TASK_STACK_SIZE];
+
+Semaphore_Handle semFilesysMsg;
+
+Semaphore_Struct semFSstruct;
+
+static Queue_Struct fsRxMsg;
+static Queue_Struct fsTxMsg;
+
+Queue_Handle fsRxMsgQueue;
+Queue_Handle fsTxMsgQueue;
 
 extern POSTData PostResult[POST_RECORDS];
 
@@ -52,7 +75,6 @@ bool SYS_cmdEcho(void *driver, void *params)
     return true;
 }
 
-/*
 /*****************************************************************************
  **    FUNCTION NAME   : SYS_post_enable
  **
@@ -133,4 +155,31 @@ bool SYS_post_get_results(void **getpostResult)
     }
     memcpy(((OCMPMessageFrame *)getpostResult), postResultMsg, 64);
     return status;
+}
+
+bool sys_post_init(void *driver, void *returnValue)
+{
+    Semaphore_construct(&semFSstruct, 0, NULL);
+    semFilesysMsg = Semaphore_handle(&semFSstruct);
+    if (!semFilesysMsg) {
+        LOGGER_DEBUG("FS:ERROR:: Failed in Creating Semaphore");
+        return false;
+    }
+    /* Create Message Queue for RX Messages */
+    fsTxMsgQueue = Util_constructQueue(&fsTxMsg);
+    if (!fsTxMsgQueue) {
+        LOGGER_ERROR("FS:ERROR:: Failed in Constructing Message Queue for");
+        return false;
+    }
+    Task_Params taskParams;
+    Task_Params_init(&taskParams);
+    taskParams.stackSize = OCFS_TASK_STACK_SIZE;
+    taskParams.stack = &ocFSTaskStack;
+    taskParams.instance->name = "FS_TASK";
+    taskParams.priority = OCFS_TASK_PRIORITY;
+    taskParams.arg0 = (UArg)driver;
+    taskParams.arg1 = (UArg)returnValue;
+    Task_construct(&ocFSTask, fs_init, &taskParams, NULL);
+    LOGGER_DEBUG("FS:INFO:: Creating filesystem task function.\n");
+    return true;
 }

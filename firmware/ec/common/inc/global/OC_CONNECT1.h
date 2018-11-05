@@ -209,6 +209,15 @@ typedef enum OC_CONNECT1_I2CName {
 } OC_CONNECT1_I2CName;
 
 /*!
+ *  @def    DK_TM4C129X_SPIName
+ *  @brief  Enum of SPI names on the DK_TM4C129X dev board
+ */
+typedef enum DK_TM4C129X_SPIName {
+    OC_CONNECT1_SPI0 = 0,
+    OC_CONNECT1_SPICOUNT
+} OC_CONNECT1_SPIName;
+
+/*!
  *  @def    OC_CONNECT1_debugMdioName
  *  @brief  Enum of debug MDIO names for Ethernet components
  */

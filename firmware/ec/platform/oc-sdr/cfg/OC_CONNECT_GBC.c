@@ -25,6 +25,8 @@
 #include "inc/subsystem/power/power.h"
 #include "inc/devices/eth_sw.h"
 #include "inc/devices/eeprom.h"
+#include "inc/common/spibus.h"
+#include "inc/devices/at45db.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -63,6 +65,19 @@ Eeprom_Cfg eeprom_gbc_inv = {
 /*****************************************************************************
  *                               SYSTEM CONFIG
  *****************************************************************************/
+/* SPI AT45DB Flash Config */
+AT45DB_Dev gbc_spi_flash_memory = {
+    .cfg =
+        {
+            .dev =
+                {
+                    .bus = OC_CONNECT1_SPI0,
+                    .chip_select = &(OcGpio_Pin){ &ec_io, OC_EC_FLASH_nCS },
+                },
+            .pin_alert = NULL,
+        },
+    .obj = {},
+};
 /* Power SubSystem Config */
 // Lead Acid Temperature sensor.
 SE98A_Dev gbc_pwr_lead_acid_ts = {

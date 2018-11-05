@@ -274,6 +274,8 @@ extern GPIO_PinConfig gpioPinConfigs[];
 GPIO_PinConfig gpioPinConfigs[OC_EC_GPIOCOUNT] = {
     [OC_EC_SOC_UART3_TX] =
         GPIOTiva_PA_5 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
+    [OC_EC_FLASH_nCS] = GPIOTiva_PB_4 | GPIO_CFG_OUT_STD |
+                        GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
     [OC_EC_SDR_INA_ALERT] =
         GPIOTiva_PD_2 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
     [OC_EC_PWR_PSE_RESET] = GPIOTiva_PD_3 | GPIO_CFG_OUT_STD |
@@ -649,6 +651,66 @@ void OC_CONNECT1_initI2C(void)
     GPIOPinTypeI2C(GPIO_PORTA_BASE, GPIO_PIN_3);
 
     I2C_init();
+}
+
+/*
+ *  =============================== SPI ===============================
+ */
+/* Place into subsections to allow the TI linker to remove items properly */
+#if defined(__TI_COMPILER_VERSION__)
+#    pragma DATA_SECTION(SPI_config, ".const:SPI_config")
+#    pragma DATA_SECTION(spiTivaDMAHWAttrs, ".const:spiTivaDMAHWAttrs")
+#endif
+
+#include <ti/drivers/SPI.h>
+#include <ti/drivers/spi/SPITivaDMA.h>
+
+SPITivaDMA_Object spiTivaDMAObjects[OC_CONNECT1_SPICOUNT];
+
+#if defined(__TI_COMPILER_VERSION__)
+#    pragma DATA_ALIGN(spiTivaDMAscratchBuf, 32)
+#elif defined(__IAR_SYSTEMS_ICC__)
+#    pragma data_alignment = 32
+#elif defined(__GNUC__)
+__attribute__((aligned(32)))
+#endif
+uint32_t spiTivaDMAscratchBuf[OC_CONNECT1_SPICOUNT];
+
+const SPITivaDMA_HWAttrs spiTivaDMAHWAttrs[OC_CONNECT1_SPICOUNT] = {
+    { .baseAddr = SSI1_BASE,
+      .intNum = INT_SSI1,
+      .intPriority = (~0),
+      .scratchBufPtr = &spiTivaDMAscratchBuf[0],
+      .defaultTxBufValue = 0,
+      .rxChannelIndex = UDMA_CHANNEL_SSI1RX,
+      .txChannelIndex = UDMA_CHANNEL_SSI1TX,
+      .channelMappingFxn = uDMAChannelAssign,
+      .rxChannelMappingFxnArg = UDMA_CH24_SSI1RX,
+      .txChannelMappingFxnArg = UDMA_CH25_SSI1TX },
+};
+
+const SPI_Config SPI_config[] = {
+    [OC_CONNECT1_SPI0] = { .fxnTablePtr = &SPITivaDMA_fxnTable,
+                           .object = &spiTivaDMAObjects[OC_CONNECT1_SPI0],
+                           .hwAttrs = &spiTivaDMAHWAttrs[OC_CONNECT1_SPI0] },
+    { NULL, NULL, NULL },
+};
+/*
+ *  ======== OC_CONNECT1_initSPI ========
+ */
+void OC_CONNECT1_initSPI(void)
+{
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_SSI1);
+    GPIOPinConfigure(GPIO_PB5_SSI1CLK);
+    GPIOPinConfigure(GPIO_PB4_SSI1FSS);
+    GPIOPinConfigure(GPIO_PE4_SSI1XDAT0);
+    GPIOPinConfigure(GPIO_PE5_SSI1XDAT1);
+
+    GPIOPinTypeSSI(GPIO_PORTB_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+    GPIOPinTypeSSI(GPIO_PORTE_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+
+    OC_CONNECT1_initDMA();
+    SPI_init();
 }
 
 /*
