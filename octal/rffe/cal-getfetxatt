@@ -94,13 +94,16 @@ if [ -z "$BW" ] || [ -z "$ANT" ] || [ -z "$TX_FREQ" ] || [ -z "$TX_POWER" ]; the
     >&2 usage
 fi
 
-##################  Get Calibaration file  ######################
+#################  Get Band  #####################
+TX_BAND=$(bb-gettxband ${TX_FREQ} 2> /dev/null)
+
+##################  Get Calibration file  ######################
 if [ -z "$CAL_FOLDER" ]; then
     CAL_FOLDER=${CALIBRATION_FOLDER_DEFAULT}
 fi
-CAL_FNAME="$CAL_FOLDER/fetxatten_b3_${BW}_ant${ANT}.cal"
+CAL_FNAME="$CAL_FOLDER/fetxatten_b${TX_BAND}_${BW}_ant${ANT}.cal"
 
-#################  Check Calibaration file  #####################
+#################  Check Calibration file  #####################
 if [ ! -e ${CAL_FNAME} ]; then
     echo "$0 - The file $CAL_FNAME not found!"
     exit 1

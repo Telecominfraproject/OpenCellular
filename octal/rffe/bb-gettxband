@@ -1,0 +1,33 @@
+#!/bin/sh
+
+usage()
+{
+    echo "Usage: $0 <FRE>"
+    echo ""
+    echo "    Extract the Baseband TX attenuation settings from the calibration files"
+    echo ""
+    echo "    FREQ          Frequency of BB TX"
+    exit 1
+}
+
+#################  Check and Get Arguments  #####################
+if [ "$#" -eq 1 ]; then
+    TX_FREQ=$1
+else
+    echo "$0 - Error : Invalid number of argument $#"
+    >&2 usage
+fi
+
+#################  Find Band  #####################
+if [ ${TX_FREQ} -ge 758 ] && [ ${TX_FREQ} -le 803 ]; then
+    TX_BAND=28
+elif [ ${TX_FREQ} -ge 869 ] && [ ${TX_FREQ} -le 894 ]; then
+    TX_BAND=5
+elif [ ${TX_FREQ} -ge 1805 ] && [ ${TX_FREQ} -le 1880 ]; then
+    TX_BAND=3
+else
+    #Implement your band above
+    TX_BAND=0
+fi
+
+echo $TX_BAND

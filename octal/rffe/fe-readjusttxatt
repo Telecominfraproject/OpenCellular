@@ -107,7 +107,16 @@ while [ $# -gt 0 ] ; do
     shift
 done
 
-TX_FREQ_ARG=${TX_FREQ}
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error to get hardware revision "
+    exit 1
+fi
+
+if [ "$HW_REVISION" == "X" ]; then
+     exit 0
+fi
+
 ####################  Source system.conf  #######################
 if [ ! -z $SYSCFG_DIR ] ; then
     if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
@@ -157,9 +166,6 @@ fi
 
 TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
 
-if [ ! -z ${TX_FREQ_ARG} ] ; then
-	TX_FREQ=${TX_FREQ_ARG}
-fi
 #######################  Check BandWidth  #######################
 if [ -z $TX_BW ] ; then
     TX_BW=${BW}

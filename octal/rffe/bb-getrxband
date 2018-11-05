@@ -1,0 +1,33 @@
+#!/bin/sh
+
+usage()
+{
+    echo "Usage: $0 <FRE>"
+    echo ""
+    echo "    Find the Baseband RX band based on frequency"
+    echo ""
+    echo "    FREQ          Frequency of BB RX"
+    exit 1
+}
+
+#################  Check and Get Arguments  #####################
+if [ "$#" -eq 1 ]; then
+    RX_FREQ=$1
+else
+    echo "$0 - Error : Invalid number of argument $#"
+    >&2 usage
+fi
+
+#################  Find Band  #####################
+if [ ${RX_FREQ} -ge 703 ] && [ ${RX_FREQ} -le 748 ]; then
+    BAND=28
+elif [ ${RX_FREQ} -ge 824 ] && [ ${RX_FREQ} -le 849 ]; then
+    BAND=5
+elif [ ${RX_FREQ} -ge 1710 ] && [ ${RX_FREQ} -le 1785 ]; then
+    BAND=3
+else
+    #Implement your band above
+    BAND=0
+fi
+
+echo $BAND

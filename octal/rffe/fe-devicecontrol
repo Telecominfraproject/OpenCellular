@@ -54,6 +54,17 @@ else
     done
 fi 
 
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error to get hardware revision "
+    exit 1
+fi
+
+if [ "$HW_REVISION" == "X" ]; then
+     echo 1
+     exit 0
+fi
+
 if [ ! -z $PA1 ]; then
     if [ $PA1 == "on" ]; then
         echo "enabled" > ${PA0_EN}

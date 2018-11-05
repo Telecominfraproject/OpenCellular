@@ -28,7 +28,7 @@ else
 #	echo "$0 - ERROR hardware revision code is not detected"
 #	exit 1
 #	To Do - fix the rev read so that it returns HW revision
-	echo "C"
+	echo "X"
 fi
 
 exit 0

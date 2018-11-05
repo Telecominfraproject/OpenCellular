@@ -1,5 +1,8 @@
 #!/bin/sh
 
+HW_REVISION=""
+TEMP=
+
 usage()
 {
     echo "Usage: $0 <Temperature Sensor>"
@@ -14,42 +17,64 @@ if [ "$#" -ne 1 ]; then
     >&2 usage
     exit 1
 else
+    HW_REVISION=$(fe-gethdrev 2> /dev/null)
+    if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+    fi
+
     case $1 in
         -h | --help )
             usage
             exit
             ;;
         pa1 | PA1)
-			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input ]; then
-				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input);
+        	if [ "$HW_REVISION" == "X" ]; then
+			echo 25000
+		else
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input ]; then		
+				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input);
 			else
 				echo "$0 - ERROR PA1 temperature sensor is not detected"
 				exit 1
 			fi
+		fi
             ;;
         pa2 | PA2)
-			if [ -r /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input ]; then
-				echo $(cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input);
-            else
+        	if [ "$HW_REVISION" == "X" ]; then
+			echo 25000
+		else
+			if [ -r /sys/devices/soc.0/1180000001000.i2c/i2c-1/1-004a/temp1_input ]; then		
+				echo$(cat /sys/devices/soc.0/1180000001000.i2c/i2c-1/1-004a/temp1_input);
+			else
 				echo "$0 - ERROR PA2 temperature sensor is not detected"
 				exit 1
 			fi
-            ;;
+		fi
+           ;;
         fe | FE)
-			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then
-				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
-            else
+        	if [ "$HW_REVISION" == "X" ]; then
+			echo 25000
+		else
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then		
+				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
+			else
 				echo "$0 - ERROR Front-End temperature sensor is not detected"
 				exit 1
 			fi
+		fi
             ;;
         led | LED)
-			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f/temp1_input ]; then
-				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004f/temp1_input);
-            else
-				echo "$0 - ERROR LED Board temperature sensor is not detected"
+        	if [ "$HW_REVISION" == "X" ]; then
+			echo 25000
+		else
+			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then		
+				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
+			else
+				echo "$0 - ERROR LED board temperature sensor is not detected"
 				exit 1
 			fi
+		fi
             ;;
         * )
             usage

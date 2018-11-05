@@ -39,10 +39,13 @@ else
     >&2 usage
 fi
 
-##################  Get Calibaration file  ######################
-CAL_FNAME="$CAL_FOLDER/fefbatten_b3_${BW}_ant${ANT}.cal"
+#################  Get Band  #####################
+TX_BAND=$(bb-gettxband ${TX_FREQ} 2> /dev/null)
 
-#################  Check Calibaration file  #####################
+##################  Get Calibration file  ######################
+CAL_FNAME="$CAL_FOLDER/fefbatten_b${TX_BAND}_${BW}_ant${ANT}.cal"
+
+#################  Check Calibration file  #####################
 if [ ! -e ${CAL_FNAME} ]; then
     echo "$0 - The file $CAL_FNAME not found!"
     exit 1

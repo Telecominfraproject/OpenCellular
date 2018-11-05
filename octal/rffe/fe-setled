@@ -1,5 +1,6 @@
 #!/bin/sh
 
+HW_REVISION=""
 
 usage()
 {
@@ -13,32 +14,58 @@ usage()
 
 turnOffAllLeds()
 {
-    for i in /sys/devices/soc.0/0.leds/leds/* ;do
-        echo 0 > $i/brightness
-        if [ $? -ne 0 ] ; then
-            echo "$0 - Error Set LED OFF : $i/brightness"
-            exit 1
-        fi
-    done
+    if [ "$HW_REVISION" == "X" ]; then
+        # init i2c expanders to drive LEDs
+        i2cset -y 0 0x3E 0x0A 0xFF > /dev/null
+        i2cset -y 0 0x3E 0x0B 0xFF > /dev/null
+        i2cset -y 0 0x3E 0x0C 0xFF > /dev/null
+        i2cset -y 0 0x3E 0x0D 0xFF > /dev/null
+        i2cset -y 0 0x3F 0x0A 0xFF > /dev/null
+        i2cset -y 0 0x3F 0x0B 0xFF > /dev/null
+        i2cset -y 0 0x3F 0x0C 0xFF > /dev/null
+        i2cset -y 0 0x3F 0x0D 0xFF > /dev/null
+    
+        # set LEDs off
+        i2cset -y 0 0x3E 0x10 0x00 > /dev/null
+        i2cset -y 0 0x3E 0x11 0x00 > /dev/null
+        i2cset -y 0 0x3F 0x10 0x00 > /dev/null
+        i2cset -y 0 0x3F 0x11 0x00 > /dev/null
+    else
+        for i in /sys/devices/soc.0/0.leds/leds/* ;do
+            echo 0 > $i/brightness
+            if [ $? -ne 0 ] ; then
+                echo "$0 - Error Set LED OFF : $i/brightness"
+                exit 1
+            fi
+        done
+    fi
 }
 
 redLed()
 {
     if [ "$1" == "on" ]; then
-        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
-            echo 255 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set RED LED ON : $i/brightness"
-                exit 1
-            fi
-        done
-        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
-            echo 0 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set RED LED ON : $i/brightness"
-                exit 1
-            fi
-        done
+        if [ "$HW_REVISION" == "X" ]; then
+            # set red LEDs on
+            i2cset -y 0 0x3E 0x10 0x55 > /dev/null
+            i2cset -y 0 0x3E 0x11 0x55 > /dev/null
+            i2cset -y 0 0x3F 0x10 0x55 > /dev/null
+            i2cset -y 0 0x3F 0x11 0x55 > /dev/null
+        else
+            for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+                echo 255 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set RED LED ON : $i/brightness"
+                    exit 1
+                fi
+            done
+            for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+                echo 0 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set RED LED ON : $i/brightness"
+                    exit 1
+                fi
+            done
+        fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
     else
@@ -51,20 +78,28 @@ redLed()
 greenLed()
 {
     if [ "$1" == "on" ]; then
-        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
-            echo 0 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set LED GREEN ON : $i/brightness"
-                exit 1
-            fi
-        done
-        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
-            echo 255 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set LED GREEN ON : $i/brightness"
-                exit 1
-            fi
-        done
+        if [ "$HW_REVISION" == "X" ]; then
+            # set red LEDs on
+            i2cset -y 0 0x3E 0x10 0xAA > /dev/null
+            i2cset -y 0 0x3E 0x11 0xAA > /dev/null
+            i2cset -y 0 0x3F 0x10 0xAA > /dev/null
+            i2cset -y 0 0x3F 0x11 0xAA > /dev/null
+        else
+            for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+                echo 0 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set LED GREEN ON : $i/brightness"
+                    exit 1
+                fi
+            done
+            for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+                echo 255 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set LED GREEN ON : $i/brightness"
+                    exit 1
+                fi
+            done
+        fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
     else
@@ -76,20 +111,28 @@ greenLed()
 orangeLed()
 {
     if [ "$1" == "on" ]; then
-        for i in /sys/devices/soc.0/0.leds/leds/red* ;do
-            echo 255 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set LED ORANGE ON : $i/brightness"
-                exit 1
-            fi
-        done
-        for i in /sys/devices/soc.0/0.leds/leds/green* ;do
-            echo 255 > $i/brightness
-            if [ $? -ne 0 ] ; then
-                echo "$0 - Error Set LED ORANGE ON : $i/brightness"
-                exit 1
-            fi
-        done
+        if [ "$HW_REVISION" == "X" ]; then
+            # set red LEDs on
+            i2cset -y 0 0x3E 0x10 0xFF > /dev/null
+            i2cset -y 0 0x3E 0x11 0xFF > /dev/null
+            i2cset -y 0 0x3F 0x10 0xFF > /dev/null
+            i2cset -y 0 0x3F 0x11 0xFF > /dev/null
+        else
+            for i in /sys/devices/soc.0/0.leds/leds/red* ;do
+                echo 255 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set LED ORANGE ON : $i/brightness"
+                    exit 1
+                fi
+            done
+            for i in /sys/devices/soc.0/0.leds/leds/green* ;do
+                echo 255 > $i/brightness
+                if [ $? -ne 0 ] ; then
+                    echo "$0 - Error Set LED ORANGE ON : $i/brightness"
+                    exit 1
+                fi
+            done
+        fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
     else
@@ -105,6 +148,12 @@ if [ "$1" == "" ]; then
     >&2 usage
     exit 1
 else
+    HW_REVISION=$(fe-gethdrev 2> /dev/null)
+    if [ $? -ne 0 ] ; then
+	echo "$0 - Error to get hardware revision "
+	exit 1
+    fi
+
     case $1 in
         -h | --help )
             usage

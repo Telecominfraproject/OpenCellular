@@ -51,18 +51,22 @@ if [ $? -ne 0 ] ; then
 	exit 1
 fi
 
-eval DEVICE_FILE=\$"REV${HW_REVISION}_${DEVICE}_PA_CURRENT_SENSOR_FILE"
 
-if [ -z $DEVICE_FILE ] ; then
+if [ "$HW_REVISION" == "X" ]; then
+    echo 0
+else
+    eval DEVICE_FILE=\$"REV${HW_REVISION}_${DEVICE}_PA_CURRENT_SENSOR_FILE"
+
+    if [ -z $DEVICE_FILE ] ; then
 	echo "Hardware Rev $HW_REVISION is not supported."
 	exit 1
-fi
-
-if [ -r $DEVICE_FILE ]; then
+    fi
+    if [ -r $DEVICE_FILE ]; then
 	echo $(cat $DEVICE_FILE);
-else
+    else
 	echo "$0 - ERROR : ${DEVICE} current sensor is not detected"
 	exit 1
+    fi
 fi
 
 exit 0

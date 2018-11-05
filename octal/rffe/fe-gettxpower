@@ -59,6 +59,16 @@ else
     done
 fi
 
+HW_REVISION=$(fe-gethdrev 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error to get hardware revision "
+    exit 1
+fi
+
+if [ "$HW_REVISION" == "X" ]; then
+     exit 0
+fi
+
 if [ ${TX_CHANNEL} -eq 1 ]; then
 	if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0040/curr1_input ]; then
 		X="$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0028/iio:device1/in_voltage0_raw)"

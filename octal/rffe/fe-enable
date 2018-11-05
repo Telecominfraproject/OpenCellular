@@ -20,7 +20,15 @@ case $HW_REVISION in
 		echo 127 > ${SNIFF_ATT}
 		echo 0 > ${SNIFF_LNA_EN}
 		;;
-	C)
+	E )
+		
+		fe-setsniffercircuit --off 2> /dev/null
+		if [ $? -ne 0 ] ; then
+			echo "$0 - Error to set sniffer off "
+			exit 1
+		fi
+		;;
+	X )
 		echo "Benetel"
 oncpu 0 /usr/bin/cn_rfdriver << eof > /dev/null
 w
@@ -29,14 +37,6 @@ w
 q
 eof
 		exit 0
-		;;
-	E )
-		
-		fe-setsniffercircuit --off 2> /dev/null
-		if [ $? -ne 0 ] ; then
-			echo "$0 - Error to set sniffer off "
-			exit 1
-		fi
 		;;
 	* )
 		echo "Hardware Rev $HW_REVISION is not supported."
