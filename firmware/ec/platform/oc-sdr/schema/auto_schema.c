@@ -162,9 +162,27 @@ SCHEMA_IMPORT bool rffe_pre_init(void *, void *);
 
 const Component sys_schema[] = {
     {
-        .name = "system",
         .components = (Component[]) {
             {
+                .driver_cfg = &gbc_gpp_gpioCfg,
+                .components = (Component[]) {
+                    {
+                        .driver_cfg = &eeprom_gbc_sid,
+                        .driver = &CAT24C04_gbc_sid,
+                        .name = "eeprom_sid",
+                    },
+                    {
+                        .driver_cfg = &eeprom_gbc_inv,
+                        .driver = &CAT24C04_gbc_inv,
+                        .name = "eeprom_inv",
+                    },
+                    {
+                        .driver = &Driver_MAC,
+                        .name = "eeprom_mac",
+                    },
+                    {}
+                },
+                .driver = &SYSTEMDRV,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = SYS_cmdReset,
@@ -177,261 +195,238 @@ const Component sys_schema[] = {
                     {}
                 },
                 .name = "comp_all",
-                .driver = &SYSTEMDRV,
-                .driver_cfg = &gbc_gpp_gpioCfg,
-                .components = (Component[]) {
-                    {
-                        .name = "eeprom_sid",
-                        .driver = &CAT24C04_gbc_sid,
-                        .driver_cfg = &eeprom_gbc_sid,
-                    },
-                    {
-                        .name = "eeprom_inv",
-                        .driver = &CAT24C04_gbc_inv,
-                        .driver_cfg = &eeprom_gbc_inv,
-                    },
-                    {
-                        .name = "eeprom_mac",
-                        .driver = &Driver_MAC,
-                    },
-                    {}
-                },
             },
             {}
         },
+        .name = "system",
     },
     {
-        .name = "power",
         .components = (Component[]) {
             {
-                .name = "comp_all",
                 .components = (Component[]) {
                     {
-                        .name = "powerSource",
-                        .driver = &PWRSRC,
-                        .driver_cfg = &gbc_pwr_powerSource,
                         .postDisabled = POST_DISABLED,
+                        .driver_cfg = &gbc_pwr_powerSource,
+                        .driver = &PWRSRC,
+                        .name = "powerSource",
                     },
                     {}
                 },
+                .name = "comp_all",
             },
             {
-                .name = "leadacid_sensor",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_bc_se98a,
-                        .name = "temp_sensor1",
-                        .driver = &SE98A,
                         .driver_cfg = &gbc_pwr_lead_acid_ts,
+                        .driver = &SE98A,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_bc_se98a,
                     },
                     {}
                 },
+                .name = "leadacid_sensor",
             },
             {
-                .name = "leadacid",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_leadAcid_cfg,
-                        .name = "battery",
-                        .driver = &LTC4015,
                         .driver_cfg = &gbc_pwr_ext_bat_charger,
+                        .driver = &LTC4015,
+                        .name = "battery",
+                        .factory_config = &fact_leadAcid_cfg,
                     },
                     {}
                 },
+                .name = "leadacid",
             },
             {
-                .name = "lion",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_lithiumIon_cfg,
-                        .name = "battery",
-                        .driver = &LTC4015,
                         .driver_cfg = &gbc_pwr_int_bat_charger,
+                        .driver = &LTC4015,
+                        .name = "battery",
+                        .factory_config = &fact_lithiumIon_cfg,
                     },
                     {}
                 },
+                .name = "lion",
             },
             {
-                .factory_config = &fact_ltc4274_cfg,
-                .name = "pse",
-                .driver = &LTC4274,
                 .driver_cfg = &gbc_pwr_pse,
+                .driver = &LTC4274,
+                .name = "pse",
+                .factory_config = &fact_ltc4274_cfg,
             },
             {
-                .name = "pd",
-                .driver = &LTC4275,
                 .driver_cfg = &gbc_pwr_pd,
+                .driver = &LTC4275,
+                .name = "pd",
             },
             {}
         },
+        .name = "power",
     },
     {
-        .name = "bms",
         .components = (Component[]) {
             {
-                .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "ec",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_ec_se98a_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &SE98A,
                         .driver_cfg = &gbc_bms_ec_ts,
+                        .driver = &SE98A,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_ec_se98a_cfg,
                     },
                     {
-                        .factory_config = &fact_ec_12v_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
                         .driver_cfg = &gbc_bms_ec_ps_12v,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_ec_12v_ps_cfg,
                     },
                     {
-                        .factory_config = &fact_ec_3v_ps_cfg,
-                        .name = "current_sensor2",
-                        .driver = &INA226,
                         .driver_cfg = &gbc_bms_ec_ps_3p3v,
+                        .driver = &INA226,
+                        .name = "current_sensor2",
+                        .factory_config = &fact_ec_3v_ps_cfg,
                     },
                     {}
                 },
+                .name = "ec",
             },
             {}
         },
+        .name = "bms",
     },
     {
+        .components = (Component[]) {
+            {
+                .postDisabled = POST_DISABLED,
+                .name = "comp_all",
+            },
+            {
+                .components = (Component[]) {
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &led_hci_ts,
+                        .driver = &SE98A,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_led_se98a_cfg,
+                    },
+                    {
+                        .driver_cfg = &led_hci_ioexp,
+                        .driver = &HCI_LED,
+                        .name = "fw",
+                    },
+                    {}
+                },
+                .name = "led",
+            },
+            {
+                .postDisabled = POST_DISABLED,
+                .driver_cfg = &gbc_hci_buzzer,
+                .name = "buzzer",
+            },
+            {}
+        },
         .ssHookSet = &(SSHookSet) {
-            .postInitFxn = NULL,
             .preInitFxn = (ssHook_Cb)HCI_Init,
+            .postInitFxn = NULL,
         },
         .name = "hci",
-        .components = (Component[]) {
-            {
-                .name = "comp_all",
-                .postDisabled = POST_DISABLED,
-            },
-            {
-                .name = "led",
-                .components = (Component[]) {
-                    {
-                        .factory_config = &fact_led_se98a_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &SE98A,
-                        .driver_cfg = &led_hci_ts,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "fw",
-                        .driver = &HCI_LED,
-                        .driver_cfg = &led_hci_ioexp,
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "buzzer",
-                .driver_cfg = &gbc_hci_buzzer,
-                .postDisabled = POST_DISABLED,
-            },
-            {}
-        },
     },
     {
-        .name = "ethernet",
         .components = (Component[]) {
             {
-                .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "port0",
-                .driver = &ETH_SW,
                 .driver_cfg = &gbc_eth_port0,
+                .driver = &ETH_SW,
+                .name = "port0",
             },
             {
-                .name = "port1",
-                .driver = &ETH_SW,
                 .driver_cfg = &gbc_eth_port1,
+                .driver = &ETH_SW,
+                .name = "port1",
             },
             {
-                .name = "port2",
-                .driver = &ETH_SW,
                 .driver_cfg = &gbc_eth_port2,
+                .driver = &ETH_SW,
+                .name = "port2",
             },
             {
-                .name = "port3",
-                .driver = &ETH_SW,
                 .driver_cfg = &gbc_eth_port3,
+                .driver = &ETH_SW,
+                .name = "port3",
             },
             {
-                .name = "port4",
-                .driver = &ETH_SW,
                 .driver_cfg = &gbc_eth_port4,
+                .driver = &ETH_SW,
+                .name = "port4",
             },
             {}
         },
+        .name = "ethernet",
     },
     {
+        .driver_cfg = &sync_obc_gpiocfg,
+        .components = (Component[]) {
+            {
+                .postDisabled = POST_DISABLED,
+                .name = "comp_all",
+            },
+            {
+                .driver_cfg = &obc_irridium,
+                .driver = &OBC_Iridium,
+                .name = "iridium",
+            },
+            {}
+        },
         .ssHookSet = &(SSHookSet) {
-            .postInitFxn = NULL,
             .preInitFxn = (ssHook_Cb)obc_pre_init,
+            .postInitFxn = NULL,
         },
         .name = "obc",
-        .components = (Component[]) {
-            {
-                .name = "comp_all",
-                .postDisabled = POST_DISABLED,
-            },
-            {
-                .name = "iridium",
-                .driver = &OBC_Iridium,
-                .driver_cfg = &obc_irridium,
-            },
-            {}
-        },
-        .driver_cfg = &sync_obc_gpiocfg,
     },
     {
-        .ssHookSet = &(SSHookSet) {
-            .postInitFxn = (ssHook_Cb)gpp_post_init,
-            .preInitFxn = (ssHook_Cb)gpp_pre_init,
-        },
-        .name = "gpp",
+        .driver_cfg = &gbc_gpp_gpioCfg,
         .components = (Component[]) {
             {
-                .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "ap",
+                .driver_cfg = &gbc_gpp_gpioCfg,
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_ap_se98a_ts1_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &SE98A,
                         .driver_cfg = &gbc_gpp_ap_ts1,
+                        .driver = &SE98A,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_ap_se98a_ts1_cfg,
                     },
                     {
-                        .factory_config = &fact_ap_se98a_ts2_cfg,
-                        .name = "temp_sensor2",
-                        .driver = &SE98A,
                         .driver_cfg = &gbc_gpp_ap_ts2,
-                    },
-                    {
-                        .factory_config = &fact_ap_se98a_ts3_cfg,
-                        .name = "temp_sensor3",
                         .driver = &SE98A,
-                        .driver_cfg = &gbc_gpp_ap_ts3,
+                        .name = "temp_sensor2",
+                        .factory_config = &fact_ap_se98a_ts2_cfg,
                     },
                     {
-                        .factory_config = &fact_ap_3v_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
+                        .driver_cfg = &gbc_gpp_ap_ts3,
+                        .driver = &SE98A,
+                        .name = "temp_sensor3",
+                        .factory_config = &fact_ap_se98a_ts3_cfg,
+                    },
+                    {
                         .driver_cfg = &gbc_gpp_ap_ps,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_ap_3v_ps_cfg,
                     },
                     {}
                 },
-                .driver_cfg = &gbc_gpp_gpioCfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = GPP_ap_Reset,
@@ -439,47 +434,47 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
+                .name = "ap",
             },
             {
-                .name = "msata",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_msata_3v_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
                         .driver_cfg = &gbc_gpp_msata_ps,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_msata_3v_ps_cfg,
                     },
                     {}
                 },
+                .name = "msata",
             },
             {}
         },
-        .driver_cfg = &gbc_gpp_gpioCfg,
+        .ssHookSet = &(SSHookSet) {
+            .preInitFxn = (ssHook_Cb)gpp_pre_init,
+            .postInitFxn = (ssHook_Cb)gpp_post_init,
+        },
+        .name = "gpp",
     },
     {
-        .ssHookSet = &(SSHookSet) {
-            .postInitFxn = NULL,
-            .preInitFxn = (ssHook_Cb)SDR_Init,
-        },
-        .name = "sdr",
+        .driver_cfg = &sdr_gpioCfg,
         .components = (Component[]) {
             {
-                .name = "comp_all",
+                .driver_cfg = &sdr_gpioCfg,
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_sdr_3v_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
                         .driver_cfg = &sdr_ps,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_sdr_3v_ps_cfg,
                     },
                     {
-                        .name = "eeprom",
-                        .driver = &CAT24C04_sdr_inv,
                         .driver_cfg = &eeprom_sdr_inv,
+                        .driver = &CAT24C04_sdr_inv,
+                        .name = "eeprom",
                     },
                     {}
                 },
-                .driver_cfg = &sdr_gpioCfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = SDR_reset,
@@ -487,27 +482,29 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
+                .name = "comp_all",
             },
             {
-                .name = "fpga",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_sdr_fpga_adt7481_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &ADT7481,
                         .driver_cfg = &sdr_fpga_ts,
+                        .driver = &ADT7481,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_sdr_fpga_adt7481_cfg,
                     },
                     {
-                        .factory_config = &fact_sdr_fpga_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
                         .driver_cfg = &sdr_fpga_ps,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_sdr_fpga_ps_cfg,
                     },
                     {}
                 },
+                .name = "fpga",
             },
             {
-                .name = "fx3",
+                .postDisabled = POST_DISABLED,
+                .driver_cfg = &sdr_gpioCfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = SDR_fx3Reset,
@@ -515,31 +512,29 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
-                .driver_cfg = &sdr_gpioCfg,
-                .postDisabled = POST_DISABLED,
+                .name = "fx3",
             },
             {}
         },
-        .driver_cfg = &sdr_gpioCfg,
+        .ssHookSet = &(SSHookSet) {
+            .preInitFxn = (ssHook_Cb)SDR_Init,
+            .postInitFxn = NULL,
+        },
+        .name = "sdr",
     },
     {
-        .ssHookSet = &(SSHookSet) {
-            .postInitFxn = (ssHook_Cb)rffe_post_init,
-            .preInitFxn = (ssHook_Cb)rffe_pre_init,
-        },
-        .name = "rffe",
+        .driver_cfg = &fe_rffecfg,
         .components = (Component[]) {
             {
-                .name = "comp_all",
+                .driver_cfg = &sdr_gpioCfg,
                 .components = (Component[]) {
                     {
-                        .name = "eeprom",
-                        .driver = &CAT24C04_fe_inv,
                         .driver_cfg = &eeprom_fe_inv,
+                        .driver = &CAT24C04_fe_inv,
+                        .name = "eeprom",
                     },
                     {}
                 },
-                .driver_cfg = &sdr_gpioCfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = RFFE_reset,
@@ -547,123 +542,77 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
+                .name = "comp_all",
             },
             {
-                .name = "ch1_sensor",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_fe_ch1_adt7481_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &ADT7481,
                         .driver_cfg = &fe_ch1_ts,
-                    },
-                    {
-                        .factory_config = &fact_fe_ch1_ps_cfg,
-                        .name = "current_sensor1",
-                        .driver = &INA226,
-                        .driver_cfg = &fe_ch1_ps_5_7v,
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "ch2_sensor",
-                .components = (Component[]) {
-                    {
-                        .factory_config = &fact_fe_ch2_adt7481_cfg,
-                        .name = "temp_sensor1",
                         .driver = &ADT7481,
-                        .driver_cfg = &fe_ch2_ts,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_fe_ch1_adt7481_cfg,
                     },
                     {
-                        .factory_config = &fact_fe_ch2_ps_cfg,
-                        .name = "current_sensor1",
+                        .driver_cfg = &fe_ch1_ps_5_7v,
                         .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_fe_ch1_ps_cfg,
+                    },
+                    {}
+                },
+                .name = "ch1_sensor",
+            },
+            {
+                .components = (Component[]) {
+                    {
+                        .driver_cfg = &fe_ch2_ts,
+                        .driver = &ADT7481,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_fe_ch2_adt7481_cfg,
+                    },
+                    {
                         .driver_cfg = &fe_ch2_ps_5_7v,
+                        .driver = &INA226,
+                        .name = "current_sensor1",
+                        .factory_config = &fact_fe_ch2_ps_cfg,
                     },
                     {}
                 },
+                .name = "ch2_sensor",
             },
             {
-                .name = "ch1_fe",
-                .components = (Component[]) {
-                    {
-                        .factory_config = &fact_ch1_band_cfg,
-                        .name = "ch1_band",
-                        .driver = &FE_Param,
-                        .driver_cfg = &fe_ch1_bandcfg,
-                    },
-                    {
-                        .name = "watchdog",
-                        .driver = &RFFEWatchdog,
-                        .driver_cfg = &fe_ch1_watchdog,
-                    },
-                    {
-                        .name = "power",
-                        .driver = &RFPowerMonitor,
-                        .driver_cfg = &fe_ch1_ads7830,
-                    },
-                    {
-                        .factory_config = &fact_ch1_tx_gain_cfg,
-                        .name = "tx",
-                        .driver = &DATXXR5APP,
-                        .driver_cfg = &fe_ch1_gain,
-                    },
-                    {
-                        .factory_config = &fact_ch1_rx_gain_cfg,
-                        .name = "rx",
-                        .driver = &DATXXR5APP,
-                        .driver_cfg = &fe_ch1_lna,
-                    },
-                    {}
-                },
                 .driver_cfg = &fe_ch1_pwrcfg,
-                .commands = (Command[]) {
-                    {
-                        .cb_cmd = RFFE_enablePA,
-                        .name = "enable",
-                    },
-                    {
-                        .cb_cmd = RFFE_disablePA,
-                        .name = "disable",
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "ch2_fe",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_ch2_band_cfg,
-                        .name = "ch2_band",
+                        .driver_cfg = &fe_ch1_bandcfg,
                         .driver = &FE_Param,
-                        .driver_cfg = &fe_ch2_bandcfg,
+                        .name = "ch1_band",
+                        .factory_config = &fact_ch1_band_cfg,
                     },
                     {
-                        .name = "watchdog",
+                        .driver_cfg = &fe_ch1_watchdog,
                         .driver = &RFFEWatchdog,
-                        .driver_cfg = &fe_ch2_watchdog,
+                        .name = "watchdog",
                     },
                     {
-                        .name = "power",
+                        .driver_cfg = &fe_ch1_ads7830,
                         .driver = &RFPowerMonitor,
-                        .driver_cfg = &fe_ch2_ads7830,
+                        .name = "power",
                     },
                     {
-                        .factory_config = &fact_ch2_tx_gain_cfg,
+                        .driver_cfg = &fe_ch1_gain,
+                        .driver = &DATXXR5APP,
                         .name = "tx",
-                        .driver = &DATXXR5APP,
-                        .driver_cfg = &fe_ch2_gain,
+                        .factory_config = &fact_ch1_tx_gain_cfg,
                     },
                     {
-                        .factory_config = &fact_ch2_rx_gain_cfg,
-                        .name = "rx",
+                        .driver_cfg = &fe_ch1_lna,
                         .driver = &DATXXR5APP,
-                        .driver_cfg = &fe_ch2_lna,
+                        .name = "rx",
+                        .factory_config = &fact_ch1_rx_gain_cfg,
                     },
                     {}
                 },
-                .driver_cfg = &fe_ch2_pwrcfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = RFFE_enablePA,
@@ -675,20 +624,68 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
+                .name = "ch1_fe",
+            },
+            {
+                .driver_cfg = &fe_ch2_pwrcfg,
+                .components = (Component[]) {
+                    {
+                        .driver_cfg = &fe_ch2_bandcfg,
+                        .driver = &FE_Param,
+                        .name = "ch2_band",
+                        .factory_config = &fact_ch2_band_cfg,
+                    },
+                    {
+                        .driver_cfg = &fe_ch2_watchdog,
+                        .driver = &RFFEWatchdog,
+                        .name = "watchdog",
+                    },
+                    {
+                        .driver_cfg = &fe_ch2_ads7830,
+                        .driver = &RFPowerMonitor,
+                        .name = "power",
+                    },
+                    {
+                        .driver_cfg = &fe_ch2_gain,
+                        .driver = &DATXXR5APP,
+                        .name = "tx",
+                        .factory_config = &fact_ch2_tx_gain_cfg,
+                    },
+                    {
+                        .driver_cfg = &fe_ch2_lna,
+                        .driver = &DATXXR5APP,
+                        .name = "rx",
+                        .factory_config = &fact_ch2_rx_gain_cfg,
+                    },
+                    {}
+                },
+                .commands = (Command[]) {
+                    {
+                        .cb_cmd = RFFE_enablePA,
+                        .name = "enable",
+                    },
+                    {
+                        .cb_cmd = RFFE_disablePA,
+                        .name = "disable",
+                    },
+                    {}
+                },
+                .name = "ch2_fe",
             },
             {}
         },
-        .driver_cfg = &fe_rffecfg,
+        .ssHookSet = &(SSHookSet) {
+            .preInitFxn = (ssHook_Cb)rffe_pre_init,
+            .postInitFxn = (ssHook_Cb)rffe_post_init,
+        },
+        .name = "rffe",
     },
     {
-        .ssHookSet = &(SSHookSet) {
-            .postInitFxn = NULL,
-            .preInitFxn = (ssHook_Cb)SYNC_Init,
-        },
-        .name = "sync",
+        .driver_cfg = &sync_gpiocfg,
         .components = (Component[]) {
             {
-                .name = "comp_all",
+                .postDisabled = POST_DISABLED,
+                .driver_cfg = &sync_gpiocfg,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = SYNC_reset,
@@ -696,35 +693,37 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
-                .driver_cfg = &sync_gpiocfg,
-                .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "gps",
+                .driver_cfg = &sync_gpiocfg,
                 .driver = &Sync_IO,
-                .driver_cfg = &sync_gpiocfg,
+                .name = "gps",
             },
             {
-                .name = "sensor",
                 .components = (Component[]) {
                     {
-                        .factory_config = &fact_sync_ts_cfg,
-                        .name = "temp_sensor1",
-                        .driver = &ADT7481,
                         .driver_cfg = &sync_gps_ts,
+                        .driver = &ADT7481,
+                        .name = "temp_sensor1",
+                        .factory_config = &fact_sync_ts_cfg,
                     },
                     {}
                 },
+                .name = "sensor",
             },
             {}
         },
-        .driver_cfg = &sync_gpiocfg,
+        .ssHookSet = &(SSHookSet) {
+            .preInitFxn = (ssHook_Cb)SYNC_Init,
+            .postInitFxn = NULL,
+        },
+        .name = "sync",
     },
     {
-        .name = "testmodule",
         .components = (Component[]) {
             {
-                .name = "comp_all",
+                .postDisabled = POST_DISABLED,
                 .commands = (Command[]) {
                     {
                         .cb_cmd = TestMod_cmdReset,
@@ -732,362 +731,363 @@ const Component sys_schema[] = {
                     },
                     {}
                 },
-                .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "2gsim",
-                .driver = &Testmod_G510,
                 .driver_cfg = &testModuleCfg,
+                .driver = &Testmod_G510,
+                .name = "2gsim",
             },
             {}
         },
+        .name = "testmodule",
     },
     {
-        .name = "debug",
         .components = (Component[]) {
             {
-                .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .name = "comp_all",
             },
             {
-                .name = "I2C",
                 .components = (Component[]) {
                     {
-                        .name = "comp_all",
                         .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
                     },
                     {
-                        .name = "bus0",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C0,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus0",
                     },
                     {
-                        .name = "bus1",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C1,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus1",
                     },
                     {
-                        .name = "bus2",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C2,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus2",
                     },
                     {
-                        .name = "bus3",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C3,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus3",
                     },
                     {
-                        .name = "bus4",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C4,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus4",
                     },
                     {
-                        .name = "bus6",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C6,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus6",
                     },
                     {
-                        .name = "bus7",
-                        .driver = &OC_I2C,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C7,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "bus8",
                         .driver = &OC_I2C,
+                        .name = "bus7",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_I2C8,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_I2C,
+                        .name = "bus8",
                     },
                     {}
                 },
+                .name = "I2C",
             },
             {
-                .name = "ec",
                 .components = (Component[]) {
                     {
-                        .name = "comp_all",
                         .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
                     },
                     {
-                        .name = "PA",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pa,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PA",
                     },
                     {
-                        .name = "PB",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pb,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PB",
                     },
                     {
-                        .name = "PC",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pc,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PC",
                     },
                     {
-                        .name = "PD",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pd,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PD",
                     },
                     {
-                        .name = "PE",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pe,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PE",
                     },
                     {
-                        .name = "PF",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pf,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PF",
                     },
                     {
-                        .name = "PG",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pg,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PG",
                     },
                     {
-                        .name = "PH",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_ph,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PH",
                     },
                     {
-                        .name = "PJ",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pj,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PJ",
                     },
                     {
-                        .name = "PK",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pk,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PK",
                     },
                     {
-                        .name = "PL",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pl,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PL",
                     },
                     {
-                        .name = "PM",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pm,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PM",
                     },
                     {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_ec_gpio_pn,
+                        .driver = &OC_GPIO,
                         .name = "PN",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_ec_gpio_pn,
-                        .postDisabled = POST_DISABLED,
                     },
                     {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_ec_gpio_pn,
+                        .driver = &OC_GPIO,
                         .name = "PP",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_ec_gpio_pn,
-                        .postDisabled = POST_DISABLED,
                     },
                     {
-                        .name = "PQ",
-                        .driver = &OC_GPIO,
+                        .postDisabled = POST_DISABLED,
                         .driver_cfg = &debug_ec_gpio_pq,
-                        .postDisabled = POST_DISABLED,
+                        .driver = &OC_GPIO,
+                        .name = "PQ",
                     },
                     {}
                 },
+                .name = "ec",
             },
             {
-                .name = "gbc",
                 .components = (Component[]) {
                     {
-                        .name = "comp_all",
                         .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
                     },
                     {
-                        .name = "ioexpanderx70",
-                        .driver = &OC_GPIO,
                         .driver_cfg = &debug_gbc_ioexpanderx70,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx70",
                     },
                     {
-                        .name = "ioexpanderx71",
-                        .driver = &OC_GPIO,
                         .driver_cfg = &debug_gbc_ioexpanderx71,
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "sdr",
-                .components = (Component[]) {
-                    {
-                        .name = "comp_all",
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "ioexpanderx1E",
                         .driver = &OC_GPIO,
-                        .driver_cfg = &debug_sdr_ioexpanderx1E,
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "fe",
-                .components = (Component[]) {
-                    {
-                        .name = "comp_all",
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "ioexpanderx18",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_sdr_ioexpanderx1E,
-                    },
-                    {
-                        .name = "ioexpanderx1C",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_fe_ioexpanderx1C,
-                    },
-                    {
-                        .name = "ioexpanderx1B",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_fe_ioexpanderx1B,
-                    },
-                    {
-                        .name = "ioexpanderx1A",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_fe_ioexpanderx1A,
-                    },
-                    {
-                        .name = "ioexpanderx1D",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_fe_ioexpanderx1D,
-                    },
-                    {}
-                },
-            },
-            {
-                .name = "sync",
-                .components = (Component[]) {
-                    {
-                        .name = "comp_all",
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
                         .name = "ioexpanderx71",
-                        .driver = &OC_GPIO,
-                        .driver_cfg = &debug_sync_ioexpanderx71,
                     },
                     {}
                 },
+                .name = "gbc",
             },
             {
-                .name = "ethernet",
                 .components = (Component[]) {
                     {
+                        .postDisabled = POST_DISABLED,
                         .name = "comp_all",
-                        .postDisabled = POST_DISABLED,
                     },
                     {
-                        .name = "port0",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_phyport0,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "port1",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_phyport1,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "port2",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_phyport2,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "port3",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_phyport3,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "port4",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_phyport4,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "global1",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_global1,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "global2",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_global2,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport0",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport0,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport1",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport1,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport2",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport2,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport3",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport3,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport4",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport4,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport5",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport5,
-                        .postDisabled = POST_DISABLED,
-                    },
-                    {
-                        .name = "swport6",
-                        .driver = &OC_MDIO,
-                        .driver_cfg = &debug_mdio_swport6,
-                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_sdr_ioexpanderx1E,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx1E",
                     },
                     {}
                 },
+                .name = "sdr",
+            },
+            {
+                .components = (Component[]) {
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
+                    },
+                    {
+                        .driver_cfg = &debug_sdr_ioexpanderx1E,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx18",
+                    },
+                    {
+                        .driver_cfg = &debug_fe_ioexpanderx1C,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx1C",
+                    },
+                    {
+                        .driver_cfg = &debug_fe_ioexpanderx1B,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx1B",
+                    },
+                    {
+                        .driver_cfg = &debug_fe_ioexpanderx1A,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx1A",
+                    },
+                    {
+                        .driver_cfg = &debug_fe_ioexpanderx1D,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx1D",
+                    },
+                    {}
+                },
+                .name = "fe",
+            },
+            {
+                .components = (Component[]) {
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
+                    },
+                    {
+                        .driver_cfg = &debug_sync_ioexpanderx71,
+                        .driver = &OC_GPIO,
+                        .name = "ioexpanderx71",
+                    },
+                    {}
+                },
+                .name = "sync",
+            },
+            {
+                .components = (Component[]) {
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .name = "comp_all",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_phyport0,
+                        .driver = &OC_MDIO,
+                        .name = "port0",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_phyport1,
+                        .driver = &OC_MDIO,
+                        .name = "port1",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_phyport2,
+                        .driver = &OC_MDIO,
+                        .name = "port2",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_phyport3,
+                        .driver = &OC_MDIO,
+                        .name = "port3",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_phyport4,
+                        .driver = &OC_MDIO,
+                        .name = "port4",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_global1,
+                        .driver = &OC_MDIO,
+                        .name = "global1",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_global2,
+                        .driver = &OC_MDIO,
+                        .name = "global2",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport0,
+                        .driver = &OC_MDIO,
+                        .name = "swport0",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport1,
+                        .driver = &OC_MDIO,
+                        .name = "swport1",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport2,
+                        .driver = &OC_MDIO,
+                        .name = "swport2",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport3,
+                        .driver = &OC_MDIO,
+                        .name = "swport3",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport4,
+                        .driver = &OC_MDIO,
+                        .name = "swport4",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport5,
+                        .driver = &OC_MDIO,
+                        .name = "swport5",
+                    },
+                    {
+                        .postDisabled = POST_DISABLED,
+                        .driver_cfg = &debug_mdio_swport6,
+                        .driver = &OC_MDIO,
+                        .name = "swport6",
+                    },
+                    {}
+                },
+                .name = "ethernet",
             },
             {}
         },
+        .name = "debug",
     },
     {}
 };
