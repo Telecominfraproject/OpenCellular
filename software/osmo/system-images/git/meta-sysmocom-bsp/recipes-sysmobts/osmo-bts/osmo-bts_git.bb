@@ -3,7 +3,7 @@ LICENSE = "AGPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=73f1eb20517c55bf9493b7dd6e480788"
 
 SRC_URI = "git://git.osmocom.org/osmo-bts.git;protocol=git;branch=master;destsuffix=git"
-SRCREV = "33da462a2bf37f2688d79530b11f9e65b5c93502"
+SRCREV = "2910b783051aa5059aeb370b164a1ee82ac3095c"
 PV = "0.8.1+git${SRCPV}"
 PR = "r0.${META_TELEPHONY_OSMO_INC}"
 S = "${WORKDIR}/git"
@@ -11,6 +11,7 @@ S = "${WORKDIR}/git"
 DEPENDS = "libosmocore libosmo-abis femtobts-api gpsd"
 DEPENDS_append_sysmobts-v2 = " femtobts-api"
 DEPENDS_append_sysmobts2100 = " lc15-firmware"
+DEPENDS_append_oc2g = " oc2g-firmware systemd"
 
 RDEPENDS_${PN} += "coreutils"
 
@@ -18,9 +19,11 @@ RDEPENDS_${PN}_append_sysmobts-v2 = " sysmobts-firmware (>= 5.1)"
 RCONFLICTS_${PN}_append_sysmobts-v2 = " sysmobts-firmware (< 5.1)"
 
 RDEPENDS_${PN}_append_sysmobts2100 = " lc15-firmware"
+RDEPENDS_${PN}_append_oc2g = " oc2g-firmware systemd"
 
 EXTRA_OECONF_sysmobts-v2 += "--enable-sysmocom-bts --enable-sysmobts-calib"
 EXTRA_OECONF_sysmobts2100 += "--enable-litecell15"
+EXTRA_OECONF_oc2g += "--enable-oc2g"
 
 inherit autotools pkgconfig systemd
 
@@ -59,8 +62,24 @@ do_install_append_sysmobts2100() {
 	install -m 0644 ${S}/contrib/osmo-bts-lc15.service ${D}${systemd_system_unitdir}/
 }
 
+do_install_append_oc2g() {
+	install -m 0660 ${S}/doc/examples/oc2g/osmo-bts.cfg ${D}${sysconfdir}/osmocom
+
+	# ensure consistent naming
+	cp ${D}/${bindir}/oc2gbts-util ${D}/${bindir}/sysmobts-util
+	cp ${D}/${bindir}/oc2gbts-mgr ${D}/${bindir}/sysmobts-mgr
+
+	# Install systemd and enable on sysinit
+	install -m 0644 ${S}/contrib/systemd/oc2gbts-mgr.service ${D}${systemd_system_unitdir}/oc2gbts-mgr.service
+	install -m 0660 ${S}/doc/examples/oc2g/oc2gbts-mgr.cfg ${D}${sysconfdir}/osmocom/
+	install -m 0644 ${S}/contrib/systemd/osmo-bts-oc2g.service ${D}${systemd_system_unitdir}/
+	rm ${D}${systemd_system_unitdir}/osmo-bts-virtual.service
+}
+
+
 SYSTEMD_SERVICE_${PN}_append_sysmobts-v2 = "sysmobts-mgr.service osmo-bts-sysmo.service"
 SYSTEMD_SERVICE_${PN}_append_sysmobts2100 = "lc15bts-mgr.service osmo-bts-lc15.service"
+SYSTEMD_SERVICE_${PN}_append_oc2g = "oc2gbts-mgr.service osmo-bts-oc2g.service"
 
 CONFFILES_${PN} = "${sysconfdir}/osmocom/osmo-bts.cfg"
 CONFFILES_${PN}_append_sysmobts-v2 = " ${sysconfdir}/osmocom/sysmobts-mgr.cfg"
