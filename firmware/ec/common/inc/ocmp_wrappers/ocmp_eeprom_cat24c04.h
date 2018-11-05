@@ -13,6 +13,7 @@
 
 SCHEMA_IMPORT bool SYS_post_get_results(void **getpostResult);
 SCHEMA_IMPORT bool SYS_post_enable(void **postActivate);
+SCHEMA_IMPORT const Driver_fxnTable AT45DB641E_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable CAT24C04_gbc_sid_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable CAT24C04_gbc_inv_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable CAT24C04_sdr_inv_fxnTable;
@@ -73,6 +74,11 @@ static const Driver SYSTEMDRV = {
         },
         {}
     }
+};
+
+static const Driver FLASHDRV = {
+    .name = "FLASHDRV",
+    .fxnTable = &AT45DB641E_fxnTable,
 };
 
 #endif /* INC_DEVICES_OCMP_EEPROM_H_ */
