@@ -15,29 +15,29 @@
 #include "Board.h"
 #include "common/inc/global/Framework.h"
 #include "common/inc/global/ocmp_frame.h"
-#include "inc/utils/util.h"
-#include "inc/global/OC_CONNECT1.h"
+#include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
 #include "inc/devices/at45db.h"
-#include "inc/common/bigbrother.h"
+#include "inc/global/OC_CONNECT1.h"
+#include "inc/utils/util.h"
 #include "src/filesystem/fs_wrapper.h"
+#include "src/filesystem/lfs.h"
 #include <string.h>
 #include <stdlib.h>
-#include "src/filesystem/lfs.h"
+#include <ti/drivers/GPIO.h>
+#include <ti/drivers/SPI.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
 #include <ti/sysbios/knl/Queue.h>
 #include <ti/sysbios/knl/Task.h>
-#include <ti/drivers/GPIO.h>
-#include <ti/drivers/SPI.h>
 
-#define FRAME_SIZE                  64
-#define READ_SIZE                   256
-#define WRITE_SIZE                  256
-#define PAGE_SIZE                   256
 #define BLOCK_SIZE                  256
 #define BLOCK_COUNT                 32768
+#define FRAME_SIZE                  64
 #define LOOK_AHEAD                  256
+#define PAGE_SIZE                   256
+#define READ_SIZE                   256
+#define WRITE_SIZE                  256
 
 static Queue_Struct fsRxMsg;
 static Queue_Struct fsTxMsg;
@@ -60,7 +60,7 @@ lfs_file_t file;
 int block_device_read(const struct lfs_config *cfg, lfs_block_t block,
                       lfs_off_t off, void *buffer, lfs_size_t size)
 {
-    if(at45db_data_read(cfg->context, buffer, size, off, block) != RETURN_OK){
+    if(at45db_data_read(cfg->context, buffer, size, off, block) != RETURN_OK) {
        return LFS_ERR_IO;
     }
 
@@ -101,7 +101,7 @@ int block_device_write(const struct lfs_config *cfg, lfs_block_t block,
  *****************************************************************************/
 int block_device_erase(const struct lfs_config *cfg, lfs_block_t block)
 {
-    if(at45db_erasePage(cfg->context, block) != RETURN_OK){
+    if(at45db_erasePage(cfg->context, block) != RETURN_OK) {
        return LFS_ERR_IO;
     }
 
@@ -120,7 +120,7 @@ int block_device_erase(const struct lfs_config *cfg, lfs_block_t block)
  *****************************************************************************/
 int block_device_sync(const struct lfs_config *cfg)
 {
-    if(at45db_readStatusRegister(cfg->context) != RETURN_OK){
+    if(at45db_readStatusRegister(cfg->context) != RETURN_OK) {
        return LFS_ERR_IO;
     }
 
@@ -141,7 +141,7 @@ int fileSize(const char *path)
 {
     uint32_t fileSize = 0;
 
-    if(lfs_file_open(&lfs, &file, path, LFS_O_RDONLY) == LFS_ERR_OK){
+    if(lfs_file_open(&lfs, &file, path, LFS_O_RDONLY) == LFS_ERR_OK) {
        LOGGER_DEBUG("FS:: File open successfully \n");
     }
     fileSize = lfs_file_size(&lfs, &file);
@@ -168,7 +168,7 @@ bool fileWrite(const char *path, uint8_t *pMsg, uint32_t size )
     if(lfs_file_write(&lfs, &file, pMsg, size) == size) {
        LOGGER_DEBUG("FS:: File written successfully \n");
     }
-    if(lfs_file_close(&lfs, &file) == LFS_ERR_OK){
+    if(lfs_file_close(&lfs, &file) == LFS_ERR_OK) {
     LOGGER_DEBUG("FS:: File closed successfully \n");
     }
 
@@ -246,12 +246,12 @@ void fs_init(UArg arg0, UArg arg1)
     };
     int err = lfs_mount(&lfs, &cfg);
 
-    if (err){
+    if (err) {
         lfs_format(&lfs, &cfg);
         lfs_mount(&lfs, &cfg);
     }
 
-    if(!err){
+    if(!err) {
        LOGGER_DEBUG("FS:: Filesystem mounted successfully \n");
     }
 

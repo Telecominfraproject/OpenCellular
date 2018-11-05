@@ -18,23 +18,22 @@
 #include "inc/common/global_header.h"
 #include "inc/global/OC_CONNECT1.h"
 
-#define AT45DB_MANFACTURE_ID            0x1F
-#define AT45DB_DEVICE_ID                0x0028
-#define AT45DB_READY                    0x80 /* AT45DB Ready Value */
-#define AT45DB_STATUS_OPCODE            0xD7
-#define AT45DB_PAGE_ERASE_OPCODE        0x81
-#define AT45DB_PAGE_RD_OPCODE           0xD2
-#define AT45DB_SRAM_BUFF2_WR_OPCODE     0x87
-#define AT45DB_PAGE_WR_OPCODE           0x86
-#define AT45DB_DEVID_RD_OPCODE          0x9F
-
-#define AT45DB_STATUS_OPCODE_WR_COUNT   1
-#define AT45DB_DEVID_OPCODE_WR_COUNT    1
-#define AT45DB_ERASE_OPCODE_WR_COUNT    4
 #define AT45DB_DATA_WR_OPCODE_WR_COUNT  4
 #define AT45DB_DATA_RD_OPCODE_WR_COUNT  8
-#define AT45DB_STATUS_RD_BYTES          1
+#define AT45DB_DEVICE_ID                0x0028
 #define AT45DB_DEVID_RD_BYTES           2
+#define AT45DB_DEVID_RD_OPCODE          0x9F
+#define AT45DB_DEVID_OPCODE_WR_COUNT    1
+#define AT45DB_ERASE_OPCODE_WR_COUNT    4
+#define AT45DB_MANFACTURE_ID            0x1F
+#define AT45DB_PAGE_ERASE_OPCODE        0x81
+#define AT45DB_PAGE_RD_OPCODE           0xD2
+#define AT45DB_PAGE_WR_OPCODE           0x86
+#define AT45DB_READY                    0x80 /* AT45DB Ready Value */
+#define AT45DB_SRAM_BUFF2_WR_OPCODE     0x87
+#define AT45DB_STATUS_OPCODE            0xD7
+#define AT45DB_STATUS_OPCODE_WR_COUNT   1
+#define AT45DB_STATUS_RD_BYTES          1
 
 #define waitForReady(dev) \
     while (!(AT45DB_READY & at45db_readStatusRegister(dev)));
@@ -216,7 +215,7 @@ ReturnStatus at45db_data_write(AT45DB_Dev *dev, uint8_t *data, uint32_t data_siz
 
     status = AT45DB_write_reg(dev, &txBuffer, data, byte, data_size, AT45DB_DATA_WR_OPCODE_WR_COUNT);
 
-    if(status == RETURN_OK){
+    if(status == RETURN_OK) {
        waitForReady(dev);
 
        txBuffer[0] = AT45DB_PAGE_WR_OPCODE; /* opcode to Push the data from AT45DB SRAM Buffer2 to the page */

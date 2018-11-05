@@ -8,17 +8,17 @@
  */
 
 #include "common/inc/global/Framework.h"
-#include <driverlib/flash.h>
-#include <driverlib/sysctl.h>
 #include "helpers/memory.h"
-#include "inc/subsystem/sys/sys.h"
+#include "inc/common/bigbrother.h"
+#include "inc/common/global_header.h"
 #include "inc/common/post.h"
 #include "inc/devices/eeprom.h"
 #include "inc/subsystem/gpp/gpp.h" /* For resetting AP */
-#include "inc/common/bigbrother.h"
-#include "inc/common/global_header.h"
+#include "inc/subsystem/sys/sys.h"
 #include "inc/utils/ocmp_util.h"
 #include "src/filesystem/fs_wrapper.h"
+#include <driverlib/flash.h>
+#include <driverlib/sysctl.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
 #include <ti/sysbios/knl/Queue.h>
@@ -27,9 +27,9 @@
 #include <xdc/cfg/global.h>
 #include <xdc/runtime/System.h>
 
+#define FRAME_SIZE                  64
 #define OCFS_TASK_PRIORITY          5
 #define OCFS_TASK_STACK_SIZE        4096
-#define FRAME_SIZE                  64
 
 Task_Struct ocFSTask;
 Char ocFSTaskStack[OCFS_TASK_STACK_SIZE];

@@ -13,9 +13,9 @@
 
 #include "common/inc/global/post_frame.h"
 
-extern Semaphore_Handle semFilesysMsg;
 extern Queue_Handle fsRxMsgQueue;
 extern Queue_Handle fsTxMsgQueue;
+extern Semaphore_Handle semFilesysMsg;
 
 int fileSize(const char *path);
 void fs_init(UArg arg0, UArg arg1);

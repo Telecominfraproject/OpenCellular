@@ -8,8 +8,8 @@
 #ifndef LFS_H
 #define LFS_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* Type definitions */
 typedef uint32_t lfs_size_t;

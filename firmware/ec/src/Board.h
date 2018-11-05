@@ -46,9 +46,9 @@ extern "C" {
 
 #define Board_initEMAC              OC_CONNECT1_initEMAC
 #define Board_initGeneral           OC_CONNECT1_initGeneral
-#define Board_initSPI               OC_CONNECT1_initSPI
 #define Board_initGPIO              OC_CONNECT1_initGPIO
 #define Board_initI2C               OC_CONNECT1_initI2C
+#define Board_initSPI               OC_CONNECT1_initSPI
 #define Board_initUART              OC_CONNECT1_initUART
 #define Board_initUSB               OC_CONNECT1_initUSB
 #define Board_initWatchdog          OC_CONNECT1_initWatchdog

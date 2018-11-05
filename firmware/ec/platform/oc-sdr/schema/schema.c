@@ -274,7 +274,7 @@ const Component sys_schema[] = {
             {}
         },
         .driver_cfg = &gbc_spi_flash_memory,
-        .ssHookSet = &(SSHookSet){
+        .ssHookSet = &(SSHookSet) {
             .postInitFxn = (ssHook_Cb)sys_post_init,
         },
     },
