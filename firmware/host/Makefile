@@ -15,7 +15,10 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
+all:	get_cfg ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
+
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh
 	
 .PHONY:	occli
 

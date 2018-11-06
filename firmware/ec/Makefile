@@ -79,7 +79,7 @@ LLIBS += -Wl,--end-group
 
 OBJCOPY = $(TOOLCHAIN)/bin/arm-none-eabi-objcopy
 
-all: oc_connect1
+all: get_cfg oc_connect1
 oc_connect1: $(OUT)/OpenCellular.bin
 
 $(OUT)/%/compiler.opt $(OUT)/%/linker.cmd : %.cfg
@@ -98,6 +98,8 @@ $(OUT)/OpenCellular.bin: $(OUT)/OpenCellular.out
 clean:
 	-rm -rf *.o *.out *.d *.rov.xs $(OUT) $(MAIN_OBJS) $(COVERAGE_OBJS)
 
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh $(CC) $(TIRTOS_DIR)
 test:
 	cd test && $(MAKE) $(TESTFLAGS)
 
