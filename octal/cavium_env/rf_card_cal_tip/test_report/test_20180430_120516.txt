@@ -1,0 +1,7 @@
+./test_report/test_20180430_120516.txt
+30/04/2018 12:05:16
+
+*** Calibration #1 ***
+
+DL Freq.1825.0 MHz
+UL Freq.1730.0 MHz

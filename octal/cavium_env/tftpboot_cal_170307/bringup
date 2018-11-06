@@ -1,0 +1,212 @@
+#!/bin/sh
+
+if [ -f /tmp/system.conf ]; then
+source /tmp/system.conf
+elif [ -f /mnt/app/ubootenv ] ; then
+source /mnt/app/ubootenv
+fi
+
+acscli_set() {
+    if [ -n "$1" -a -n "$2" ] ; then
+        acscli << EOF
+set $1 $2
+quit
+EOF
+    fi
+}
+
+acscli_get() {
+    if [ -n "$1" ] ; then
+        acscli << EOF
+get $1
+quit
+EOF
+    fi
+}
+
+
+### Extract DUPLEX MODE of stack
+## ** Should cross verify with RF EEPROM band indicator and DSP revision
+
+if [ -e /bin/svnversion ];then
+    DUPLEXMODE=`cat /bin/svnversion |awk '/Product/{print $2}'`
+fi
+if [ -z $DUPLEXMODE ];then DUPLEXMODE=FDD;fi
+
+echo "[$0] : START Override DSP RF Interface parameters in "$DUPLEXMODE" mode"
+if [ -f /usr/bin/updatephyrfparams.sh ]; then
+    /usr/bin/updatephyrfparams.sh ${DUPLEXMODE} WRDDRCFG
+    echo "[$0] : DONE Override DSP RF Interface parameters"
+else
+    echo "[$0] : S13swselect did not correctly retreive updatephyrfparams.sh by $CFGLOADBY"
+fi
+
+## In this section, running in PLTd or E2E determines how SW is loaded
+## in pltD mode, we will prepare the environment with testvectors 
+## and pltd in a mode to set lsmD in test mode.
+## In E2E mode, we will prepare the environement to configure the smallcell
+## as an element of a end to end network.
+
+# Defualt to E2E mode is MODE is not declared
+if [ -z $MODE ];then MODE=e2e;fi
+
+if [ "$MODE" == "pltd" ];then
+
+  # Setting default.
+  if [ -z $RFTARGET ];then RFTARGET=ad9362;echo "[$0] RF defaulting to $RFTARGET device";fi
+  if [ -z $BW ];then BW=10;fi
+  if [ -z $TXFREQ ];then TXFREQ=2665;echo "[$0] RF defaulting to $TXFREQ Mhz";fi
+  if [ -z $RXFREQ ];then RXFREQ=2535;echo "[$0] RF defaulting to $RXFREQ Mhz";fi
+
+  ##Init 1PPS
+  /etc/init_1pps.sh
+
+  cd /usr/bin
+  echo "[$0] : Starting $RFTARGET driver (BW=$BW TXFREQ=$TXFREQ RXFREQ=$RXFREQ ATTEN=$ATTEN1 $ATTEN2 GAIN=$GAIN1 $GAIN2 )"
+  cp ${RFTARGET}_init_${TARGET}${BW}Mhz.txt rf_init.txt
+  chmod +r rf_init.txt
+
+  ##Start RF Driver
+  oncpu 0 cn_rfdriver adi << EOF
+  i d $TXFREQ u $RXFREQ a 1 $ATTEN1 a 2 $ATTEN2 g 1 $GAIN1 g 2 $GAIN2 q
+EOF
+  
+  ## Untar DSPs.
+  cd /etc
+  tar -zxvf dsp.tgz
+  
+  #Upload DSP related files
+  cd /usr/bin
+  gzip -d pltD.gz
+  oncpu 0 ./pltD -ld normal -stall 2
+  
+  cd /tmpfs
+  # Copy and extract ETM test vector files for selected Bandwidth
+  cp /usr/share/etm/CAL_ETM_TV_${BW}Mhz.tgz .
+  cp /usr/share/etm/CAL_UL_TV_${BW}Mhz.tgz .
+  tar -zxvf CAL_ETM_TV_${BW}Mhz.tgz
+  tar -zxvf CAL_UL_TV_${BW}Mhz.tgz
+
+  ###  Specific to TIP board
+##
+if [ "$TIP" == "1" ];then
+	echo "Setting up receive path for TIP board"
+	oncpu 0 /usr/bin/cn_rfdriver adi << eof
+w 0x04 0x03 q
+eof
+sleep 1
+
+cp /mnt/app/rffe.tgz /.
+cd /
+tar xzvf rffe.tgz
+fe-manager &
+sleep 30
+fi
+##
+
+  ## Ready to start ETM and Calibration suites.
+  
+else ## MODE != pltd
+
+
+  echo "[BRINGUP] Bringing up S1 link [START]"
+
+  renice -n 0 `ps |grep -m 1 core0app |awk '{ print ($1)}'`
+  renice -n 0 `ps |grep -m 1 core1app |awk '{ print ($1)}'`
+
+  if [ "$ENBCTRLRF" != "1" ];then
+  echo "[$0] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  echo "[$0] Entered comdb mode and using pltD for DSP pgm"
+  echo "[$0] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    ucli -f /var << EOF
+    demooff
+    cpF2M
+    dust
+    quit
+EOF
+    sleep 1
+  fi
+
+  if [ "$IPSECEN" == "1" ];then
+	sleep 6
+
+	acscli_set IPSEC_PROFILE_RemoteEndpoints[1] ${SECGWIP}
+	acscli_set IPSEC_FILTER_DestIP[1] ${MMEIP}
+	acscli_set IPSEC_FILTER_DestMask[1] ${MMEIPMASK}
+	acscli_set IPSEC_FILTER_SourceIP[1] ${IPSEC181_SOURCEIP}
+	acscli_set IPSEC_FILTER_SourceMask[1] ${IPSEC181_SOURCEMASK}
+	acscli_set IPSEC_FILTER_Profile[1] Device.IPsec.Profile.1.
+	acscli_set IPSEC_FILTER_ProcessingChoice[1] Protect
+	acscli_set IPSEC_PROFILE_IKEv2AllowedEncryptionAlgorithms[1] ${IPSEC181_IKEENC}
+	acscli_set IPSEC_PROFILE_IKEv2AllowedIntegrityAlgorithms[1] ${IPSEC181_IKEINTEG}
+	acscli_set IPSEC_PROFILE_IKEv2AllowedDiffieHellmanGroupTransforms[1] ${IPSEC181_IKEDH}
+	acscli_set IPSEC_FILTER_Enable[1] 1
+
+	#sleep 4
+	#acscli_get IPSEC_FILTER_Status[1]
+  fi
+
+    sleep 3
+    echo "[$0] Bringing up S1 link [DONE]"
+
+    # Assure root access to webUI.
+    chown root:root -R /var/www
+
+  version
+
+  if [ "$IPSECEN" == "1" ];then
+  ipsec statusall
+  fi
+
+  ## Monitor Cell State.  Exit after $FAPENABLECOUNT is -lt 0
+  echo -n "[$0] Checking CELL STATE "
+
+  while [[ 1 ]];do
+	if grep "ERROR: DSP Downloading Error" /var/log/core0 1>/dev/null 2>&1 ; then
+		echo
+		echo "[$0] ERROR: DSP Downloading Error"
+		exit 1
+	fi;
+	echo -n ". "
+	sleep 5
+	ENB_STATE_MSG=`cat /var/log/core0 | grep "S_RRC_CELL_STATE_IND"`
+	ENB_STATE=`echo $ENB_STATE_MSG | awk -F"(" '/state/{print $4}' | awk -F")" '{print $1}'`
+	if [ -z $ENB_STATE ];then ENB_STATE=UNKNOWN;fi
+	if [ $ENB_STATE == "enabled" ];then
+	    echo
+	    echo "[$0] CELL is in ENABLE STATE ...... [DONE - $FAPENABLECOUNT]"
+	    break
+	fi
+        if [ -z $FAPENABLECOUNT ];then FAPENABLECOUNT=16;fi
+	if [ $FAPENABLECOUNT -lt 0 ];then
+	    echo
+	    echo "[$0] CELL is in $ENB_STATE STATE ...... [DONE]"
+	    toggle 1 0&
+	    exit 1
+	fi
+	let FAPENABLECOUNT=$FAPENABLECOUNT-1
+  done
+
+  sh /sbin/rev28fix.sh
+  sleep 1
+  
+  ## This section is required in the we need to generate PPS
+  if [ "$GPSENABLE" != 1 -a "$PTPENABLE" != 1 -a "$PTP1PPSEN" != "1" ];then
+    echo "[$0] Enable internal synchronization"
+    oct-linux-memory -w 4 0x00010F0000868110 1
+  fi
+
+
+fi ## pltd or e2e mode selection
+
+
+### Create/Add version file for WebUI
+##
+
+echo "<font size=1><tt>" > /tmp/.ver
+dmesg|head -n 4 | grep -v CVMSEG | sed -e "s/:/ /"  | awk '{print $1" "$2":"$3" <br>"}'         >> /tmp/.ver
+echo `version |grep STACK | awk '{print mode " STACK Revision: "$6" <br>"}' mode=${DUPLEXMODE}` >> /tmp/.ver
+echo `version |grep DSP   | awk '{print "DSP Revision: "$5" </tt>"}'   `                        >> /tmp/.ver
+
+
+echo "[$0] SmallCell in $MODE mode"

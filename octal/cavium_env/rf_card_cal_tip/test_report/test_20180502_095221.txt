@@ -1,0 +1,28 @@
+./test_report/test_20180502_095221.txt
+02/05/2018 09:52:21
+
+*** Calibration #1 ***
+
+DL Freq.1840.0 MHz
+UL Freq.1715.0 MHz
+
+RSSI Calibration:
+slope_1=nan, offset_1=nan
+slope_2=nan, offset_2=nan
+
+Reference Clock Calibration:
+Frequency = 1840000000.0
+PWM_high value = 22857
+PWM_low value = 37376
+
+IQ Offset Calibration:
+tx1_i_offset = 0xff
+tx1_q_offset = 0xff
+tx2_i_offset = 0xff
+tx2_q_offset = 0xfa
+
+TX Power Calibration:
+slope_1=-1.025787, offset_1=4.017246
+slope_2=-7.884413, offset_2=-372.513807
+
+TX Max Available Power:

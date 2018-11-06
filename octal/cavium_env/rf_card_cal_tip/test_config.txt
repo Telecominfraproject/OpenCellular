@@ -1,0 +1,76 @@
+
+# calibration channel frequency select
+# 1. the 1st dl_freq & ul_freq calibration results will write into u-boot environment variables
+# 2. leave the 1st dl_freq & ul_freq to zero for default(center) frequencies
+
+num_cal_channel=1               # number of calibration channels 
+band=3                         # enodeB band
+dl_freq=1840                       # downlink frequency
+ul_freq=1745                       # uplink frequency
+
+# environment setting
+
+board_typ='zen_ad'   # board type [zen_ad]
+cal_bandwidth=10     # calibration bandwidth in mhz [5, 10, 15, 20]
+tcxo_ctrl='pwm'      # tcxo control type [pwm, dac, dax]; dax - DAC8571
+
+attn1=18             # port 1 attenuation
+attn2=18             # port 2 attenuation
+gain1=38             # port 1 gain [dB]
+gain2=38             # port 2 gain [dB]
+
+login_pwd='cavium.lte'           # 'admin.udcell'
+enb_ipaddr='10.102.81.61'      # enodeB IP address
+enb_tn_port=23                   # enodeB telnet port
+tftp_server_ip='10.102.81.50' # tftp server IP address
+rssi_cable_loss=9               # cable loss for RSSI test
+txpwr_cable_loss=9               # cable loss for TX test
+manual_switch_instr=False        # T: pause for manual switching; F: continuous
+
+test_set='agilent'   # test set type [agilent, anritsu, rs]
+
+# agilent test set
+exg_ipaddr='10.115.115.38'     # EXG IP address
+exg_tcp_port=5025                # EXG TCP port
+mxa_ipaddr='10.102.81.200'     # MXA IP address
+mxa_tcp_port=5025                # MXA TCP port
+
+# anritsu test set
+mt8870a_ipaddr='192.168.166.68'	 # '192.168.1.1'
+mt8870a_tcp_port=56001
+
+# r&s test set
+cmw500_ipaddr='10.115.115.40'
+cmw500_tcp_port=5025
+
+# test files
+rf_driver='cn_rfdriver'			 # 'oct_fusion_rfic_drv-E2E'
+dsp_app_dl='pltD'                #'pltD.gz'
+dl_etm_test_vector='LSM_X_TV_0_wk21_00_ETM_10Mhz.tgz'
+
+# test criteria
+max_atten=5    #28  # make the lowest TX power to start TX power test; 5 ~ 45
+cr_txpwr_min=-10      # minimum TX output power limit
+cr_txpwr_max=22      # maximum TX output power limit
+cr_txevm_max=5.0     # maximum TX EVM limit
+
+# system variables
+en_eeprom_write=True # T: write EEPROM
+eeprom_record_ver=1  # EEPROM record version
+test_report=True     # T: enable test report; F: disable
+instr_disp=True      # T: enable instrument screen display
+
+# RX sensitivity test
+do_sens_test_in_opt1=True        # do test in option 1 calibration
+my_udp_ipaddr='192.168.166.27'  # UDP IP address for sensitivity test
+my_udp_port=9991                 # UDP port for sensitivity test
+tcid='901'						 # RX test case ID
+rx_gain=60                       # RX gain for sensitivity test
+bler_limit=4                     # percentage of BLER pass criteria
+sens_pass_limit=-96              # sensitivity pass limit
+
+# Baseboard test variables
+bb_port='COM88'  	             #'/dev/ttyUSB0'
+bb_baudrate=115200
+bb_pingip='192.168.166.27'
+

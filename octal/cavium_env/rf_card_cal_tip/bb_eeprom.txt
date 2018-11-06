@@ -1,0 +1,23 @@
+# Baseboard EEPROM Data
+
+boardname='zen'             # ('refkit1', 'zen') default 'zen'
+boardversion=10              # (1 to 254)
+NumETHPort=1                # (1 or 2) default 1
+ExtPTPHWPresent=1           # (0 not present, 1 present)
+ExtPTPHWUARTPort='ttyS1'    # (port name) default 'ttyS1'
+ExtPTPHWUARTBaud=6          # (1: 4800 2: 9600 3: 19200 4: 38400 5: 57600 
+                            # 6: 115200 7: 230400); default 6
+ExtPTPHWUARTEcho=0          # (0 disable, 1 enable) default 0
+ExtGPSHWPresent=1           # (0 not present, 1 present)
+ExtGPSHWUARTPort='ttyS1'    # (port name) default 'ttyS1'
+ExtGPSHWUARTBaud=6          # (1: 4800 2: 9600 3: 19200 4: 38400 5: 57600 
+                            # 6: 115200 7: 230400); default 6
+ExtGPSHWUARTEcho=0          # (0 disable, 1 enable) default 0
+SimCardPresent=0            # (0 not present, 1 present)
+SDCardPresent=0             # (0 not present, 1 present)
+USBPortPresent=0            # (0 not present, 1 present)
+PCIEPresent=0               # (0 not present, 1 present)
+EthSwitchPresent=0          # (0 not present, 1 present)
+
+PTPVcoDriftPresent=0        # (0 not present, 1 present)
+PTPVcoDriftValue=0          # signed integer
