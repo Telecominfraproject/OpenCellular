@@ -28,7 +28,7 @@ typedef struct SPI_Dev {
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
-SPI_Handle spi_get_handle(unsigned int index);
+SPI_Handle spi_get_handle(uint32_t index);
 
 ReturnStatus spi_reg_read(SPI_Handle spiHandle,
                           OcGpio_Pin *chip_select,
