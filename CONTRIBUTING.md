@@ -21,4 +21,5 @@ See wiki
 
 ## License
 By contributing to OpenCellular, you agree that your contributions will be licensed
-under the LICENSE file in the root directory of this source tree.
+under the LICENSE-SOFTWARE (for Software) and LICENSE-HARDWARE (for Hardware) files 
+in the root directory of this source tree.
