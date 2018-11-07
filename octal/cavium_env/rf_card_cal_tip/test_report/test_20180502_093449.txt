@@ -1,0 +1,11 @@
+./test_report/test_20180502_093449.txt
+02/05/2018 09:34:49
+
+*** Calibration #1 ***
+
+DL Freq.1840.0 MHz
+UL Freq.1715.0 MHz
+
+RSSI Calibration:
+slope_1=nan, offset_1=nan
+slope_2=nan, offset_2=nan
