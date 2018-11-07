@@ -38,6 +38,7 @@ SCHEMA_IMPORT DriverStruct eeprom_gbc_sid;
 SCHEMA_IMPORT DriverStruct eeprom_gbc_inv;
 SCHEMA_IMPORT DriverStruct eeprom_sdr_inv;
 SCHEMA_IMPORT DriverStruct eeprom_fe_inv;
+SCHEMA_IMPORT DriverStruct gbc_spi_flash_memory;
 /* Power SubSystem Configs */
 SCHEMA_IMPORT DriverStruct gbc_pwr_lead_acid_ts;
 SCHEMA_IMPORT DriverStruct gbc_pwr_ext_bat_charger;
@@ -214,6 +215,7 @@ SCHEMA_IMPORT bool SYNC_Init(void *driver, void *returnValue);
 SCHEMA_IMPORT bool SYNC_reset(void *driver, void *params);
 SCHEMA_IMPORT bool SYS_cmdReset(void *driver, void *params);
 SCHEMA_IMPORT bool SYS_cmdEcho(void *driver, void *params);
+SCHEMA_IMPORT bool sys_post_init(void* driver, void *returnValue);
 SCHEMA_IMPORT bool TestMod_cmdEnable(void *driver, void *params);
 SCHEMA_IMPORT bool TestMod_cmdDisable(void *driver, void *params);
 SCHEMA_IMPORT bool TestMod_cmdDisconnect(void *driver, void *params);
@@ -250,6 +252,11 @@ const Component sys_schema[] = {
                         .name = "eeprom_mac",
                         .driver = &Driver_MAC,
                     },
+                    {
+                        .name = "SPI_flash",
+                        .driver = &FLASHDRV,
+                        .driver_cfg = &gbc_spi_flash_memory,
+                    },
                     {}
                 },
                 .commands = (Command[]){
@@ -265,6 +272,10 @@ const Component sys_schema[] = {
                 },
             },
             {}
+        },
+        .driver_cfg = &gbc_spi_flash_memory,
+        .ssHookSet = &(SSHookSet) {
+            .postInitFxn = (ssHook_Cb)sys_post_init,
         },
     },
     {
