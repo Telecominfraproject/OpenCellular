@@ -9,21 +9,21 @@
 #pragma once
 
 #ifndef AT_CMD_H_
-#define AT_CMD_H_
+#    define AT_CMD_H_
 
-#include <ti/drivers/UART.h>
+#    include <ti/drivers/UART.h>
 
-#include <inttypes.h>
-#include <stdbool.h>
+#    include <inttypes.h>
+#    include <stdbool.h>
 
 typedef struct AT_Info *AT_Handle;
 
 // TODO: this needs to be more like 22
-#define AT_MAX_PARAMS 12
-#define AT_STR_BUF_SIZE 100
+#    define AT_MAX_PARAMS 12
+#    define AT_STR_BUF_SIZE 100
 
 /* TODO: timeouts are in sys ticks, not ms - macro? */
-#define AT_RES_DEFAULT_TIMEOUT 5000
+#    define AT_RES_DEFAULT_TIMEOUT 5000
 
 typedef enum AT_ParamType {
     AT_PARAM_TYPE_INT,

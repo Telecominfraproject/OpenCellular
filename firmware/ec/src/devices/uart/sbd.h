@@ -72,10 +72,10 @@ typedef struct SbdsInfo {
 } SbdsInfo;
 
 typedef struct SbdsxInfo {
-    SbdsInfo sbdsInfo;  //!< Regular SBD status info
-    int raFlag;         //!< Ring alert still needs to be answered
-    int msgWaiting;     //!< Number of MT messages at gateway
-                        //!< (updated every SBD session)
+    SbdsInfo sbdsInfo; //!< Regular SBD status info
+    int raFlag;        //!< Ring alert still needs to be answered
+    int msgWaiting;    //!< Number of MT messages at gateway
+                       //!< (updated every SBD session)
 } SbdsxInfo;
 
 typedef enum SbdCiev {
@@ -101,7 +101,8 @@ typedef struct SbdCallbackList {
     SbdCievCb ciev;
 } SbdCallbackList;
 
-SBD_Handle SBD_init(UART_Handle hCom, const SbdCallbackList *cbList, void *cbContext);
+SBD_Handle SBD_init(UART_Handle hCom, const SbdCallbackList *cbList,
+                    void *cbContext);
 
 bool SBD_sbdix(SBD_Handle handle, SbdixInfo *info_out, bool alert_response);
 
@@ -163,10 +164,10 @@ typedef enum SbdAregMode {
 bool SBD_sbdareg(SBD_Handle handle, SbdAregMode mode);
 
 typedef enum SbdRegStat {
-    SBD_REG_DETACHED    = 0x00,
-    SBD_REG_NONE        = 0x01,
-    SBD_REG_REGISTERED  = 0x02,
-    SBD_REG_DENIED      = 0x03,
+    SBD_REG_DETACHED = 0x00,
+    SBD_REG_NONE = 0x01,
+    SBD_REG_REGISTERED = 0x02,
+    SBD_REG_DENIED = 0x03,
 } SbdRegStat;
 bool SBD_sbdregRead(SBD_Handle handle, SbdRegStat *status_out);
 

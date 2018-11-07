@@ -21,14 +21,14 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define SYNC_TASK_PRIORITY                  2
-#define SYNC_TASK_STACK_SIZE                1024
+#define SYNC_TASK_PRIORITY 2
+#define SYNC_TASK_STACK_SIZE 1024
 
 /* Temporary fix */
-#define SYNC_GPS_TASK_PRIORITY              2
-#define SYNC_GPS_TASK_STACK_SIZE            1024
+#define SYNC_GPS_TASK_PRIORITY 2
+#define SYNC_GPS_TASK_STACK_SIZE 1024
 
-#define SYNC_TEMP_SENSOR_ADDR               0x4C
+#define SYNC_TEMP_SENSOR_ADDR 0x4C
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -47,10 +47,7 @@ typedef struct Sync_gpioCfg {
     OcGpio_Pin pin_ec_sync_reset;
 } Sync_gpioCfg;
 
-typedef enum gpsStatus {
-    GPS_NOTLOCKED = 0,
-    GPS_LOCKED
-} gpsStatus;
+typedef enum gpsStatus { GPS_NOTLOCKED = 0, GPS_LOCKED } gpsStatus;
 
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS

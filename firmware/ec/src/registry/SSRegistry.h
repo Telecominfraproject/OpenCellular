@@ -46,7 +46,7 @@ void SSRegistry_init(void);
  * @param ss_id The ID of the requested subsystem
  * @return #OCSubsystem pointer if valid ID, else NULL
  */
-OCSubsystem* SSRegistry_Get(OCMPSubsystem ss_id);
+OCSubsystem *SSRegistry_Get(OCMPSubsystem ss_id);
 
 /**
  * Enters a message into the desired subsystem's message queue

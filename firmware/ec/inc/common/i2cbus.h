@@ -33,16 +33,12 @@ I2C_Handle i2c_open_bus(unsigned int index);
 /* Wrapper to ease migration */
 #define i2c_get_handle i2c_open_bus
 
-void i2c_close_bus(I2C_Handle* i2cHandle);
-ReturnStatus i2c_reg_write( I2C_Handle i2cHandle,
-                            uint8_t deviceAddress,
-                            uint8_t regAddress,
-                            uint16_t value,
-                            uint8_t numofBytes);
-ReturnStatus i2c_reg_read(  I2C_Handle i2cHandle,
-                            uint8_t deviceAddress,
-                            uint8_t regAddress,
-                            uint16_t *value,
-                            uint8_t numofBytes);
+void i2c_close_bus(I2C_Handle *i2cHandle);
+ReturnStatus i2c_reg_write(I2C_Handle i2cHandle, uint8_t deviceAddress,
+                           uint8_t regAddress, uint16_t value,
+                           uint8_t numofBytes);
+ReturnStatus i2c_reg_read(I2C_Handle i2cHandle, uint8_t deviceAddress,
+                          uint8_t regAddress, uint16_t *value,
+                          uint8_t numofBytes);
 
 #endif /* I2CBUS_H_ */

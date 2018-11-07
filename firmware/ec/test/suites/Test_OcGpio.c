@@ -30,13 +30,13 @@ static uint32_t OcGpio_GpioConfig[] = {
 };
 
 static OcGpio_Pin s_fake_pin = {
-    .port = &s_fake_io_port, 
+    .port = &s_fake_io_port,
     .idx = 1,
 };
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
 {
-    FakeGpio_registerDevSimple(OcGpio_GpioPins, OcGpio_GpioConfig);                               
+    FakeGpio_registerDevSimple(OcGpio_GpioPins, OcGpio_GpioConfig);
 }
 
 void setUp(void)

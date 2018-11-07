@@ -12,7 +12,7 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define WATCHDOG_TASK_STACK_SIZE        1024
-#define WATCHDOG_TASK_PRIORITY          2
+#define WATCHDOG_TASK_STACK_SIZE 1024
+#define WATCHDOG_TASK_PRIORITY 2
 
 #endif /* WATCHDOG_H_ */

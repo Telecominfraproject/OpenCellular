@@ -55,7 +55,7 @@
 // by some Wake-On-LAN implementations.
 //
 //*****************************************************************************
-#define MPACKET_PORT            9
+#define MPACKET_PORT 9
 
 //*****************************************************************************
 //
@@ -64,11 +64,10 @@
 // copies of the target MAC address.
 //
 //*****************************************************************************
-#define MPACKET_HEADER_LEN      6
-#define MPACKET_MAC_REP         4
-#define MPACKET_MAC_LEN         6
-#define MPACKET_LEN             (MPACKET_HEADER_LEN +                         \
-                                 (MPACKET_MAC_REP * MPACKET_MAC_LEN))
+#define MPACKET_HEADER_LEN 6
+#define MPACKET_MAC_REP 4
+#define MPACKET_MAC_LEN 6
+#define MPACKET_LEN (MPACKET_HEADER_LEN + (MPACKET_MAC_REP * MPACKET_MAC_LEN))
 
 //*****************************************************************************
 //
@@ -76,7 +75,7 @@
 // MPACKET_HEADER_LEN times.
 //
 //*****************************************************************************
-#define MPACKET_MARKER          0xAA
+#define MPACKET_MARKER 0xAA
 
 //*****************************************************************************
 //
@@ -109,8 +108,7 @@ static uint8_t g_pui8MACAddr[6];
 // \return None.
 //
 //*****************************************************************************
-static void
-SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
+static void SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
 {
     uint32_t ui32Loop, ui32MACLoop;
 
@@ -118,35 +116,28 @@ SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
     // Check that the packet length is what we expect.  If not, ignore the
     // packet.
     //
-    if(plen == MPACKET_LEN)
-    {
+    if (plen == MPACKET_LEN) {
         //
         // The length matches so now look for the 6 byte header
         //
-        for(ui32Loop = 0; ui32Loop < MPACKET_HEADER_LEN; ui32Loop++)
-        {
+        for (ui32Loop = 0; ui32Loop < MPACKET_HEADER_LEN; ui32Loop++) {
             //
             // Does this header byte match the expected marker?
             //
-            if((*pi8Data & 0x000000FF)!= MPACKET_MARKER)
-            {
+            if ((*pi8Data & 0x000000FF) != MPACKET_MARKER) {
                 //
                 // No - free the buffer and return - this is not a packet
                 // we are interested in.
                 //
                 return;
-            }
-            else
-            {
+            } else {
                 //
                 // Byte matched so move on to the next one.
                 //
                 pi8Data++;
             }
         }
-    }
-    else
-    {
+    } else {
         //
         // No - free the buffer and return - this is not a packet
         // we are interested in.
@@ -164,26 +155,21 @@ SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
     //
     // Loop through each of the expected MAC address copies.
     //
-    for(ui32Loop = 0; ui32Loop < MPACKET_MAC_REP; ui32Loop++)
-    {
+    for (ui32Loop = 0; ui32Loop < MPACKET_MAC_REP; ui32Loop++) {
         //
         // Loop through each byte of the MAC address in this
         // copy.
         //
-        for(ui32MACLoop = 0; ui32MACLoop < MPACKET_MAC_LEN; ui32MACLoop++)
-        {
+        for (ui32MACLoop = 0; ui32MACLoop < MPACKET_MAC_LEN; ui32MACLoop++) {
             //
             // Does the payload MAC address byte match what we expect?
             //
-            if((*pi8Data & 0x000000FF) != g_pui8MACAddr[ui32MACLoop])
-            {
+            if ((*pi8Data & 0x000000FF) != g_pui8MACAddr[ui32MACLoop]) {
                 //
                 // No match - free the packet and return.
                 //
                 return;
-            }
-            else
-            {
+            } else {
                 //
                 // Byte matched so move on to the next one.
                 //
@@ -197,8 +183,7 @@ SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
     // request targetted at this board.  Signal this to the application
     // if we have a valid callback pointer.
     //
-    if(g_pfnUpdateCallback)
-    {
+    if (g_pfnUpdateCallback) {
         g_pfnUpdateCallback();
     }
 }
@@ -206,13 +191,13 @@ SoftwareUpdateUDPReceive(int8_t *pi8Data, size_t plen)
 /* arg0 contains port to listen on */
 static void sw_update_worker(UArg arg0, UArg arg1)
 {
-    int                bytesRcvd;
-    int                status;
-    int                server;
-    fd_set             readSet;
+    int bytesRcvd;
+    int status;
+    int server;
+    fd_set readSet;
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
-    socklen_t          addrlen;
+    socklen_t addrlen;
 
     int8_t buffer[MPACKET_LEN];
 
@@ -227,7 +212,7 @@ static void sw_update_worker(UArg arg0, UArg arg1)
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(arg0);
 
-    status = bind(server, (struct sockaddr *) &localAddr, sizeof(localAddr));
+    status = bind(server, (struct sockaddr *)&localAddr, sizeof(localAddr));
     if (status == -1) {
         System_printf("Error: bind failed.\n");
         goto shutdown;
@@ -247,7 +232,7 @@ static void sw_update_worker(UArg arg0, UArg arg1)
         if (status > 0) {
             if (FD_ISSET(server, &readSet)) {
                 bytesRcvd = recvfrom(server, buffer, MPACKET_LEN, 0,
-                        (struct sockaddr *)&clientAddr, &addrlen);
+                                     (struct sockaddr *)&clientAddr, &addrlen);
 
                 if (bytesRcvd > 0) {
                     SoftwareUpdateUDPReceive(buffer, bytesRcvd);
@@ -261,7 +246,6 @@ shutdown:
         close(server);
     }
 }
-
 
 //*****************************************************************************
 //
@@ -304,8 +288,7 @@ shutdown:
 //! \return None.
 //
 //*****************************************************************************
-void
-SoftwareUpdateInit(tSoftwareUpdateRequested pfnCallback)
+void SoftwareUpdateInit(tSoftwareUpdateRequested pfnCallback)
 {
     uint32_t ui32User0, ui32User1;
 
@@ -338,7 +321,6 @@ SoftwareUpdateInit(tSoftwareUpdateRequested pfnCallback)
     if (!Task_create(sw_update_worker, &task_sw_update_Params, NULL)) {
         System_printf("Error: Failed to create sw update task\n");
     }
-
 }
 
 //*****************************************************************************
@@ -364,8 +346,7 @@ SoftwareUpdateInit(tSoftwareUpdateRequested pfnCallback)
 //! \return Never returns.
 //
 //*****************************************************************************
-void
-SoftwareUpdateBegin(uint32_t ui32SysClock)
+void SoftwareUpdateBegin(uint32_t ui32SysClock)
 {
     //
     // Disable all processor interrupts.  Instead of disabling them

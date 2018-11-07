@@ -27,9 +27,9 @@
 #include <xdc/cfg/global.h>
 #include <xdc/runtime/System.h>
 
-#define FRAME_SIZE                  64
-#define OCFS_TASK_PRIORITY          5
-#define OCFS_TASK_STACK_SIZE        4096
+#define FRAME_SIZE 64
+#define OCFS_TASK_PRIORITY 5
+#define OCFS_TASK_STACK_SIZE 4096
 
 Task_Struct ocFSTask;
 Char ocFSTaskStack[OCFS_TASK_STACK_SIZE];
@@ -46,9 +46,7 @@ Queue_Handle fsTxMsgQueue;
 
 extern POSTData PostResult[POST_RECORDS];
 
-typedef enum {
-    OC_SYS_CONF_MAC_ADDRESS = 0
-} eOCConfigParamId;
+typedef enum { OC_SYS_CONF_MAC_ADDRESS = 0 } eOCConfigParamId;
 
 /* Resets the AP and then the EC */
 bool SYS_cmdReset(void *driver, void *params)
@@ -90,19 +88,15 @@ bool SYS_post_enable(void **postActivate)
 {
     ReturnStatus status = RETURN_NOTOK;
     LOGGER("SYS:INFO:: Starting POST test for OpenCellular.\n");
-    //Permission granted from the System.
-    //Sending the activate POST message to POST subsystem.
-    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(OC_SS_SYS,
-                                                         OCMP_MSG_TYPE_POST,
-                                                         OCMP_AXN_TYPE_ACTIVE,
-                                                         0x00,
-                                                         0x00,
-                                                         1);
+    // Permission granted from the System.
+    // Sending the activate POST message to POST subsystem.
+    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
+        OC_SS_SYS, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     if (postExeMsg != NULL) {
         status = RETURN_OK;
         *postActivate = (OCMPMessageFrame *)postExeMsg;
     }
-    return (status == RETURN_OK) ;
+    return (status == RETURN_OK);
 }
 
 /*****************************************************************************
@@ -124,43 +118,46 @@ bool SYS_post_get_results(void **getpostResult)
     OCMPMessageFrame *getpostResultMsg = (OCMPMessageFrame *)getpostResult;
     /* Get the subsystem info for which message is required */
     OCMPMessageFrame *postResultMsg = create_ocmp_msg_frame(
-            getpostResultMsg->message.subsystem, OCMP_MSG_TYPE_POST,
-            OCMP_AXN_TYPE_REPLY,0x00,0x00,40);
+        getpostResultMsg->message.subsystem, OCMP_MSG_TYPE_POST,
+        OCMP_AXN_TYPE_REPLY, 0x00, 0x00, 40);
     if (postResultMsg) {
         /* Getting data assigned*/
         postResultMsg->header.ocmpSof = getpostResultMsg->header.ocmpSof;
-        postResultMsg->header.ocmpInterface = getpostResultMsg->header
-                                                .ocmpInterface;
-        postResultMsg->header.ocmpSeqNumber = getpostResultMsg->header
-                                                .ocmpSeqNumber;
+        postResultMsg->header.ocmpInterface =
+            getpostResultMsg->header.ocmpInterface;
+        postResultMsg->header.ocmpSeqNumber =
+            getpostResultMsg->header.ocmpSeqNumber;
         for (iter = 0; iter < POST_RECORDS; iter++) {
-            if (PostResult[iter].subsystem
-                    == getpostResultMsg->message.ocmp_data[0]) {
+            if (PostResult[iter].subsystem ==
+                getpostResultMsg->message.ocmp_data[0]) {
                 postResultMsg->message.ocmp_data[(3 * index) + 0] =
-                                        PostResult[iter].subsystem;
+                    PostResult[iter].subsystem;
                 postResultMsg->message.ocmp_data[(3 * index) + 1] =
-                        PostResult[iter].devSno;                //Device serial Number
+                    PostResult[iter].devSno; // Device serial Number
                 postResultMsg->message.ocmp_data[(3 * index) + 2] =
-                        PostResult[iter].status;                //Status ok
+                    PostResult[iter].status; // Status ok
                 index++;
             }
         }
-        LOGGER_DEBUG("BIGBROTHER:INFO::POST message sent for subsystem 0x%x.\n");
+        LOGGER_DEBUG(
+            "BIGBROTHER:INFO::POST message sent for subsystem 0x%x.\n");
         /*Size of payload*/
         postResultMsg->header.ocmpFrameLen = index * 3;
         /*Updating Subsystem*/
-        //postResultMsg->message.subsystem = (OCMPSubsystem)PostResult[iter].subsystem;
+        // postResultMsg->message.subsystem =
+        // (OCMPSubsystem)PostResult[iter].subsystem;
         /* Number of devices found under subsystem*/
         postResultMsg->message.parameters = index;
         index = 0;
     } else {
-        LOGGER("BIGBROTHER:ERROR:: Failed to allocate memory for POST results.\n");
+        LOGGER(
+            "BIGBROTHER:ERROR:: Failed to allocate memory for POST results.\n");
     }
-    memcpy(((OCMPMessageFrame*)getpostResult), postResultMsg, 64);
+    memcpy(((OCMPMessageFrame *)getpostResult), postResultMsg, 64);
     return status;
 }
 
-bool sys_post_init(void* driver, void *returnValue)
+bool sys_post_init(void *driver, void *returnValue)
 {
     Semaphore_construct(&semFSstruct, 0, NULL);
     semFilesysMsg = Semaphore_handle(&semFSstruct);
@@ -182,7 +179,7 @@ bool sys_post_init(void* driver, void *returnValue)
     taskParams.priority = OCFS_TASK_PRIORITY;
     taskParams.arg0 = (UArg)driver;
     taskParams.arg1 = (UArg)returnValue;
-    Task_construct(&ocFSTask,fs_init, &taskParams,NULL);
+    Task_construct(&ocFSTask, fs_init, &taskParams, NULL);
     LOGGER_DEBUG("FS:INFO:: Creating filesystem task function.\n");
     return true;
 }

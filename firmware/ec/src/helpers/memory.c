@@ -10,20 +10,22 @@
 
 #include "inc/common/global_header.h"
 
-void printMemory(const void *start, size_t size) {
+void printMemory(const void *start, size_t size)
+{
     for (size_t i = 0; i < size; ++i) {
         DEBUG("0x%02x ", ((uint8_t *)start)[i]);
 
-        if ((i+1) % 8 == 0) {
+        if ((i + 1) % 8 == 0) {
             DEBUG("\n");
-        } else if ((i+1) % 4 == 0) {
+        } else if ((i + 1) % 4 == 0) {
             DEBUG(" ");
         }
     }
     DEBUG("\n");
 }
 
-uint8_t set_bit8(uint8_t byte, uint8_t bit, bool value) {
+uint8_t set_bit8(uint8_t byte, uint8_t bit, bool value)
+{
     const uint8_t mask = 1 << bit;
     if (value) {
         byte |= mask;
