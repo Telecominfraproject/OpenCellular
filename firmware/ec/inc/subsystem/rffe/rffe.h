@@ -21,8 +21,8 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define RFFE_TASK_PRIORITY                      2
-#define RFFE_TASK_STACK_SIZE                    2048
+#define RFFE_TASK_PRIORITY 2
+#define RFFE_TASK_STACK_SIZE 2048
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -50,21 +50,21 @@ typedef struct Fe_Lna_Cfg {
 } Fe_Lna_Cfg;
 
 typedef struct Fe_Ch1_Gain_Cfg {
-    Fe_Gain_Cfg* fe_gain_cfg;
+    Fe_Gain_Cfg *fe_gain_cfg;
 } Fe_Ch1_Gain_Cfg;
 
 typedef struct Fe_Ch2_Gain_Cfg {
     OcGpio_Pin pin_ch1_2g_lb_band_sel_l;
-    Fe_Gain_Cfg* fe_gain_cfg;
+    Fe_Gain_Cfg *fe_gain_cfg;
 } Fe_Ch2_Gain_Cfg;
 
 typedef struct Fe_Ch1_Lna_Cfg {
-    Fe_Lna_Cfg* fe_lna_cfg;
+    Fe_Lna_Cfg *fe_lna_cfg;
 } Fe_Ch1_Lna_Cfg;
 
 typedef struct Fe_Ch2_Lna_Cfg {
     OcGpio_Pin pin_ch1_rf_pwr_off;
-    Fe_Lna_Cfg* fe_lna_cfg;
+    Fe_Lna_Cfg *fe_lna_cfg;
 } Fe_Ch2_Lna_Cfg;
 
 typedef struct Fe_Watchdog_Cfg {
@@ -82,15 +82,15 @@ typedef struct Fe_gpioCfg {
     OcGpio_Pin pin_rf_pgood_ldo;
     OcGpio_Pin pin_fe_12v_ctrl;
     OcGpio_Pin pin_trxfe_conn_reset;
-}Fe_gpioCfg;
+} Fe_gpioCfg;
 
 typedef struct Fe_Cfg {
-    Fe_gpioCfg* fe_gpio_cfg;
-    Fe_Ch1_Gain_Cfg* fe_ch1_gain_cfg;
-    Fe_Ch2_Gain_Cfg* fe_ch2_gain_cfg;
-    Fe_Ch1_Lna_Cfg* fe_ch1_lna_cfg;
-    Fe_Ch2_Lna_Cfg* fe_ch2_lna_cfg;
-    Fe_Watchdog_Cfg* fe_watchdog_cfg;
+    Fe_gpioCfg *fe_gpio_cfg;
+    Fe_Ch1_Gain_Cfg *fe_ch1_gain_cfg;
+    Fe_Ch2_Gain_Cfg *fe_ch2_gain_cfg;
+    Fe_Ch1_Lna_Cfg *fe_ch1_lna_cfg;
+    Fe_Ch2_Lna_Cfg *fe_ch2_lna_cfg;
+    Fe_Watchdog_Cfg *fe_watchdog_cfg;
 } Fe_Cfg;
 
 typedef struct __attribute__((packed, aligned(1))) {

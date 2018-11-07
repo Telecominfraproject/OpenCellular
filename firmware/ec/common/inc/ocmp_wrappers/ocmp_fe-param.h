@@ -15,11 +15,9 @@ SCHEMA_IMPORT const Driver_fxnTable FE_PARAM_fxnTable;
 
 static const Driver FE_Param = {
     .name = "FE_parametrs",
-    .config = (Parameter[]){
-        { .name = "band", .type = TYPE_UINT16 },
-        { .name = "arfcn", .type = TYPE_UINT16 },
-        {}
-    },
+    .config = (Parameter[]){ { .name = "band", .type = TYPE_UINT16 },
+                             { .name = "arfcn", .type = TYPE_UINT16 },
+                             {} },
     .fxnTable = &FE_PARAM_fxnTable,
 };
 

@@ -20,23 +20,23 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define GPP_TASK_PRIORITY                       2
-#define GPP_TASK_STACK_SIZE                     2048
+#define GPP_TASK_PRIORITY 2
+#define GPP_TASK_STACK_SIZE 2048
 
 /*
  * Define all the constant information of GPP subsystem here, like device
  * addresses or Constant configuration values or NUMBER of sensors.
  */
-#define GPP_TEMP_SENSOR_NOS                     3
+#define GPP_TEMP_SENSOR_NOS 3
 
 /*
  * Device address of GPP sub system are as below.
  */
-#define GPP_AP_TEMPSENS1_ADDR                   0x1A
-#define GPP_AP_TEMPSENS2_ADDR                   0x1D
-#define GPP_AP_TEMPSENS3_ADDR                   0x1C
-#define GPP_AP_CURRENT_SENSOR_ADDR              0x44
-#define GPP_MSATA_CURRENT_SENSOR_ADDR           0x45
+#define GPP_AP_TEMPSENS1_ADDR 0x1A
+#define GPP_AP_TEMPSENS2_ADDR 0x1D
+#define GPP_AP_TEMPSENS3_ADDR 0x1C
+#define GPP_AP_CURRENT_SENSOR_ADDR 0x44
+#define GPP_MSATA_CURRENT_SENSOR_ADDR 0x45
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS

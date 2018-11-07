@@ -14,8 +14,7 @@
 
 #include <string.h>
 
-static bool _sid_get_status_parameters_data(void *driver,
-                                            unsigned int param,
+static bool _sid_get_status_parameters_data(void *driver, unsigned int param,
                                             void *data);
 /*****************************************************************************
  **    FUNCTION NAME   : _sid_get_status_parameters_data
@@ -27,32 +26,26 @@ static bool _sid_get_status_parameters_data(void *driver,
  **    RETURN TYPE     : Success or Failure
  **
  *****************************************************************************/
-static bool _sid_get_status_parameters_data(void *driver,
-                                            unsigned int param,
+static bool _sid_get_status_parameters_data(void *driver, unsigned int param,
                                             void *data)
 {
     const eOCStatusParamId paramIndex = (eOCStatusParamId)param;
-    const Eeprom_Cfg *cfg = ( Eeprom_Cfg*)driver;
+    const Eeprom_Cfg *cfg = (Eeprom_Cfg *)driver;
     ReturnStatus status = RETURN_OK;
     switch (paramIndex) {
-        case OC_STAT_SYS_SERIAL_ID:
-        {
+        case OC_STAT_SYS_SERIAL_ID: {
             memset(data, '\0', OC_CONNECT1_SERIAL_SIZE + 1);
             status = eeprom_read_oc_info(data);
-            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 serial id %s.\n",
-                         data);
+            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 serial id %s.\n", data);
             break;
         }
-        case OC_STAT_SYS_GBC_BOARD_ID:
-        {
+        case OC_STAT_SYS_GBC_BOARD_ID: {
             memset(data, '\0', OC_GBC_BOARD_INFO_SIZE + 1);
             status = eeprom_read_board_info(cfg, data);
-            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 GBC board is  %s.\n",
-                         data);
+            LOGGER_DEBUG("SYS:INFO:::: OC Connect1 GBC board is  %s.\n", data);
             break;
         }
-        default:
-        {
+        default: {
             status = RETURN_NOTOK;
         }
     }
@@ -70,11 +63,12 @@ static bool _sid_get_status_parameters_data(void *driver,
  **
  *****************************************************************************/
 bool Sdr_InventoryGetStatus(void *driver, unsigned int param_id,
-                            void *return_buf) {
-    const Eeprom_Cfg *cfg = ( Eeprom_Cfg*)driver;
+                            void *return_buf)
+{
+    const Eeprom_Cfg *cfg = (Eeprom_Cfg *)driver;
     switch (param_id) {
         case 0: /* TODO: gross magic number */
-            memset(return_buf,'\0', OC_SDR_BOARD_INFO_SIZE + 1);
+            memset(return_buf, '\0', OC_SDR_BOARD_INFO_SIZE + 1);
             if (eeprom_read_board_info(cfg, return_buf) == RETURN_OK) {
                 return true;
             }
@@ -97,13 +91,13 @@ bool Sdr_InventoryGetStatus(void *driver, unsigned int param_id,
  **
  *****************************************************************************/
 bool RFFE_InventoryGetStatus(void *driver, unsigned int param_id,
-                             void *return_buf) {
+                             void *return_buf)
+{
     const Eeprom_Cfg *cfg = (Eeprom_Cfg *)driver;
     switch (param_id) {
         case 0: /* TODO: gross magic number */
             memset(return_buf, '\0', OC_RFFE_BOARD_INFO_SIZE + 1);
-            if (eeprom_read_board_info(cfg, return_buf)
-                    == RETURN_OK) {
+            if (eeprom_read_board_info(cfg, return_buf) == RETURN_OK) {
                 return true;
             }
             LOGGER_DEBUG("RFFE:INFO:: Board id: %s\n", return_buf);
@@ -137,23 +131,22 @@ static ePostCode _init_eeprom(void *driver, const void **config,
 
 const Driver_fxnTable CAT24C04_gbc_sid_fxnTable = {
     /* Message handlers */
-   .cb_init = _init_eeprom,
-   .cb_get_status = _sid_get_status_parameters_data,
+    .cb_init = _init_eeprom,
+    .cb_get_status = _sid_get_status_parameters_data,
 };
 
-const Driver_fxnTable CAT24C04_gbc_inv_fxnTable= {
+const Driver_fxnTable CAT24C04_gbc_inv_fxnTable = {
     .cb_init = _init_eeprom,
 };
 
 const Driver_fxnTable CAT24C04_sdr_inv_fxnTable = {
     /* Message handlers */
-   .cb_init = _init_eeprom,
-   .cb_get_status = Sdr_InventoryGetStatus,
+    .cb_init = _init_eeprom,
+    .cb_get_status = Sdr_InventoryGetStatus,
 };
 
 const Driver_fxnTable CAT24C04_fe_inv_fxnTable = {
     /* Message handlers */
-   .cb_init = _init_eeprom,
-   .cb_get_status = RFFE_InventoryGetStatus,
+    .cb_init = _init_eeprom,
+    .cb_get_status = RFFE_InventoryGetStatus,
 };
-

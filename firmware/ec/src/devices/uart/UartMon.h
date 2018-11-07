@@ -60,7 +60,7 @@ typedef struct UartMon_Cfg {
 /* Private data for the driver instance */
 typedef struct UartMon_Object {
     struct {
-        bool opened:1;       /*!< Is there an open handle to the driver */
+        bool opened : 1; /*!< Is there an open handle to the driver */
     } state;
 
     UART_Handle hUart_in;    /*!< Handle to the monitored UART */

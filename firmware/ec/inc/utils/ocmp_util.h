@@ -26,7 +26,7 @@
  **
  *****************************************************************************/
 
-OCMPMessageFrame * OCMP_mallocFrame(uint16_t len);
+OCMPMessageFrame *OCMP_mallocFrame(uint16_t len);
 
 /*****************************************************************************
  **    FUNCTION NAME   : create_ocmp_msg_frame
@@ -38,13 +38,10 @@ OCMPMessageFrame * OCMP_mallocFrame(uint16_t len);
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-OCMPMessageFrame* create_ocmp_msg_frame(OCMPSubsystem subSystem,
-                                            OCMPMsgType msgtype,
-                                            OCMPActionType actionType,
-                                            uint8_t componentId,
-                                            uint16_t parameters,
-                                            uint8_t payloadSize);
-
+OCMPMessageFrame *
+create_ocmp_msg_frame(OCMPSubsystem subSystem, OCMPMsgType msgtype,
+                      OCMPActionType actionType, uint8_t componentId,
+                      uint16_t parameters, uint8_t payloadSize);
 
 /*****************************************************************************
  **    FUNCTION NAME   : create_ocmp_alert_from_Evt
@@ -58,8 +55,8 @@ OCMPMessageFrame* create_ocmp_msg_frame(OCMPSubsystem subSystem,
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-OCMPMessageFrame* create_ocmp_alert_from_Evt(OCMPMessageFrame* ocmpEventMsg,
-                                 uint8_t componentId,
-                                 uint16_t parameters );
+OCMPMessageFrame *create_ocmp_alert_from_Evt(OCMPMessageFrame *ocmpEventMsg,
+                                             uint8_t componentId,
+                                             uint16_t parameters);
 
 #endif /* INC_UTILS_OCMP_UTIL_H_ */

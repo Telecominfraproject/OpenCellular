@@ -32,9 +32,9 @@ void fake_I2C_deinit(void);
  * @param reg_size Size of each register in the device
  * @param addr_size Size of register addresses (typically 1-2B)
  */
-void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr,
-                                void *reg_table, size_t tbl_size,
-                                size_t reg_size, size_t addr_size,
+void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr, void *reg_table,
+                                size_t tbl_size, size_t reg_size,
+                                size_t addr_size,
                                 Fake_I2C_Endianness endianness);
 
 /*!

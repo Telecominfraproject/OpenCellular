@@ -15,25 +15,21 @@
 bool led_testpattern_control(void *driver, void *param)
 {
     ReturnStatus status = RETURN_OK;
-    ledTestParam *testPattern = (ledTestParam*)param;
+    ledTestParam *testPattern = (ledTestParam *)param;
     switch (*testPattern) {
-        case HCI_LED_OFF:
-        {
+        case HCI_LED_OFF: {
             status = hci_led_turnoff_all(driver);
             break;
         }
-        case HCI_LED_RED:
-        {
+        case HCI_LED_RED: {
             status = hci_led_turnon_red(driver);
             break;
         }
-        case HCI_LED_GREEN:
-        {
+        case HCI_LED_GREEN: {
             status = hci_led_turnon_green(driver);
             break;
         }
-        default:
-        {
+        default: {
             LOGGER_ERROR("HCILED::Unknown param %d\n", *testPattern);
             status = RETURN_NOTOK;
         }
@@ -41,7 +37,7 @@ bool led_testpattern_control(void *driver, void *param)
     return (status == RETURN_OK);
 }
 
-static ePostCode _probe(void *driver, POSTData* postData)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     led_configure(driver);
     return led_probe(driver, postData);
@@ -63,10 +59,6 @@ static ePostCode _init(void *driver, const void *config,
 
 const Driver_fxnTable LED_fxnTable = {
     /* Message handlers */
-    .cb_probe = _probe,
-    .cb_init = _init,
-    .cb_get_status = NULL,
-    .cb_get_config = NULL,
-    .cb_set_config = NULL,
+    .cb_probe = _probe,    .cb_init = _init,      .cb_get_status = NULL,
+    .cb_get_config = NULL, .cb_set_config = NULL,
 };
-

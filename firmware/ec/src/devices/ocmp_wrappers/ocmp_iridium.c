@@ -31,51 +31,44 @@ static ePostCode _init(void *driver, const void *config,
     return POST_DEV_CFG_DONE;
 }
 
-static bool _get_status(void *driver, unsigned int param_id,
-                        void *return_buf) {
-	bool ret = false;
-	switch (param_id) {
-		case IRIDIUM_NO_OUT_MSG:
-		{
-			ret = sbd9603_get_queueLength(return_buf);
-			break;
-		}
-		case IRIDIUM_LASTERR:
-		{
-			ret = sbd9603_get_lastError(return_buf);
-			break;
-		}
-		case IRIDIUM_IMEI:
-		{
-			ret = sbd9603_get_imei(return_buf);
-			break;
-		}
-		case IRIDIUM_MFG:
-		{
-			ret = sbd9603_get_mfg(return_buf);
-			break;
-		}
-		/* TODO: optimize this - no reason to call CSQ twice */
-		case IRIDIUM_MODEL:
-		{
-			ret = sbd9603_get_model(return_buf);
-			break;
-		}
-		case IRIDIUM_SIG_QUALITY:
-		{
-			ret = sbd9603_get_signalqual(return_buf);
-			break;
-		}
-		case IRIDIUM_REGSTATUS:
-		{
-			ret = sbd9603_get_regStatus(return_buf);
-			break;
-		}
-		default:
-			LOGGER("OBC::ERROR: Unknown param %d\n", param_id);
-			return false;
-	}
-	    return ret;
+static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
+{
+    bool ret = false;
+    switch (param_id) {
+        case IRIDIUM_NO_OUT_MSG: {
+            ret = sbd9603_get_queueLength(return_buf);
+            break;
+        }
+        case IRIDIUM_LASTERR: {
+            ret = sbd9603_get_lastError(return_buf);
+            break;
+        }
+        case IRIDIUM_IMEI: {
+            ret = sbd9603_get_imei(return_buf);
+            break;
+        }
+        case IRIDIUM_MFG: {
+            ret = sbd9603_get_mfg(return_buf);
+            break;
+        }
+        /* TODO: optimize this - no reason to call CSQ twice */
+        case IRIDIUM_MODEL: {
+            ret = sbd9603_get_model(return_buf);
+            break;
+        }
+        case IRIDIUM_SIG_QUALITY: {
+            ret = sbd9603_get_signalqual(return_buf);
+            break;
+        }
+        case IRIDIUM_REGSTATUS: {
+            ret = sbd9603_get_regStatus(return_buf);
+            break;
+        }
+        default:
+            LOGGER("OBC::ERROR: Unknown param %d\n", param_id);
+            return false;
+    }
+    return ret;
 }
 
 const Driver_fxnTable OBC_fxnTable = {
@@ -84,7 +77,3 @@ const Driver_fxnTable OBC_fxnTable = {
     .cb_init = _init,
     .cb_get_status = _get_status,
 };
-
-
-
-

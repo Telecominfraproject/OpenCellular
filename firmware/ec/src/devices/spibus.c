@@ -7,7 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * This file contains SPI driver's API within spi_get_handle, spi_reg_read and
- * spi_reg_write which ccan be called by device layer to communicate any SPI device.
+ * spi_reg_write which ccan be called by device layer to communicate any SPI
+ * device.
  */
 
 //*****************************************************************************
@@ -30,7 +31,7 @@
 #include <xdc/runtime/System.h>
 #include <xdc/runtime/Memory.h>
 
-#define PIN_LOW  (0)
+#define PIN_LOW (0)
 #define PIN_HIGH ~(0)
 
 /*****************************************************************************
@@ -43,8 +44,8 @@
  **    RETURN TYPE     : SPI_Handle (NULL on failure)
  **
  *****************************************************************************/
-SPI_Handle spi_get_handle(uint32_t index) {
-
+SPI_Handle spi_get_handle(uint32_t index)
+{
     SPI_Params spiParams;
     SPI_Handle spiHandle;
 
@@ -69,22 +70,19 @@ SPI_Handle spi_get_handle(uint32_t index) {
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus spi_reg_read(SPI_Handle spiHandle,
-                          OcGpio_Pin *chip_select,
-                          void *regAddress,
-                          uint8_t *data,
-                          uint32_t data_size,
-                          uint32_t byte,
-                          uint8_t numofBytes)
+ReturnStatus spi_reg_read(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
+                          void *regAddress, uint8_t *data, uint32_t data_size,
+                          uint32_t byte, uint8_t numofBytes)
 {
     ReturnStatus status = RETURN_OK;
     SPI_Transaction spiTransaction;
 
-    spiTransaction.count = numofBytes; /* Initialize master SPI transaction structure */
+    spiTransaction.count =
+        numofBytes; /* Initialize master SPI transaction structure */
     spiTransaction.txBuf = regAddress;
     spiTransaction.rxBuf = NULL;
 
-    OcGpio_write(chip_select, PIN_LOW);/* Initiate SPI transfer */
+    OcGpio_write(chip_select, PIN_LOW); /* Initiate SPI transfer */
 
     if (SPI_transfer(spiHandle, &spiTransaction)) {
         status = RETURN_OK;
@@ -122,18 +120,15 @@ ReturnStatus spi_reg_read(SPI_Handle spiHandle,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus spi_reg_write(SPI_Handle spiHandle,
-                           OcGpio_Pin *chip_select,
-                           void *regAddress,
-                           uint8_t *data,
-                           uint32_t data_size,
-                           uint32_t byte,
-                           uint8_t numofBytes)
+ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
+                           void *regAddress, uint8_t *data, uint32_t data_size,
+                           uint32_t byte, uint8_t numofBytes)
 {
     ReturnStatus status = RETURN_OK;
     SPI_Transaction spiTransaction;
 
-    spiTransaction.count = numofBytes; /* Initialize master SPI transaction structure */
+    spiTransaction.count =
+        numofBytes; /* Initialize master SPI transaction structure */
     spiTransaction.txBuf = regAddress;
     spiTransaction.rxBuf = NULL;
 
@@ -150,13 +145,13 @@ ReturnStatus spi_reg_write(SPI_Handle spiHandle,
     spiTransaction.txBuf = data;
     spiTransaction.rxBuf = NULL;
 
-    if(data_size > 0) {
-       if (SPI_transfer(spiHandle, &spiTransaction)) {
-           status = RETURN_OK;
-       } else {
-           LOGGER_ERROR("SPIBUS:ERROR:: SPI write failed");
-           status = RETURN_NOTOK;
-       }
+    if (data_size > 0) {
+        if (SPI_transfer(spiHandle, &spiTransaction)) {
+            status = RETURN_OK;
+        } else {
+            LOGGER_ERROR("SPIBUS:ERROR:: SPI write failed");
+            status = RETURN_NOTOK;
+        }
     }
 
     OcGpio_write(chip_select, PIN_HIGH);

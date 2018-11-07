@@ -82,7 +82,8 @@ void watchdog_reset_ap(void)
 
     OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
 
-//  OCMPMessageFrame * pWatchdogMsg = (OCMPMessageFrame *) malloc(sizeof(32));
+    //  OCMPMessageFrame * pWatchdogMsg = (OCMPMessageFrame *)
+    //  malloc(sizeof(32));
     /* For now only AP reset is being applied directly to see the effect*/
     return;
 }
@@ -90,11 +91,11 @@ void watchdog_reset_ap(void)
 /*******************************************************************************
  * watchdog_send_messages  : Processes the watchdog TX Messages
  ******************************************************************************/
-void watchdog_send_messages(OCMPMessageFrame * pWatchdogMsg)
+void watchdog_send_messages(OCMPMessageFrame *pWatchdogMsg)
 {
     if (pWatchdogMsg != NULL) {
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
-                        (uint8_t*) pWatchdogMsg);
+                        (uint8_t *)pWatchdogMsg);
     } else {
         LOGGER_DEBUG("WATCHDOG:ERROR:: pointer NULL!!??");
     }
@@ -105,7 +106,7 @@ void watchdog_send_messages(OCMPMessageFrame * pWatchdogMsg)
  ****************************************************************************/
 void watchdog_send_cmd_message(void)
 {
-    OCMPMessageFrame *pWatchdogMsg = (OCMPMessageFrame *) malloc(32);
+    OCMPMessageFrame *pWatchdogMsg = (OCMPMessageFrame *)malloc(32);
     pWatchdogMsg->header.ocmpInterface = OCMP_COMM_IFACE_UART;
     pWatchdogMsg->header.ocmpSof = OCMP_MSG_SOF;
     pWatchdogMsg->message.subsystem = OC_SS_WD;
@@ -130,12 +131,12 @@ Void watchdog_call(UArg arg0)
             localCounter += 1;
             if ((localCounter % reinterationTime) == 0)
                 Semaphore_post(watchdogSem);
-//              send_wdt_cmd();
+            //              send_wdt_cmd();
         }
     } else {
         apUp = localCounter = 0;
         /* Reset the AP as it is hanged */
-//      reset_ap();
+        //      reset_ap();
     }
 }
 
@@ -147,12 +148,12 @@ Void watchdog_call(UArg arg0)
 void watchdog_process_msg(OCMPMessageFrame *pWatchdogMsg)
 {
     if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_CONFIG) {
-        //set_config_watchdog(pWatchdogMsg);
+        // set_config_watchdog(pWatchdogMsg);
         pWatchdogMsg->message.action = OCMP_AXN_TYPE_REPLY;
         watchdog_send_messages(pWatchdogMsg);
     } else if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_STATUS) {
         watchdogCmdReceived = 1;
-        free((uint8_t *) pWatchdogMsg);
+        free((uint8_t *)pWatchdogMsg);
     }
 }
 
@@ -164,12 +165,14 @@ void watchdog_task_init(void)
     /* Create Semaphore for RX Watchdog Message Queue */
     watchdogSem = Semaphore_create(0, NULL, NULL);
     if (watchdogSem == NULL)
-        LOGGER_DEBUG("WATCHDOG:ERROR:: Failed in Creating Watchdog Semaphore.\n");
+        LOGGER_DEBUG(
+            "WATCHDOG:ERROR:: Failed in Creating Watchdog Semaphore.\n");
 
     /* Create Wathcdog control Queue used by Big brother */
     watchdogMsgQueue = Queue_create(NULL, NULL);
     if (watchdogMsgQueue == NULL)
-        LOGGER_DEBUG("WATCHDOG:ERROR:: Failed in Constructing Watchdog Message Queue.\n");
+        LOGGER_DEBUG(
+            "WATCHDOG:ERROR:: Failed in Constructing Watchdog Message Queue.\n");
 }
 
 /*****************************************************************************
@@ -179,13 +182,13 @@ void watchdog_task_fxn(UArg a0, UArg a1)
 {
     watchdog_task_init();
 
-//  Clock_start(watchdog);
+    //  Clock_start(watchdog);
 
     while (1) {
         if (Semaphore_pend(watchdogSem, BIOS_WAIT_FOREVER)) {
             if (!Queue_empty(watchdogMsgQueue)) {
-                OCMPMessageFrame * pWatchdogMsg =
-                        (OCMPMessageFrame *) Util_dequeueMsg(watchdogMsgQueue);
+                OCMPMessageFrame *pWatchdogMsg =
+                    (OCMPMessageFrame *)Util_dequeueMsg(watchdogMsgQueue);
 
                 if (pWatchdogMsg) {
                     watchdog_process_msg(pWatchdogMsg);

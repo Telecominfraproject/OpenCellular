@@ -92,8 +92,7 @@ void test_PCA9557_polarity(void)
                       PCA9557_getPolarity(&pca9557_dev, &polarity_val));
     TEST_ASSERT_EQUAL_HEX8(0xFB, polarity_val);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      PCA9557_setPolarity(&pca9557_dev, 0x56));
+    TEST_ASSERT_EQUAL(RETURN_OK, PCA9557_setPolarity(&pca9557_dev, 0x56));
     TEST_ASSERT_EQUAL_HEX8(0x56, PCA9557_regs[0x02]);
 
     TEST_ASSERT_EQUAL(RETURN_OK,
@@ -107,16 +106,13 @@ void test_PCA9557_config(void)
     uint8_t config_val = 0xff;
 
     PCA9557_regs[0x03] = 0xAB;
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      PCA9557_getConfig(&pca9557_dev, &config_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, PCA9557_getConfig(&pca9557_dev, &config_val));
     TEST_ASSERT_EQUAL_HEX8(0xAB, config_val);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      PCA9557_setConfig(&pca9557_dev, 0xCD));
+    TEST_ASSERT_EQUAL(RETURN_OK, PCA9557_setConfig(&pca9557_dev, 0xCD));
     TEST_ASSERT_EQUAL_HEX8(0xCD, PCA9557_regs[0x03]);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
-                      PCA9557_getConfig(&pca9557_dev, &config_val));
+    TEST_ASSERT_EQUAL(RETURN_OK, PCA9557_getConfig(&pca9557_dev, &config_val));
     TEST_ASSERT_EQUAL_HEX8(0xCD, config_val);
 }
 
@@ -127,14 +123,11 @@ void test_PCA9557_not_present(void)
     I2C_Dev invalid_dev = pca9557_dev;
     invalid_dev.slave_addr = 0x01;
 
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      PCA9557_getInput(&invalid_dev, &dummy_val));
+    TEST_ASSERT_EQUAL(RETURN_NOTOK, PCA9557_getInput(&invalid_dev, &dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       PCA9557_getOutput(&invalid_dev, &dummy_val));
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      PCA9557_setOutput(&invalid_dev, dummy_val));
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
-                      PCA9557_setConfig(&invalid_dev, dummy_val));
+    TEST_ASSERT_EQUAL(RETURN_NOTOK, PCA9557_setOutput(&invalid_dev, dummy_val));
+    TEST_ASSERT_EQUAL(RETURN_NOTOK, PCA9557_setConfig(&invalid_dev, dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       PCA9557_getConfig(&invalid_dev, &dummy_val));
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
