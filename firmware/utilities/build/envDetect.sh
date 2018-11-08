@@ -24,11 +24,11 @@ fi
 {
 echo "$BUILDTYPE"
 echo
-echo "GIT Hash: $GITHASH"
+echo "Git Hash: $GITHASH"
 echo
 echo "Build Host: $BUILDHOST"
 echo
-echo "$GCCVER"
+echo "GCC: $GCCVER"
 echo
 echo "$ARMVER"
 echo
