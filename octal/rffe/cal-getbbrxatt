@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CALIBRATION_FOLDER_DEFAULT="/tmp"
+CALIBRATION_FOLDER_DEFAULT="/mnt/app/cal"
 
 usage()
 {

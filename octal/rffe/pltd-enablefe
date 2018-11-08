@@ -5,7 +5,7 @@ SYSCFG_DIR=
 SYSCFG_DIR_DEFAULT=/tmp
 
 CALFILES_DIR=
-CALFILES_DIR_DEFAULT=/tmp
+CALFILES_DIR_DEFAULT=/mnt/app/cal
 
 TX_POWER=
 TX_BW=
@@ -175,59 +175,60 @@ if [ $? -ne 0 ] ; then
     exit 1
 fi
 
-if [ ${TX_BAND} -eq 3 ] ; then
-
-    #################  Set FE FB Attenuation  #######################
-    CAL_FE_FB_ATT_TX1=$(cal-getfefbatt ${TX_BW} 1 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Get FE FB Attenuation TX1: $CAL_BB_ATT_TX1"
-        exit 1
-    fi
-
-    CAL_FE_FB_ATT_TX2=$(cal-getfefbatt ${TX_BW} 2 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Get FE FB Attenuation TX2: $CAL_BB_ATT_TX1"
-        exit 1
-    fi
-
-    fe-setfbatt 1 ${CAL_FE_FB_ATT_TX1} 2> /dev/null
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE FB Attenuation TX1"
-        exit 1
-    fi
-
-    fe-setfbatt 2 ${CAL_FE_FB_ATT_TX2} 2> /dev/null
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE FB Attenuation TX2"
-        exit 1
-    fi
-
-    #################  Set FE TX Attenuation  #######################
-    CAL_FE_TX_ATT_TX1=$(cal-getfetxatt -b ${TX_BW} -a 1 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
-        exit 1
-    fi
-
-    CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE TX Attenuation TX2: $CAL_BB_ATT_TX1"
-        exit 1
-    fi
-
-    fe-settxatt 1 ${CAL_FE_TX_ATT_TX1} 2> /dev/null
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE TX Attenuation TX1"
-        exit 1
-    fi
-
-    fe-settxatt 2 ${CAL_FE_TX_ATT_TX2} 2> /dev/null
-    if [ $? -ne 0 ] ; then
-        echo "$0 - Error Set FE TX Attenuation TX2"
-        exit 1
-    fi
-
-    ####################  Reset RFPAL  ##############################
-    fe-resetrfpal
-
+if [ ${TX_BAND} -ne 3 ] ; then
+    echo "FE parameters do not need to be set - Exiting"
+    exit 0
 fi
+
+#################  Set FE FB Attenuation  #######################
+CAL_FE_FB_ATT_TX1=$(cal-getfefbatt ${TX_BW} 1 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE FB Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_FE_FB_ATT_TX2=$(cal-getfefbatt ${TX_BW} 2 ${TX_FREQ} ${TX_POWER} $CALFILES_DIR 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Get FE FB Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+fe-setfbatt 1 ${CAL_FE_FB_ATT_TX1} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE FB Attenuation TX1"
+    exit 1
+fi
+
+fe-setfbatt 2 ${CAL_FE_FB_ATT_TX2} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE FB Attenuation TX2"
+    exit 1
+fi
+
+#################  Set FE TX Attenuation  #######################
+CAL_FE_TX_ATT_TX1=$(cal-getfetxatt -b ${TX_BW} -a 1 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX2: $CAL_BB_ATT_TX1"
+    exit 1
+fi
+
+fe-settxatt 1 ${CAL_FE_TX_ATT_TX1} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX1"
+    exit 1
+fi
+
+fe-settxatt 2 ${CAL_FE_TX_ATT_TX2} 2> /dev/null
+if [ $? -ne 0 ] ; then
+    echo "$0 - Error Set FE TX Attenuation TX2"
+    exit 1
+fi
+
+####################  Reset RFPAL  ##############################
+fe-resetrfpal

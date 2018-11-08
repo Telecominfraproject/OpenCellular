@@ -158,6 +158,9 @@ fi
 
 TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
 
+#################  Get Band  #####################
+TX_BAND=$(bb-gettxband ${TX_FREQ} 2> /dev/null)
+
 ####################  Check RX Frequency  #######################
 if [ -z $RX_FREQ ] ; then
     if [ -z $ULEARFCN ] ; then
@@ -264,6 +267,11 @@ fe-enable 2> /dev/null
 if [ $? -ne 0 ] ; then
     echo "$0 - Error Enable FE"
     exit 1
+fi
+
+if [ ${TX_BAND} -ne 3 ] ; then
+    echo "FE parameters do not need to be set - Exiting"
+    exit 0
 fi
 
 #################  Set FE FB Attenuation  #######################
