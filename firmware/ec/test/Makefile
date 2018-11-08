@@ -88,9 +88,10 @@ endif
 # Make Targets
 # =============================================================================
 
-test: $(BUILD_PATHS) $(RESULTS)
+test: get_cfg ttest
+
+ttest: $(BUILD_PATHS) $(RESULTS)
 	ruby $(UNITY_ROOT)/auto/unity_test_summary.rb $(PATHR)
-	make get_cfg
 
 get_cfg:
 	cd ../../utilities/build; ./envDetect.sh $(shell cat $(UNITY_ROOT)/release/version.info)
