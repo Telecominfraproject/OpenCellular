@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from lcov_cobertura import LcovCobertura
 
-LCOV_FILE = 'build/coverage/test-coverage.info'
-OUT_FILE = 'build/coverage/test-coverage.xml'
+LCOV_FILE = 'test/build/coverage/test-coverage.info'
+OUT_FILE = 'test/build/coverage/test-coverage.xml'
 
 with open(LCOV_FILE) as fr:
     data = fr.read()
