@@ -88,9 +88,7 @@ endif
 # Make Targets
 # =============================================================================
 
-test: get_cfg ttest
-
-ttest: $(BUILD_PATHS) $(RESULTS)
+test: get_cfg $(BUILD_PATHS) $(RESULTS)
 	ruby $(UNITY_ROOT)/auto/unity_test_summary.rb $(PATHR)
 
 get_cfg:
