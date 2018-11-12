@@ -18,9 +18,8 @@
  *****************************************************************************/
 /* Global Task Configuration Variables */
 
-bool HCI_Init(void* driver, void *return_buf)
+bool HCI_Init(void *driver, void *return_buf)
 {
     HciBuzzer_init();
     return true;
 }
-

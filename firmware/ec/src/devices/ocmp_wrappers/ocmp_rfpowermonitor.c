@@ -12,19 +12,18 @@
 
 /* OCMP message handler */
 static bool _ocmp_get_status(void *driver, unsigned int param_id,
-                             void *return_buf) {
+                             void *return_buf)
+{
     switch (param_id) {
         case FE_POWER_STATUS_FORWARD: {
-            if (rffe_powermonitor_read_power(driver,
-                                             RFFE_STAT_FW_POWER,
+            if (rffe_powermonitor_read_power(driver, RFFE_STAT_FW_POWER,
                                              return_buf) == RETURN_OK) {
                 return true;
             }
             break;
         }
         case FE_POWER_STATUS_REVERSE: {
-            if (rffe_powermonitor_read_power(driver,
-                                             RFFE_STAT_REV_POWER,
+            if (rffe_powermonitor_read_power(driver, RFFE_STAT_REV_POWER,
                                              return_buf) == RETURN_OK) {
                 return true;
             }

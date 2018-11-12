@@ -17,14 +17,13 @@
 #include "inc/devices/eeprom.h"
 #include "inc/devices/ina226.h"
 
-
 #include <stdbool.h>
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define SDR_TASK_PRIORITY                           2
-#define SDR_TASK_STACK_SIZE                         4096
+#define SDR_TASK_PRIORITY 2
+#define SDR_TASK_STACK_SIZE 4096
 
 /*
  * Define all the constant information of RF SDR subsystem here, like device
@@ -32,14 +31,14 @@
  */
 
 /* SDR Temperature Sensor Device Addresses */
-#define SDR_FPGA_TEMP_SENSOR_ADDR                   0x4C
+#define SDR_FPGA_TEMP_SENSOR_ADDR 0x4C
 
 /* SDR INA226 Sensor Device Addresses */
-#define SDR_FPGA_CURRENT_SENSOR_ADDR                0x44
-#define SDR_CURRENT_SENSOR_ADDR                     0x41
+#define SDR_FPGA_CURRENT_SENSOR_ADDR 0x44
+#define SDR_CURRENT_SENSOR_ADDR 0x41
 
 /* FX3 IO Expander Device Address */
-#define SDR_EEPROM_IOEXP_ADDRESS                    0x1F
+#define SDR_EEPROM_IOEXP_ADDRESS 0x1F
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -57,17 +56,18 @@ typedef struct Sdr_gpioCfg {
     OcGpio_Pin pin_sdr_reset_in;
     OcGpio_Pin pin_ec_trxfe_reset;
     OcGpio_Pin pin_fx3_reset;
-}Sdr_gpioCfg;
+} Sdr_gpioCfg;
 
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-void sdr_pwr_control(Sdr_gpioCfg *driver, uint8_t control); /* TODO: hack to let OBC work */
+void sdr_pwr_control(Sdr_gpioCfg *driver,
+                     uint8_t control); /* TODO: hack to let OBC work */
 
 /* Schema hooks */
 bool SDR_Init(void *driver, void *return_buf);
 bool Sdr_InventoryGetStatus(void *driver, unsigned int param_id,
-                                   void *return_buf);
+                            void *return_buf);
 bool SDR_fx3Reset(void *driver, void *params);
 bool SDR_reset(void *driver, void *params);
 

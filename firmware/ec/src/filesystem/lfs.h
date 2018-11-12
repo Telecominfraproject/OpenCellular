@@ -15,62 +15,62 @@
 typedef uint32_t lfs_size_t;
 typedef uint32_t lfs_off_t;
 
-typedef int32_t  lfs_ssize_t;
-typedef int32_t  lfs_soff_t;
+typedef int32_t lfs_ssize_t;
+typedef int32_t lfs_soff_t;
 
 typedef uint32_t lfs_block_t;
 
 /* Max name size in bytes */
 #ifndef LFS_NAME_MAX
-#define LFS_NAME_MAX 255
+#    define LFS_NAME_MAX 255
 #endif
 
 /* Possible error codes, these are negative to allow
  * valid positive return values
  */
 enum lfs_error {
-    LFS_ERR_OK      = 0,    /* No error */
-    LFS_ERR_IO      = -5,   /* Error during device operation */
-    LFS_ERR_CORRUPT = -52,  /* Corrupted */
-    LFS_ERR_NOENT   = -2,   /* No directory entry */
-    LFS_ERR_EXIST   = -17,  /* Entry already exists */
-    LFS_ERR_NOTDIR  = -20,  /* Entry is not a dir */
-    LFS_ERR_ISDIR   = -21,  /* Entry is a dir */
-    LFS_ERR_INVAL   = -22,  /* Invalid parameter */
-    LFS_ERR_NOSPC   = -28,  /* No space left on device */
-    LFS_ERR_NOMEM   = -12,  /* No more memory available */
+    LFS_ERR_OK = 0,        /* No error */
+    LFS_ERR_IO = -5,       /* Error during device operation */
+    LFS_ERR_CORRUPT = -52, /* Corrupted */
+    LFS_ERR_NOENT = -2,    /* No directory entry */
+    LFS_ERR_EXIST = -17,   /* Entry already exists */
+    LFS_ERR_NOTDIR = -20,  /* Entry is not a dir */
+    LFS_ERR_ISDIR = -21,   /* Entry is a dir */
+    LFS_ERR_INVAL = -22,   /* Invalid parameter */
+    LFS_ERR_NOSPC = -28,   /* No space left on device */
+    LFS_ERR_NOMEM = -12,   /* No more memory available */
 };
 
 /* File types */
 enum lfs_type {
-    LFS_TYPE_REG        = 0x11,
-    LFS_TYPE_DIR        = 0x22,
+    LFS_TYPE_REG = 0x11,
+    LFS_TYPE_DIR = 0x22,
     LFS_TYPE_SUPERBLOCK = 0x2e,
 };
 
 /* File open flags */
 enum lfs_open_flags {
     /* open flags */
-    LFS_O_RDONLY = 1,        /* Open a file as read only */
-    LFS_O_WRONLY = 2,        /* Open a file as write only */
-    LFS_O_RDWR   = 3,        /* Open a file as read and write */
-    LFS_O_CREAT  = 0x0100,   /* Create a file if it does not exist */
-    LFS_O_EXCL   = 0x0200,   /* Fail if a file already exists */
-    LFS_O_TRUNC  = 0x0400,   /* Truncate the existing file to zero size */
-    LFS_O_APPEND = 0x0800,   /* Move to end of file on every write */
+    LFS_O_RDONLY = 1,      /* Open a file as read only */
+    LFS_O_WRONLY = 2,      /* Open a file as write only */
+    LFS_O_RDWR = 3,        /* Open a file as read and write */
+    LFS_O_CREAT = 0x0100,  /* Create a file if it does not exist */
+    LFS_O_EXCL = 0x0200,   /* Fail if a file already exists */
+    LFS_O_TRUNC = 0x0400,  /* Truncate the existing file to zero size */
+    LFS_O_APPEND = 0x0800, /* Move to end of file on every write */
 
     /* internally used flags */
-    LFS_F_DIRTY   = 0x10000, /* File does not match storage */
+    LFS_F_DIRTY = 0x10000,   /* File does not match storage */
     LFS_F_WRITING = 0x20000, /* File has been written since last flush */
     LFS_F_READING = 0x40000, /* File has been read since last flush */
-    LFS_F_ERRED   = 0x80000, /* An error occured during write */
+    LFS_F_ERRED = 0x80000,   /* An error occured during write */
 };
 
 /* File seek flags */
 enum lfs_whence_flags {
-    LFS_SEEK_SET = 0,   /* Seek relative to an absolute position */
-    LFS_SEEK_CUR = 1,   /* Seek relative to the current file position */
-    LFS_SEEK_END = 2,   /* Seek relative to the end of the file */
+    LFS_SEEK_SET = 0, /* Seek relative to an absolute position */
+    LFS_SEEK_CUR = 1, /* Seek relative to the current file position */
+    LFS_SEEK_END = 2, /* Seek relative to the end of the file */
 };
 
 /* Configuration provided during initialization of the filesystem */
@@ -78,14 +78,14 @@ struct lfs_config {
     void *context;
 
     /* Read a region in a block */
-    int (*read)(const struct lfs_config *c, lfs_block_t block,
-            lfs_off_t off, void *buffer, lfs_size_t size);
+    int (*read)(const struct lfs_config *c, lfs_block_t block, lfs_off_t off,
+                void *buffer, lfs_size_t size);
 
     /* Program a region in a block, function must return LFS_ERR_CORRUPT
      * if the block should be considered bad
      */
-    int (*prog)(const struct lfs_config *c, lfs_block_t block,
-            lfs_off_t off, const void *buffer, lfs_size_t size);
+    int (*prog)(const struct lfs_config *c, lfs_block_t block, lfs_off_t off,
+                const void *buffer, lfs_size_t size);
 
     /* Erase a block, A block must be erased before being programmed */
     int (*erase)(const struct lfs_config *c, lfs_block_t block);
@@ -138,7 +138,6 @@ struct lfs_config {
     void *file_buffer;
 };
 
-
 /* File info structure */
 struct lfs_info {
     /* Type of the file, either LFS_TYPE_REG or LFS_TYPE_DIR */
@@ -148,9 +147,8 @@ struct lfs_info {
     lfs_size_t size;
 
     /* Name of the file stored as a null-terminated string */
-    char name[LFS_NAME_MAX+1];
+    char name[LFS_NAME_MAX + 1];
 };
-
 
 /* filesystem data structures */
 typedef struct lfs_entry {
@@ -265,8 +263,7 @@ int lfs_rename(lfs_t *lfs, const char *oldpath, const char *newpath);
 int lfs_stat(lfs_t *lfs, const char *path, struct lfs_info *info);
 
 /* Open a file */
-int lfs_file_open(lfs_t *lfs, lfs_file_t *file,
-        const char *path, int flags);
+int lfs_file_open(lfs_t *lfs, lfs_file_t *file, const char *path, int flags);
 
 /* Close a file */
 int lfs_file_close(lfs_t *lfs, lfs_file_t *file);
@@ -275,16 +272,16 @@ int lfs_file_close(lfs_t *lfs, lfs_file_t *file);
 int lfs_file_sync(lfs_t *lfs, lfs_file_t *file);
 
 /* Read data from file */
-lfs_ssize_t lfs_file_read(lfs_t *lfs, lfs_file_t *file,
-        void *buffer, lfs_size_t size);
+lfs_ssize_t lfs_file_read(lfs_t *lfs, lfs_file_t *file, void *buffer,
+                          lfs_size_t size);
 
 /* Write data to file */
-lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file,
-        const void *buffer, lfs_size_t size);
+lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file, const void *buffer,
+                           lfs_size_t size);
 
 /* Change the position of the file */
-lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file,
-        lfs_soff_t off, int whence);
+lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file, lfs_soff_t off,
+                         int whence);
 
 /* Return the position of the file */
 lfs_soff_t lfs_file_tell(lfs_t *lfs, lfs_file_t *file);
@@ -317,7 +314,7 @@ lfs_soff_t lfs_dir_tell(lfs_t *lfs, lfs_dir_t *dir);
 int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir);
 
 /* Traverse through all blocks in use by the filesystem */
-int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data);
+int lfs_traverse(lfs_t *lfs, int (*cb)(void *, lfs_block_t), void *data);
 
 /* Prunes any recoverable errors that may have occured in the filesystem
  * Not needed to be called by user unless an operation is interrupted

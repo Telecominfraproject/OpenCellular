@@ -31,8 +31,8 @@ static ePostCode _rffe_watchdog_init(void *driver, const void *config,
     if (OcGpio_configure(cfg->pin_alert_hb, OCGPIO_CFG_INPUT)) {
         return POST_DEV_CFG_FAIL;
     }
-    if (OcGpio_configure(cfg->pin_interrupt, OCGPIO_CFG_INPUT |
-                                          OCGPIO_CFG_INT_FALLING)) {
+    if (OcGpio_configure(cfg->pin_interrupt,
+                         OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING)) {
         return POST_DEV_CFG_FAIL;
     }
 
@@ -43,6 +43,3 @@ static ePostCode _rffe_watchdog_init(void *driver, const void *config,
 const Driver_fxnTable RFFEWatchdogP_fxnTable = {
     .cb_init = _rffe_watchdog_init,
 };
-
-
-

@@ -19,8 +19,8 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define HCI_TASK_PRIORITY        6
-#define HCI_TASK_STACK_SIZE      4096
+#define HCI_TASK_PRIORITY 6
+#define HCI_TASK_STACK_SIZE 4096
 
 #define HCI_LED_TEMP_SENSOR_ADDR 0x1A
 

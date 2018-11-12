@@ -23,7 +23,8 @@ typedef struct ISR_Data {
 } ISR_Data;
 static ISR_Data s_isr_data[NUM_ISR];
 
-static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
+static void gpioIntFxn(const OcGpio_Pin *pin, void *context)
+{
     UNUSED(pin);
     ISR_Data *isr_data = context;
 
@@ -37,7 +38,8 @@ static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
 }
 
 void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
-                      void *context) {
+                      void *context)
+{
     UNUSED(irqPin);
 
     s_isr_data[s_isr_count].cb = cb;

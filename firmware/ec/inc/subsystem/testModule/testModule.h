@@ -16,7 +16,6 @@
 #include "drivers/OcGpio.h"
 #include "helpers/attribute.h"
 
-
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
@@ -53,9 +52,9 @@ typedef struct TestModule_opInfo {
 } TestModule_opInfo;
 
 typedef enum TestModule_errorSource {
-  TESTMOD_ERR_INTERNAL = 0,
-  TESTMOD_ERR_CMS = 1,
-  TESTMOD_ERR_CME = 2
+    TESTMOD_ERR_INTERNAL = 0,
+    TESTMOD_ERR_CMS = 1,
+    TESTMOD_ERR_CME = 2
 } TestModule_errorSource;
 
 typedef struct TestModule_lastError {

@@ -8,7 +8,8 @@
  */
 #include "UartMon.h"
 
-static void UartMon_close(UART_Handle handle) {
+static void UartMon_close(UART_Handle handle)
+{
     UartMon_Object *obj = handle->object;
 
     if (!obj->state.opened) {
@@ -20,17 +21,20 @@ static void UartMon_close(UART_Handle handle) {
     obj->state.opened = false;
 }
 
-static int UartMon_control(UART_Handle handle, unsigned int cmd, void *arg) {
+static int UartMon_control(UART_Handle handle, unsigned int cmd, void *arg)
+{
     UartMon_Object *obj = handle->object;
     return UART_control(obj->hUart_in, cmd, arg);
 }
 
-static void UartMon_init(UART_Handle handle) {
+static void UartMon_init(UART_Handle handle)
+{
     UartMon_Object *obj = handle->object;
     obj->state.opened = false;
 }
 
-static UART_Handle UartMon_open(UART_Handle handle, UART_Params *params) {
+static UART_Handle UartMon_open(UART_Handle handle, UART_Params *params)
+{
     UartMon_Object *obj = handle->object;
     const UartMon_Cfg *cfg = handle->hwAttrs;
     if (obj->state.opened) {
@@ -57,7 +61,8 @@ static UART_Handle UartMon_open(UART_Handle handle, UART_Params *params) {
     return handle;
 }
 
-static int UartMon_read(UART_Handle handle, void *buffer, size_t size) {
+static int UartMon_read(UART_Handle handle, void *buffer, size_t size)
+{
     UartMon_Object *obj = handle->object;
 
     int bytes_read = UART_read(obj->hUart_in, buffer, size);
@@ -67,7 +72,8 @@ static int UartMon_read(UART_Handle handle, void *buffer, size_t size) {
     return bytes_read;
 }
 
-static int UartMon_readPolling(UART_Handle handle, void *buffer, size_t size) {
+static int UartMon_readPolling(UART_Handle handle, void *buffer, size_t size)
+{
     UartMon_Object *obj = handle->object;
 
     int bytes_read = UART_readPolling(obj->hUart_in, buffer, size);
@@ -80,11 +86,13 @@ static int UartMon_readPolling(UART_Handle handle, void *buffer, size_t size) {
     return bytes_read;
 }
 
-static void UartMon_readCancel(UART_Handle handle) {
+static void UartMon_readCancel(UART_Handle handle)
+{
     return;
 }
 
-static int UartMon_write(UART_Handle handle, const void *buffer, size_t size) {
+static int UartMon_write(UART_Handle handle, const void *buffer, size_t size)
+{
     UartMon_Object *obj = handle->object;
 
     int bytes_written = UART_write(obj->hUart_in, buffer, size);
@@ -96,7 +104,8 @@ static int UartMon_write(UART_Handle handle, const void *buffer, size_t size) {
 }
 
 static int UartMon_writePolling(UART_Handle handle, const void *buffer,
-                                size_t size) {
+                                size_t size)
+{
     UartMon_Object *obj = handle->object;
 
     int bytes_written = UART_writePolling(obj->hUart_in, buffer, size);
@@ -110,19 +119,14 @@ static int UartMon_writePolling(UART_Handle handle, const void *buffer,
     return bytes_written;
 }
 
-static void UartMon_writeCancel(UART_Handle handle) {
+static void UartMon_writeCancel(UART_Handle handle)
+{
     return;
 }
 
 const UART_FxnTable UartMon_fxnTable = {
-    UartMon_close,
-    UartMon_control,
-    UartMon_init,
-    UartMon_open,
-    UartMon_read,
-    UartMon_readPolling,
-    UartMon_readCancel,
-    UartMon_write,
-    UartMon_writePolling,
+    UartMon_close,      UartMon_control, UartMon_init,
+    UartMon_open,       UartMon_read,    UartMon_readPolling,
+    UartMon_readCancel, UartMon_write,   UartMon_writePolling,
     UartMon_writeCancel
 };

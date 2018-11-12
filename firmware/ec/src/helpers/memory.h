@@ -9,29 +9,29 @@
 #pragma once
 
 #ifndef HELPERS_MEMORY_H_
-#define HELPERS_MEMORY_H_
+#    define HELPERS_MEMORY_H_
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+#    include <stdbool.h>
+#    include <stdint.h>
+#    include <stdlib.h>
 
-#ifndef HIWORD
-    #define HIWORD(x) ((uint16_t)((x) >> 16))
-#endif
+#    ifndef HIWORD
+#        define HIWORD(x) ((uint16_t)((x) >> 16))
+#    endif
 
-#ifndef LOWORD
-    #define LOWORD(x) ((uint16_t)(x))
-#endif
+#    ifndef LOWORD
+#        define LOWORD(x) ((uint16_t)(x))
+#    endif
 
-#ifndef HIBYTE
-    #define HIBYTE(x) ((uint8_t)((x) >> 8))
-#endif
+#    ifndef HIBYTE
+#        define HIBYTE(x) ((uint8_t)((x) >> 8))
+#    endif
 
-#ifndef LOBYTE
-    #define LOBYTE(x) ((uint8_t)(x))
-#endif
+#    ifndef LOBYTE
+#        define LOBYTE(x) ((uint8_t)(x))
+#    endif
 
-#define zalloc(size) calloc((size), 1)
+#    define zalloc(size) calloc((size), 1)
 
 void printMemory(const void *start, size_t size);
 

@@ -20,8 +20,8 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define LED_SX1509_LEFT_ADDRESS                 0x3E
-#define LED_SX1509_RIGHT_ADDRESS                0x3F
+#define LED_SX1509_LEFT_ADDRESS 0x3E
+#define LED_SX1509_RIGHT_ADDRESS 0x3F
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
