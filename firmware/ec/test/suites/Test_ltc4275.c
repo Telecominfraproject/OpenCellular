@@ -96,7 +96,8 @@ void test_ltc4275_init(void)
     LTC4275_GpioConfig[0x60] = OCGPIO_CFG_INPUT;
 
     TEST_ASSERT_EQUAL(RETURN_OK, ltc4275_init(&l_dev));
-    TEST_ASSERT_EQUAL(0, PDStatus_Info.pdStatus.powerGoodStatus);
+    TEST_ASSERT_EQUAL(LTC4275_POWERGOOD,
+                      PDStatus_Info.pdStatus.powerGoodStatus);
     TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES,
                       LTC4275_GpioConfig[0x60]);
 }
@@ -118,16 +119,18 @@ void test_ltc4275_probe(void)
 {
     LTC4275_GpioPins[0x60] = 1;
     POSTData postData;
-    TEST_ASSERT_EQUAL(1, ltc4275_probe(&l_dev, &postData));
-    TEST_ASSERT_EQUAL(0, PDStatus_Info.pdStatus.classStatus);
-    TEST_ASSERT_EQUAL(1, PDStatus_Info.state);
-    TEST_ASSERT_EQUAL(2, PDStatus_Info.pdalert);
+    TEST_ASSERT_EQUAL(POST_DEV_MISSING, ltc4275_probe(&l_dev, &postData));
+    TEST_ASSERT_EQUAL(LTC4275_CLASSTYPE_UNKOWN,
+                      PDStatus_Info.pdStatus.classStatus);
+    TEST_ASSERT_EQUAL(LTC4275_STATE_NOTOK, PDStatus_Info.state);
+    TEST_ASSERT_EQUAL(LTC4275_DISCONNECT_ALERT, PDStatus_Info.pdalert);
 
     LTC4275_GpioPins[0x60] = 0;
-    TEST_ASSERT_EQUAL(3, ltc4275_probe(&l_dev, &postData));
-    TEST_ASSERT_EQUAL(0, PDStatus_Info.pdStatus.classStatus);
-    TEST_ASSERT_EQUAL(1, PDStatus_Info.state);
-    TEST_ASSERT_EQUAL(2, PDStatus_Info.pdalert);
+    TEST_ASSERT_EQUAL(POST_DEV_FOUND, ltc4275_probe(&l_dev, &postData));
+    TEST_ASSERT_EQUAL(LTC4275_CLASSTYPE_UNKOWN,
+                      PDStatus_Info.pdStatus.classStatus);
+    TEST_ASSERT_EQUAL(LTC4275_STATE_NOTOK, PDStatus_Info.state);
+    TEST_ASSERT_EQUAL(LTC4275_DISCONNECT_ALERT, PDStatus_Info.pdalert);
 }
 
 void test_ltc4275_get_class(void)
@@ -156,14 +159,19 @@ void test_ltc4275_update_status(void)
     LTC4275_GpioPins[0x60] = 1;
     LTC4275_GpioPins[0x40] = 1;
     ltc4275_update_status(&l_dev);
-    TEST_ASSERT_EQUAL(0, PDStatus_Info.pdStatus.classStatus);
-    TEST_ASSERT_EQUAL(1, PDStatus_Info.state);
-    TEST_ASSERT_EQUAL(2, PDStatus_Info.pdalert);
+    TEST_ASSERT_EQUAL(LTC4275_CLASSTYPE_UNKOWN,
+                      PDStatus_Info.pdStatus.classStatus);
+    TEST_ASSERT_EQUAL(LTC4275_STATE_NOTOK, PDStatus_Info.state);
+    TEST_ASSERT_EQUAL(LTC4275_DISCONNECT_ALERT, PDStatus_Info.pdalert);
 
     LTC4275_GpioPins[0x60] = 0;
     LTC4275_GpioPins[0x40] = 0;
+    // Store values of state and alert before call, since when class is TYPE_1,
+    // state and alert should not be modified.
+    ePDState oldState = PDStatus_Info.state;
+    ePDAlert oldAlert = PDStatus_Info.pdalert;
     ltc4275_update_status(&l_dev);
-    TEST_ASSERT_EQUAL(1, PDStatus_Info.pdStatus.classStatus);
-    TEST_ASSERT_EQUAL(0, PDStatus_Info.state);
-    TEST_ASSERT_EQUAL(2, PDStatus_Info.pdalert);
+    TEST_ASSERT_EQUAL(LTC4275_CLASSTYPE_1, PDStatus_Info.pdStatus.classStatus);
+    TEST_ASSERT_EQUAL(oldState, PDStatus_Info.state);
+    TEST_ASSERT_EQUAL(oldAlert, PDStatus_Info.pdalert);
 }
