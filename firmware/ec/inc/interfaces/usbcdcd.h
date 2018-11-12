@@ -65,8 +65,7 @@ extern void USBCDCD_init(void);
  *  @return         Number of bytes added to the USB Buffer for transmission
  */
 extern unsigned int USBCDCD_sendData(const unsigned char *pStr,
-                                     unsigned int length,
-                                     unsigned int timeout);
+                                     unsigned int length, unsigned int timeout);
 
 /*!
  *  ======== USBCDCD_receiveData ========

@@ -28,15 +28,14 @@ typedef enum SE98A_Event {
     SE98A_EVT_BAW = 1 << 0, /* Below alarm window */
 } SE98A_Event;
 
-typedef enum
-{
+typedef enum {
     CONF_TEMP_SE98A_LOW_LIMIT_REG = 1,
     CONF_TEMP_SE98A_HIGH_LIMIT_REG,
     CONF_TEMP_SE98A_CRITICAL_LIMIT_REG
-}eTempSensor_ConfigParamsId;
+} eTempSensor_ConfigParamsId;
 
-typedef void (*SE98A_CallbackFn) (SE98A_Event evt, int8_t temperature,
-                                  void *context);
+typedef void (*SE98A_CallbackFn)(SE98A_Event evt, int8_t temperature,
+                                 void *context);
 
 typedef struct SE98A_Cfg {
     I2C_Dev dev;
@@ -84,7 +83,7 @@ ReturnStatus se98a_enable_alerts(SE98A_Dev *dev);
  * @param dev Device struct pointer, Post data struct
  * @return POST_DEV_FOUND on success, error code on failure
  */
-ePostCode se98a_probe(SE98A_Dev *dev,  POSTData *postData);
+ePostCode se98a_probe(SE98A_Dev *dev, POSTData *postData);
 
 /*! Sets one of the 3 alert thresholds on the device
  * @param dev Device struct pointer
@@ -104,7 +103,7 @@ ReturnStatus se98a_set_limit(SE98A_Dev *dev,
  */
 ReturnStatus se98a_get_limit(SE98A_Dev *dev,
                              eTempSensor_ConfigParamsId limitToConfig,
-                             int8_t* tempLimitValue);
+                             int8_t *tempLimitValue);
 
 /*! Reads the current temperature from the sensor
  * @param dev Device struct pointer

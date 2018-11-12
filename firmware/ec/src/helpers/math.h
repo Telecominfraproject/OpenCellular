@@ -9,11 +9,11 @@
 #pragma once
 
 #ifndef HELPERS_MATH_H_
-#define HELPERS_MATH_H_
+#    define HELPERS_MATH_H_
 
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
+#    define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#    define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
 
-#define CONSTRAIN(x, min, max) MIN(MAX((x), (min)), (max))
+#    define CONSTRAIN(x, min, max) MIN(MAX((x), (min)), (max))
 
 #endif /* HELPERS_MATH_H_ */

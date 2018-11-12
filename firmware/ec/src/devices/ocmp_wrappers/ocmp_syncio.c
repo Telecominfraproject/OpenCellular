@@ -15,5 +15,3 @@ const Driver_fxnTable SYNC_fxnTable = {
     /* Message handlers */
     .cb_get_status = SYNC_GpsStatus,
 };
-
-

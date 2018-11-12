@@ -17,9 +17,9 @@
 
 #include <stdint.h>
 
-#define SX1509_NUM_BANKS        2
-#define SX1509_PINS_PER_BANK    8
-#define SX1509_PIN_COUNT        (SX1509_NUM_BANKS * SX1509_PINS_PER_BANK)
+#define SX1509_NUM_BANKS 2
+#define SX1509_PINS_PER_BANK 8
+#define SX1509_PIN_COUNT (SX1509_NUM_BANKS * SX1509_PINS_PER_BANK)
 
 extern const OcGpio_FnTable GpioSX1509_fnTable;
 

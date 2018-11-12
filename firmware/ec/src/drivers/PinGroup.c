@@ -27,7 +27,7 @@ ReturnStatus PinGroup_write(const PinGroup *group, uint8_t value)
         if (group->pins[i].port) {
             /* FIXME: There isn't a great way to gracefully handle failure */
             if (OcGpio_write(&group->pins[i], (value >> i) & 0x01) !=
-                    OCGPIO_SUCCESS) {
+                OCGPIO_SUCCESS) {
                 return RETURN_NOTOK;
             }
         }

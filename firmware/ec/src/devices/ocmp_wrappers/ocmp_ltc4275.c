@@ -12,32 +12,27 @@
 #include "helpers/math.h"
 #include "inc/devices/ltc4275.h"
 
-static bool _get_status(void *driver, unsigned int param_id,
-        void *return_buf)
+static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
 {
     bool ret = false;
     switch (param_id) {
-    case LTC4275_STATUS_CLASS:
-    {
-        ePDClassType *res = (ePDClassType*)return_buf;
-        if (ltc4275_get_class(driver, res) == RETURN_OK) {
-            ret = true;
+        case LTC4275_STATUS_CLASS: {
+            ePDClassType *res = (ePDClassType *)return_buf;
+            if (ltc4275_get_class(driver, res) == RETURN_OK) {
+                ret = true;
+            }
+        } break;
+        case LTC4275_STATUS_POWERGOOD: {
+            ePDPowerState *res = (ePDPowerState *)return_buf;
+            if (ltc4275_get_power_good(driver, res) == RETURN_OK) {
+                ret = true;
+            }
+            break;
         }
-    }
-    break;
-    case LTC4275_STATUS_POWERGOOD:
-    {
-        ePDPowerState *res =(ePDPowerState*) return_buf;
-        if (ltc4275_get_power_good(driver, res) == RETURN_OK) {
-            ret = true;
+        default: {
+            LOGGER_ERROR("LTC4275::Unknown status param %d\n", param_id);
+            ret = false;
         }
-        break;
-    }
-    default:
-    {
-        LOGGER_ERROR("LTC4275::Unknown status param %d\n", param_id);
-        ret = false;
-    }
     }
     return ret;
 }
@@ -47,7 +42,7 @@ static bool _get_status(void *driver, unsigned int param_id,
 static ePostCode _probe(void *driver, POSTData *postData)
 {
     ltc4275_config(driver);
-    return ltc4275_probe(driver,postData);
+    return ltc4275_probe(driver, postData);
 }
 
 /*****************************************************************************

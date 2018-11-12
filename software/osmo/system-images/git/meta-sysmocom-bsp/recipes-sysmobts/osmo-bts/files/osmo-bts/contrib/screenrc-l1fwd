@@ -1,3 +1,0 @@
-chdir /tmp
-screen -t BTS 0 /etc/osmocom/respawn.sh /usr/bin/l1fwd-proxy
-detach

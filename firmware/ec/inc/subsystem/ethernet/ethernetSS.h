@@ -12,6 +12,6 @@
 #include <stdbool.h>
 
 void ethernet_switch_setup();
-bool eth_sw_pre_init(void** driver, void *returnValue);
+bool eth_sw_pre_init(void **driver, void *returnValue);
 
 #endif /* ETHERNETSS_H_ */

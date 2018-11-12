@@ -11,16 +11,15 @@
 
 #include "common/inc/global/Framework.h"
 
-#define OC_MAC_ADDRESS_SIZE     13
+#define OC_MAC_ADDRESS_SIZE 13
 
 SCHEMA_IMPORT const Driver_fxnTable MAC_fxnTable;
 
 static const Driver Driver_MAC = {
     .name = "MAC",
-    .config = (Parameter[]){
-        { .name = "address", .type = TYPE_STR,
-          .size = OC_MAC_ADDRESS_SIZE + 1 }
-    },
+    .config = (Parameter[]){ { .name = "address",
+                               .type = TYPE_STR,
+                               .size = OC_MAC_ADDRESS_SIZE + 1 } },
     .fxnTable = &MAC_fxnTable,
 };
 

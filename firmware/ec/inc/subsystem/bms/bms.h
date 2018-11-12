@@ -18,16 +18,16 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define BMS_TASK_PRIORITY                   2
-#define BMS_TASK_STACK_SIZE                 2048
+#define BMS_TASK_PRIORITY 2
+#define BMS_TASK_STACK_SIZE 2048
 
 /*
  * Define all the constant information of BMS subsystem here, like device
  * addresses or Constant configuration values or NUMBER of sensors
  */
-#define BMS_EC_TEMP_SENSOR_ADDR             0x19
-#define BMS_EC_CURRENT_SENSOR_12V_ADDR      0x40
-#define BMS_EC_CURRENT_SENSOR_3P3V_ADDR     0x45
+#define BMS_EC_TEMP_SENSOR_ADDR 0x19
+#define BMS_EC_CURRENT_SENSOR_12V_ADDR 0x40
+#define BMS_EC_CURRENT_SENSOR_3P3V_ADDR 0x45
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS

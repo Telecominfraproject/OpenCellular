@@ -11,14 +11,14 @@
 
 #include "drivers/OcGpio.h"
 
-typedef struct __attribute__ ((packed, aligned(1))) {
-    uint8_t    pin;
-    uint8_t    value;
-}S_OCGPIO;
+typedef struct __attribute__((packed, aligned(1))) {
+    uint8_t pin;
+    uint8_t value;
+} S_OCGPIO;
 
 typedef struct S_OCGPIO_Cfg {
-    OcGpio_Port* port;
+    OcGpio_Port *port;
     unsigned int group;
-}S_OCGPIO_Cfg;
+} S_OCGPIO_Cfg;
 
 #endif /* _OC_GPIO_H_ */

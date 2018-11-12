@@ -18,24 +18,21 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define RFFEPOWERMONITOR_TASK_PRIORITY              2
-#define RFFEPOWERMONITOR_TASK_STACK_SIZE            1024
+#define RFFEPOWERMONITOR_TASK_PRIORITY 2
+#define RFFEPOWERMONITOR_TASK_STACK_SIZE 1024
 
 /* RF POWER Detector Device Addresses */
-#define RFFE_CHANNEL1_ADC_ADDR                      0x4A
-#define RFFE_CHANNEL2_ADC_ADDR                      0x48
+#define RFFE_CHANNEL1_ADC_ADDR 0x4A
+#define RFFE_CHANNEL2_ADC_ADDR 0x48
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
-typedef enum {
-    RFFE_STAT_FW_POWER = 1,
-    RFFE_STAT_REV_POWER
-} eRffeStatusParamId;
+typedef enum { RFFE_STAT_FW_POWER = 1, RFFE_STAT_REV_POWER } eRffeStatusParamId;
 
 typedef enum {
-    RFFE_STATUS_FW_POWER   = 0x01,
-    RFFE_STATUS_REV_POWER  = 0x02,
+    RFFE_STATUS_FW_POWER = 0x01,
+    RFFE_STATUS_REV_POWER = 0x02,
     RFFE_STATUS_PARAMS_MAX = 0x04
 } eRffeStatusParam;
 
@@ -71,8 +68,8 @@ typedef enum FePowerStatus {
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
 ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
-                                                 eRffeStatusParamId rfPowerSelect,
-                                                 uint16_t *rfpower);
+                                          eRffeStatusParamId rfPowerSelect,
+                                          uint16_t *rfpower);
 void rffe_powermonitor_createtask(void);
 
 #endif /* RFFE_POWERMONITOR_H_ */

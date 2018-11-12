@@ -17,7 +17,6 @@ typedef uint32_t xdc_UInt32;
 typedef int64_t xdc_Int64;
 typedef uint64_t xdc_UInt64;
 
-
 #define xdc__LONGLONG__
 #define xdc__BITS8__
 #define xdc__BITS16__
@@ -29,20 +28,20 @@ typedef uint64_t xdc_UInt64;
  *  ======== Bits<n> ========
  */
 #ifdef xdc__BITS8__
-    typedef uint8_t     xdc_Bits8;
+typedef uint8_t xdc_Bits8;
 #endif
 #ifdef xdc__BITS16__
-    typedef uint16_t    xdc_Bits16;
+typedef uint16_t xdc_Bits16;
 #endif
 #ifdef xdc__BITS32__
-    typedef uint32_t    xdc_Bits32;
+typedef uint32_t xdc_Bits32;
 #endif
 #ifdef xdc__BITS64__
-    typedef uint64_t    xdc_Bits64;
+typedef uint64_t xdc_Bits64;
 #endif
 
 /*
  *  ======== [UI]Arg ========
  */
-typedef intptr_t        xdc_IArg;
-typedef uintptr_t       xdc_UArg;
+typedef intptr_t xdc_IArg;
+typedef uintptr_t xdc_UArg;
