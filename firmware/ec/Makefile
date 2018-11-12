@@ -110,6 +110,7 @@ test:
 	cd test && $(MAKE) $(TESTFLAGS)
 
 ci: TESTFLAGS = ci
+ci: CFLAGS += -Wextra -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch-default -Wunreachable-code -Winit-self -Wno-missing-field-initializers -Wno-unknown-pragmas -Wstrict-prototypes -Wundef
 ci: CFLAGS += -ftest-coverage
 ci: all test
 
