@@ -21,7 +21,7 @@ node {
       stage('Build and Unit Test') {
         dir ("firmware/ec"){ 
           sh 'make ci' 
-          sh 'python ../../.ci/coverage.py'
+          sh 'python3 ../../.ci/coverage.py'
         }
       }
     } catch (err) {
