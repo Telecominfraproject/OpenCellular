@@ -9,19 +9,21 @@ node {
 
     try {
       stage('Static Analysis') {
-        sh 'bash .ci/clang_patch'
+        dir ("firmware") {
+          sh 'bash utilities/jenkins/clang_patch'
+        }
       }
     } catch (err) {
       currentBuild.result = 'ERROR'
     } finally {
-      archiveArtifacts 'clang_format.patch'
+      archiveArtifacts '**/clang_format.patch'
     }
 
     try {
       stage('Build and Unit Test') {
         dir ("firmware/ec"){ 
           sh 'make ci' 
-          sh 'python3 ../../.ci/coverage.py'
+          sh 'python3 ../utilities/jenkins/coverage.py'
         }
       }
     } catch (err) {
