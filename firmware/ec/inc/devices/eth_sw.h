@@ -147,9 +147,9 @@ typedef struct Eth_TcpClient_Params {
     uint8_t repeat;
 } Eth_TcpClient_Params;
 
-ePostCode eth_sw_probe();
-ePostCode eth_sw_init();
-void eth_enable_interrupt();
+ePostCode eth_sw_probe(POSTData *postData);
+ePostCode eth_sw_init(Eth_cfg *ethCfg);
+void eth_enable_interrupt(void);
 ReturnStatus get_interrupt(uint8_t port);
 ReturnStatus eth_sw_get_status_speed(uint8_t port, port_speed *speed);
 ReturnStatus eth_sw_get_status_duplex(uint8_t port, port_duplex *duplex);

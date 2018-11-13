@@ -191,4 +191,5 @@ ReturnStatus LTC4015_enableChargerStateAlerts(LTC4015_Dev *dev,
 
 ePostCode LTC4015_probe(LTC4015_Dev *dev, POSTData *postData);
 
+void LTC4015_configure(LTC4015_Dev *dev);
 #endif /* LTC4015_H_ */
