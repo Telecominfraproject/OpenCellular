@@ -36,7 +36,6 @@ case $HW_REVISION in
 		20
 		q
 eof
-		sleep 5
 		exit 0
 		;;
 	* )

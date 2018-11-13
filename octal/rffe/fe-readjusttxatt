@@ -9,7 +9,7 @@ SYSCFG_DIR=
 SYSCFG_DIR_DEFAULT=/tmp
 
 CALFILES_DIR=
-CALFILES_DIR_DEFAULT=/tmp
+CALFILES_DIR_DEFAULT=/mnt/app/cal
 
 TX_POWER=
 TX_BW=
@@ -107,16 +107,6 @@ while [ $# -gt 0 ] ; do
     shift
 done
 
-HW_REVISION=$(fe-gethdrev 2> /dev/null)
-if [ $? -ne 0 ] ; then
-    echo "$0 - Error to get hardware revision "
-    exit 1
-fi
-
-if [ "$HW_REVISION" == "X" ]; then
-     exit 0
-fi
-
 ####################  Source system.conf  #######################
 if [ ! -z $SYSCFG_DIR ] ; then
     if [ -f "$SYSCFG_DIR/$SYSCFG_FILE_NAME" ] ; then
@@ -166,6 +156,9 @@ fi
 
 TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
 
+#################  Get Band  #####################
+TX_BAND=$(bb-gettxband ${TX_FREQ} 2> /dev/null)
+
 #######################  Check BandWidth  #######################
 if [ -z $TX_BW ] ; then
     TX_BW=${BW}
@@ -175,6 +168,36 @@ fi
 #######################  Check TX Power  ########################
 if [ -z $TX_POWER ] ; then
     TX_POWER=${TX_POWER_DEFAULT}
+fi
+
+if [ ${TX_BAND} -ne 3 ] ; then
+    # Benetel only BB txpower adjust
+    #####################  Set BB TX Attenuation ####################
+    CAL_BB_ATT_TX1=$(cal-getbbtxatt ${TX_BW} 1 ${TX_FREQ} 2> /dev/null)
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Get BB Attenuation TX1: $CAL_BB_ATT_TX1"
+        exit 1
+    fi
+
+    CAL_BB_ATT_TX2=$(cal-getbbtxatt ${TX_BW} 2 ${TX_FREQ} 2> /dev/null)
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Get BB Attenuation TX2: $CAL_BB_ATT_TX1"
+        exit 1
+    fi
+
+    bb-settxatt 1 ${CAL_BB_ATT_TX1} 2> /dev/null
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Set BB Attenuation TX1"
+        exit 1
+    fi
+
+    bb-settxatt 2 ${CAL_BB_ATT_TX2} 2> /dev/null
+    if [ $? -ne 0 ] ; then
+        echo "$0 - Error Set BB Attenuation TX2"
+        exit 1
+    fi
+
+    exit 0
 fi
 
 ##############  Get Current FE TX Attenuation ###################
