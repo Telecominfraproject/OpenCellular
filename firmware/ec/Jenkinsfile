@@ -9,9 +9,7 @@ node {
 
     try {
       stage('Static Analysis') {
-        dir ("firmware") {
-          sh 'bash utilities/jenkins/clang_patch'
-        }
+          sh 'bash firmware/utilities/jenkins/clang_patch'
       }
     } catch (err) {
       currentBuild.result = 'ERROR'
