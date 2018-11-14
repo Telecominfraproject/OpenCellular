@@ -15,8 +15,11 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
-	
+all:	gen_schema ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
+
+gen_schema:
+	cd ../utilities/schema; ./mk_schema.sh
+
 .PHONY:	occli
 
 ocmw_uart:   $(OBJECTS)

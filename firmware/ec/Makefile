@@ -85,7 +85,11 @@ LINT_FLAGS = -i -style=file -fallback-style=none
 .PRECIOUS: %/compiler.opt %/linker.cmd
 
 all: oc_connect1
-oc_connect1: $(OUT)/OpenCellular.bin
+
+gen_schema:
+	cd ../utilities/schema; ./mk_schema.sh
+
+oc_connect1: gen_schema $(OUT)/OpenCellular.bin
 
 $(OUT)/%/compiler.opt $(OUT)/%/linker.cmd : %.cfg
 	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r release $<
