@@ -78,12 +78,12 @@ LLIBS += -Wl,--end-group
 
 OBJCOPY = $(TOOLCHAIN)/bin/arm-none-eabi-objcopy
 
-all: gen_schema oc_connect1
+all: oc_connect1
 
 gen_schema:
 	cd ../utilities/schema; ./mk_schema.sh
 
-oc_connect1: $(OUT)/OpenCellular.bin
+oc_connect1: gen_schema $(OUT)/OpenCellular.bin
 
 $(OUT)/%/compiler.opt $(OUT)/%/linker.cmd : %.cfg
 	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r release $<
