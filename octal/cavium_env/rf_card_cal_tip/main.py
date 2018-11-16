@@ -100,6 +100,7 @@ class rfCardCal():
         self.retest_num = 3
         self.telnet_retry = 20
         self.cfg = test_config.EnbConfig()
+        if self.cfg.read_cal_channel() < 0 : sys.exit()
         self.enb = enodeb_ctrl.enodeB_Ctrl()
     
     def create_new_eeprom_record(self):
@@ -428,7 +429,7 @@ class rfCardCal():
         pass
         
     def set_initial_frequency(self):
-        
+
         if (self.cfg.cal_freq_arr[0][0] == 0) and (self.cfg.cal_freq_arr[0][1] == 0):
             mb = eutra_bands.BandFactory.newBand(test_config.band)
             test_config.dl_freq = mb.dl_freq()[1]
@@ -436,7 +437,8 @@ class rfCardCal():
         else:
             test_config.dl_freq = self.cfg.cal_freq_arr[0][0]
             test_config.ul_freq = self.cfg.cal_freq_arr[0][1]
-        
+
+        print "Band " + str(test_config.band)
         print "DL freq. " + str(test_config.dl_freq) + " MHz"
         print "UL freq. " + str(test_config.ul_freq) + " MHz"
         print ""
@@ -699,8 +701,8 @@ class rfCardCal():
                 print "End of RSSI calibration"
                 #del om
                 
-            elif (self.mod == '3'):        
-                        
+            elif (self.mod == '3'):
+
                 self.find_eeprom_record();
                 if (self.cfg.test_set == 'agilent'):
 
