@@ -18,7 +18,7 @@ wr_var_to_uboot = False             # T: write variable to uboot; F: don't write
 class EnbConfig():
     
     def __init__(self):
-        
+
         self.num_cal_channel = 0    # number of calibration channels
         self.dl_freq_arr = []       # list of downlink frequencies
         self.ul_freq_arr = []       # list of uplink frequencies
@@ -99,7 +99,8 @@ class EnbConfig():
         self.bb_pingip = '10.18.104.240'
         
         if self.check_cfg_file() < 0: sys.exit()
-        if self.read_cal_channel() < 0: sys.exit()
+        # only running read_cal_channel once during the call from main, not every init of EnbConfig
+        # if self.read_cal_channel() < 0: sys.exit()
         
         self.read_config()
         self.select_rf_drv_init()
@@ -119,18 +120,33 @@ class EnbConfig():
             return 0
         
     def read_cal_channel(self):
-        
+
+        se = raw_input("Which band are you running?(3/5/28):")
+        if (se == "3"):
+            band_suffix = "_3"
+        elif (se == "5"):
+            band_suffix = "_5"
+        elif (se == "28"):
+            band_suffix = "_28"
+        else:
+            print se + " is not a supported band"
+            return -1
+
+        band_name = "band" + band_suffix
+        dl_freq = "dl_freq" + band_suffix
+        ul_freq = "ul_freq" + band_suffix
+
         for cl in self.cfgln:
             par, val = self.read_line(cl)
-            
-            if (par == "band"):
+
+            if (par == band_name):
                 global band
                 band = int(val)
             elif (par == "num_cal_channel"):
                 self.num_cal_channel = int(val)
-            elif (par == "dl_freq"):
+            elif (par == dl_freq):
                 self.dl_freq_arr.append(float(val))
-            elif (par == "ul_freq"):
+            elif (par == ul_freq):
                 self.ul_freq_arr.append(float(val))
                         
         if (len(self.dl_freq_arr) != len(self.ul_freq_arr)):

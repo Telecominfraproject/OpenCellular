@@ -3,11 +3,19 @@
 # 1. the 1st dl_freq & ul_freq calibration results will write into u-boot environment variables
 # 2. leave the 1st dl_freq & ul_freq to zero for default(center) frequencies
 
-num_cal_channel=1               # number of calibration channels 
-band=3                         # enodeB band
-dl_freq=1840                       # downlink frequency
-ul_freq=1745                       # uplink frequency
+num_cal_channel=1               # number of calibration channels
 
+band_3=3                         # enodeB band
+dl_freq_3=1840                       # downlink frequency
+ul_freq_3=1745                       # uplink frequency
+
+band_5=5                         # enodeB band
+dl_freq_5=875                       # downlink frequency
+ul_freq_5=830                       # uplink frequency
+
+band_28=28                         # enodeB band
+dl_freq_28=790                       # downlink frequency
+ul_freq_28=735                       # uplink frequency
 # environment setting
 
 board_typ='zen_ad'   # board type [zen_ad]
