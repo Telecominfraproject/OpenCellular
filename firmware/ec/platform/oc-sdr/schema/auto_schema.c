@@ -142,24 +142,24 @@ SCHEMA_IMPORT const DriverStruct fact_sdr_fpga_ps_cfg;
 SCHEMA_IMPORT const DriverStruct fact_sync_ts_cfg;
 
 SCHEMA_IMPORT bool GPP_ap_Reset(void *, void *);
+SCHEMA_IMPORT bool gpp_post_init(void *, void *);
+SCHEMA_IMPORT bool gpp_pre_init(void *, void *);
 SCHEMA_IMPORT bool HCI_Init(void *, void *);
+SCHEMA_IMPORT bool obc_pre_init(void *, void *);
 SCHEMA_IMPORT bool RFFE_disablePA(void *, void *);
 SCHEMA_IMPORT bool RFFE_enablePA(void *, void *);
+SCHEMA_IMPORT bool rffe_post_init(void *, void *);
+SCHEMA_IMPORT bool rffe_pre_init(void *, void *);
 SCHEMA_IMPORT bool RFFE_reset(void *, void *);
-SCHEMA_IMPORT bool SDR_Init(void *, void *);
 SCHEMA_IMPORT bool SDR_fx3Reset(void *, void *);
+SCHEMA_IMPORT bool SDR_Init(void *, void *);
 SCHEMA_IMPORT bool SDR_reset(void *, void *);
 SCHEMA_IMPORT bool SYNC_Init(void *, void *);
 SCHEMA_IMPORT bool SYNC_reset(void *, void *);
 SCHEMA_IMPORT bool SYS_cmdEcho(void *, void *);
 SCHEMA_IMPORT bool SYS_cmdReset(void *, void *);
-SCHEMA_IMPORT bool TestMod_cmdReset(void *, void *);
-SCHEMA_IMPORT bool gpp_post_init(void *, void *);
-SCHEMA_IMPORT bool gpp_pre_init(void *, void *);
-SCHEMA_IMPORT bool obc_pre_init(void *, void *);
-SCHEMA_IMPORT bool rffe_post_init(void *, void *);
-SCHEMA_IMPORT bool rffe_pre_init(void *, void *);
 SCHEMA_IMPORT bool sys_post_init(void *, void *);
+SCHEMA_IMPORT bool TestMod_cmdReset(void *, void *);
 
 
 const Component sys_schema[] = {

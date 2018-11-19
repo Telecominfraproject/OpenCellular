@@ -168,7 +168,7 @@ class SchemaUtils:
         qual3 = 'SCHEMA_IMPORT bool '
         qual4 = '(void *, void *)'
         lines3 = [qual3 + value + qual4 + ';' for value in iter(setP)]
-        lines3.sort()
+        lines3.sort(key=str.lower)
         str3 = '\n'.join(str(line) for line in lines3)
 
         decls = str1 + '\n\n' + str2 + '\n\n' + str3 + '\n\n'
