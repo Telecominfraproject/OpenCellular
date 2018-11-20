@@ -32,6 +32,11 @@
       Same as previous example but with all defaults
       $ python3 sdtester.py -g
 
+  Example 5:
+      Check that any arbitrary JSON schema declaration generates a C-file.
+      Use d0 validation for development purposes
+      $ python3 sdtester.py -j test_schema.json -c test_schema.c -d d0
+
 """
 
 import sys
@@ -98,7 +103,7 @@ if __name__ == "__main__":
         action='store',
         default='d4',
         type=str,
-        help='JSON draft version, e.g. \'d4\' or \'d6\'',
+        help='JSON draft version, e.g. \'d4\' or \'d6\' for build; \'d0\' for general purpose',
     )
     # Schema source C-file to convert into JSON schema
     parser.add_argument(

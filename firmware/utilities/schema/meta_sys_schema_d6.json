@@ -1,14 +1,14 @@
 {
     "$schema": "http://json-schema.org/draft-06/schema#",
-	"title" : "OC-SDR schema",
-	"description" : "OC-SDR system specification",
+    "title" : "OC-SDR schema",
+    "description" : "OC-SDR system specification",
     "type": "array",
     "items": {
         "$ref": "#/definitions/Subsystem"
     },
     "definitions": {
         "Subsystem": {
-			"title": "Subsystem",
+            "title": "Subsystem",
             "type": "object",
             "properties": {
                 "name": {"type": "string"},
@@ -18,18 +18,18 @@
                         "$ref": "#/definitions/Component"
                     }
                 },
-				"driver_cfg": {"type": "string"},
-				"ssHookSet" : {
-					"type" : "object",
-					"items" : {
+                "driver_cfg": {"type": "string"},
+                "ssHookSet" : {
+                    "type" : "object",
+                    "items" : {
                         "$ref": "#/definitions/SsHookSet"
-					}
-				}				
+                    }
+                }				
             },
             "required": ["name", "components"]
         },
         "Component": {
-			"title" : "Component",
+            "title" : "Component",
             "type": "object",
             "properties": {
                 "name": {"type": "string"},
@@ -48,19 +48,19 @@
                         "$ref": "#/definitions/Command"
                     }
                 },
-				"ssHookSet" : {
-					"type" : "object",
-					"items" : {
+                "ssHookSet" : {
+                    "type" : "object",
+                    "items" : {
                         "$ref": "#/definitions/SsHookSet"
-					}
-				},
+                    }
+                },
                 "postDisabled": {"type" : "string"},
-				"ss" : {"type" : "string"}
+                "ss" : {"type" : "string"}
             },
             "required": ["name"]
         },
-		"Subcomponent" : {
-			"title" : "Subcomponent",
+        "Subcomponent" : {
+            "title" : "Subcomponent",
             "type" : "object",
             "properties": {
                 "name" : {"type" : "string"},
@@ -70,25 +70,25 @@
                 "factory_config" : {"type" : "string"}
             },
             "required" : ["name"]
-		},
-		"Command" : {
-			"title" : "Command",
-			"type" : "object",
-			"properties" : {
-				"name": {"type" : "string"},
-				"parameters" : {"type" : "string"},
-				"cb_cmd" : {"type" : "string"}
-			},
-			"required" : ["name"]
-		},
-		"SsHookSet" : {
-			"title" : "SSHookSet",
-			"type" : "object",
-			"properties" : {
-				"preInitFxn": {"type" : "string"},
-				"postInitFxn" : {"type" : "string"}
-			},
-			"required" : ["preInitFxn", "postInitFxn"]
-		}
-	}
+        },
+        "Command" : {
+            "title" : "Command",
+            "type" : "object",
+            "properties" : {
+                "name": {"type" : "string"},
+                "parameters" : {"type" : "string"},
+                "cb_cmd" : {"type" : "string"}
+            },
+            "required" : ["name"]
+        },
+        "SsHookSet" : {
+            "title" : "SSHookSet",
+            "type" : "object",
+            "properties" : {
+                "preInitFxn": {"type" : "string"},
+                "postInitFxn" : {"type" : "string"}
+            },
+            "required" : ["preInitFxn", "postInitFxn"]
+        }
+    }
 }

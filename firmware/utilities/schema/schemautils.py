@@ -14,7 +14,8 @@ import jsonschema as js
 
 
 class SchemaUtils:
-    draftFiles = {'d4' : 'meta_sys_schema_d4.json',
+    draftFiles = {'d0' : 'meta_sys_schema_d0.json',
+    'd4' : 'meta_sys_schema_d4.json',
     'd6' : 'meta_sys_schema_d6.json'}
 
     def __init__(self, md, json_fname, c_fname, draft):
@@ -108,7 +109,7 @@ class SchemaUtils:
         #  self.cfgschema[0]['name'] = []
         try:
             try:
-                if self.draft == 'd4':
+                if (self.draft == 'd4') or (self.draft == 'd0'):
                     js.Draft4Validator.check_schema(self.metaschema)
                 else:
                     # not supported until jsonschema 3.0
