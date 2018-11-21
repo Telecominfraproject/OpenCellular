@@ -7,7 +7,7 @@
 # Set proper path.
 ######################
 
-OCWARE_DIR ?= $(HOME)/OpenCellular/firmware/ec
+OCWARE_DIR ?= $(shell pwd)
 TIRTOS_DIR ?= $(HOME)/ti/tirtos_tivac_2_16_01_14
 XDCTOOLS_DIR ?= $(HOME)/ti/xdctools_3_32_00_06_core
 TOOLCHAIN ?= /usr
