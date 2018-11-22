@@ -6,118 +6,132 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include <stdint.h>
+#include "include/test_sx1509.h"
 
 uint8_t SX1509_regs[] = {
-    [0x00] = 0x00, /* Input buffer disable register B */
-    [0x01] = 0x00, /* Input buffer disable register A */
-    [0x02] = 0x00, /* Output buffer long slew register B */
-    [0x03] = 0x00, /* Output buffer long slew register A */
-    [0x04] = 0x00, /* Output buffer low drive register B */
-    [0x05] = 0x00, /* Output buffer low drive register A */
-    [0x06] = 0x00, /* Pull Up register B */
-    [0x07] = 0x00, /* Pull Up register A */
-    [0x08] = 0x00, /* Pull Down register B */
-    [0x09] = 0x00, /* Pull Down register A */
-    [0x0A] = 0x00, /* Open drain register B */
-    [0x0B] = 0x00, /* Open drain register A */
-    [0x0C] = 0x00, /* Polarity register B */
-    [0x0D] = 0x00, /* Polarity register A */
-    [0x0E] = 0x00, /* Direction register B */
-    [0x0F] = 0x00, /* Direction register A */
-    [0x10] = 0x00, /* Data register B */
-    [0x11] = 0x00, /* Data register A */
-    [0x12] = 0x00, /* Interrupt mask register B */
-    [0x13] = 0x00, /* Interrupt mask register A */
-    [0x14] = 0x00, /* Sense High register B */
-    [0x15] = 0x00, /* Sense Low register B */
-    [0x16] = 0x00, /* Sense High register A */
-    [0x17] = 0x00, /* Sense Low register A */
-    [0x18] = 0x00, /* Interrupt source register B */
-    [0x19] = 0x00, /* Interrupt source register A */
-    [0x1A] = 0x00, /* Event status register B */
-    [0x1B] = 0x00, /* Event status register A */
-    [0x1C] = 0x00, /* Level shifter register 1 */
-    [0x1D] = 0x00, /* Level shifter register 2 */
-    [0x1E] = 0x00, /* Clock management register */
-    [0x1F] = 0x00, /* Miscellaneous device settings register */
-    [0x20] = 0x00, /* LED driver enable register B */
-    [0x21] = 0x00, /* LED driver enable register A */
-    [0x22] = 0x00, /* Debounce configuration register */
-    [0x23] = 0x00, /* Debounce enable register B */
-    [0x24] = 0x00, /* Debounce enable register A */
-    [0x25] = 0x00, /* Key scan configuration register 1 */
-    [0x26] = 0x00, /* Key scan configuration register 2 */
-    [0x27] = 0x00, /* Key value (column) 1 */
-    [0x28] = 0x00, /* Key value (row) 2 */
-    [0x29] = 0x00, /* ON time register I/O[0] */
-    [0x2A] = 0x00, /* ON intensity register I/O[0] */
-    [0x2B] = 0x00, /* OFF time/intensity register I/O[0] */
-    [0x2C] = 0x00, /* ON time register I/O[1] */
-    [0x2D] = 0x00, /* ON intensity register I/O[1] */
-    [0x2E] = 0x00, /* OFF time/intensity register I/O[1] */
-    [0x2F] = 0x00, /* ON time register I/O[2] */
-    [0x30] = 0x00, /* ON intensity register I/O[2] */
-    [0x31] = 0x00, /* OFF time/intensity register I/O[2] */
-    [0x32] = 0x00, /* ON time register I/O[3] */
-    [0x33] = 0x00, /* ON intensity register I/O[3] */
-    [0x34] = 0x00, /* OFF time/intensity register I/O[3] */
-    [0x35] = 0x00, /* ON time register I/O[4] */
-    [0x36] = 0x00, /* ON intensity register I/O[4] */
-    [0x37] = 0x00, /* OFF time/intensity register I/O[4] */
-    [0x38] = 0x00, /* Fade in register I/O[4] */
-    [0x39] = 0x00, /* Fade out register I/O[4] */
-    [0x3A] = 0x00, /* ON time register I/O[5] */
-    [0x3B] = 0x00, /* ON intensity register I/O[5] */
-    [0x3C] = 0x00, /* OFF time/intensity register I/O[5] */
-    [0x3D] = 0x00, /* Fade in register I/O[5] */
-    [0x3E] = 0x00, /* Fade out register I/O[5] */
-    [0x3F] = 0x00, /* ON time register I/O[6] */
-    [0x40] = 0x00, /* ON intensity register I/O[6] */
-    [0x41] = 0x00, /* OFF time/intensity register I/O[6] */
-    [0x42] = 0x00, /* Fade in register I/O[6] */
-    [0x43] = 0x00, /* Fade out register I/O[6] */
-    [0x44] = 0x00, /* ON time register I/O[6] */
-    [0x45] = 0x00, /* ON intensity register I/O[7] */
-    [0x46] = 0x00, /* OFF time/intensity register I/O[7] */
-    [0x47] = 0x00, /* Fade in register I/O[7] */
-    [0x48] = 0x00, /* Fade out register I/O[7] */
-    [0x49] = 0x00, /* ON time register I/O[8] */
-    [0x4A] = 0x00, /* ON intensity register I/O[8] */
-    [0x4B] = 0x00, /* OFF time/intensity register I/O[8]  */
-    [0x4C] = 0x00, /* ON time register I/O[9] */
-    [0x4D] = 0x00, /* ON intensity register I/O[9] */
-    [0x4E] = 0x00, /* OFF time/intensity register I/O[9] */
-    [0x4F] = 0x00, /* ON time register I/O[10] */
-    [0x50] = 0x00, /* ON intensity register I/O[10] */
-    [0x51] = 0x00, /* OFF time/intensity register I/O[10] */
-    [0x52] = 0x00, /* ON time register I/O[11] */
-    [0x53] = 0x00, /* ON intensity register I/O[11] */
-    [0x54] = 0x00, /* OFF time/intensity register I/O[11] */
-    [0x55] = 0x00, /* ON time register I/O[12] */
-    [0x56] = 0x00, /* ON intensity register I/O[12] */
-    [0x57] = 0x00, /* OFF time/intensity register I/O[12] */
-    [0x58] = 0x00, /* Fade in register I/O[12] */
-    [0x59] = 0x00, /* Fade out register I/O[12] */
-    [0x5A] = 0x00, /* ON time register I/O[13] */
-    [0x5B] = 0x00, /* ON intensity register I/O[13] */
-    [0x5C] = 0x00, /* OFF time/intensity register I/O[13] */
-    [0x5D] = 0x00, /* Fade in register I/O[13] */
-    [0x5E] = 0x00, /* Fade out register I/O[13] */
-    [0x5F] = 0x00, /* ON time register I/O[14] */
-    [0x60] = 0x00, /* ON intensity register I/O[14] */
-    [0x61] = 0x00, /* OFF time/intensity register I/O[14] */
-    [0x62] = 0x00, /* Fade in register I/O[14] */
-    [0x63] = 0x00, /* Fade out register I/O[14] */
-    [0x64] = 0x00, /* ON time register I/O[15] */
-    [0x65] = 0x00, /* ON intensity register I/O[15] */
-    [0x66] = 0x00, /* OFF time/intensity register I/O[15] */
-    [0x67] = 0x00, /* Fade in register I/O[115] */
-    [0x68] = 0x00, /* Fade out register I/O[15] */
-    [0x69] = 0x00, /*  */
-    [0x6A] = 0x00, /*  */
-    [0x7D] = 0x00, /*  */
-    [0x7E] = 0x00, /*  */
-    [0x7F] = 0x00, /*  */
+    [SX1509_REG_INPUT_DISABLE_B] =
+        0x00, /* Input buffer disableSX1509_REGister B */
+    [SX1509_REG_INPUT_DISABLE_A] =
+        0x00, /* Input buffer disableSX1509_REGister A */
+    [SX1509_REG_LONG_SLEW_B] =
+        0x00, /* Output buffer long slewSX1509_REGister B */
+    [SX1509_REG_LONG_SLEW_A] =
+        0x00, /* Output buffer long slewSX1509_REGister A */
+    [SX1509_REG_LOW_DRIVE_B] =
+        0x00, /* Output buffer low driveSX1509_REGister B */
+    [SX1509_REG_LOW_DRIVE_A] =
+        0x00, /* Output buffer low driveSX1509_REGister A */
+    [SX1509_REG_PULL_UP_B] = 0x00,        /* Pull UpSX1509_REGister B */
+    [SX1509_REG_PULL_UP_A] = 0x00,        /* Pull UpSX1509_REGister A */
+    [SX1509_REG_PULL_DOWN_B] = 0x00,      /* Pull DownSX1509_REGister B */
+    [SX1509_REG_PULL_DOWN_A] = 0x00,      /* Pull DownSX1509_REGister A */
+    [SX1509_REG_OPEN_DRAIN_B] = 0x00,     /* Open drainSX1509_REGister B */
+    [SX1509_REG_OPEN_DRAIN_A] = 0x00,     /* Open drainSX1509_REGister A */
+    [SX1509_REG_POLARITY_B] = 0x00,       /* PolaritySX1509_REGister B */
+    [SX1509_REG_POLARITY_A] = 0x00,       /* PolaritySX1509_REGister A */
+    [SX1509_REG_DIR_B] = 0x00,            /* DirectionSX1509_REGister B */
+    [SX1509_REG_DIR_A] = 0x00,            /* DirectionSX1509_REGister A */
+    [SX1509_REG_DATA_B] = 0x00,           /* DataSX1509_REGister B */
+    [SX1509_REG_DATA_A] = 0x00,           /* DataSX1509_REGister A */
+    [SX1509_REG_INTERRUPT_MASK_B] = 0x00, /* Interrupt maskSX1509_REGister B */
+    [SX1509_REG_INTERRUPT_MASK_A] = 0x00, /* Interrupt maskSX1509_REGister A */
+    [SX1509_REG_SENSE_HIGH_B] = 0x00,     /* Sense HighSX1509_REGister B */
+    [SX1509_REG_SENSE_LOW_B] = 0x00,      /* Sense LowSX1509_REGister B */
+    [SX1509_REG_SENSE_HIGH_A] = 0x00,     /* Sense HighSX1509_REGister A */
+    [SX1509_REG_SENSE_LOW_A] = 0x00,      /* Sense LowSX1509_REGister A */
+    [SX1509_REG_INTERRUPT_SOURCE_B] =
+        0x00, /* Interrupt sourceSX1509_REGister B */
+    [SX1509_REG_INTERRUPT_SOURCE_A] =
+        0x00,                            /* Interrupt sourceSX1509_REGister A */
+    [SX1509_REG_EVENT_STATUS_B] = 0x00,  /* Event statusSX1509_REGister B */
+    [SX1509_REG_EVENT_STATUS_A] = 0x00,  /* Event statusSX1509_REGister A */
+    [SX1509_REG_LEVEL_SHIFTER_1] = 0x00, /* Level shifterSX1509_REGister 1 */
+    [SX1509_REG_LEVEL_SHIFTER_2] = 0x00, /* Level shifterSX1509_REGister 2 */
+    [SX1509_REG_CLOCK] = 0x00,           /* Clock managementSX1509_REGister */
+    [SX1509_REG_MISC] = 0x00, /* Miscellaneous device settingsSX1509_REGister */
+    [SX1509_REG_LED_DRIVER_ENABLE_B] =
+        0x00, /* LED driver enableSX1509_REGister B */
+    [SX1509_REG_LED_DRIVER_ENABLE_A] =
+        0x00, /* LED driver enableSX1509_REGister A */
+    [SX1509_REG_DEBOUNCW_CONFIG] =
+        0x00, /* Debounce configurationSX1509_REGister */
+    [SX1509_REG_DEBOUNCW_ENABLE_B] =
+        0x00, /* Debounce enableSX1509_REGister B */
+    [SX1509_REG_DEBOUNCW_ENABLE_A] =
+        0x00, /* Debounce enableSX1509_REGister A */
+    [SX1509_REG_KEY_CONFIG_1] =
+        0x00, /* Key scan configurationSX1509_REGister 1 */
+    [SX1509_REG_KEY_CONFIG_2] =
+        0x00, /* Key scan configurationSX1509_REGister 2 */
+    [SX1509_REG_KEY_DATA_1] = 0x00, /* Key value (column) 1 */
+    [SX1509_REG_KEY_DATA_2] = 0x00, /* Key value (row) 2 */
+    [SX1509_REG_T_ON_0] = 0x00,     /* ON timeSX1509_REGister I/O[0] */
+    [SX1509_REG_I_ON_0] = 0x00,     /* ON intensitySX1509_REGister I/O[0] */
+    [SX1509_REG_OFF_0] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[0] */
+    [SX1509_REG_T_ON_1] = 0x00,   /* ON timeSX1509_REGister I/O[1] */
+    [SX1509_REG_I_ON_1] = 0x00,   /* ON intensitySX1509_REGister I/O[1] */
+    [SX1509_REG_OFF_1] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[1] */
+    [SX1509_REG_T_ON_2] = 0x00,   /* ON timeSX1509_REGister I/O[2] */
+    [SX1509_REG_I_ON_2] = 0x00,   /* ON intensitySX1509_REGister I/O[2] */
+    [SX1509_REG_OFF_2] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[2] */
+    [SX1509_REG_T_ON_3] = 0x00,   /* ON timeSX1509_REGister I/O[3] */
+    [SX1509_REG_I_ON_3] = 0x00,   /* ON intensitySX1509_REGister I/O[3] */
+    [SX1509_REG_OFF_3] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[3] */
+    [SX1509_REG_T_ON_4] = 0x00,   /* ON timeSX1509_REGister I/O[4] */
+    [SX1509_REG_I_ON_4] = 0x00,   /* ON intensitySX1509_REGister I/O[4] */
+    [SX1509_REG_OFF_4] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[4] */
+    [SX1509_REG_T_RISE_4] = 0x00, /* Fade inSX1509_REGister I/O[4] */
+    [SX1509_REG_T_Fall_4] = 0x00, /* Fade outSX1509_REGister I/O[4] */
+    [SX1509_REG_T_ON_5] = 0x00,   /* ON timeSX1509_REGister I/O[5] */
+    [SX1509_REG_I_ON_5] = 0x00,   /* ON intensitySX1509_REGister I/O[5] */
+    [SX1509_REG_OFF_5] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[5] */
+    [SX1509_REG_T_RISE_5] = 0x00, /* Fade inSX1509_REGister I/O[5] */
+    [SX1509_REG_T_Fall_5] = 0x00, /* Fade outSX1509_REGister I/O[5] */
+    [SX1509_REG_T_ON_6] = 0x00,   /* ON timeSX1509_REGister I/O[6] */
+    [SX1509_REG_I_ON_6] = 0x00,   /* ON intensitySX1509_REGister I/O[6] */
+    [SX1509_REG_OFF_6] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[6] */
+    [SX1509_REG_T_RISE_6] = 0x00, /* Fade inSX1509_REGister I/O[6] */
+    [SX1509_REG_T_Fall_6] = 0x00, /* Fade outSX1509_REGister I/O[6] */
+    [SX1509_REG_T_ON_7] = 0x00,   /* ON timeSX1509_REGister I/O[6] */
+    [SX1509_REG_I_ON_7] = 0x00,   /* ON intensitySX1509_REGister I/O[7] */
+    [SX1509_REG_OFF_7] = 0x00,    /* OFF time/intensitySX1509_REGister I/O[7] */
+    [SX1509_REG_T_RISE_7] = 0x00, /* Fade inSX1509_REGister I/O[7] */
+    [SX1509_REG_T_Fall_7] = 0x00, /* Fade outSX1509_REGister I/O[7] */
+    [SX1509_REG_T_ON_8] = 0x00,   /* ON timeSX1509_REGister I/O[8] */
+    [SX1509_REG_I_ON_8] = 0x00,   /* ON intensitySX1509_REGister I/O[8] */
+    [SX1509_REG_OFF_8] = 0x00,   /* OFF time/intensitySX1509_REGister I/O[8]  */
+    [SX1509_REG_T_ON_9] = 0x00,  /* ON timeSX1509_REGister I/O[9] */
+    [SX1509_REG_I_ON_9] = 0x00,  /* ON intensitySX1509_REGister I/O[9] */
+    [SX1509_REG_OFF_9] = 0x00,   /* OFF time/intensitySX1509_REGister I/O[9] */
+    [SX1509_REG_T_ON_10] = 0x00, /* ON timeSX1509_REGister I/O[10] */
+    [SX1509_REG_I_ON_10] = 0x00, /* ON intensitySX1509_REGister I/O[10] */
+    [SX1509_REG_OFF_10] = 0x00,  /* OFF time/intensitySX1509_REGister I/O[10] */
+    [SX1509_REG_T_ON_11] = 0x00, /* ON timeSX1509_REGister I/O[11] */
+    [SX1509_REG_I_ON_11] = 0x00, /* ON intensitySX1509_REGister I/O[11] */
+    [SX1509_REG_OFF_11] = 0x00,  /* OFF time/intensitySX1509_REGister I/O[11] */
+    [SX1509_REG_T_ON_12] = 0x00, /* ON timeSX1509_REGister I/O[12] */
+    [SX1509_REG_I_ON_12] = 0x00, /* ON intensitySX1509_REGister I/O[12] */
+    [SX1509_REG_OFF_12] = 0x00,  /* OFF time/intensitySX1509_REGister I/O[12] */
+    [SX1509_REG_T_RISE_12] = 0x00, /* Fade inSX1509_REGister I/O[12] */
+    [SX1509_REG_T_Fall_12] = 0x00, /* Fade outSX1509_REGister I/O[12] */
+    [SX1509_REG_T_ON_13] = 0x00,   /* ON timeSX1509_REGister I/O[13] */
+    [SX1509_REG_I_ON_13] = 0x00,   /* ON intensitySX1509_REGister I/O[13] */
+    [SX1509_REG_OFF_13] = 0x00, /* OFF time/intensitySX1509_REGister I/O[13] */
+    [SX1509_REG_T_RISE_13] = 0x00, /* Fade inSX1509_REGister I/O[13] */
+    [SX1509_REG_T_Fall_13] = 0x00, /* Fade outSX1509_REGister I/O[13] */
+    [SX1509_REG_T_ON_14] = 0x00,   /* ON timeSX1509_REGister I/O[14] */
+    [SX1509_REG_I_ON_14] = 0x00,   /* ON intensitySX1509_REGister I/O[14] */
+    [SX1509_REG_OFF_14] = 0x00, /* OFF time/intensitySX1509_REGister I/O[14] */
+    [SX1509_REG_T_RISE_14] = 0x00, /* Fade inSX1509_REGister I/O[14] */
+    [SX1509_REG_T_Fall_14] = 0x00, /* Fade outSX1509_REGister I/O[14] */
+    [SX1509_REG_T_ON_15] = 0x00,   /* ON timeSX1509_REGister I/O[15] */
+    [SX1509_REG_I_ON_15] = 0x00,   /* ON intensitySX1509_REGister I/O[15] */
+    [SX1509_REG_OFF_15] = 0x00, /* OFF time/intensitySX1509_REGister I/O[15] */
+    [SX1509_REG_T_RISE_15] = 0x00,    /* Fade inSX1509_REGister I/O[115] */
+    [SX1509_REG_T_Fall_15] = 0x00,    /* Fade outSX1509_REGister I/O[15] */
+    [SX1509_REG_HIGH_INPUT_B] = 0x00, /*  */
+    [SX1509_REG_HIGH_INPUT_A] = 0x00, /*  */
+    [SX1509_REG_RESET] = 0x00,        /*  */
+    [SX1509_REG_TEST_1] = 0x00,       /*  */
+    [SX1509_REG_TEST_2] = 0x00,       /*  */
 };
-

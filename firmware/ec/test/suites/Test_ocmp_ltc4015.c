@@ -8,16 +8,21 @@
  */
 #include "include/test_ltc4015.h"
 
-extern const I2C_Dev I2C_DEV;
+#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
+
 extern bool LTC4015_GpioPins[1];
-extern uint32_t LTC4015_GpioConfig[1];
-extern OcGpio_Port gbc_io_1;
-extern OcGpio_Port ec_io;
-extern LTC4015_Dev gbc_pwr_int_bat_charger ;
-extern LTC4015_Dev gbc_pwr_invalid_dev;
-extern LTC4015_Dev gbc_pwr_invalid_bus;
+extern const I2C_Dev I2C_DEV;
+extern const LTC4015_Config fact_leadAcid_cfg;
+extern const LTC4015_Config fact_lithiumIon_cfg;
 extern LTC4015_Dev gbc_pwr_ext_bat_charger;
-extern uint16_t LTC4015_regs[0x4A];
+extern LTC4015_Dev gbc_pwr_int_bat_charger;
+extern LTC4015_Dev gbc_pwr_invalid_bus;
+extern LTC4015_Dev gbc_pwr_invalid_dev;
+extern LTC4015_Dev gbc_pwr_invalid_leadAcid_cfg;
+extern OcGpio_Port ec_io;
+extern OcGpio_Port gbc_io_1;
+extern uint32_t LTC4015_GpioConfig[1];
+extern uint16_t LTC4015_regs[LTC4015_REG_VAILD_BIT_MESURMENT];
 extern uint8_t SX1509_regs[0x7F];
 
 /* ============================= Boilerplate ================================ */
@@ -27,14 +32,14 @@ void suite_setUp(void)
     fake_I2C_init();
 
     fake_I2C_registerDevSimple(gbc_pwr_int_bat_charger.cfg.i2c_dev.bus,
-                    gbc_pwr_int_bat_charger.cfg.i2c_dev.slave_addr,
-                LTC4015_regs,
-                               sizeof(LTC4015_regs), sizeof(LTC4015_regs[0]),
-                               sizeof(uint8_t), FAKE_I2C_DEV_LITTLE_ENDIAN);
+                               gbc_pwr_int_bat_charger.cfg.i2c_dev.slave_addr,
+                               LTC4015_regs, sizeof(LTC4015_regs),
+                               sizeof(LTC4015_regs[0]), sizeof(uint8_t),
+                               FAKE_I2C_DEV_LITTLE_ENDIAN);
 
-    fake_I2C_registerDevSimple(0, 0x45, SX1509_regs,
-                               sizeof(SX1509_regs), sizeof(SX1509_regs[0]),
-                               sizeof(uint8_t), FAKE_I2C_DEV_LITTLE_ENDIAN);
+    fake_I2C_registerDevSimple(0, 0x45, SX1509_regs, sizeof(SX1509_regs),
+                               sizeof(SX1509_regs[0]), sizeof(uint8_t),
+                               FAKE_I2C_DEV_LITTLE_ENDIAN);
 }
 
 void setUp(void)
@@ -54,40 +59,41 @@ void suite_tearDown(void)
 {
     fake_I2C_deinit(); /* This will automatically unregister devices */
 }
-// Parameters are not used as this is just used to test assigning the
-//   alert_handler right now.
+/* Parameters are not used as this is just used to test assigning the
+   alert_handler right now.*/
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void OCMP_GenerateAlert(const AlertData *alert_data,
-                        unsigned int alert_id,
+void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
                         const void *data)
 {
-
 }
 #pragma GCC diagnostic pop
 /* ================================ Tests =================================== */
+/* Values are used in the below function are taken as per the datasheet*/
 void test_ocmp_ltc4015_probe(void)
 {
     POSTData postData;
     LTC4015_GpioConfig[0x05] = 0;
 
     /* Test with the actual value */
-    LTC4015_regs[0x39] = LTC4015_CHARGER_ENABLED;
+    LTC4015_regs[LTC4015_REG_SYSTEM_STATUS_INDICATOR] = LTC4015_CHARGER_ENABLED;
     TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4015_fxnTable.cb_probe(
-                &gbc_pwr_int_bat_charger, &postData));
+                                          &gbc_pwr_int_bat_charger, &postData));
     TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT, LTC4015_GpioConfig[0x05]);
 
-     /* Test with an incorrect value */
-    LTC4015_regs[0x39] = ~LTC4015_CHARGER_ENABLED;
-    TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_fxnTable.cb_probe(
-                &gbc_pwr_int_bat_charger, &postData));
+    /* Test with an incorrect value */
+    LTC4015_regs[LTC4015_REG_SYSTEM_STATUS_INDICATOR] =
+        ~LTC4015_CHARGER_ENABLED;
+    TEST_ASSERT_EQUAL(
+        POST_DEV_MISSING,
+        LTC4015_fxnTable.cb_probe(&gbc_pwr_int_bat_charger, &postData));
     /* Test with a missing device */
     TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_fxnTable.cb_probe(
-                            &gbc_pwr_invalid_dev, &postData));
+                                            &gbc_pwr_invalid_dev, &postData));
 
     /* Test with a missing bus */
     TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_fxnTable.cb_probe(
-                            &gbc_pwr_invalid_bus, &postData));
+                                            &gbc_pwr_invalid_bus, &postData));
 }
 
 void test_ocmp_ltc4015_init(void)
@@ -100,734 +106,1204 @@ void test_ocmp_ltc4015_init(void)
     };
     AlertData *alert_data_cp = malloc(sizeof(AlertData));
     *alert_data_cp = alert_data;
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4015_fxnTable.cb_init(
-                                &gbc_pwr_int_bat_charger,
-                                &fact_lithiumIon_cfg, alert_data_cp));
-    TEST_ASSERT_EQUAL(16470, LTC4015_regs[0x01]);
-    TEST_ASSERT_EQUAL(21844, LTC4015_regs[0x02]);
-    TEST_ASSERT_EQUAL(2047, LTC4015_regs[0x08]);
-    TEST_ASSERT_EQUAL(9830, LTC4015_regs[0x03]);
-    TEST_ASSERT_EQUAL(23892, LTC4015_regs[0x07]);
-    TEST_ASSERT_EQUAL(76, LTC4015_regs[0x15]);
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
+                      LTC4015_fxnTable.cb_init(&gbc_pwr_int_bat_charger,
+                                               &fact_lithiumIon_cfg,
+                                               alert_data_cp));
+    TEST_ASSERT_EQUAL(LTC4015_INIT_BATTERY_VOLTAGE_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_INIT_BATTERY_VOLTAGE_HIGH_LIMIT,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_INIT_CHARGE_CURRENT_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_VOLTAGE_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_CURRENT_HIGH_LIMIT,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_CURRENT_LIMIT_SETTING,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
     TEST_ASSERT_EQUAL_HEX16(LTC4015_EVT_BVL | LTC4015_EVT_BVH |
-                LTC4015_EVT_IVL | LTC4015_EVT_ICH | LTC4015_EVT_BCL,
-                        LTC4015_regs[0x0D]);
+                                LTC4015_EVT_IVL | LTC4015_EVT_ICH |
+                                LTC4015_EVT_BCL,
+                            LTC4015_regs[LTC4015_REG_ENABLE_LIMIT_MONITIOR]);
 
     /* Test with a missing device */
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, LTC4015_fxnTable.cb_init(
-                        &gbc_pwr_invalid_dev,
-                        &fact_lithiumIon_cfg, alert_data_cp));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_dev,
+                                               &fact_lithiumIon_cfg,
+                                               alert_data_cp));
 
     /* Test with a missing bus */
-    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL, LTC4015_fxnTable.cb_init(
-                        &gbc_pwr_invalid_bus,
-                        &fact_lithiumIon_cfg, alert_data_cp));
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
+                      LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_bus,
+                                               &fact_lithiumIon_cfg,
+                                               alert_data_cp));
+
+    /* Test for _choose_battery_charge false */
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_leadAcid_cfg,
+                                        &fact_lithiumIon_cfg, alert_data_cp));
 }
 
-void test_ocmp_ltc4015_get_status(void)
+void test_ocmp_ltc4015_battery_voltage_get_status(void)
 {
     int16_t batteryVoltage = 0;
-    int16_t batteryCurrent = 0;
-    int16_t systemVoltage = 0;
-    int16_t inputVoltage = 0;
-    int16_t inputCurrent = 0;
-    uint16_t dieTemperature = 0;
-    int16_t iCharge = 0;
-    int16_t buffer = 0;
+    int16_t expectedValue = 0;
 
-    /* Test lithium ion chemistry */
     /* Battery Voltage(VBATSENS/cellcount) = [VBAT] <95> 192.264(uV) */
-    LTC4015_regs[0x3A] = 15603;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_BATTERY_VOLTAGE, &batteryVoltage));
-    TEST_ASSERT_EQUAL(8999, batteryVoltage);
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_VBAT_VALUE] = 15603;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_int_bat_charger,
+                                             LTC4015_STATUS_BATTERY_VOLTAGE,
+                                             &batteryVoltage));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_int_bat_charger, LTC4015_regs[LTC4015_REG_VBAT_VALUE]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltage);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_VBAT_VALUE] = 17945;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_STATUS_BATTERY_VOLTAGE,
+                                             &batteryVoltage));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_ext_bat_charger, LTC4015_regs[LTC4015_REG_VBAT_VALUE]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltage);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_VBAT_VALUE] = 15603;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_dev,
+                                              LTC4015_STATUS_BATTERY_VOLTAGE,
+                                              &batteryVoltage));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_VBAT_VALUE] = 15603;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_bus,
+                                              LTC4015_STATUS_BATTERY_VOLTAGE,
+                                              &batteryVoltage));
+}
+
+void test_ocmp_ltc4015_battery_current_get_status(void)
+{
+    int16_t batteryCurrent = 0;
+    int16_t expectedValue = 0;
 
     /* IBAT_LO_ALERT_LIMIT = (limit*RSNSB)/1.46487uV */
-    LTC4015_regs[0x3D] = 2048;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_BATTERY_CURRENT, &batteryCurrent));
-    TEST_ASSERT_EQUAL(100, batteryCurrent);
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_BATTEY_CURRENT] = 2048;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_int_bat_charger,
+                                             LTC4015_STATUS_BATTERY_CURRENT,
+                                             &batteryCurrent));
+    expectedValue = ocmp_ltc4015_get_battery_current(
+        &gbc_pwr_int_bat_charger, LTC4015_regs[LTC4015_REG_BATTEY_CURRENT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryCurrent);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_BATTEY_CURRENT] = 8276;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_STATUS_BATTERY_CURRENT,
+                                             &batteryCurrent));
+    expectedValue = ocmp_ltc4015_get_battery_current(
+        &gbc_pwr_ext_bat_charger, LTC4015_regs[LTC4015_REG_BATTEY_CURRENT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryCurrent);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_BATTEY_CURRENT] = 2048;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_dev,
+                                              LTC4015_STATUS_BATTERY_CURRENT,
+                                              &batteryCurrent));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_BATTEY_CURRENT] = 2048;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_bus,
+                                              LTC4015_STATUS_BATTERY_CURRENT,
+                                              &batteryCurrent));
+}
+
+void test_ocmp_ltc4015_system_voltage_get_status(void)
+{
+    int16_t systemVoltage = 0;
+    int16_t expectedValue = 0;
 
     /* System voltage = [VSYS] <95> 1.648mV */
-    LTC4015_regs[0x3C] = 7000;
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_VSYS] = 7000;
     TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_SYSTEM_VOLTAGE, &systemVoltage));
-    TEST_ASSERT_EQUAL(11536, systemVoltage);
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_STATUS_SYSTEM_VOLTAGE, &systemVoltage));
+    expectedValue =
+        ocmp_ltc4015_get_system_voltage(LTC4015_regs[LTC4015_REG_VSYS]);
+    TEST_ASSERT_EQUAL(expectedValue, systemVoltage);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_VSYS] = 12500;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_STATUS_SYSTEM_VOLTAGE, &systemVoltage));
+    expectedValue =
+        ocmp_ltc4015_get_system_voltage(LTC4015_regs[LTC4015_REG_VSYS]);
+    TEST_ASSERT_EQUAL(expectedValue, systemVoltage);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_VSYS] = 12500;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_dev,
+                                              LTC4015_STATUS_SYSTEM_VOLTAGE,
+                                              &systemVoltage));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_VSYS] = 7000;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_bus,
+                                              LTC4015_STATUS_SYSTEM_VOLTAGE,
+                                              &systemVoltage));
+}
+
+void test_ocmp_ltc4015_input_voltage_get_status(void)
+{
+    int16_t inputVoltage = 0;
+    int16_t expectedValue = 0;
 
     /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x3B] = 3034;
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_VIN] = 3034;
     TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
-    TEST_ASSERT_EQUAL(5000, inputVoltage);
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+    expectedValue =
+        ocmp_ltc4015_get_input_voltage(LTC4015_regs[LTC4015_REG_VIN]);
+    TEST_ASSERT_EQUAL(expectedValue, inputVoltage);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_VIN] = 60;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+    expectedValue =
+        ocmp_ltc4015_get_input_voltage(LTC4015_regs[LTC4015_REG_VIN]);
+    TEST_ASSERT_EQUAL(expectedValue, inputVoltage);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_VIN] = 60;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_VIN] = 3034;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+}
+
+void test_ocmp_ltc4015_input_current_get_status(void)
+{
+    int16_t inputCurrent = 0;
+    int16_t expectedValue = 0;
+
+    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
+    /* Test lithium ion chemistry */
+    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT] = 23892;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
+
+    expectedValue = ocmp_ltc4015_get_input_current(
+        &gbc_pwr_int_bat_charger, LTC4015_regs[LTC4015_REG_INPUT_CURRENT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrent);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT] = 23211;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
+    expectedValue = ocmp_ltc4015_get_input_current(
+        &gbc_pwr_ext_bat_charger, LTC4015_regs[LTC4015_REG_INPUT_CURRENT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrent);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT] = 23892;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT] = 23892;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
+}
+
+void test_ocmp_ltc4015_dia_temperature_get_status(void)
+{
+    int16_t dieTemperature = 0;
+    int16_t expectedValue = 0;
 
     /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x3E] = 23892;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
-    TEST_ASSERT_EQUAL(4999, inputCurrent);
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE] = 13606;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_int_bat_charger,
+                                             LTC4015_STATUS_DIE_TEMPERATURE,
+                                             &dieTemperature));
+    expectedValue = ocmp_ltc4015_get_dia_temperature(
+        LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE]);
+    TEST_ASSERT_EQUAL(expectedValue, dieTemperature);
 
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP <96> 12010)/45.6°C */
-    LTC4015_regs[0x3F] = 13606;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_DIE_TEMPERATURE, &dieTemperature));
-    TEST_ASSERT_EQUAL(35, dieTemperature);
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE] = 15666;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_status(&gbc_pwr_int_bat_charger,
+                                             LTC4015_STATUS_DIE_TEMPERATURE,
+                                             &dieTemperature));
+    expectedValue = ocmp_ltc4015_get_dia_temperature(
+        LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE]);
+    TEST_ASSERT_EQUAL(expectedValue, dieTemperature);
 
-    /* Charger Current servo level = (ICHARGE_DAC + 1) <95> 1mV/RSNSB */
-    LTC4015_regs[0x44] = 0x1F;
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE] = 15666;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_dev,
+                                              LTC4015_STATUS_DIE_TEMPERATURE,
+                                              &dieTemperature));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_DIE_TEMPERATURE] = 13606;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(&gbc_pwr_invalid_bus,
+                                              LTC4015_STATUS_DIE_TEMPERATURE,
+                                              &dieTemperature));
+}
+
+void test_ocmp_ltc4015_icharge_dac_get_status(void)
+{
+    int16_t iCharge = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL] = 31;
     TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger,
-                        LTC4015_STATUS_ICHARGE_DAC, &iCharge));
-    TEST_ASSERT_EQUAL(1, iCharge);
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+    expectedValue = ocmp_ltc4015_get_icharge_dac(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL]);
+    TEST_ASSERT_EQUAL(expectedValue, iCharge);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL] = 31;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_status(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+    expectedValue = ocmp_ltc4015_get_icharge_dac(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL]);
+    TEST_ASSERT_EQUAL(expectedValue, iCharge);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL] = 31;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(
+                   &gbc_pwr_invalid_dev, LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL] = 31;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_status(
+                   &gbc_pwr_invalid_bus, LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+}
+
+void test_ocmp_ltc4015_invalid_param_get_status(void)
+{
+    int16_t buffer = 0;
 
     /*Test with invalid paramId*/
-    LTC4015_regs[0x44] = 0x1F;
+    LTC4015_regs[LTC4015_REG_CHARGE_CUEERNT_DAC_CONTROL] = 31;
     buffer = 0;
     TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_int_bat_charger, 7, &buffer));
+                                 &gbc_pwr_int_bat_charger, 7, &buffer));
     TEST_ASSERT_EQUAL(0, buffer);
 }
 
-void test_ocmp_ltc4015_get_config(void)
+void test_ocmp_ltc4015_get_cfg_battery_voltage_low(void)
+{
+    int16_t batteryVoltageLow = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT] = 15603;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                             &batteryVoltageLow));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltageLow);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT] = 13458;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                             &batteryVoltageLow));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltageLow);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT] = 13458;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                 &batteryVoltageLow));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT] = 13458;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                 &batteryVoltageLow));
+}
+
+void test_ocmp_ltc4015_get_cfg_battery_voltage_high(void)
+{
+    int16_t batteryVoltageHigh = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT] = 21845;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                &batteryVoltageHigh));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltageHigh);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT] = 17945;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                &batteryVoltageHigh));
+    expectedValue = ocmp_ltc4015_get_battery_voltage(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryVoltageHigh);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT] = 17945;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                 &batteryVoltageHigh));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT] = 17945;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                 &batteryVoltageHigh));
+}
+
+void test_ocmp_ltc4015_get_cfg_battery_current_low(void)
+{
+    int16_t batteryCurrentLow = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT] = 2048;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                             &batteryCurrentLow));
+    expectedValue = ocmp_ltc4015_get_cfg_battery_current_low(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryCurrentLow);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT] = 8276;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                             &batteryCurrentLow));
+    expectedValue = ocmp_ltc4015_get_cfg_battery_current_low(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, batteryCurrentLow);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT] = 8276;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                 &batteryCurrentLow));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT] = 8276;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                 &batteryCurrentLow));
+}
+
+void test_ocmp_ltc4015_get_cfg_input_voltage_low(void)
+{
+    int16_t inputVoltageLow = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT] = 60;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                             &inputVoltageLow));
+    expectedValue = ocmp_ltc4015_get_cfg_input_voltage_low(
+        LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputVoltageLow);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT] = 60;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                             &inputVoltageLow));
+    expectedValue = ocmp_ltc4015_get_cfg_input_voltage_low(
+        LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputVoltageLow);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT] = 60;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(&gbc_pwr_invalid_dev,
+                                              LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                              &inputVoltageLow));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT] = 60;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(&gbc_pwr_invalid_bus,
+                                              LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                              &inputVoltageLow));
+}
+
+void test_ocmp_ltc4015_get_cfg_input_current_high(void)
+{
+    int16_t inputCurrentHigh = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT] = 23211;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                             &inputCurrentHigh));
+    expectedValue = ocmp_ltc4015_get_cfg_input_current_high(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrentHigh);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT] = 23211;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                             &inputCurrentHigh));
+    expectedValue = ocmp_ltc4015_get_cfg_input_current_high(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrentHigh);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT] = 23211;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(&gbc_pwr_invalid_dev,
+                                              LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                              &inputCurrentHigh));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT] = 23211;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(&gbc_pwr_invalid_bus,
+                                              LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                              &inputCurrentHigh));
+}
+
+void test_ocmp_ltc4015_get_cfg_input_current_limit(void)
+{
+    uint16_t inputCurrentLimit = 0;
+    uint16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING] = 76;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                             &inputCurrentLimit));
+    expectedValue = ocmp_ltc4015_get_cfg_input_current_limit(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrentLimit);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING] = 200;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                             &inputCurrentLimit));
+    expectedValue = ocmp_ltc4015_get_cfg_input_current_limit(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
+    TEST_ASSERT_EQUAL(expectedValue, inputCurrentLimit);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING] = 200;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                 &inputCurrentLimit));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING] = 200;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                 &inputCurrentLimit));
+}
+
+void test_ocmp_ltc4015_get_cfg_icharge(void)
+{
+    uint16_t icharge = 0;
+    uint16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET] = 8;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_ICHARGE, &icharge));
+    expectedValue = ocmp_ltc4015_get_cfg_icharge(
+        &gbc_pwr_int_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
+    TEST_ASSERT_EQUAL(expectedValue, icharge);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET] = 11;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_ICHARGE, &icharge));
+    expectedValue = ocmp_ltc4015_get_cfg_icharge(
+        &gbc_pwr_ext_bat_charger,
+        LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
+    TEST_ASSERT_EQUAL(expectedValue, icharge);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET] = 12;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(
+                   &gbc_pwr_invalid_dev, LTC4015_CONFIG_ICHARGE, &icharge));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET] = 12;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(
+                   &gbc_pwr_invalid_bus, LTC4015_CONFIG_ICHARGE, &icharge));
+}
+
+void test_ocmp_ltc4015_get_cfg_vcharge(void)
+{
+    uint16_t vcharge = 0;
+    uint16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_VCHARGE_SETTING] = 31;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_VCHARGE, &vcharge));
+    expectedValue = ocmp_ltc4015_get_cfg_vcharge(
+        &gbc_pwr_int_bat_charger, LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+    TEST_ASSERT_EQUAL(expectedValue, vcharge);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_VCHARGE_SETTING] = 60;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_get_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_VCHARGE, &vcharge));
+    expectedValue = ocmp_ltc4015_get_cfg_vcharge(
+        &gbc_pwr_ext_bat_charger, LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+    TEST_ASSERT_EQUAL(expectedValue, vcharge);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_VCHARGE_SETTING] = 11;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(
+                   &gbc_pwr_invalid_dev, LTC4015_CONFIG_VCHARGE, &vcharge));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_VCHARGE_SETTING] = 11;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_get_config(
+                   &gbc_pwr_invalid_bus, LTC4015_CONFIG_VCHARGE, &vcharge));
+}
+
+void test_ocmp_ltc4015_get_cfg_die_temperature_high(void)
+{
+    int16_t dieTempHigh = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 15658;
+    TEST_ASSERT_EQUAL(true,
+                      LTC4015_fxnTable.cb_get_config(
+                          &gbc_pwr_int_bat_charger,
+                          LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &dieTempHigh));
+    expectedValue = ocmp_ltc4015_get_cfg_die_temperature_high(
+        LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, dieTempHigh);
+
+    /* Test lead acid chemistry */
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 11554;
+    TEST_ASSERT_EQUAL(true,
+                      LTC4015_fxnTable.cb_get_config(
+                          &gbc_pwr_ext_bat_charger,
+                          LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &dieTempHigh));
+    expectedValue = ocmp_ltc4015_get_cfg_die_temperature_high(
+        LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(expectedValue, dieTempHigh);
+
+    /* Test with a missing device */
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 15658;
+    TEST_ASSERT_EQUAL(false,
+                      LTC4015_fxnTable.cb_get_config(
+                          &gbc_pwr_invalid_dev,
+                          LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &dieTempHigh));
+
+    /* Test with a missing bus */
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 15658;
+    TEST_ASSERT_EQUAL(false,
+                      LTC4015_fxnTable.cb_get_config(
+                          &gbc_pwr_invalid_bus,
+                          LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &dieTempHigh));
+}
+
+void test_ocmp_ltc4015_get_cfg_invalid_param(void)
 {
     int16_t buffer = 0;
-    uint16_t inputCurrent = 0;
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x01] = 13458;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                            &gbc_pwr_ext_bat_charger,
-                            LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(10349, buffer);
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x02] = 17945;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                            &gbc_pwr_ext_bat_charger,
-                            LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(13800, buffer);
-
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    LTC4015_regs[0x08] = 8276;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
-    TEST_ASSERT_EQUAL(4041, buffer);
-
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x03] = 60;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(98, buffer);
-
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x07] = 23211;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(17000, buffer);
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    LTC4015_regs[0x15] = 200;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-    TEST_ASSERT_EQUAL(50250, inputCurrent);
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    LTC4015_regs[0x1A] = 12;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-    TEST_ASSERT_EQUAL(4333, buffer);
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    LTC4015_regs[0x1B] = 11;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-    TEST_ASSERT_EQUAL(12629, buffer);
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    LTC4015_regs[0x09] = 15658;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(80, buffer);
 
     /*Test with invalid paramId*/
-    LTC4015_regs[0x09] = 15658;
-    buffer = 0;
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 15658;
     TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_ext_bat_charger, 9, &buffer));
+                                 &gbc_pwr_ext_bat_charger, 9, &buffer));
     TEST_ASSERT_EQUAL(0, buffer);
 }
 
-void test_ocmp_ltc4015_set_config(void)
+void test_ocmp_ltc4015_set_cfg_battery_voltage_low(void)
 {
-    int16_t buffer = 0;
-    uint32_t inputCurrent = 0;
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    buffer = 10350;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(13458, LTC4015_regs[0x01]);
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 128.176(uV) */
-    buffer = 13800;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(17944, LTC4015_regs[0x02]);
-
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    buffer = 4041;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
-    TEST_ASSERT_EQUAL(8275, LTC4015_regs[0x08]);
-
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    buffer = 98;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(59, LTC4015_regs[0x03]);
-
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    buffer = 17000;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(23210, LTC4015_regs[0x07]);
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    inputCurrent = 50250;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-    TEST_ASSERT_EQUAL(200, LTC4015_regs[0x15]);
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    buffer = 4333;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-    TEST_ASSERT_EQUAL(12, LTC4015_regs[0x1A]);
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    buffer = 12629;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-    TEST_ASSERT_EQUAL(11, LTC4015_regs[0x1B]);
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    buffer = 80;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(15658, LTC4015_regs[0x09]);
-
-    /*Test with invalid paramId*/
-    buffer = 80;
-    LTC4015_regs[0x09] = 0;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger, 9, &buffer));
-    TEST_ASSERT_EQUAL(0, LTC4015_regs[0x09]);
-}
-
-void test_ocmp_ltc4015_upper_boundary_value(void)
-{
-    uint32_t buffer = 0;
-    uint32_t inputCurrent = 0;
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(1304, LTC4015_regs[0x01]);
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 128.176(uV) */
-    buffer =  66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(1304, LTC4015_regs[0x02]);
-
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
-    TEST_ASSERT_EQUAL(2054, LTC4015_regs[0x08]);
-
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(608, LTC4015_regs[0x03]);
-
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(1369, LTC4015_regs[0x07]);
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    inputCurrent = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-    TEST_ASSERT_EQUAL(3, LTC4015_regs[0x15]);
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-    TEST_ASSERT_EQUAL(2, LTC4015_regs[0x1A]);
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-    TEST_ASSERT_EQUAL(0, LTC4015_regs[0x1B]);
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    buffer = 66539;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(57746, LTC4015_regs[0x09]);
-}
-
-void test_ocmp_ltc4015_lower_boundary_value(void)
-{
-    int16_t buffer = 0;
-    int16_t inputCurrent = 0;
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(65088, LTC4015_regs[0x01]);
-
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 128.176(uV) */
-    buffer =  -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(65088, LTC4015_regs[0x02]);
-
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
-    TEST_ASSERT_EQUAL(64830, LTC4015_regs[0x08]);
-
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
-    TEST_ASSERT_EQUAL(65327, LTC4015_regs[0x03]);
-
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(65065, LTC4015_regs[0x07]);
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    inputCurrent = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-    TEST_ASSERT_EQUAL(259, LTC4015_regs[0x15]);
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-    TEST_ASSERT_EQUAL(195, LTC4015_regs[0x1A]);
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-    TEST_ASSERT_EQUAL(931, LTC4015_regs[0x1B]);
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    buffer = -345;
-    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_ext_bat_charger,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
-    TEST_ASSERT_EQUAL(61814, LTC4015_regs[0x09]);
-}
-
-void test_ocmp_ltc4015_get_status_for_invalid_device(void)
-{
-    int16_t batteryVoltage = 0;
-    int16_t batteryCurrent = 0;
-    int16_t systemVoltage = 0;
-    int16_t inputVoltage = 0;
-    int16_t inputCurrent = 0;
-    uint16_t dieTemperature = 0;
-    int16_t iCharge = 0;
+    int16_t batteryVolLow = 0;
+    uint16_t expectedValue = 0;
 
     /* Test lithium ion chemistry */
-    /* Battery Voltage(VBATSENS/cellcount) = [VBAT] <95> 192.264(uV) */
-    LTC4015_regs[0x3A] = 15603;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_BATTERY_VOLTAGE, &batteryVoltage));
+    batteryVolLow = 9000;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                             &batteryVolLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_int_bat_charger, batteryVolLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*RSNSB)/1.46487uV */
-    LTC4015_regs[0x3D] = 2048;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_BATTERY_CURRENT, &batteryCurrent));
+    /* Test lead acid chemistry */
+    batteryVolLow = 10350;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                             &batteryVolLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_ext_bat_charger, batteryVolLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
 
-    /* System voltage = [VSYS] <95> 1.648mV */
-    LTC4015_regs[0x3C] = 7000;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_SYSTEM_VOLTAGE, &systemVoltage));
+    /* Make sure too-low values don't do anything bad */
+    batteryVolLow = 100;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_VOLTAGE_LOW,
+                                             &batteryVolLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_ext_bat_charger, batteryVolLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x3B] = 3034;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+    /* Test with a missing device */
+    batteryVolLow = 10350;
+    TEST_ASSERT_EQUAL(false,
+                      LTC4015_fxnTable.cb_set_config(
+                          &gbc_pwr_invalid_dev,
+                          LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &batteryVolLow));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x3E] = 23892;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP <96> 12010)/45.6°C */
-    LTC4015_regs[0x3F] = 13606;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_DIE_TEMPERATURE, &dieTemperature));
-
-    /* Charger Current servo level = (ICHARGE_DAC + 1) <95> 1mV/RSNSB */
-    LTC4015_regs[0x44] = 0x1F;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+    /* Test with a missing bus */
+    batteryVolLow = 10350;
+    TEST_ASSERT_EQUAL(false,
+                      LTC4015_fxnTable.cb_set_config(
+                          &gbc_pwr_invalid_bus,
+                          LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &batteryVolLow));
 }
 
-void test_ocmp_ltc4015_get_status_for_invalid_bus(void)
+void test_ocmp_ltc4015_set_cfg_battery_voltage_high(void)
 {
-    int16_t batteryVoltage = 0;
-    int16_t batteryCurrent = 0;
-    int16_t systemVoltage = 0;
-    int16_t inputVoltage = 0;
-    int16_t inputCurrent = 0;
-    uint16_t dieTemperature = 0;
-    int16_t iCharge = 0;
+    int16_t batteryVolHigh = 0;
+    int16_t expectedValue = 0;
 
     /* Test lithium ion chemistry */
-    /* Battery Voltage(VBATSENS/cellcount) = [VBAT] <95> 192.264(uV) */
-    LTC4015_regs[0x3A] = 15603;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_BATTERY_VOLTAGE, &batteryVoltage));
+    batteryVolHigh = 12600;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                &batteryVolHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_int_bat_charger, batteryVolHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*RSNSB)/1.46487uV */
-    LTC4015_regs[0x3D] = 2048;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_BATTERY_CURRENT, &batteryCurrent));
+    /* Test lead acid chemistry */
+    batteryVolHigh = 13800;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                &batteryVolHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_ext_bat_charger, batteryVolHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
 
-    /* System voltage = [VSYS] <95> 1.648mV */
-    LTC4015_regs[0x3C] = 7000;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_SYSTEM_VOLTAGE, &systemVoltage));
+    /*  Make sure too-high values don't do anything bad */
+    batteryVolHigh = 35500;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                &batteryVolHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_voltage(
+        &gbc_pwr_ext_bat_charger, batteryVolHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x3B] = 3034;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_INPUT_VOLATGE, &inputVoltage));
+    /* Test with a missing device */
+    batteryVolHigh = 13800;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                 &batteryVolHigh));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x3E] = 23892;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_INPUT_CURRENT, &inputCurrent));
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP <96> 12010)/45.6°C */
-    LTC4015_regs[0x3F] = 13606;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_DIE_TEMPERATURE, &dieTemperature));
-
-    /* Charger Current servo level = (ICHARGE_DAC + 1) <95> 1mV/RSNSB */
-    LTC4015_regs[0x44] = 0x1F;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_status(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_STATUS_ICHARGE_DAC, &iCharge));
+    /* Test with a missing bus */
+    batteryVolHigh = 13800;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH,
+                                 &batteryVolHigh));
 }
 
-void test_ocmp_ltc4015_get_config_for_invalid_device(void)
+void test_ocmp_ltc4015_set_cfg_battery_current_low(void)
 {
-    int16_t buffer = 0;
-    uint16_t inputCurrent = 0;
+    int16_t batteryCurrentLow = 0;
+    int16_t expectedValue = 0;
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x01] = 13458;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
+    /* Test lithium ion chemistry */
+    batteryCurrentLow = 100;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                             &batteryCurrentLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_current_low(
+        &gbc_pwr_int_bat_charger, batteryCurrentLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x02] = 17945;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
+    /* Test lead acid chemistry */
+    batteryCurrentLow = 2000;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                             &batteryCurrentLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_current_low(
+        &gbc_pwr_ext_bat_charger, batteryCurrentLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    LTC4015_regs[0x08] = 8276;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
+    /* Make sure too-low values don't do anything bad */
+    batteryCurrentLow = 20;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                             &batteryCurrentLow));
+    expectedValue = ocmp_ltc4015_set_cfg_battery_current_low(
+        &gbc_pwr_ext_bat_charger, batteryCurrentLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x03] = 60;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
+    /* Test with a missing device */
+    batteryCurrentLow = 4041;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                 &batteryCurrentLow));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x07] = 23211;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    LTC4015_regs[0x15] = 200;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    LTC4015_regs[0x1A] = 12;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    LTC4015_regs[0x1B] = 11;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    LTC4015_regs[0x09] = 15658;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
+    /* Test with a missing bus */
+    batteryCurrentLow = 4041;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_BATTERY_CURRENT_LOW,
+                                 &batteryCurrentLow));
 }
 
-
-void test_ocmp_ltc4015_get_config_for_invalid_bus(void)
+void test_ocmp_ltc4015_set_cfg_input_voltage_low(void)
 {
-    int16_t buffer = 0;
-    uint16_t inputCurrent = 0;
+    int16_t inputVoltageLow = 0;
+    int16_t expectedValue = 0;
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x01] = 13458;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
+    /* Test lithium ion chemistry */
+    inputVoltageLow = 16200;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                             &inputVoltageLow));
+    expectedValue = ocmp_ltc4015_set_cfg_input_voltage_low(inputVoltageLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    LTC4015_regs[0x02] = 17945;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
+    /* Test lead acid chemistry */
+    inputVoltageLow = 16200;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                             &inputVoltageLow));
+    expectedValue = ocmp_ltc4015_set_cfg_input_voltage_low(inputVoltageLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    LTC4015_regs[0x08] = 8276;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
+    /* Make sure too-low values don't do anything bad */
+    inputVoltageLow = 100;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                             &inputVoltageLow));
+    expectedValue = ocmp_ltc4015_set_cfg_input_voltage_low(inputVoltageLow);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    LTC4015_regs[0x03] = 60;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
+    /* Test with a missing device */
+    inputVoltageLow = 16200;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(&gbc_pwr_invalid_dev,
+                                              LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                              &inputVoltageLow));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    LTC4015_regs[0x07] = 23211;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    LTC4015_regs[0x15] = 200;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    LTC4015_regs[0x1A] = 12;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    LTC4015_regs[0x1B] = 11;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    LTC4015_regs[0x09] = 15658;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_get_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
+    /* Test with a missing bus */
+    inputVoltageLow = 16200;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(&gbc_pwr_invalid_bus,
+                                              LTC4015_CONFIG_INPUT_VOLTAGE_LOW,
+                                              &inputVoltageLow));
 }
 
-void test_ocmp_ltc4015_set_config_for_invalid_device(void)
+void test_ocmp_ltc4015_set_input_current_high(void)
 {
-    int16_t buffer = 0;
-    uint32_t inputCurrent = 0;
+    int16_t inputCurrentHigh = 0;
+    int16_t expectedValue = 0;
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    buffer = 10350;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
+    /* Test lithium ion chemistry */
+    inputCurrentHigh = 17000;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                             &inputCurrentHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_high(
+        &gbc_pwr_int_bat_charger, inputCurrentHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 128.176(uV) */
-    buffer = 13800;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
+    /* Test lead acid chemistry */
+    inputCurrentHigh = 17000;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                             &inputCurrentHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_high(
+        &gbc_pwr_ext_bat_charger, inputCurrentHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    buffer = 4041;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
+    /* Make sure too-low values don't do anything bad */
+    inputCurrentHigh = 100;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                             &inputCurrentHigh));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_high(
+        &gbc_pwr_ext_bat_charger, inputCurrentHigh);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    buffer = 98;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
+    /* Test with a missing device */
+    inputCurrentHigh = 17000;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(&gbc_pwr_invalid_dev,
+                                              LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                              &inputCurrentHigh));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    buffer = 17000;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
-
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    inputCurrent = 50250;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
-
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    buffer = 4333;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
-
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    buffer = 12629;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
-
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    buffer = 80;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_dev,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
+    /* Test with a missing bus */
+    inputCurrentHigh = 17000;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(&gbc_pwr_invalid_bus,
+                                              LTC4015_CONFIG_INPUT_CURRENT_HIGH,
+                                              &inputCurrentHigh));
 }
 
-void test_ocmp_ltc4015_set_config_for_invalid_bus(void)
+void test_ocmp_ltc4015_set_input_current_limit(void)
 {
-    int16_t buffer = 0;
-    uint32_t inputCurrent = 0;
+    int16_t inputCurrentLimit = 0;
+    int16_t expectedValue = 0;
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 192.264(uV) */
-    buffer = 10350;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_LOW, &buffer));
+    /* Test lithium ion chemistry */
+    inputCurrentLimit = 16500;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                             &inputCurrentLimit));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_limit(
+        &gbc_pwr_int_bat_charger, inputCurrentLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
 
-    /* under voltage limit = [VBAT_LO_ALERT_LIMIT] • 128.176(uV) */
-    buffer = 13800;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_VOLTAGE_HIGH, &buffer));
+    /* Test lead acid chemistry */
+    inputCurrentLimit = 16500;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                             &inputCurrentLimit));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_limit(
+        &gbc_pwr_ext_bat_charger, inputCurrentLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
 
-    /* IBAT_LO_ALERT_LIMIT = (limit*1.46487uV )/RSNSB*/
-    buffer = 4041;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_BATTERY_CURRENT_LOW, &buffer));
+    /* Make sure too-low values don't do anything bad */
+    inputCurrentLimit = 400;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                             &inputCurrentLimit));
+    expectedValue = ocmp_ltc4015_set_cfg_input_current_limit(
+        &gbc_pwr_ext_bat_charger, inputCurrentLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
 
-    /* VIN_LO_ALERT_LIMIT = limit/1.648mV */
-    buffer = 98;
+    /* Test with a missing device */
+    inputCurrentLimit = 16500;
     TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_VOLTAGE_LOW, &buffer));
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                 &inputCurrentLimit));
 
-    /* IIN_HI_ALERT_LIMIT = (limit*RSNSI)/1.46487uV */
-    buffer = 17000;
+    /* Test with a missing bus */
+    inputCurrentLimit = 16500;
     TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_CURRENT_HIGH, &buffer));
+                                 &gbc_pwr_invalid_bus,
+                                 LTC4015_CONFIG_INPUT_CURRENT_LIMIT,
+                                 &inputCurrentLimit));
+}
 
-    /* IIN_LIMIT_SETTING = (limit * RSNSI / 500uV) - 1 */
-    inputCurrent = 50250;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_INPUT_CURRENT_LIMIT, &inputCurrent));
+void test_ocmp_ltc4015_set_cfg_icharge(void)
+{
+    uint16_t icharge = 0;
+    uint16_t expectedValue = 0;
 
-    /* Maximum charge current target = (ICHARGE_TARGET + 1) • 1mV/RSNSB */
-    buffer = 4333;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_ICHARGE, &buffer));
+    /* Test lithium ion chemistry */
+    icharge = 4321;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_int_bat_charger,
+                                             LTC4015_CONFIG_ICHARGE, &icharge));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_icharge(&gbc_pwr_int_bat_charger, icharge);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
 
-    /* vcharge = (VCHARGE_SETTING/105.0 + 2.0)V/cell w/o temp comp.*/
-    buffer = 12629;
-    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_VCHARGE, &buffer));
+    /* Test lead acid chemistry */
+    icharge = 5000;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_ICHARGE, &icharge));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_icharge(&gbc_pwr_ext_bat_charger, icharge);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
 
-    /* DIE_TEMP_HI_ALERT_LIMIT = (DIE_TEMP – 12010)/45.6°C */
-    buffer = 80;
+    /* Make sure low values are handled properly (iCharge * Rsnsb < 1000) */
+    icharge = 100;
+    TEST_ASSERT_EQUAL(
+        true, LTC4015_fxnTable.cb_set_config(&gbc_pwr_ext_bat_charger,
+                                             LTC4015_CONFIG_ICHARGE, &icharge));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_icharge(&gbc_pwr_ext_bat_charger, icharge);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
+
+    /* Test with a missing device */
+    icharge = 5000;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(
+                   &gbc_pwr_invalid_dev, LTC4015_CONFIG_ICHARGE, &icharge));
+
+    /* Test with a missing bus */
+    icharge = 5000;
+    TEST_ASSERT_EQUAL(
+        false, LTC4015_fxnTable.cb_set_config(
+                   &gbc_pwr_invalid_bus, LTC4015_CONFIG_ICHARGE, &icharge));
+}
+
+void test_ocmp_ltc4015_set_vcharge(void)
+{
+    int16_t vChargeSetting = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    vChargeSetting = 12300;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_CONFIG_VCHARGE, &vChargeSetting));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_vcharge(&gbc_pwr_int_bat_charger, vChargeSetting);
+    TEST_ASSERT_EQUAL(expectedValue, LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+
+    /* Test lead acid chemistry */
+    vChargeSetting = 12600;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_VCHARGE, &vChargeSetting));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_vcharge(&gbc_pwr_ext_bat_charger, vChargeSetting);
+    TEST_ASSERT_EQUAL(expectedValue, LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+
+    /* Make sure too-low values don't do anything bad */
+    vChargeSetting = 6000;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_VCHARGE, &vChargeSetting));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_vcharge(&gbc_pwr_ext_bat_charger, vChargeSetting);
+    TEST_ASSERT_EQUAL(expectedValue, LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+
+    /* Test with a missing device */
+    vChargeSetting = 12629;
     TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
-                        &gbc_pwr_invalid_bus,
-                        LTC4015_CONFIG_DIE_TEMPERATURE_HIGH, &buffer));
+                                 &gbc_pwr_invalid_dev, LTC4015_CONFIG_VCHARGE,
+                                 &vChargeSetting));
+
+    /* Test with a missing bus */
+    vChargeSetting = 12629;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_bus, LTC4015_CONFIG_VCHARGE,
+                                 &vChargeSetting));
+}
+
+void test_ocmp_ltc4015_set_die_temperature_high(void)
+{
+    int16_t dieTempAlertLimit = 0;
+    int16_t expectedValue = 0;
+
+    /* Test lithium ion chemistry */
+    dieTempAlertLimit = 80;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_int_bat_charger,
+                                LTC4015_CONFIG_DIE_TEMPERATURE_HIGH,
+                                &dieTempAlertLimit));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_die_temperature_high(dieTempAlertLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT]);
+
+    /* Test lead acid chemistry */
+    dieTempAlertLimit = -10;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_DIE_TEMPERATURE_HIGH,
+                                &dieTempAlertLimit));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_die_temperature_high(dieTempAlertLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT]);
+
+    /* Make sure too-low values don't do anything bad */
+    dieTempAlertLimit = 0;
+    TEST_ASSERT_EQUAL(true, LTC4015_fxnTable.cb_set_config(
+                                &gbc_pwr_ext_bat_charger,
+                                LTC4015_CONFIG_DIE_TEMPERATURE_HIGH,
+                                &dieTempAlertLimit));
+    expectedValue =
+        ocmp_ltc4015_set_cfg_die_temperature_high(dieTempAlertLimit);
+    TEST_ASSERT_EQUAL(expectedValue,
+                      LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT]);
+
+    /* Test with a missing device */
+    dieTempAlertLimit = 80;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_dev,
+                                 LTC4015_CONFIG_DIE_TEMPERATURE_HIGH,
+                                 &dieTempAlertLimit));
+
+    /* Test with a missing bus */
+    dieTempAlertLimit = 80;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_invalid_bus, LTC4015_CONFIG_VCHARGE,
+                                 &dieTempAlertLimit));
+}
+
+void test_ocmp_ltc4015_set_cfg_invalid_param(void)
+{
+    int16_t buffer = 80;
+
+    /* Invalid param test */
+    LTC4015_regs[LTC4015_REG_DIE_TEMP_HIGH_LIMIT] = 0;
+    TEST_ASSERT_EQUAL(false, LTC4015_fxnTable.cb_set_config(
+                                 &gbc_pwr_ext_bat_charger, 9, &buffer));
+}
+
+void test_ocmp_ltc4015_alert_handler(void)
+{
+    int16_t value = 0x0800;
+    AlertData alert_data = {
+        .subsystem = 1,
+        .componentId = 4,
+        .deviceId = 1,
+    };
+    AlertData *alert_data_cp = malloc(sizeof(AlertData));
+    *alert_data_cp = alert_data;
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
+                      LTC4015_fxnTable.cb_init(&gbc_pwr_int_bat_charger,
+                                               &fact_lithiumIon_cfg,
+                                               alert_data_cp));
+
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_BVL, value, alert_data_cp);
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_BVH, value, alert_data_cp);
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_BCL, value, alert_data_cp);
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_IVL, value, alert_data_cp);
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_ICH, value, alert_data_cp);
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_DTH, value, alert_data_cp);
+
+    /* Test for memory check */
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_BVL, value, NULL);
+
+    /* Default case test */
+    gbc_pwr_int_bat_charger.obj.alert_cb(LTC4015_EVT_BMFA, value,
+                                         alert_data_cp);
 }
