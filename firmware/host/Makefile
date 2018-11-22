@@ -15,8 +15,11 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
-	
+all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
+
+hash:
+	cd ../utilities/checksums; ./hosthash.sh $(shell pwd)/$(output_dir)
+
 .PHONY:	occli
 
 ocmw_uart:   $(OBJECTS)
@@ -41,4 +44,4 @@ occli:   $(OBJECTS)
 
 # --- remove binary and executable files
 clean:
-	rm -fr $(output_dir)/ocmw_eth_stub $(output_dir)/ocmw_eth $(output_dir)/ocmw_usb $(output_dir)/ocmw_uart $(output_dir)/occli $(output_dir)/ocware_stub
+	rm -fr $(output_dir)/*
