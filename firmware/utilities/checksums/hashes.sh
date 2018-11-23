@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #
 # Description
-#   This script records the md5 hashes of host build objects
+#   This script records the md5 hashes of build objects
 #
 BIN_FILES=$(find $1 -executable -type f)
 if [ "$2" = "-host" ]; then
