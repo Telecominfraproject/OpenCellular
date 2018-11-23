@@ -18,7 +18,7 @@ default:
 all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
 
 hash:
-	cd ../utilities/checksums; ./hosthash.sh $(shell pwd)/$(output_dir)
+	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(output_dir) -host
 
 .PHONY:	occli
 
