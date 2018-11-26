@@ -8,9 +8,7 @@
  */
 #include "include/test_ltc4015.h"
 
-#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
-
-extern bool LTC4015_GpioPins[1];
+extern bool LTC4015_GpioPins[0x04];
 extern const I2C_Dev I2C_DEV;
 extern const LTC4015_Config fact_leadAcid_cfg;
 extern const LTC4015_Config fact_lithiumIon_cfg;
@@ -21,9 +19,9 @@ extern LTC4015_Dev gbc_pwr_invalid_dev;
 extern LTC4015_Dev gbc_pwr_invalid_leadAcid_cfg;
 extern OcGpio_Port ec_io;
 extern OcGpio_Port gbc_io_1;
-extern uint32_t LTC4015_GpioConfig[1];
+extern uint32_t LTC4015_GpioConfig[0x04];
 extern uint16_t LTC4015_regs[LTC4015_REG_VAILD_BIT_MESURMENT];
-extern uint8_t SX1509_regs[0x7F];
+extern uint8_t SX1509_regs[SX1509_REG_TEST_2];
 
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
@@ -37,7 +35,8 @@ void suite_setUp(void)
                                sizeof(LTC4015_regs[0]), sizeof(uint8_t),
                                FAKE_I2C_DEV_LITTLE_ENDIAN);
 
-    fake_I2C_registerDevSimple(0, 0x45, SX1509_regs, sizeof(SX1509_regs),
+    fake_I2C_registerDevSimple(OC_CONNECT1_I2C0, BIGBROTHER_IOEXP1_ADDRESS,
+                               SX1509_regs, sizeof(SX1509_regs),
                                sizeof(SX1509_regs[0]), sizeof(uint8_t),
                                FAKE_I2C_DEV_LITTLE_ENDIAN);
 }
@@ -73,27 +72,71 @@ void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
 void test_ocmp_ltc4015_probe(void)
 {
     POSTData postData;
-    LTC4015_GpioConfig[0x05] = 0;
+    SX1509_regs[SX1509_REG_OPEN_DRAIN_A] = POST_DATA_NULL;
 
     /* Test with the actual value */
     LTC4015_regs[LTC4015_REG_SYSTEM_STATUS_INDICATOR] = LTC4015_CHARGER_ENABLED;
     TEST_ASSERT_EQUAL(POST_DEV_FOUND, LTC4015_fxnTable.cb_probe(
                                           &gbc_pwr_int_bat_charger, &postData));
-    TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT, LTC4015_GpioConfig[0x05]);
+    TEST_ASSERT_EQUAL_HEX8(SX1509_REG_OPEN_DRAIN_A_ENABLE,
+                           SX1509_regs[SX1509_REG_OPEN_DRAIN_A]);
+    TEST_ASSERT_EQUAL(gbc_pwr_int_bat_charger.cfg.i2c_dev.bus, postData.i2cBus);
+    TEST_ASSERT_EQUAL_HEX8(gbc_pwr_int_bat_charger.cfg.i2c_dev.slave_addr,
+                           postData.devAddr);
+    TEST_ASSERT_EQUAL_HEX8(POST_MANID, postData.manId);
+    TEST_ASSERT_EQUAL_HEX8(POST_DEVID, postData.devId);
 
+    SX1509_regs[SX1509_REG_OPEN_DRAIN_A] = POST_DATA_NULL;
+    postData.i2cBus = POST_DATA_NULL;
+    postData.devAddr = POST_DATA_NULL;
+    postData.manId = POST_DATA_NULL;
+    postData.devId = POST_DATA_NULL;
     /* Test with an incorrect value */
     LTC4015_regs[LTC4015_REG_SYSTEM_STATUS_INDICATOR] =
         ~LTC4015_CHARGER_ENABLED;
     TEST_ASSERT_EQUAL(
         POST_DEV_MISSING,
         LTC4015_fxnTable.cb_probe(&gbc_pwr_int_bat_charger, &postData));
+    TEST_ASSERT_EQUAL_HEX8(SX1509_REG_OPEN_DRAIN_A_ENABLE,
+                           SX1509_regs[SX1509_REG_OPEN_DRAIN_A]);
+    TEST_ASSERT_EQUAL(POST_DATA_NULL, postData.i2cBus);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devAddr);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.manId);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devId);
+
     /* Test with a missing device */
+    SX1509_regs[SX1509_REG_OPEN_DRAIN_A] = POST_DATA_NULL;
     TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_fxnTable.cb_probe(
                                             &gbc_pwr_invalid_dev, &postData));
+    TEST_ASSERT_EQUAL_HEX8(SX1509_REG_OPEN_DRAIN_A_ENABLE,
+                           SX1509_regs[SX1509_REG_OPEN_DRAIN_A]);
+    TEST_ASSERT_EQUAL(POST_DATA_NULL, postData.i2cBus);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devAddr);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.manId);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devId);
 
     /* Test with a missing bus */
+    SX1509_regs[SX1509_REG_OPEN_DRAIN_A] = POST_DATA_NULL;
     TEST_ASSERT_EQUAL(POST_DEV_MISSING, LTC4015_fxnTable.cb_probe(
                                             &gbc_pwr_invalid_bus, &postData));
+    TEST_ASSERT_EQUAL_HEX8(SX1509_REG_OPEN_DRAIN_A_ENABLE,
+                           SX1509_regs[SX1509_REG_OPEN_DRAIN_A]);
+    TEST_ASSERT_EQUAL(POST_DATA_NULL, postData.i2cBus);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devAddr);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.manId);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devId);
+
+    /* Test for GPIO Configure Failure */
+    SX1509_regs[SX1509_REG_OPEN_DRAIN_A] = POST_DATA_NULL;
+    TEST_ASSERT_EQUAL(
+        POST_DEV_NOSTATUS,
+        LTC4015_fxnTable.cb_probe(&gbc_pwr_invalid_leadAcid_cfg, &postData));
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL,
+                           SX1509_regs[SX1509_REG_OPEN_DRAIN_A]);
+    TEST_ASSERT_EQUAL(POST_DATA_NULL, postData.i2cBus);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devAddr);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.manId);
+    TEST_ASSERT_EQUAL_HEX8(POST_DATA_NULL, postData.devId);
 }
 
 void test_ocmp_ltc4015_init(void)
@@ -104,45 +147,72 @@ void test_ocmp_ltc4015_init(void)
         .componentId = 4,
         .deviceId = 1,
     };
-    AlertData *alert_data_cp = malloc(sizeof(AlertData));
-    *alert_data_cp = alert_data;
+
+    /* INIT for Lithium ION */
     TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
                       LTC4015_fxnTable.cb_init(&gbc_pwr_int_bat_charger,
                                                &fact_lithiumIon_cfg,
-                                               alert_data_cp));
-    TEST_ASSERT_EQUAL(LTC4015_INIT_BATTERY_VOLTAGE_LOW_LIMIT,
+                                               &alert_data));
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_BATTERY_VOLTAGE_LOW_LIMIT,
                       LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
-    TEST_ASSERT_EQUAL(LTC4015_INIT_BATTERY_VOLTAGE_HIGH_LIMIT,
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_BATTERY_VOLTAGE_HIGH_LIMIT,
                       LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
-    TEST_ASSERT_EQUAL(LTC4015_INIT_CHARGE_CURRENT_LOW_LIMIT,
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_CHARGE_CURRENT_LOW_LIMIT,
                       LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
-    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_VOLTAGE_LOW_LIMIT,
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_INPUT_VOLTAGE_LOW_LIMIT,
                       LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
-    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_CURRENT_HIGH_LIMIT,
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_INPUT_CURRENT_HIGH_LIMIT,
                       LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
-    TEST_ASSERT_EQUAL(LTC4015_INIT_INPUT_CURRENT_LIMIT_SETTING,
+    TEST_ASSERT_EQUAL(LTC4015_LION_INIT_INPUT_CURRENT_LIMIT_SETTING,
                       LTC4015_regs[LTC4015_REG_INPUT_CURRENT_LIMIT_SETTING]);
     TEST_ASSERT_EQUAL_HEX16(LTC4015_EVT_BVL | LTC4015_EVT_BVH |
                                 LTC4015_EVT_IVL | LTC4015_EVT_ICH |
                                 LTC4015_EVT_BCL,
                             LTC4015_regs[LTC4015_REG_ENABLE_LIMIT_MONITIOR]);
+    TEST_ASSERT_EQUAL(LTC4015_EVT_NTCH,
+                      LTC4015_regs[LTC4015_REG_ENABLE_CHARGER_STATE]);
+
+    /* INIT for Lead Acid */
+    TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE, LTC4015_fxnTable.cb_init(
+                                             &gbc_pwr_ext_bat_charger,
+                                             &fact_leadAcid_cfg, &alert_data));
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_BATTERY_VOLTAGE_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_BATTERY_VOLTAGE_HIGH_LIMIT,
+                      LTC4015_regs[LTC4015_REG_BATTERY_VOLTAGE_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_CHARGE_CURRENT_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_INPUT_VOLTAGE_LOW_LIMIT,
+                      LTC4015_regs[LTC4015_REG_INPUT_VOLTAGE_LOW_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_INPUT_CURRENT_HIGH_LIMIT,
+                      LTC4015_regs[LTC4015_REG_INPUT_CURRENT_HIGH_LIMIT]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_ICHARGE_TARGET,
+                      LTC4015_regs[LTC4015_REG_CHARGE_CURRENT_TARGET]);
+    TEST_ASSERT_EQUAL(LTC4015_LEAD_INIT_VCHARGE_SETTING,
+                      LTC4015_regs[LTC4015_REG_VCHARGE_SETTING]);
+    TEST_ASSERT_EQUAL_HEX16(LTC4015_EVT_BVL | LTC4015_EVT_BVH |
+                                LTC4015_EVT_IVL | LTC4015_EVT_ICH |
+                                LTC4015_EVT_BCL,
+                            LTC4015_regs[LTC4015_REG_ENABLE_LIMIT_MONITIOR]);
+    TEST_ASSERT_EQUAL(LTC4015_EVT_NTCH,
+                      LTC4015_regs[LTC4015_REG_ENABLE_CHARGER_STATE]);
 
     /* Test with a missing device */
     TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
                       LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_dev,
                                                &fact_lithiumIon_cfg,
-                                               alert_data_cp));
+                                               &alert_data));
 
     /* Test with a missing bus */
     TEST_ASSERT_EQUAL(POST_DEV_CFG_FAIL,
                       LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_bus,
                                                &fact_lithiumIon_cfg,
-                                               alert_data_cp));
+                                               &alert_data));
 
     /* Test for _choose_battery_charge false */
     TEST_ASSERT_EQUAL(
         false, LTC4015_fxnTable.cb_init(&gbc_pwr_invalid_leadAcid_cfg,
-                                        &fact_lithiumIon_cfg, alert_data_cp));
+                                        &fact_lithiumIon_cfg, &alert_data));
 }
 
 void test_ocmp_ltc4015_battery_voltage_get_status(void)

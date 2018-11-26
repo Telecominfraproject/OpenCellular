@@ -15,11 +15,11 @@ OcGpio_Port ec_io = {
 };
 
 bool LTC4015_GpioPins[] = {
-    [0x05] = 0x1,
+    [0x04] = 0x1,
 };
 
 uint32_t LTC4015_GpioConfig[] = {
-    [0x05] = OCGPIO_CFG_INPUT,
+    [0x04] = OCGPIO_CFG_INPUT,
 };
 
 extern const OcGpio_FnTable GpioSX1509_fnTable;
@@ -28,7 +28,7 @@ OcGpio_Port gbc_io_1 = {
     .fn_table = &GpioSX1509_fnTable,
     .cfg =
         &(SX1509_Cfg){
-            .i2c_dev = { 0, 0x45 },
+            .i2c_dev = { OC_CONNECT1_I2C0, BIGBROTHER_IOEXP1_ADDRESS },
             .pin_irq = NULL,
         },
     .object_data = &(SX1509_Obj){},
@@ -47,7 +47,7 @@ LTC4015_Dev gbc_pwr_invalid_dev = {
             .r_snsb = 30,
             .r_snsi = 7,
             .cellcount = 3,
-            .pin_lt4015_i2c_sel = { &gbc_io_1, 2, 32 },
+            .pin_lt4015_i2c_sel = { &gbc_io_1, 4, 32 },
         },
 };
 
@@ -64,7 +64,7 @@ LTC4015_Dev gbc_pwr_invalid_bus = {
             .r_snsb = 30,
             .r_snsi = 7,
             .cellcount = 3,
-            .pin_lt4015_i2c_sel = { &gbc_io_1, 2, 32 },
+            .pin_lt4015_i2c_sel = { &gbc_io_1, 4, 32 },
         },
 };
 /* Invalid Cfg for _choose_battery_charger*/

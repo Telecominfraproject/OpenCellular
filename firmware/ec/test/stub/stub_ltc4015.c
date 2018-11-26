@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include "include/test_ltc4015.h"
 
-#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
-
 int16_t ocmp_ltc4015_get_battery_voltage(LTC4015_Dev *dev, int16_t value)
 {
     switch (dev->cfg.chem) {
