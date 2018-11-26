@@ -84,7 +84,12 @@ LINT_FLAGS = -i -style=file -fallback-style=none
 
 .PRECIOUS: %/compiler.opt %/linker.cmd
 
-all: get_cfg oc_connect1 hash
+default: get_cfg all
+
+all: oc_connect1 hash
+
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh $(CC) $(TIRTOS_DIR)
 
 hash:
 	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(OUT) -ec
@@ -103,9 +108,6 @@ $(OUT)/OpenCellular.out: $(OUT)/$(CONFIG)/linker.cmd $(MAIN_OBJS)
 
 $(OUT)/OpenCellular.bin: $(OUT)/OpenCellular.out
 	$(OBJCOPY) -S -O binary $< $@
-
-get_cfg:
-	cd ../utilities/build; ./envDetect.sh $(CC) $(TIRTOS_DIR)
 
 lint:
 	$(LINT) $(LINT_FLAGS) $(ALL_FILE)

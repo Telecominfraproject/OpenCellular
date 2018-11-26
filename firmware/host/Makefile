@@ -17,12 +17,12 @@ default:
 	
 all:	get_cfg ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
 
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh
+
 hash:
 	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(output_dir) -host
 
-get_cfg:
-	cd ../utilities/build; ./envDetect.sh
-	
 .PHONY:	occli
 
 ocmw_uart:   $(OBJECTS)
@@ -47,4 +47,4 @@ occli:   $(OBJECTS)
 
 # --- remove binary and executable files
 clean:
-	rm -fr $(output_dir)/ocmw_eth_stub $(output_dir)/ocmw_eth $(output_dir)/ocmw_usb $(output_dir)/ocmw_uart $(output_dir)/occli $(output_dir)/ocware_stub
+	rm -fr $(output_dir)/*

@@ -51,7 +51,7 @@ ocwarePostReplyCode ocmwReplyCode[] = {
  * Input(s)         : ptr
  * Output(s)        :
 ******************************************************************************/
-inline void ocmw_free_global_pointer(void **ptr)
+void ocmw_free_global_pointer(void **ptr)
 {
     if(*ptr != NULL) {
         free(*ptr);
