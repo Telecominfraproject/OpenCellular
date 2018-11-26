@@ -29,31 +29,31 @@ typedef void
  * @param msgsize an input value (by value)
  *
  */
-void ocmw_ec_uart_msg_hndlr(const unsigned char* msgstr, int32_t msgsize);
+extern void ocmw_ec_uart_msg_hndlr(const unsigned char* msgstr, int32_t msgsize);
 /*
  * Initialize the ocmw ec communication
  *
  * @return true if function succeeds, false otherwise
  */
-int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr);
+extern int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr);
 /*
  * Deinitialize the ocmw ec communication
  *
  * @return true if function succeeds, false otherwise
  */
-int32_t ocmw_deinit_ec_comm(void);
+extern int32_t ocmw_deinit_ec_comm(void);
 /*
  * @param msgstr an input value (by pointer)
  * @param size an input value (by value)
  *
  * @return true if function succeeds, false otherwise
  */
-int32_t ocmw_send_uart_msg_to_ec(const uint8_t* msgstr, int32_t size);
+extern int32_t ocmw_send_uart_msg_to_ec(const uint8_t* msgstr, int32_t size);
 /*
  * @param pathName an input value (by pointer)
  *
  * @return true if function succeeds, false otherwise
  */
-int32_t ocmw_find_ttyacm_port(char *pathName);
+extern int32_t ocmw_find_ttyacm_port(char *pathName);
 
 #endif /* _OCMW_UART_COMM_H_ */

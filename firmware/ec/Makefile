@@ -84,7 +84,10 @@ LINT_FLAGS = -i -style=file -fallback-style=none
 
 .PRECIOUS: %/compiler.opt %/linker.cmd
 
-all: oc_connect1
+all: oc_connect1 hash
+
+hash:
+	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(OUT) -ec
 
 gen_schema:
 	cd ../utilities/schema; ./mk_schema.sh
