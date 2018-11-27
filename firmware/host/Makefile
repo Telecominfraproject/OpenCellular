@@ -15,7 +15,10 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	gen_schema ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
+all:	get_cfg gen_schema ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
+
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh
 
 gen_schema:
 	cd ../utilities/schema; ./mk_schema.sh

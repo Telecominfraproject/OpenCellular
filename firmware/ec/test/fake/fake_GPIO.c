@@ -72,7 +72,7 @@ static int FakeGpio_setCallback(const OcGpio_Pin *pin,
 
     if (pin->idx >= FAKE_GPIO_PIN_COUNT) {
         return OCGPIO_FAILURE;
-    } 
+    }
 
     obj->callback[pin->idx].fn = callback;
     obj->callback[pin->idx].context = context;
