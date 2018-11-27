@@ -7,7 +7,7 @@
 # Set proper path.
 ######################
 
-OCWARE_DIR ?= $(HOME)/OpenCellular/firmware/ec
+OCWARE_DIR ?= $(shell pwd)
 TIRTOS_DIR ?= $(HOME)/ti/tirtos_tivac_2_16_01_14
 XDCTOOLS_DIR ?= $(HOME)/ti/xdctools_3_32_00_06_core
 TOOLCHAIN ?= /usr
@@ -84,7 +84,12 @@ LINT_FLAGS = -i -style=file -fallback-style=none
 
 .PRECIOUS: %/compiler.opt %/linker.cmd
 
+default: get_cfg all
+
 all: oc_connect1 hash
+
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh $(CC) $(TIRTOS_DIR)
 
 hash:
 	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(OUT) -ec

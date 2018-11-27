@@ -15,7 +15,10 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
+all:	get_cfg ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
+
+get_cfg:
+	cd ../utilities/build; ./envDetect.sh
 
 hash:
 	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(output_dir) -host
