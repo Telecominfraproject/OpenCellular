@@ -67,6 +67,7 @@ void test_ocgpio_write(void)
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_write(&s_fake_pin, 0));
     TEST_ASSERT_EQUAL(0, OcGpio_GpioPins[1]);
+    TEST_ASSERT_EQUAL(1, OcGpio_GpioPins[1]);
 }
 
 void test_ocgpio_configure(void)
