@@ -334,14 +334,11 @@ static void bigbrother_init(void)
     /*Creating Semaphore for RX Message Queue*/
     semBigBrotherMsg = Semaphore_create(0, NULL, NULL);
     if (semBigBrotherMsg == NULL) {
-        LOGGER_ERROR(
-            "BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
+        LOGGER_ERROR("BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
     }
     /*Creating RX Message Queue*/
     bigBrotherRxMsgQueue = Util_constructQueue(&bigBrotherRxMsg);
-    LOGGER_DEBUG(
-        "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-        bigBrotherRxMsgQueue);
+    LOGGER_DEBUG("BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n", bigBrotherRxMsgQueue);
 
     /*Creating TX Message Queue*/
     bigBrotherTxMsgQueue = Util_constructQueue(&bigBrotherTxMsg);
