@@ -10,6 +10,7 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "inc/subsystem/gpp/ebmp.h"
+#include "devices/i2c/threaded_int.h"
 
 #include "Board.h"
 #include "common/inc/global/ocmp_frame.h"
@@ -231,7 +232,7 @@ static void ebmp_handle_irq(void *context)
  **    ARGUMENTS       : None
  **    RETURN TYPE     : None
  *****************************************************************************/
-void ebmp_init(Gpp_gpioCfg *driver)
+int ebmp_init(Gpp_gpioCfg *driver)
 {
     pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
     pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
@@ -271,6 +272,8 @@ void ebmp_init(Gpp_gpioCfg *driver)
         /* Use a threaded interrupt to handle IRQ */
         ThreadedInt_Init(pin_soc_pltrst_n, ebmp_handle_irq, (void *)AP_RESET);
     }
+
+    return RETURN_OK;
 }
 
 /*****************************************************************************

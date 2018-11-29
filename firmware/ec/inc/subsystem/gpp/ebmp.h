@@ -53,6 +53,6 @@ typedef enum {
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-void ebmp_init(Gpp_gpioCfg *driver);
+int ebmp_init(Gpp_gpioCfg *driver);
 
 #endif /* EBMP_H_ */
