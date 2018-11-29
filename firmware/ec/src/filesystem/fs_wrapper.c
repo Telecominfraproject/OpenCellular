@@ -39,9 +39,6 @@
 #define READ_SIZE 256
 #define WRITE_SIZE 256
 
-static Queue_Struct fsRxMsg;
-static Queue_Struct fsTxMsg;
-
 lfs_t lfs;
 lfs_file_t file;
 
