@@ -36,7 +36,7 @@
  **    RETURN TYPE     : ReturnStatus
  **
  *****************************************************************************/
-void sdr_pwr_control(Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
+void sdr_pwr_control(const Sdr_gpioCfg *sdr_gpioCfg, uint8_t control)
 {
     /* Using configure instead of 'write' here since this pin is shared with
      * OBC and we don't want to configure then write if OBC has already
