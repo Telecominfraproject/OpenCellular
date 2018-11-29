@@ -11,8 +11,8 @@
 #include <ocwdg_daemon.h>
 #include <logger.h>
 
-#define OCWDG_NUMBER_ZERO   0
-#define OCWDG_NUMBER_ONE    1
+#define OCWDG_NUMBER_ZERO 0
+#define OCWDG_NUMBER_ONE 1
 
 extern int32_t ocmw_sem_wait_nointr(sem_t *sem);
 
@@ -37,7 +37,7 @@ int32_t ocwdg_init(void)
          * the msg coming from UART ec to ap
          */
         ret = pthread_create(&ocWdgThreadid, NULL, ocwdg_thread_comm_with_ec,
-                NULL);
+                             NULL);
         if (ret != OCWDG_NUMBER_ZERO) {
             return ret;
         }
@@ -52,7 +52,7 @@ int32_t ocwdg_init(void)
  * Input(s)         : pthreadData
  * Output(s)        :
  ******************************************************************************/
-void * ocwdg_thread_comm_with_ec(void *pthreadData)
+void *ocwdg_thread_comm_with_ec(void *pthreadData)
 {
     OCMPMessageFrame ecMsgFrame;
     OCMPHeader ecMsgHeader;
@@ -90,8 +90,8 @@ void * ocwdg_thread_comm_with_ec(void *pthreadData)
         ecMsgFrame.message = ecCoreMsg;
 
         /* Populate the Core packet payload */
-        ecMsgFrame.message.info = (int8_t *) malloc(
-                sizeof(char) * MAX_PARM_COUNT);
+        ecMsgFrame.message.info =
+            (int8_t *)malloc(sizeof(char) * MAX_PARM_COUNT);
         if (ecMsgFrame.message.info == NULL) {
             printf("\n Memory allocation failed \n");
         }
@@ -100,15 +100,15 @@ void * ocwdg_thread_comm_with_ec(void *pthreadData)
 #ifdef INTERFACE_ETHERNET
         /* Send the packetize data to ec  through ethernet*/
         ret = ocmw_send_eth_msgto_ec((int8_t *)&ecMsgFrame, (int32_t)32,
-                OCMW_EC_DEV);
+                                     OCMW_EC_DEV);
         if (ret != OCWDG_NUMBER_ZERO) {
-            logerr ("ocmw_send_eth_msgto_ec() failed");
+            logerr("ocmw_send_eth_msgto_ec() failed");
         }
 
 #else
         /* Send the packetize data to ec  through uart*/
-        ret = ocmw_send_uart_msg_to_ec((uint8_t *) &ecMsgFrame,
-                sizeof(ecMsgFrame));
+        ret = ocmw_send_uart_msg_to_ec((uint8_t *)&ecMsgFrame,
+                                       sizeof(ecMsgFrame));
         if (ret != OCWDG_NUMBER_ZERO) {
             logerr("ocmw_send_uart_msg_to_ec() failed");
         }

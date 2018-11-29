@@ -41,7 +41,7 @@ ocware_stub:   $(OBJECTS)
 	$(CC)  $(src_ocware_stub) -o $(output_dir)/ocware_stub  $(LIBS) $(CFLAGS) -DOCWARE_HOST
 
 occli:   $(OBJECTS)
-		$(CC)  $(src_occli) -o $(output_dir)/occli   $(LIBS) $(CFLAGS) -DOCWARE_HOST
+		$(CC)  $(src_occli) -o $(output_dir)/occli   $(LIBS) $(CFLAGS) -DOCWARE_HOST -DOCCLI_LOG
 		ln -sf occli $(output_dir)/occmd
 
 

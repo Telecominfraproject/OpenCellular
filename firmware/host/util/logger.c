@@ -17,7 +17,7 @@
  * Input(s)         : ident
  * Output(s)        :
  ***************************************************************************/
-void initlog(const char* ident)
+void initlog(const char *ident)
 {
     openlog(ident, LOG_CONS | LOG_PID, LOG_USER);
 }

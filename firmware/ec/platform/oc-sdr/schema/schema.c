@@ -228,6 +228,15 @@ SCHEMA_IMPORT bool TestMod_cmdReset(void *driver, void *params);
 SCHEMA_IMPORT bool obc_pre_init(void *driver, void *returnValue);
 SCHEMA_IMPORT bool SYS_post_get_results(void **getpostResult);
 SCHEMA_IMPORT bool SYS_post_enable(void **postActivate);
+SCHEMA_IMPORT bool sys_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool power_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool bms_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool hci_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool eth_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool gpp_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool sdr_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool rffe_alert_log(void *driver, void *params);
+SCHEMA_IMPORT bool sync_alert_log(void *driver, void *params);
 
 const Component sys_schema[] = {
     {
@@ -268,6 +277,11 @@ const Component sys_schema[] = {
                                                  .name = "echo",
                                                  .cb_cmd = SYS_cmdEcho,
                                              },
+                                             {
+                                                 .name = "getAlertLogs",
+                                                 .cb_cmd = sys_alert_log,
+                                             },
+
                                              {} },
                 },
                 {} },
@@ -292,6 +306,11 @@ const Component sys_schema[] = {
                                 .postDisabled = POST_DISABLED,
                             },
                             {} },
+                    .commands = (Command[]){ {
+                                                 .name = "getAlertLogs",
+                                                 .cb_cmd = power_alert_log,
+                                             },
+                                             {} },
                 },
                 { .name = "leadacid_sensor",
                   .components =
@@ -340,6 +359,13 @@ const Component sys_schema[] = {
                 {
                     .name = "comp_all",
                     .postDisabled = POST_DISABLED,
+                    .commands =
+                        (Command[]){
+                            {
+                                .name = "getAlertLogs",
+                                .cb_cmd = bms_alert_log,
+                            },
+                            {} },
                 },
                 { .name = "ec",
                   .components =
@@ -377,6 +403,13 @@ const Component sys_schema[] = {
                 {
                     .name = "comp_all",
                     .postDisabled = POST_DISABLED,
+                    .commands =
+                        (Command[]){
+                            {
+                                .name = "getAlertLogs",
+                                .cb_cmd = hci_alert_log,
+                            },
+                            {} },
                 },
                 {
                     .name = "led",
@@ -407,36 +440,43 @@ const Component sys_schema[] = {
     },
     {
         .name = "ethernet",
-        .components = (Component[]){ {
-                                         .name = "comp_all",
-                                         .postDisabled = POST_DISABLED,
-                                     },
-                                     {
-                                         .name = "port0",
-                                         .driver = &ETH_SW,
-                                         .driver_cfg = &gbc_eth_port0,
-                                     },
-                                     {
-                                         .name = "port1",
-                                         .driver = &ETH_SW,
-                                         .driver_cfg = &gbc_eth_port1,
-                                     },
-                                     {
-                                         .name = "port2",
-                                         .driver = &ETH_SW,
-                                         .driver_cfg = &gbc_eth_port2,
-                                     },
-                                     {
-                                         .name = "port3",
-                                         .driver = &ETH_SW,
-                                         .driver_cfg = &gbc_eth_port3,
-                                     },
-                                     {
-                                         .name = "port4",
-                                         .driver = &ETH_SW,
-                                         .driver_cfg = &gbc_eth_port4,
-                                     },
-                                     {} },
+        .components =
+            (Component[]){ {
+                               .name = "comp_all",
+                               .postDisabled = POST_DISABLED,
+                               .commands =
+                                   (Command[]){ {
+                                                    .name = "getAlertLogs",
+                                                    .cb_cmd = eth_alert_log,
+                                                },
+                                                {} },
+                           },
+                           {
+                               .name = "port0",
+                               .driver = &ETH_SW,
+                               .driver_cfg = &gbc_eth_port0,
+                           },
+                           {
+                               .name = "port1",
+                               .driver = &ETH_SW,
+                               .driver_cfg = &gbc_eth_port1,
+                           },
+                           {
+                               .name = "port2",
+                               .driver = &ETH_SW,
+                               .driver_cfg = &gbc_eth_port2,
+                           },
+                           {
+                               .name = "port3",
+                               .driver = &ETH_SW,
+                               .driver_cfg = &gbc_eth_port3,
+                           },
+                           {
+                               .name = "port4",
+                               .driver = &ETH_SW,
+                               .driver_cfg = &gbc_eth_port4,
+                           },
+                           {} },
     },
     {
         .name = "obc",
@@ -464,6 +504,13 @@ const Component sys_schema[] = {
                 {
                     .name = "comp_all",
                     .postDisabled = POST_DISABLED,
+                    .commands =
+                        (Command[]){
+                            {
+                                .name = "getAlertLogs",
+                                .cb_cmd = gpp_alert_log,
+                            },
+                            {} },
                 },
 
                 {
@@ -579,6 +626,10 @@ const Component sys_schema[] = {
                                                  .name = "reset",
                                                  .cb_cmd = SDR_fx3Reset,
                                              },
+                                             {
+                                                 .name = "getAlertLogs",
+                                                 .cb_cmd = sdr_alert_log,
+                                             },
                                              {} },
                     .postDisabled = POST_DISABLED,
                 },
@@ -609,6 +660,11 @@ const Component sys_schema[] = {
                                                  .name = "reset",
                                                  .cb_cmd = RFFE_reset,
                                              },
+                                             {
+                                                 .name = "getAlertLogs",
+                                                 .cb_cmd = rffe_alert_log,
+                                             },
+
                                              {} },
                 },
                 { .name = "ch1_sensor",
@@ -762,11 +818,16 @@ const Component sys_schema[] = {
           (Component[]){ {
                              .name = "comp_all",
                              .driver_cfg = &sync_gpiocfg,
-                             .commands = (Command[]){ {
-                                                          .name = "reset",
-                                                          .cb_cmd = SYNC_reset,
-                                                      },
-                                                      {} },
+                             .commands =
+                                 (Command[]){ {
+                                                  .name = "reset",
+                                                  .cb_cmd = SYNC_reset,
+                                              },
+                                              {
+                                                  .name = "getAlertLogs",
+                                                  .cb_cmd = sync_alert_log,
+                                              },
+                                              {} },
                              .postDisabled = POST_DISABLED,
                          },
                          {

@@ -17,8 +17,8 @@
 #include <ocmw_eth_comm.h>
 #include <ocmw_socket_comm.h>
 
-#define OCMW_ERR_STR_LEN                    80
-#define OCWARE_STUB_TIMEOUT_PERIOD          12
+#define OCMW_ERR_STR_LEN 80
+#define OCWARE_STUB_TIMEOUT_PERIOD 12
 
 extern uint8_t mcuMsgBuf[OCMP_MSG_SIZE];
 
@@ -40,10 +40,10 @@ int32_t ocmw_init_eth_comm(int32_t sentDev)
     struct timeval timeValObj;
     timeValObj.tv_sec = OCWARE_STUB_TIMEOUT_PERIOD;
     timeValObj.tv_usec = 0;
-    if (sentDev == OCMW_EC_DEV){
-    /* Create socket */
+    if (sentDev == OCMW_EC_DEV) {
+        /* Create socket */
         comSockfd = socket(OCMW_ETH_SOCK_DOMAIN, OCMW_ETH_SOCK_TYPE,
-            OCMW_ETH_SOCK_PROTOCOL);
+                           OCMW_ETH_SOCK_PROTOCOL);
         if (comSockfd < 0) {
             rc = -errno;
             logerr("socket creation error [%d-%s]", errno, strerror(errno));
@@ -59,8 +59,8 @@ int32_t ocmw_init_eth_comm(int32_t sentDev)
             rc = -1;
         }
 
-        rc = connect(comSockfd, (struct sockaddr *) &sicomServer,
-            sizeof(sicomServer));
+        rc = connect(comSockfd, (struct sockaddr *)&sicomServer,
+                     sizeof(sicomServer));
         if (rc != 0) {
             perror("socket connect failed:");
         }
@@ -73,7 +73,7 @@ int32_t ocmw_init_eth_comm(int32_t sentDev)
     } else {
         /* Create socket */
         stub_sockfd = socket(OCMW_SOCK_STUB_DOMAIN, OCMW_SOCK_STUB_TYPE,
-                OCMW_SOCK_STUB_PROTOCOL);
+                             OCMW_SOCK_STUB_PROTOCOL);
         if (stub_sockfd < 0) {
             rc = -errno;
             logerr("socket creation error [%d-%s]", errno, strerror(errno));
@@ -91,7 +91,7 @@ int32_t ocmw_init_eth_comm(int32_t sentDev)
         }
 
         if (setsockopt(stub_sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeValObj,
-                                                sizeof(timeValObj)) < 0) {
+                       sizeof(timeValObj)) < 0) {
             logerr("setsockopt failed");
             rc = -1;
             return rc;
@@ -113,9 +113,9 @@ int32_t ocmw_init_eth_comm(int32_t sentDev)
  * Input(s)         :
  * Output(s)        :
  ***************************************************************************/
-int32_t ocmw_deinit_eth_comm( int sentDev)
+int32_t ocmw_deinit_eth_comm(int sentDev)
 {
-    if (sentDev == OCMW_EC_DEV){
+    if (sentDev == OCMW_EC_DEV) {
         close(comSockfd);
         comSockfd = 0; /* Close the IPC socket */
     } else {
@@ -150,15 +150,15 @@ int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen, int sentDev)
         return -EMSGSIZE;
     }
 
-    ecMsgFrame = (OCMPMessageFrame *) cmd;
-    sendPktNonpayloadSize = (sizeof(OCMPMessage) - sizeof(void *)
-            + sizeof(OCMPHeader));
+    ecMsgFrame = (OCMPMessageFrame *)cmd;
+    sendPktNonpayloadSize =
+        (sizeof(OCMPMessage) - sizeof(void *) + sizeof(OCMPHeader));
 
     /* create message frame */
     memset(buf, 0, sizeof(buf));
     memcpy(buf, ecMsgFrame, sendPktNonpayloadSize);
     memcpy(&buf[sendPktNonpayloadSize], ((ecMsgFrame->message).info),
-            MAX_PARM_COUNT);
+           MAX_PARM_COUNT);
 #ifndef MSG_LOG
     printf(" \n send_msg_to_ec \n");
     for (loopCount = 0; loopCount < OCMP_MSG_SIZE; loopCount++) {
@@ -167,7 +167,7 @@ int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen, int sentDev)
     printf("\n");
 #endif /* MSG_LOG */
 
-    if (sentDev == OCMW_EC_DEV){
+    if (sentDev == OCMW_EC_DEV) {
         rc = send(comSockfd, buf, OCMP_MSG_SIZE, 0);
         if (rc < 0) {
             strerror_r(errno, errstr, errstrLen);
@@ -175,7 +175,7 @@ int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen, int sentDev)
         }
     } else {
         rc = sendto(stub_sockfd, buf, OCMP_MSG_SIZE, 0,
-                (struct sockaddr *) &stub_server, sizeof(stub_server) );
+                    (struct sockaddr *)&stub_server, sizeof(stub_server));
         if (rc < 0) {
             strerror_r(errno, errstr, errstrLen);
             logerr("Error: 'send' [%d-%s]", errno, errstr);
@@ -215,8 +215,7 @@ int32_t ocmw_recv_eth_msgfrom_ec(int8_t *resp, int32_t resplen, int sentDev)
 #endif
 #ifdef INTERFACE_STUB_EC
     rc = recvfrom(stub_sockfd, resp, OCMP_MSG_SIZE, 0,
-                                (struct sockaddr *) &stub_server,
-                                (socklen_t*)&dataLen);
+                  (struct sockaddr *)&stub_server, (socklen_t *)&dataLen);
     if (rc < 0) {
         strerror_r(rc, errstr, errstrLen);
         logerr("Error: 'recv' [%d-%s]", rc, errstr);

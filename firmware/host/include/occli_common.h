@@ -14,18 +14,18 @@
 #include <ocmw_helper.h>
 #include <Framework.h>
 
-#define HIT_FILE_BUFF_SIZE          50
-#define OCCLI_STRING_SIZE           128
-#define RES_STR_BUFF_SIZE           10000
-#define OCMP_MAX_SIZE               10
-#define OCCLI_CHAR_ARRAY_SIZE       30
-#define OCMW_MAX_SUBSYSTEM          11
+#define HIT_FILE_BUFF_SIZE 50
+#define OCCLI_STRING_SIZE 128
+#define RES_STR_BUFF_SIZE 100000
+#define OCMP_MAX_SIZE 10
+#define OCCLI_CHAR_ARRAY_SIZE 30
+#define OCMW_MAX_SUBSYSTEM 11
 /* This timeout must be more than OCMW timeout */
-#define OCCLI_TIMEOUT_PERIOD        12
-#define FAILED                      -1
-#define SUCCESS                     0
-#define OCCLI_SNPRINTF_MAX_LEN      200
-#define OCCLI_HELP_MAX_SIZE         400
+#define OCCLI_TIMEOUT_PERIOD 12
+#define FAILED -1
+#define SUCCESS 0
+#define OCCLI_SNPRINTF_MAX_LEN 200
+#define OCCLI_HELP_MAX_SIZE 400
 
 typedef struct {
     char option;
@@ -34,11 +34,11 @@ typedef struct {
 } OCCLI_ARRAY_PARAM;
 
 typedef struct {
-        char subsystem[OCCLI_CHAR_ARRAY_SIZE];
-        char component[OCCLI_CHAR_ARRAY_SIZE];
-        char subcomponent[OCCLI_CHAR_ARRAY_SIZE];
-        char msgtype[OCCLI_CHAR_ARRAY_SIZE];
-        char parameter[OCCLI_CHAR_ARRAY_SIZE];
+    char subsystem[OCCLI_CHAR_ARRAY_SIZE];
+    char component[OCCLI_CHAR_ARRAY_SIZE];
+    char subcomponent[OCCLI_CHAR_ARRAY_SIZE];
+    char msgtype[OCCLI_CHAR_ARRAY_SIZE];
+    char parameter[OCCLI_CHAR_ARRAY_SIZE];
 } strMsgFrame;
 
 typedef struct {
@@ -56,7 +56,6 @@ typedef struct {
     char *parameter;
 } OCCLI_STRING_MSG;
 
-
 typedef struct {
     int32_t totalNum;
     struct name {
@@ -65,7 +64,7 @@ typedef struct {
     } Info[OCCLI_CHAR_ARRAY_SIZE];
 } subSystemInfo;
 
-//Help Menu structure
+// Help Menu structure
 typedef struct {
     char subSystem[OCMW_MAX_SUBSYSTEM_SIZE];
     char component[OCMW_HELP_FRAME_SIZE];
@@ -83,6 +82,7 @@ typedef struct {
 } commandFrame;
 
 /*
+
  * Initialize the ocmw communication
  */
 extern int32_t occli_init_comm(void);
@@ -119,8 +119,7 @@ extern int32_t occli_recv_alertmsg_from_ocmw(char *resp, int32_t resplen);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_parse_msgframe(const Component *root,
-                                   strMsgFrame *msgFrame,
+extern int32_t ocmw_parse_msgframe(const Component *root, strMsgFrame *msgFrame,
                                    uint8_t actiontype,
                                    ocmwSchemaSendBuf *ecSendBuf);
 /*
@@ -186,9 +185,19 @@ extern void ocmw_free_global_pointer(void **ptr);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int8_t occli_printHelpMenu(const Component *root,char *cmd);
+extern int8_t occli_printHelpMenu(const Component *root, char *cmd);
 
 /*Display CLI window*/
 extern void occli_print_opencelluar();
+
+/*
+ * @param root an output value (by pointer)
+ * @param systemInfo an output value (by pointer)
+ *
+ * @return true if function succeeds, false otherwise
+ */
+extern void ocmw_handle_alert_msg(const Component *compBase,
+                                  OCMPMessageFrame *ecReceivedMsg,
+                                  int8_t *alertRecord);
 
 #endif /* _OCCLI_COMM_H_ */

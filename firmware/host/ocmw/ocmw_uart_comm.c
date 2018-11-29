@@ -40,7 +40,7 @@ extern uint8_t mcuMsgBuf[OCMP_MSG_SIZE];
  * Input(s)         : msgstr, msgsize
  * Output(s)        :
  ***************************************************************************/
-void ocmw_ec_uart_msg_hndlr(const unsigned char* msgstr, int32_t msgsize)
+void ocmw_ec_uart_msg_hndlr(const unsigned char *msgstr, int32_t msgsize)
 {
     /* Process the OC message received from EC  */
     if (msgsize > OCMP_MSG_SIZE) {
@@ -63,10 +63,10 @@ void ocmw_ec_uart_msg_hndlr(const unsigned char* msgstr, int32_t msgsize)
  * Input(s)         :
  * Output(s)        : args
  ***************************************************************************/
-static void* ocmw_recv_uart_msg_service(void* args)
+static void *ocmw_recv_uart_msg_service(void *args)
 {
-    unsigned char msg[OCMP_MSG_SIZE] = {0};
-    unsigned char buf[OCMP_MSG_SIZE] = {0};
+    unsigned char msg[OCMP_MSG_SIZE] = { 0 };
+    unsigned char buf[OCMP_MSG_SIZE] = { 0 };
     int32_t ret = 0;
     const unsigned int msglen = OCMP_MSG_SIZE;
 
@@ -84,7 +84,7 @@ static void* ocmw_recv_uart_msg_service(void* args)
         ret = read(s_fd, msg, msglen);
         if (ret < 0) {
             logerr("Error reading from %s (%d - %s)", ECTTY, errno,
-                    strerror(errno));
+                   strerror(errno));
             continue;
         }
         if (memcmp(msg, buf, OCMP_MSG_SIZE) == 0) {
@@ -120,19 +120,19 @@ static void sa_handler_read(int32_t status)
  ***************************************************************************/
 int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr)
 {
-    char pathName[100] = {0};
+    char pathName[100] = { 0 };
     int32_t ret = 0;
     struct termios newtio;
     struct sigaction saio;
 
     memset(pathName, 0, sizeof(pathName));
-#ifdef  INTERFACE_USB
+#ifdef INTERFACE_USB
     ret = ocmw_find_ttyacm_port(pathName);
     if (ret != 0) {
         return ret;
     }
 #else
-    memcpy(pathName, (char *) ECTTY, sizeof(ECTTY));
+    memcpy(pathName, (char *)ECTTY, sizeof(ECTTY));
 #endif
     /*
      * Open the HSUART-1 port for communicating with EC
@@ -143,8 +143,7 @@ int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr)
     s_fd = open(pathName, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (s_fd == -1) {
         if (s_fd == -1) {
-            logerr("Error opening %s (%d - %s)", ECTTY, errno,
-                    strerror(errno));
+            logerr("Error opening %s (%d - %s)", ECTTY, errno, strerror(errno));
             return -1;
         }
     }
@@ -168,14 +167,14 @@ int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr)
     cfsetospeed(&newtio, B115200);
     newtio.c_cflag &= ~PARENB; /* No parity check */
     newtio.c_cflag &= ~CSTOPB; /* 1 STOP bit */
-    newtio.c_cflag &= ~CSIZE; /* 8 DATA bits */
+    newtio.c_cflag &= ~CSIZE;  /* 8 DATA bits */
     newtio.c_cflag |= CS8;
     newtio.c_cflag &= ~CRTSCTS; /* No HW flow control */
     /* Enable always. CREAD - Enable receiver.
      * CLOCAL - program doesn't own the tty. */
     newtio.c_cflag |= (CLOCAL | CREAD);
     newtio.c_cc[VTIME] = 10; /* Inter character TIME=t*0.1s, where t=10. */
-    newtio.c_cc[VMIN] = 0; //33; /* EC message frame size = 32 bytes */
+    newtio.c_cc[VMIN] = 0;   // 33; /* EC message frame size = 32 bytes */
     newtio.c_iflag &= ~(IXON | IXOFF | IXANY); /* No SW flow control */
     newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
     newtio.c_oflag &= ~OPOST;
@@ -183,8 +182,8 @@ int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr)
     tcsetattr(s_fd, TCSANOW, &newtio);
 
     S_STOP_UART_RX_SERVICE = false;
-    ret = pthread_create(&s_uartrxthread, NULL, ocmw_recv_uart_msg_service,
-                                                                    NULL);
+    ret =
+        pthread_create(&s_uartrxthread, NULL, ocmw_recv_uart_msg_service, NULL);
     if (ret != 0) {
         logerr("pthread creation failed [%d-%s]", errno, strerror(errno));
     } else {
@@ -223,18 +222,18 @@ int32_t ocmw_deinit_ec_comm(void)
  * Input(s)         : msgstr, msgsize
  * Output(s)        :
  ***************************************************************************/
-int32_t ocmw_send_uart_msg_to_ec(const uint8_t* msgstr, int32_t msgsize)
+int32_t ocmw_send_uart_msg_to_ec(const uint8_t *msgstr, int32_t msgsize)
 {
-    uint8_t buf[OCMP_MSG_SIZE] = {0};
+    uint8_t buf[OCMP_MSG_SIZE] = { 0 };
     int32_t ret = 0, bufWriteCount = 0;
     int32_t sendPktNonpayloadSize = 0;
     int32_t loopCount = 0;
     OCMPMessageFrame *ecMsgFrame;
 
-    ecMsgFrame = (OCMPMessageFrame *) msgstr;
+    ecMsgFrame = (OCMPMessageFrame *)msgstr;
 
-    sendPktNonpayloadSize = (sizeof(OCMPMessage) - sizeof(void *)
-            + sizeof(OCMPHeader));
+    sendPktNonpayloadSize =
+        (sizeof(OCMPMessage) - sizeof(void *) + sizeof(OCMPHeader));
 
     if (msgstr == NULL) {
         logerr("Error: Memory allocation problem");
@@ -250,7 +249,7 @@ int32_t ocmw_send_uart_msg_to_ec(const uint8_t* msgstr, int32_t msgsize)
     memset(buf, 0, sizeof(buf));
     memcpy(buf, msgstr, sendPktNonpayloadSize);
     memcpy(&buf[sendPktNonpayloadSize], ((ecMsgFrame->message).info),
-            MAX_PARM_COUNT);
+           MAX_PARM_COUNT);
 
     /* Write message frame to tty */
     bufWriteCount = write(s_fd, buf, sizeof(buf));

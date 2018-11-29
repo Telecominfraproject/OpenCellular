@@ -6,24 +6,27 @@ int64_t recvdParamVal;
 extern int32_t responseCount;
 int32_t eepromFlag;
 static int32_t s_typeFlag;
-char dataOutBufFromEc[PARAM_STR_BUFF_SIZE] = {0};
-static char *s_paramEnumValue[OCMW_VALUE_TYPE_MFG] = {0};
+char dataOutBufFromEc[PARAM_STR_BUFF_SIZE] = { 0 };
+static char *s_paramEnumValue[OCMW_VALUE_TYPE_MFG] = { 0 };
 ocmwSchemaSendBuf *ecSendBufBkp;
-ocwarePostResultData ocwarePostArray[TEMP_STR_BUFF_SIZE] = {{0}};
-uint8_t  ocwarePostArrayIndex;
+ocwarePostResultData ocwarePostArray[TEMP_STR_BUFF_SIZE] = { { 0 } };
+uint8_t ocwarePostArrayIndex;
+extern alertlist alerts;
+static uint8_t s_alertIndex = 0;
+extern int8_t alertFlag;
 /******************************************************************************
  * Function Name    : ocmw_parse_eepromdata_from_ec
  * Description      : parse the eeprom data coming from EC to AP
  * Input(s)         : ecInputData
  * Output(s)        :
  ******************************************************************************/
-int8_t ocmw_parse_eepromdata_from_ec (ocmwSendRecvBuf ecInputData)
+int8_t ocmw_parse_eepromdata_from_ec(ocmwSendRecvBuf ecInputData)
 {
     memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
     if (ecInputData.msgType == OCMP_MSG_TYPE_STATUS) {
         memcpy(dataOutBufFromEc, &ecInputData.pbuf[ecSendBufBkp->paramPos],
                sizeof(ecInputData.pbuf));
-    }else if (ecInputData.msgType == OCMP_MSG_TYPE_CONFIG) {
+    } else if (ecInputData.msgType == OCMP_MSG_TYPE_CONFIG) {
         memcpy(dataOutBufFromEc, ecInputData.pbuf, EEPROM_CONFIG_SIZE);
     }
 
@@ -45,9 +48,9 @@ int32_t ocmw_parse_testingmodule_struct_from_ec(ocmwSendRecvBuf ecInputData)
     memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
     size = sizeof(dataOutBufFromEc);
 
-    paramVal = *((uint8_t *)
-                &(ecInputData.pbuf[TWO_G_SIM_NET_OPTR_STATUS_OFFSET]));
-    paramVal2 = *((uint16_t *) ecInputData.pbuf);
+    paramVal =
+        *((uint8_t *)&(ecInputData.pbuf[TWO_G_SIM_NET_OPTR_STATUS_OFFSET]));
+    paramVal2 = *((uint16_t *)ecInputData.pbuf);
     switch (paramVal) {
         case TWOG_SIM_STAT_UNKNOWN:
             snprintf(dataOutBufFromEc, size,
@@ -63,14 +66,14 @@ int32_t ocmw_parse_testingmodule_struct_from_ec(ocmwSendRecvBuf ecInputData)
 
         case TWOG_SIM_STAT_CURRENT:
             snprintf(dataOutBufFromEc, size,
-                    "Operator code : %u Operator status : %u(STAT_CURRENT)",
-                    paramVal2, paramVal);
+                     "Operator code : %u Operator status : %u(STAT_CURRENT)",
+                     paramVal2, paramVal);
             break;
 
         case TWOG_SIM_STAT_FORBIDDEN:
             snprintf(dataOutBufFromEc, size,
-                    "Operator code : %u Operator status : %u(STAT_FORBIDDEN)",
-                    paramVal2, paramVal);
+                     "Operator code : %u Operator status : %u(STAT_FORBIDDEN)",
+                     paramVal2, paramVal);
             break;
 
         default:
@@ -95,25 +98,25 @@ int32_t ocmw_parse_obc_struct_from_ec(ocmwSendRecvBuf ecInputData)
     size = sizeof(dataOutBufFromEc);
 
     paramVal = (ecInputData.pbuf[ecSendBufBkp->paramPos]);
-    paramVal2 = *((uint16_t *)
-                &(ecInputData.pbuf[IRIDIUM_LASTERR_ERROR_CODE_OFFSET]));
+    paramVal2 =
+        *((uint16_t *)&(ecInputData.pbuf[IRIDIUM_LASTERR_ERROR_CODE_OFFSET]));
     switch (paramVal) {
         case ERR_RC_INTERNAL:
             snprintf(dataOutBufFromEc, size,
-                    "Error Source : %u(ERR_RC_INTERNAL) Error Code : %u",
-                    paramVal, paramVal2);
+                     "Error Source : %u(ERR_RC_INTERNAL) Error Code : %u",
+                     paramVal, paramVal2);
             break;
 
         case ERR_SRC_CMS:
             snprintf(dataOutBufFromEc, size,
-                    "Error Source : %u(ERR_SRC_CMS) Error Code : %u",
-                    paramVal, paramVal2);
+                     "Error Source : %u(ERR_SRC_CMS) Error Code : %u", paramVal,
+                     paramVal2);
             break;
 
         case ERR_SRC_CME:
             snprintf(dataOutBufFromEc, size,
-                    "Error Source : %u(ERR_SRC_CME) Error Code : %u",
-                    paramVal, paramVal2);
+                     "Error Source : %u(ERR_SRC_CME) Error Code : %u", paramVal,
+                     paramVal2);
             break;
 
         default:
@@ -129,8 +132,8 @@ int32_t ocmw_parse_obc_struct_from_ec(ocmwSendRecvBuf ecInputData)
  * Input(s)         : paramtype, msgtype, param_name
  * Output(s)        :
  ******************************************************************************/
-int8_t ocmw_get_paramSize(const char* paramtype, int8_t msgtype,
-                                const char* param_name)
+int8_t ocmw_get_paramSize(const char *paramtype, int8_t msgtype,
+                          const char *param_name)
 {
     int8_t paramSize = 0;
 
@@ -139,26 +142,26 @@ int8_t ocmw_get_paramSize(const char* paramtype, int8_t msgtype,
         return FAILED;
     }
 
-    if (!strcmp("uint16",paramtype)) {
+    if (!strcmp("uint16", paramtype)) {
         paramSize = sizeof(uint16_t);
         s_typeFlag = OCMW_VALUE_TYPE_UINT16;
-    } else if (!strcmp("int16",paramtype)) {
+    } else if (!strcmp("int16", paramtype)) {
         paramSize = sizeof(int16_t);
         s_typeFlag = OCMW_VALUE_TYPE_INT16;
-    } else if (!strcmp("uint8",paramtype)) {
+    } else if (!strcmp("uint8", paramtype)) {
         paramSize = sizeof(uint8_t);
         s_typeFlag = OCMW_VALUE_TYPE_UINT8;
-    } else if (!strcmp("int8",paramtype)) {
+    } else if (!strcmp("int8", paramtype)) {
         paramSize = sizeof(int8_t);
         s_typeFlag = OCMW_VALUE_TYPE_INT8;
-    } else if (!strcmp("uint32",paramtype)) {
+    } else if (!strcmp("uint32", paramtype)) {
         paramSize = sizeof(uint32_t);
         s_typeFlag = OCMW_VALUE_TYPE_UINT32;
-    } else if (!strcmp("uint64",paramtype)) {
+    } else if (!strcmp("uint64", paramtype)) {
         paramSize = sizeof(uint64_t);
-    } else if (!strcmp("enum",paramtype)) {
-            s_typeFlag = OCMW_VALUE_TYPE_STRUCT;
-            paramSize = OCMW_VALUE_TYPE_ENUM;
+    } else if (!strcmp("enum", paramtype)) {
+        s_typeFlag = OCMW_VALUE_TYPE_STRUCT;
+        paramSize = OCMW_VALUE_TYPE_ENUM;
     } else {
         paramSize = sizeof(int8_t);
     }
@@ -173,15 +176,15 @@ int8_t ocmw_get_paramSize(const char* paramtype, int8_t msgtype,
  * Output(s)        :
  ******************************************************************************/
 int32_t ocmw_frame_subsystem_from_schema(const Component *subSystem,
-        subSystemInfo *systemInfo)
+                                         subSystemInfo *systemInfo)
 {
     int32_t index = 0;
-    memset(&systemInfo->totalNum,0,sizeof(0));
+    memset(&systemInfo->totalNum, 0, sizeof(0));
     while (subSystem && subSystem->name) {
         systemInfo->totalNum += 1;
         systemInfo->Info[index].number = index;
         strncpy(systemInfo->Info[index].name, subSystem->name,
-                                        strlen(subSystem->name));
+                strlen(subSystem->name));
         index++;
         subSystem += 1;
     }
@@ -201,54 +204,53 @@ int32_t ocmw_frame_postTable_from_schema(const Component *subSystem)
     const Component *component = NULL;
     const Component *subComponent = NULL;
     uint8_t subSystemNum = 0;
-    char tempComp[PARAM_STR_BUFF_SIZE] = {0};
-    char tempCompdev[PARAM_STR_BUFF_SIZE] = {0};
+    char tempComp[PARAM_STR_BUFF_SIZE] = { 0 };
+    char tempCompdev[PARAM_STR_BUFF_SIZE] = { 0 };
     ocwarePostArrayIndex = 0;
     while (subSystem && subSystem->name) {
         count = 1;
         component = subSystem->components;
         while (component && component->name) {
             subComponent = component->components;
-            if ((subComponent == NULL) &&
-                        ((!(component->postDisabled)))) {
+            if ((subComponent == NULL) && ((!(component->postDisabled)))) {
                 memset(tempComp, 0, strlen(tempComp));
-                strncpy(tempComp,component->name,strlen(component->name));
+                strncpy(tempComp, component->name, strlen(component->name));
                 tempComp[0] = toupper(tempComp[0]);
-                strncpy((ocwarePostArray[index].subsysName),
-                                subSystem->name, strlen(subSystem->name));
-                strncpy((ocwarePostArray[index].deviceName),
-                                tempComp, strlen(tempComp));
+                strncpy((ocwarePostArray[index].subsysName), subSystem->name,
+                        strlen(subSystem->name));
+                strncpy((ocwarePostArray[index].deviceName), tempComp,
+                        strlen(tempComp));
                 ocwarePostArray[index].devsn = count++;
-                ocwarePostArray[index].subsystem =  subSystemNum;
+                ocwarePostArray[index].subsystem = subSystemNum;
                 ocwarePostArrayIndex++;
                 index++;
             }
             while (subComponent && subComponent->name) {
                 if (!(subComponent->postDisabled)) {
-                    strncpy(ocwarePostArray[index].subsysName,
-                                    subSystem->name, strlen(subSystem->name));
+                    strncpy(ocwarePostArray[index].subsysName, subSystem->name,
+                            strlen(subSystem->name));
                     memset(ocwarePostArray[index].deviceName, 0,
-                                    sizeof(ocwarePostArray[index].deviceName));
+                           sizeof(ocwarePostArray[index].deviceName));
                     memset(tempComp, 0, strlen(tempComp));
                     memset(tempCompdev, 0, strlen(tempCompdev));
                     strncpy(tempComp, component->name, strlen(component->name));
                     strncpy(tempCompdev, subComponent->name,
-                                        strlen(subComponent->name));
+                            strlen(subComponent->name));
                     tempComp[0] = toupper(tempComp[0]);
                     tempCompdev[0] = toupper(tempCompdev[0]);
 
-                    if (!strcmp(component->name,"comp_all")) {
+                    if (!strcmp(component->name, "comp_all")) {
                         strcpy((ocwarePostArray[index].deviceName),
-                                    tempCompdev);
+                               tempCompdev);
                     } else {
                         if ((snprintf(ocwarePostArray[index].deviceName,
-                                    OCMW_POST_DEVICE_SIZE, "%s %s",
-                                    tempComp, tempCompdev)) < 0) {
+                                      OCMW_POST_DEVICE_SIZE, "%s %s", tempComp,
+                                      tempCompdev)) < 0) {
                             return FAILED;
                         }
                     }
                     ocwarePostArray[index].devsn = count++;
-                    ocwarePostArray[index].subsystem =  subSystemNum;
+                    ocwarePostArray[index].subsystem = subSystemNum;
                     ocwarePostArrayIndex++;
                     index++;
                 }
@@ -270,14 +272,14 @@ int32_t ocmw_frame_postTable_from_schema(const Component *subSystem)
  * Output(s)        : noOfElement, size
  ******************************************************************************/
 void ocmw_get_noOfElements(const Parameter *param_list, int32_t *noOfElement,
-        int32_t *size)
+                           int32_t *size)
 {
     int8_t elementCount = 0;
     int8_t pSize = 0;
 
     if (param_list == NULL) {
         *noOfElement = 0;
-        *size =  0;
+        *size = 0;
         return;
     }
     while (param_list->name) {
@@ -293,7 +295,249 @@ void ocmw_get_noOfElements(const Parameter *param_list, int32_t *noOfElement,
     *noOfElement = elementCount;
     *size = pSize;
 }
+/******************************************************************************
+ * Function Name    : ocmw_get_alert_value
+ * Description      : get the alert value from message
+ * Input(s)         : paramtype, ecReceivedMsg
+ * Output(s)        : recvdAlertVal
+ ******************************************************************************/
+void ocmw_get_alert_value(const Parameter *param, const char *paramtype,
+                          char *alertVal, char *alertVal1,
+                          OCMPMessageFrame *ecReceivedMsg)
+{
+    int8_t paramPos = 7;
+    int32_t recvdAlertVal = 0;
+    int32_t recvdAlertVal1 = 0;
+    char *alertEnumValue[2] = { 0 };
+    char regStr[BUF_SIZE] = { 0 };
+    char regStr1[BUF_SIZE] = { 0 };
+    int8_t enumCount = 0;
+    int8_t strCount = 0;
+    int8_t index = 0;
 
+    if ((param == NULL) || (paramtype == NULL)) {
+        logdebug("Invalid paramtype\n");
+        return;
+    }
+
+    if (strcmp("uint16", paramtype) == 0) {
+        recvdAlertVal = *((uint16_t *)&(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 =
+            *((uint16_t *)&(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("int16", paramtype) == 0) {
+        recvdAlertVal = *((int16_t *)&(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 =
+            *((int16_t *)&(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("uint8", paramtype) == 0) {
+        recvdAlertVal = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 =
+            *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("string", paramtype) == 0) {
+        memcpy(regStr, &ecReceivedMsg->message.info[paramPos], param->size);
+        memcpy(regStr1, &ecReceivedMsg->message.info[paramPos + 2],
+               param->size);
+        strCount++;
+        /*} else if (strcmp("enum",paramtype) == 0) {
+            valueEnum = param->values;
+            while (valueEnum && valueEnum->name) {
+                paramVal = valueEnum->value;
+                alertEnumValue[paramVal] = (char *)
+                                realloc(alertEnumValue[paramVal], BUF_SIZE);
+                if (!alertEnumValue[paramVal]) {
+                    logerr("Memory allocation failed\n");
+                    return;
+                }
+                enumCount++;
+                strncpy((alertEnumValue[paramVal]), valueEnum->name,
+           ENUM_BUF_SIZE); valueEnum += 1;
+            }
+            recvdAlertVal = *((uint8_t *)
+           &(ecReceivedMsg->message.info[paramPos])); strcpy(regStr,
+           paramEnumValue[recvdAlertVal]); strcpy(regStr1,
+           paramEnumValue[recvdAlertVal]);*/
+    }
+
+    if (enumCount) {
+        sprintf(alertVal, "%u(%s)", recvdAlertVal, regStr);
+        sprintf(alertVal1, "%u(%s)", recvdAlertVal1, regStr1);
+    } else if (strCount) {
+        sprintf(alertVal, "%s", regStr);
+        sprintf(alertVal1, "%s", regStr1);
+    } else {
+        sprintf(alertVal, "%u", recvdAlertVal);
+        sprintf(alertVal1, "%u", recvdAlertVal1);
+    }
+    for (index = 0; index < enumCount; index++) {
+        ocmw_free_global_pointer((void **)&alertEnumValue[index]);
+    }
+
+    return;
+}
+
+/******************************************************************************
+ * Function Name    : ocmw_extract_dateTime_from_msgFrame
+ * Description      : extract date time for alerts
+ * Input(s)         : ecReceivedMsg
+ * Output(s)        :
+ ******************************************************************************/
+void ocmw_extract_dateTime_from_msgFrame(OCMPMessageFrame *ecReceivedMsg)
+{
+    uint8_t hour = 0;
+    uint8_t minuts = 0;
+    uint8_t second = 0;
+    uint8_t day = 0;
+    uint8_t month = 0;
+    uint8_t year = 0;
+    int8_t paramPos = 1;
+
+    hour = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos]));
+    minuts = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 1]));
+    second = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 2]));
+    day = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 3]));
+    month = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 4]));
+    year = *((uint8_t *)&(ecReceivedMsg->message.info[paramPos + 5]));
+    sprintf(alerts.list[s_alertIndex].datetime, "%d:%d:%d %d/%d/20%d", hour,
+            minuts, second, day, month, year);
+    return;
+}
+
+/******************************************************************************
+ * Function Name    : ocmw_handle_alert_msg
+ * Description      : parse schema for alert message
+ * Input(s)         : compBase, ecReceivedMsg
+ * Output(s)        :
+ ******************************************************************************/
+void ocmw_handle_alert_msg(const Component *compBase,
+                           OCMPMessageFrame *ecReceivedMsg, int8_t *alertRecord)
+{
+    const Component *component = NULL;
+    const Component *subComponent = NULL;
+    const Component *subSystem = compBase;
+    const Driver *devDriver = NULL;
+    const Parameter *param = NULL;
+    char response[RES_STR_BUFF_SIZE] = { 0 };
+    int8_t count = 0;
+    int8_t countParamId = 0;
+    int8_t ret = 0;
+    int32_t alertElements = 0;
+    int32_t alertElementsTemp = 0;
+    int32_t size = 0;
+    static int8_t alertCount = 0;
+
+    sMsgParam *sMsgFrameParam = (sMsgParam *)malloc(sizeof(sMsgParam));
+
+    if ((subSystem == NULL) || (sMsgFrameParam == NULL)) {
+        logdebug("Invalid Memory\n");
+        return;
+    }
+    if ((alertFlag == 0) && (alerts.nalerts == 0)) {
+        alerts.list = (struct allAlertEvent *)calloc(
+            ALERT_MAX_BUFF_SIZE, sizeof(struct allAlertEvent));
+    }
+    memset(sMsgFrameParam, 0, sizeof(sMsgParam));
+    sMsgFrameParam->component = 1;
+    while (subSystem && subSystem->name) {
+        if (sMsgFrameParam->subsystem == ecReceivedMsg->message.subsystem) {
+            component = subSystem->components;
+            while (component && component->name) {
+                if (ecReceivedMsg->message.componentID ==
+                    sMsgFrameParam->component) {
+                    devDriver = component->driver;
+                    if (devDriver != NULL) {
+                        param = devDriver->alerts;
+                        while (param && param->name) {
+                            if (ecReceivedMsg->message.parameters ==
+                                pow(2, countParamId)) {
+                                sprintf(alerts.list[s_alertIndex].string,
+                                        "%s.%s.alerts.%s", subSystem->name,
+                                        component->name, param->name);
+                                ocmw_get_alert_value(
+                                    param, DATA_TYPE_MAP[param->type],
+                                    alerts.list[s_alertIndex].value,
+                                    alerts.list[s_alertIndex].actualValue,
+                                    ecReceivedMsg);
+                                alertCount++;
+                                break;
+                            }
+                            countParamId = countParamId + 1;
+                            param += 1;
+                        }
+                    }
+                    subComponent = component->components;
+                    while (subComponent && subComponent->name) {
+                        countParamId = 0;
+                        devDriver = subComponent->driver;
+                        if (devDriver != NULL) {
+                            param = devDriver->alerts;
+                            ocmw_get_noOfElements(param, &alertElements, &size);
+                            while (param && param->name) {
+                                if (ecReceivedMsg->message.parameters ==
+                                    pow(2, countParamId + alertElementsTemp)) {
+                                    sprintf(alerts.list[s_alertIndex].string,
+                                            "%s.%s.alerts.%s.%s",
+                                            subSystem->name, component->name,
+                                            subComponent->name, param->name);
+                                    ocmw_get_alert_value(
+                                        param, DATA_TYPE_MAP[param->type],
+                                        alerts.list[s_alertIndex].value,
+                                        alerts.list[s_alertIndex].actualValue,
+                                        ecReceivedMsg);
+                                    count++;
+                                    alertCount++;
+                                    break;
+                                }
+                                countParamId = countParamId + 1;
+                                param += 1;
+                            }
+                        }
+                        if (count > 0)
+                            break;
+                        alertElementsTemp = alertElementsTemp + alertElements;
+                        subComponent += 1;
+                    }
+                    break;
+                }
+                sMsgFrameParam->component += 1;
+                component += 1;
+            }
+            break;
+        }
+        sMsgFrameParam->subsystem += 1;
+        subSystem += 1;
+    }
+    if (ecReceivedMsg->message.action == OCMP_AXN_TYPE_ACTIVE) {
+        strcpy(alerts.list[s_alertIndex].action, "ACTIVE");
+    } else if (ecReceivedMsg->message.action == OCMP_AXN_TYPE_CLEAR) {
+        strcpy(alerts.list[s_alertIndex].action, "CLEAR");
+    }
+    ocmw_extract_dateTime_from_msgFrame(ecReceivedMsg);
+    logdebug("Alert : %25s%10s%5s\n", alerts.list[s_alertIndex].string,
+             alerts.list[s_alertIndex].action, alerts.list[s_alertIndex].value);
+    alerts.nalerts = s_alertIndex;
+    if ((alertFlag > 0) &&
+        (ecReceivedMsg->message.action == OCMP_AXN_TYPE_REPLY)) {
+        *alertRecord = 0;
+        if (alertCount > 0) {
+            alerts.nalerts = s_alertIndex - 1;
+            alertCount = 0;
+        } else {
+            alerts.nalerts = 0;
+        }
+        sem_post(&semCliReturn);
+        s_alertIndex = 0;
+        alertFlag = 0;
+    } else if (alertFlag == 0) {
+        *alertRecord = 0;
+        ret = ocmw_handle_show_alerts(response);
+        if (ret == FAILED)
+            logdebug("Alert send error\n");
+        s_alertIndex = 0;
+        alertCount = 0;
+    }
+    free(sMsgFrameParam);
+    s_alertIndex++;
+    return;
+}
 /******************************************************************************
  * Function Name    : ocmw_parse_command_msgframe
  * Description      : parse the command
@@ -301,15 +545,15 @@ void ocmw_get_noOfElements(const Parameter *param_list, int32_t *noOfElement,
  * Output(s)        :
  ******************************************************************************/
 int32_t ocmw_parse_command_msgframe(const Component *compBase,
-                            strMsgFrame *msgFrame, uint8_t actiontype,
-                            ocmwSchemaSendBuf *ecSendBuf)
+                                    strMsgFrame *msgFrame, uint8_t actiontype,
+                                    ocmwSchemaSendBuf *ecSendBuf)
 {
     const Component *component = NULL;
     const Component *subSystem = compBase;
     const Component *subcomponent = NULL;
     const Command *comm = NULL;
     const Driver *driver = NULL;
-    sMsgParam *sMsgFrameParam = (sMsgParam *) malloc(sizeof(sMsgParam));
+    sMsgParam *sMsgFrameParam = (sMsgParam *)malloc(sizeof(sMsgParam));
     int16_t paramId = 0;
     int8_t subCount = 0;
     int8_t actionType = 0;
@@ -330,8 +574,7 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
     }
     memset(sMsgFrameParam, 0, sizeof(sMsgParam));
     if (ecSendBufBkp == NULL) {
-        ecSendBufBkp =
-            (ocmwSchemaSendBuf *) malloc(sizeof(ocmwSchemaSendBuf));
+        ecSendBufBkp = (ocmwSchemaSendBuf *)malloc(sizeof(ocmwSchemaSendBuf));
     }
     if (ecSendBufBkp == NULL) {
         return -1;
@@ -341,7 +584,7 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
     sMsgFrameParam->component = 1;
     while (subSystem && subSystem->name) {
         if (strncmp(subSystem->name, msgFrame->subsystem,
-                strlen(msgFrame->subsystem)) == 0) {
+                    strlen(msgFrame->subsystem)) == 0) {
             ecSendBuf->subsystem = (sMsgFrameParam->subsystem);
             component = subSystem->components;
             while (component && component->name) {
@@ -357,7 +600,7 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
                                     strlen(msgFrame->parameter)) == 0) {
                             paramId = 0;
                             actionType = count;
-                            subCount ++;
+                            subCount++;
                             break;
                         }
                         count++;
@@ -371,14 +614,14 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
                      * subsystem->component->driver->command
                      */
                     componentCount = 0;
-                    if(driver != NULL) {
+                    if (driver != NULL) {
                         comm = driver->commands;
                         while (comm && comm->name) {
                             if (strncmp(comm->name, msgFrame->parameter,
                                         strlen(msgFrame->parameter)) == 0) {
                                 paramId = 0;
                                 actionType = componentCount;
-                                subCount ++;
+                                subCount++;
                                 break;
                             }
                             componentCount++;
@@ -394,21 +637,22 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
                     count = 1;
                     subcomponent = component->components;
                     while (subcomponent && subcomponent->name) {
-                        if (strcmp(subcomponent->name, msgFrame->subcomponent)
-                                == 0) {
+                        if (strcmp(subcomponent->name,
+                                   msgFrame->subcomponent) == 0) {
                             driver = subcomponent->driver;
-                            if(driver != NULL) {
+                            if (driver != NULL) {
                                 comm = driver->commands;
                                 componentCount = 0;
                                 while (comm && comm->name) {
                                     if (strncmp(comm->name, msgFrame->parameter,
-                                        strlen(msgFrame->parameter)) == 0) {
+                                                strlen(msgFrame->parameter)) ==
+                                        0) {
                                         /*
-                                        * Here subcomponentId = paramId
-                                        */
+                                         * Here subcomponentId = paramId
+                                         */
                                         paramId = count;
                                         actionType = componentCount;
-                                        subCount ++;
+                                        subCount++;
                                         /*break as we found the command */
                                         break;
                                     }
@@ -439,17 +683,16 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
     ecSendBuf->paramPos = paramPos;
     ecSendBuf->paramId = paramId;
     ecSendBuf->paramSize = paramSize;
-    if(msgFrame->parameter) {
-        memset(ecSendBuf->commandType, 0,
-                strlen(ecSendBuf->commandType));
+    if (msgFrame->parameter) {
+        memset(ecSendBuf->commandType, 0, strlen(ecSendBuf->commandType));
         strncpy(ecSendBuf->commandType, msgFrame->parameter,
-                                strlen(msgFrame->parameter));
+                strlen(msgFrame->parameter));
     }
-    memcpy(ecSendBufBkp,ecSendBuf,sizeof(ocmwSchemaSendBuf));
+    memcpy(ecSendBufBkp, ecSendBuf, sizeof(ocmwSchemaSendBuf));
 
     free(sMsgFrameParam);
 
-    if (subCount ==  0) {
+    if (subCount == 0) {
         return FAILED;
     }
 
@@ -463,8 +706,8 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
  * Output(s)        :
  ******************************************************************************/
 int32_t ocmw_parse_post_msgframe(const Component *compBase,
-                            strMsgFrame *msgFrame, uint8_t actiontype,
-                            ocmwSchemaSendBuf *ecSendBuf)
+                                 strMsgFrame *msgFrame, uint8_t actiontype,
+                                 ocmwSchemaSendBuf *ecSendBuf)
 {
     const Component *component = NULL;
     const Component *subSystem = compBase;
@@ -474,13 +717,12 @@ int32_t ocmw_parse_post_msgframe(const Component *compBase,
     int8_t count = 0;
     int8_t paramSize = 0;
     int8_t paramPos = 0;
-    sMsgParam *sMsgFrameParam = (sMsgParam *) malloc(sizeof(sMsgParam));
+    sMsgParam *sMsgFrameParam = (sMsgParam *)malloc(sizeof(sMsgParam));
     if (sMsgFrameParam == NULL) {
         return FAILED;
     }
     if (ecSendBufBkp == NULL) {
-        ecSendBufBkp =
-            (ocmwSchemaSendBuf *) malloc(sizeof(ocmwSchemaSendBuf));
+        ecSendBufBkp = (ocmwSchemaSendBuf *)malloc(sizeof(ocmwSchemaSendBuf));
     }
     if (ecSendBufBkp == NULL) {
         return FAILED;
@@ -497,7 +739,7 @@ int32_t ocmw_parse_post_msgframe(const Component *compBase,
     memset(ecSendBufBkp, 0, sizeof(ocmwSchemaSendBuf));
     while (subSystem && subSystem->name) {
         if (strncmp(subSystem->name, msgFrame->subsystem,
-                strlen(msgFrame->subsystem)) == 0) {
+                    strlen(msgFrame->subsystem)) == 0) {
             ecSendBuf->subsystem = (sMsgFrameParam->subsystem);
             component = subSystem->components;
             while (component && component->name) {
@@ -509,8 +751,8 @@ int32_t ocmw_parse_post_msgframe(const Component *compBase,
                     param = devDriver->post;
                     while (param && param->name) {
                         if (strncmp(param->name, msgFrame->subcomponent,
-                                strlen(msgFrame->subcomponent)) == 0) {
-                            paramId = pow(2,count);
+                                    strlen(msgFrame->subcomponent)) == 0) {
+                            paramId = pow(2, count);
                             break;
                         }
                         count++;
@@ -541,8 +783,9 @@ int32_t ocmw_parse_post_msgframe(const Component *compBase,
  * Output(s)        :
  ******************************************************************************/
 int32_t ocmw_parse_driver_from_component(strMsgFrame *msgFrame,
-            ocmwSchemaSendBuf *ecSendBuf, const Driver *devDriver,
-                                                uint8_t actiontype)
+                                         ocmwSchemaSendBuf *ecSendBuf,
+                                         const Driver *devDriver,
+                                         uint8_t actiontype)
 {
     const Parameter *param = NULL;
     Enum_Map *value_enum = NULL;
@@ -556,20 +799,20 @@ int32_t ocmw_parse_driver_from_component(strMsgFrame *msgFrame,
         ecSendBuf->actionType = actiontype;
         while (param && param->name) {
             if (strncmp(param->name, msgFrame->parameter,
-                    strlen(msgFrame->parameter)) == 0) {
-                ecSendBuf->paramId = pow(2,count);
+                        strlen(msgFrame->parameter)) == 0) {
+                ecSendBuf->paramId = pow(2, count);
                 ecSendBuf->paramPos = temp + ecSendBuf->paramPos;
-                ecSendBuf->paramSize = ocmw_get_paramSize (
-                                        DATA_TYPE_MAP[param->type],
-                                        OCMP_MSG_TYPE_CONFIG, param->name);
+                ecSendBuf->paramSize =
+                    ocmw_get_paramSize(DATA_TYPE_MAP[param->type],
+                                       OCMP_MSG_TYPE_CONFIG, param->name);
                 break;
             }
             count = count + 1;
             if ((!strcmp("uint16", DATA_TYPE_MAP[param->type])) ||
-                    (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
+                (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
                 ecSendBuf->paramPos = ecSendBuf->paramPos + sizeof(uint16_t);
             } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type])) ||
-                    (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
+                       (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
                 ecSendBuf->paramPos = ecSendBuf->paramPos + sizeof(uint8_t);
             }
             param += 1;
@@ -580,55 +823,55 @@ int32_t ocmw_parse_driver_from_component(strMsgFrame *msgFrame,
         ecSendBuf->actionType = actiontype;
         while (param && param->name) {
             if (strncmp(param->name, msgFrame->parameter,
-                    strlen(msgFrame->parameter)) == 0) {
-                ecSendBuf->paramId = pow(2,count);
-                if ((strncmp(param->name,"registration",
-                        strlen(msgFrame->parameter)) == 0) ||
-                        (strncmp(param->name,"gps_lock",
-                        strlen(msgFrame->parameter)) == 0)) {
+                        strlen(msgFrame->parameter)) == 0) {
+                ecSendBuf->paramId = pow(2, count);
+                if ((strncmp(param->name, "registration",
+                             strlen(msgFrame->parameter)) == 0) ||
+                    (strncmp(param->name, "gps_lock",
+                             strlen(msgFrame->parameter)) == 0)) {
                     value_enum = param->values;
-                    for (index =index; index < OCMW_VALUE_TYPE_MFG; index++) {
+                    for (index = index; index < OCMW_VALUE_TYPE_MFG; index++) {
                         s_paramEnumValue[index] = (char *)malloc(BUF_SIZE);
                     }
                     while (value_enum && value_enum->name) {
                         regValue = value_enum->value;
                         strncpy((s_paramEnumValue[regValue]), value_enum->name,
-                            ENUM_BUF_SIZE);
+                                ENUM_BUF_SIZE);
                         value_enum += 1;
                     }
                     s_typeFlag = OCMW_VALUE_TYPE_STRUCT;
-                } else if(strncmp(param->name, "network_operatorinfo",
-                    strlen(msgFrame->parameter)) == 0) {
+                } else if (strncmp(param->name, "network_operatorinfo",
+                                   strlen(msgFrame->parameter)) == 0) {
                     s_typeFlag = OCMW_VALUE_TYPE_NWOP_STRUCT;
                 }
                 if ((strncmp(msgFrame->subsystem, "obc",
-                        strlen(msgFrame->subsystem)) == 0) ||
-                        (strncmp(msgFrame->subsystem, "testmodule",
-                        strlen(msgFrame->subsystem)) == 0)) {
+                             strlen(msgFrame->subsystem)) == 0) ||
+                    (strncmp(msgFrame->subsystem, "testmodule",
+                             strlen(msgFrame->subsystem)) == 0)) {
                     ecSendBuf->paramPos = 0;
                 } else {
                     ecSendBuf->paramPos = temp + ecSendBuf->paramPos;
                 }
                 if ((param->size) &&
-                        (strcmp(DATA_TYPE_MAP[param->type],"enum") != 0)) {
+                    (strcmp(DATA_TYPE_MAP[param->type], "enum") != 0)) {
                     ecSendBuf->paramSize = param->size;
                 } else {
-                    ecSendBuf->paramSize = ocmw_get_paramSize(
-                                            DATA_TYPE_MAP[param->type],
-                                            OCMP_MSG_TYPE_STATUS, param->name);
+                    ecSendBuf->paramSize =
+                        ocmw_get_paramSize(DATA_TYPE_MAP[param->type],
+                                           OCMP_MSG_TYPE_STATUS, param->name);
                 }
                 break;
             }
             count = count + 1;
             if ((!strcmp("uint16", DATA_TYPE_MAP[param->type])) ||
-                    (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
+                (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
                 ecSendBuf->paramPos = ecSendBuf->paramPos + sizeof(uint16_t);
             } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type])) ||
-                    (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
+                       (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
                 ecSendBuf->paramPos = ecSendBuf->paramPos + sizeof(uint8_t);
             } else if (!strcmp("string", DATA_TYPE_MAP[param->type])) {
-                ecSendBuf->paramPos = ecSendBuf->paramPos +
-                                                EEPROM_STATUS_MAX_SIZE;
+                ecSendBuf->paramPos =
+                    ecSendBuf->paramPos + EEPROM_STATUS_MAX_SIZE;
             }
             param += 1;
         }
@@ -644,9 +887,10 @@ int32_t ocmw_parse_driver_from_component(strMsgFrame *msgFrame,
  * Input(s)         : msgFrame, ecSendBuf, subComponent, actiontype
  * Output(s)        :
  ******************************************************************************/
-int32_t ocmw_parse_driver_from_subcomponent (strMsgFrame *msgFrame,
-            ocmwSchemaSendBuf *ecSendBuf, const Component *subComponent,
-                                                uint8_t actiontype)
+int32_t ocmw_parse_driver_from_subcomponent(strMsgFrame *msgFrame,
+                                            ocmwSchemaSendBuf *ecSendBuf,
+                                            const Component *subComponent,
+                                            uint8_t actiontype)
 {
     const Driver *devDriver = NULL;
     const Parameter *param = NULL;
@@ -660,14 +904,14 @@ int32_t ocmw_parse_driver_from_subcomponent (strMsgFrame *msgFrame,
         temp = temp + size;
         if (strncmp(msgFrame->msgtype, "config", strlen("config")) == 0) {
             param = devDriver->config;
-            ocmw_get_noOfElements(param,&noOfElement, &size);
-        } else if (strncmp(msgFrame->msgtype, "status",
-            strlen("status")) == 0) {
+            ocmw_get_noOfElements(param, &noOfElement, &size);
+        } else if (strncmp(msgFrame->msgtype, "status", strlen("status")) ==
+                   0) {
             param = devDriver->status;
-            ocmw_get_noOfElements(param,&noOfElement, &size);
+            ocmw_get_noOfElements(param, &noOfElement, &size);
         }
         if (strncmp(subComponent->name, msgFrame->subcomponent,
-                strlen(msgFrame->subcomponent)) == 0) {
+                    strlen(msgFrame->subcomponent)) == 0) {
             devDriver = subComponent->driver;
             if (strncmp(msgFrame->msgtype, "config", strlen("config")) == 0) {
                 param = devDriver->config;
@@ -675,68 +919,66 @@ int32_t ocmw_parse_driver_from_subcomponent (strMsgFrame *msgFrame,
                 ecSendBuf->actionType = actiontype;
                 while (param && param->name) {
                     if (strncmp(param->name, msgFrame->parameter,
-                        strlen(msgFrame->parameter)) == 0) {
-                        ecSendBuf->paramId = pow(2,
-                                                count + noOfElementTemp);
+                                strlen(msgFrame->parameter)) == 0) {
+                        ecSendBuf->paramId = pow(2, count + noOfElementTemp);
                         ecSendBuf->paramPos = temp + ecSendBuf->paramPos;
                         if (param->size) {
                             ecSendBuf->paramSize = param->size;
                         } else {
                             ecSendBuf->paramSize = ocmw_get_paramSize(
-                                            DATA_TYPE_MAP[param->type],
-                                            OCMP_MSG_TYPE_CONFIG, param->name);
+                                DATA_TYPE_MAP[param->type],
+                                OCMP_MSG_TYPE_CONFIG, param->name);
                         }
                         break;
                     }
                     count = count + 1;
                     if ((!strcmp("uint16", DATA_TYPE_MAP[param->type])) ||
-                            (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
+                        (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
                         ecSendBuf->paramPos =
-                                ecSendBuf->paramPos + sizeof(uint16_t);
-                    } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type]))
-                        || (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
+                            ecSendBuf->paramPos + sizeof(uint16_t);
+                    } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type])) ||
+                               (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
                         ecSendBuf->paramPos =
                             ecSendBuf->paramPos + sizeof(uint8_t);
                     }
                     param += 1;
                 }
-            } else if (strncmp(msgFrame->msgtype, "status",
-                    strlen("status")) == 0) {
+            } else if (strncmp(msgFrame->msgtype, "status", strlen("status")) ==
+                       0) {
                 param = devDriver->status;
                 ecSendBuf->msgType = OCMP_MSG_TYPE_STATUS;
                 ecSendBuf->actionType = actiontype;
                 while (param && param->name) {
                     if (strncmp(param->name, msgFrame->parameter,
-                        strlen(msgFrame->parameter)) == 0) {
-                        ecSendBuf->paramId =
-                            pow(2, count + noOfElementTemp);
+                                strlen(msgFrame->parameter)) == 0) {
+                        ecSendBuf->paramId = pow(2, count + noOfElementTemp);
                         ecSendBuf->paramPos = temp + ecSendBuf->paramPos;
                         if (param->size) {
                             ecSendBuf->paramSize = param->size;
                         } else {
-                            ecSendBuf->paramSize = ocmw_get_paramSize (
-                                    DATA_TYPE_MAP[param->type],
-                                    OCMP_MSG_TYPE_STATUS, param->name);
+                            ecSendBuf->paramSize = ocmw_get_paramSize(
+                                DATA_TYPE_MAP[param->type],
+                                OCMP_MSG_TYPE_STATUS, param->name);
                         }
                         break;
                     }
                     count = count + 1;
                     if ((!strcmp("uint16", DATA_TYPE_MAP[param->type])) ||
-                            (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
+                        (!strcmp("int16", DATA_TYPE_MAP[param->type]))) {
                         ecSendBuf->paramPos =
                             ecSendBuf->paramPos + sizeof(uint16_t);
-                    } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type]))
-                            || (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
+                    } else if ((!strcmp("uint8", DATA_TYPE_MAP[param->type])) ||
+                               (!strcmp("int8", DATA_TYPE_MAP[param->type]))) {
                         ecSendBuf->paramPos =
-                                    ecSendBuf->paramPos + sizeof(uint8_t);
+                            ecSendBuf->paramPos + sizeof(uint8_t);
                     } else if (!strcmp("string", DATA_TYPE_MAP[param->type])) {
-                        ecSendBuf->paramPos = ecSendBuf->paramPos +
-                                                    EEPROM_STATUS_MAX_SIZE;
+                        ecSendBuf->paramPos =
+                            ecSendBuf->paramPos + EEPROM_STATUS_MAX_SIZE;
                     }
                     param += 1;
                 }
-            } else if (strncmp(msgFrame->msgtype, "alerts",
-                    strlen("alerts")) == 0) {
+            } else if (strncmp(msgFrame->msgtype, "alerts", strlen("alerts")) ==
+                       0) {
                 param = devDriver->alerts;
             }
             break;
@@ -754,13 +996,13 @@ int32_t ocmw_parse_driver_from_subcomponent (strMsgFrame *msgFrame,
  * Output(s)        :
  ******************************************************************************/
 int32_t ocmw_parse_msgframe(const Component *compBase, strMsgFrame *msgFrame,
-            uint8_t actiontype,ocmwSchemaSendBuf *ecSendBuf)
+                            uint8_t actiontype, ocmwSchemaSendBuf *ecSendBuf)
 {
     const Component *component = NULL;
     const Component *subComponent = NULL;
     const Component *subSystem = compBase;
     const Driver *devDriver = NULL;
-    sMsgParam *sMsgFrameParam = (sMsgParam *) malloc(sizeof(sMsgParam));
+    sMsgParam *sMsgFrameParam = (sMsgParam *)malloc(sizeof(sMsgParam));
     recvdParamVal = 0;
     eepromFlag = 0;
     s_typeFlag = 0;
@@ -772,8 +1014,7 @@ int32_t ocmw_parse_msgframe(const Component *compBase, strMsgFrame *msgFrame,
     memset(sMsgFrameParam, 0, sizeof(sMsgParam));
 
     if (ecSendBufBkp == NULL) {
-        ecSendBufBkp =
-            (ocmwSchemaSendBuf *) malloc(sizeof(ocmwSchemaSendBuf));
+        ecSendBufBkp = (ocmwSchemaSendBuf *)malloc(sizeof(ocmwSchemaSendBuf));
     }
     if (ecSendBufBkp == NULL) {
         return -1;
@@ -788,7 +1029,7 @@ int32_t ocmw_parse_msgframe(const Component *compBase, strMsgFrame *msgFrame,
     sMsgFrameParam->component = 1;
     while (subSystem && subSystem->name) {
         if (strncmp(subSystem->name, msgFrame->subsystem,
-                strlen(msgFrame->subsystem)) == 0) {
+                    strlen(msgFrame->subsystem)) == 0) {
             ecSendBuf->subsystem = (sMsgFrameParam->subsystem);
             component = subSystem->components;
             while (component && component->name) {
@@ -796,13 +1037,13 @@ int32_t ocmw_parse_msgframe(const Component *compBase, strMsgFrame *msgFrame,
                     ecSendBuf->componentId = sMsgFrameParam->component;
                     devDriver = component->driver;
                     if (devDriver != NULL) {
-                        ocmw_parse_driver_from_component(msgFrame,
-                                                ecSendBuf,devDriver,actiontype);
+                        ocmw_parse_driver_from_component(msgFrame, ecSendBuf,
+                                                         devDriver, actiontype);
                     }
                     subComponent = component->components;
-                    if (subComponent != NULL){
-                        ocmw_parse_driver_from_subcomponent(msgFrame,
-                                                ecSendBuf,subComponent,actiontype);
+                    if (subComponent != NULL) {
+                        ocmw_parse_driver_from_subcomponent(
+                            msgFrame, ecSendBuf, subComponent, actiontype);
                     }
                     break;
                 }
@@ -831,54 +1072,46 @@ int32_t ocmw_parse_message_fram_from_ec(OCMPMessageFrame *ecReceivedMsg)
     int32_t ret = 0;
     int32_t index = 0;
     int32_t paramVal = 0;
-    char regStr[BUF_SIZE] = {0};
+    char regStr[BUF_SIZE] = { 0 };
     size_t size = 0;
 
     ocmwSendRecvBuf ecInputData;
-    switch(ecSendBufBkp->paramSize) {
+    switch (ecSendBufBkp->paramSize) {
         case (sizeof(uint16_t)):
             if (s_typeFlag == OCMW_VALUE_TYPE_UINT16) {
-                recvdParamVal =
-                    *((uint16_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((uint16_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             } else if (s_typeFlag == OCMW_VALUE_TYPE_INT16) {
-                recvdParamVal =
-                    *((int16_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((int16_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             }
             break;
-        case (sizeof(uint8_t)) :
+        case (sizeof(uint8_t)):
             if (s_typeFlag == OCMW_VALUE_TYPE_UINT8) {
-                recvdParamVal =
-                    *((uint8_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((uint8_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             } else if (s_typeFlag == OCMW_VALUE_TYPE_INT8) {
-                recvdParamVal =
-                    *((int8_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((int8_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             } else if (s_typeFlag == OCMW_VALUE_TYPE_ENUM) {
-                recvdParamVal =
-                    *((int8_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((int8_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             }
             break;
         case (sizeof(uint32_t)):
             if (s_typeFlag == OCMW_VALUE_TYPE_UINT32) {
-                recvdParamVal =
-                    *((uint32_t *)
-                    &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+                recvdParamVal = *((uint32_t *)&(
+                    ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             } else {
-                memset(dataOutBufFromEc, 0 ,
-                                    sizeof(dataOutBufFromEc));
+                memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
                 memcpy(dataOutBufFromEc, ecReceivedMsg->message.info,
-                                    OCMW_VALUE_TYPE_MODEL);
+                       OCMW_VALUE_TYPE_MODEL);
                 eepromFlag++;
             }
             break;
         case (sizeof(uint64_t)):
-            recvdParamVal =
-                *((uint64_t *)
-                &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+            recvdParamVal = *((uint64_t *)&(
+                ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
             break;
         case EEPROM_CONFIG_MAX_SIZE:
         case EEPROM_CONFIG_SIZE:
@@ -892,20 +1125,20 @@ int32_t ocmw_parse_message_fram_from_ec(OCMPMessageFrame *ecReceivedMsg)
             ecInputData.actionType = ecReceivedMsg->message.action;
             ecInputData.subsystem = ecReceivedMsg->message.subsystem;
             memcpy(ecInputData.pbuf, ecReceivedMsg->message.info,
-                                                    MAX_PARM_COUNT);
+                   MAX_PARM_COUNT);
             ret = ocmw_parse_eepromdata_from_ec(ecInputData);
             eepromFlag++;
             break;
         case OCMW_VALUE_TYPE_MFG:
             memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
-            memcpy(dataOutBufFromEc,ecReceivedMsg->message.info,
-                                    OCMW_VALUE_TYPE_MFG);
+            memcpy(dataOutBufFromEc, ecReceivedMsg->message.info,
+                   OCMW_VALUE_TYPE_MFG);
             eepromFlag++;
             break;
         case OCMW_VALUE_TYPE_GETMODEL:
             memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
             memcpy(dataOutBufFromEc, ecReceivedMsg->message.info,
-                                            OCMW_VALUE_TYPE_GETMODEL);
+                   OCMW_VALUE_TYPE_GETMODEL);
             eepromFlag++;
             break;
         case OCMW_VALUE_TYPE_ENUM:
@@ -918,21 +1151,21 @@ int32_t ocmw_parse_message_fram_from_ec(OCMPMessageFrame *ecReceivedMsg)
             ecInputData.actionType = ecReceivedMsg->message.action;
             ecInputData.subsystem = ecReceivedMsg->message.subsystem;
             memcpy(ecInputData.pbuf, ecReceivedMsg->message.info,
-                                                    MAX_PARM_COUNT);
+                   MAX_PARM_COUNT);
             if (s_typeFlag == OCMW_VALUE_TYPE_STRUCT) {
-                paramVal = *((uint8_t *) ecInputData.pbuf);
+                paramVal = *((uint8_t *)ecInputData.pbuf);
                 memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
                 size = sizeof(dataOutBufFromEc);
                 if (s_paramEnumValue[paramVal]) {
-                    strcpy(regStr,s_paramEnumValue[paramVal]);
-                    snprintf(dataOutBufFromEc, size,
-                                 "%u(%s) ", paramVal,regStr);
+                    strcpy(regStr, s_paramEnumValue[paramVal]);
+                    snprintf(dataOutBufFromEc, size, "%u(%s) ", paramVal,
+                             regStr);
                     for (index = 0; index < OCMW_VALUE_TYPE_MFG; index++) {
                         ocmw_free_global_pointer(
-                            (void**)&s_paramEnumValue[index]);
+                            (void **)&s_paramEnumValue[index]);
                     }
                 }
-            }else if (s_typeFlag == OCMW_VALUE_TYPE_NWOP_STRUCT) {
+            } else if (s_typeFlag == OCMW_VALUE_TYPE_NWOP_STRUCT) {
                 ret = ocmw_parse_testingmodule_struct_from_ec(ecInputData);
             } else {
                 ret = ocmw_parse_obc_struct_from_ec(ecInputData);
@@ -962,13 +1195,13 @@ void ocmw_deserialise_debug_gpio_value(OCMPMessageFrame *ecReceivedMsg)
     int8_t value = 0;
     size_t size = 0;
 
-    memset(dataOutBufFromEc, 0,  sizeof(dataOutBufFromEc));
+    memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
     size = sizeof(dataOutBufFromEc);
     pin = *((uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
-    value = *((uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos +
-                                                        1]));
+    value = *(
+        (uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 1]));
     snprintf(dataOutBufFromEc, size, "(Pin No : %d) %s = %d", pin,
-                ecSendBufBkp->commandType, value);
+             ecSendBufBkp->commandType, value);
     return;
 }
 /******************************************************************************
@@ -982,14 +1215,14 @@ void ocmw_deserialise_debug_mdio_value(OCMPMessageFrame *ecReceivedMsg)
     uint16_t registerAddress = 0;
     uint16_t registerData = 0;
     size_t size = 0;
-    registerAddress = *((uint16_t *)
-                 &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
-    registerData = *((uint16_t *)
-                 &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 2]));
+    registerAddress =
+        *((uint16_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+    registerData = *(
+        (uint16_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 2]));
     memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
     size = sizeof(dataOutBufFromEc);
     snprintf(dataOutBufFromEc, size, "(Register Address : %d) %s = %d",
-                registerAddress, ecSendBufBkp->commandType, registerData);
+             registerAddress, ecSendBufBkp->commandType, registerData);
     return;
 }
 /******************************************************************************
@@ -1006,30 +1239,34 @@ void ocmw_deserialise_debug_i2c_value(OCMPMessageFrame *ecReceivedMsg)
     uint16_t registerData = 0;
     size_t size = 0;
 
-    slaveAddress = *((uint8_t *)
-                 &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
-    noOfBytes = *((uint8_t *)
-                 &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 1]));
-    registerAddress = *((uint8_t *)
-                 &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 2]));
+    slaveAddress =
+        *((uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos]));
+    noOfBytes = *(
+        (uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 1]));
+    registerAddress = *(
+        (uint8_t *)&(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 2]));
 
     if (noOfBytes == OCMW_VALUE_TYPE_UINT8) {
-        registerData = *((uint8_t *)
-            &(ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 3]));
+        registerData = *((uint8_t *)&(
+            ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 3]));
     } else {
-        registerData = ((uint16_t )((((uint8_t)
-             (ecReceivedMsg->message.info[ecSendBufBkp->paramPos
-             + 3]) & 0xff) << 8) |
-             ((uint8_t)
-             ((ecReceivedMsg->message.info[ecSendBufBkp->paramPos
-             + 4])) & 0xff)));
+        registerData = ((uint16_t)(
+            (((uint8_t)(
+                  ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 3]) &
+              0xff)
+             << 8) |
+            ((uint8_t)(
+                 (ecReceivedMsg->message.info[ecSendBufBkp->paramPos + 4])) &
+             0xff)));
     }
 
     memset(dataOutBufFromEc, 0, sizeof(dataOutBufFromEc));
     size = sizeof(dataOutBufFromEc);
-    snprintf(dataOutBufFromEc, size, "(slave address :%d noOfBytes :%d Register"
-        " Address :%d) %s = %d", slaveAddress, noOfBytes,
-        registerAddress, ecSendBufBkp->commandType, registerData);
+    snprintf(dataOutBufFromEc, size,
+             "(slave address :%d noOfBytes :%d Register"
+             " Address :%d) %s = %d",
+             slaveAddress, noOfBytes, registerAddress,
+             ecSendBufBkp->commandType, registerData);
 
     if (strcmp(ecSendBufBkp->commandType, "set") == 0) {
         strcat(dataOutBufFromEc, " : Success");
@@ -1043,7 +1280,8 @@ void ocmw_deserialise_debug_i2c_value(OCMPMessageFrame *ecReceivedMsg)
  * Output(s)        : dMsgFrameParam
  ******************************************************************************/
 void ocmw_deserialization_msgframe(const Component *subSystem,
-                sMsgParam *dMsgFrameParam, OCMPMessageFrame *ecReceivedMsg)
+                                   sMsgParam *dMsgFrameParam,
+                                   OCMPMessageFrame *ecReceivedMsg)
 {
     int32_t ret = 0;
     int8_t index = 0;
@@ -1053,17 +1291,11 @@ void ocmw_deserialization_msgframe(const Component *subSystem,
     }
 
     if (ecReceivedMsg->message.parameters != 0) {
-        if ((ecReceivedMsg->message.subsystem ==
-                            ecSendBufBkp->subsystem) &&
-            (ecReceivedMsg->message.componentID ==
-                          ecSendBufBkp->componentId) &&
-            (ecReceivedMsg->message.msgtype ==
-                              ecSendBufBkp->msgType) &&
-            (ecReceivedMsg->message.action ==
-                              OCMP_AXN_TYPE_REPLY) &&
-            (ecReceivedMsg->message.parameters ==
-                             ecSendBufBkp->paramId)) {
-
+        if ((ecReceivedMsg->message.subsystem == ecSendBufBkp->subsystem) &&
+            (ecReceivedMsg->message.componentID == ecSendBufBkp->componentId) &&
+            (ecReceivedMsg->message.msgtype == ecSendBufBkp->msgType) &&
+            (ecReceivedMsg->message.action == OCMP_AXN_TYPE_REPLY) &&
+            (ecReceivedMsg->message.parameters == ecSendBufBkp->paramId)) {
             ret = ocmw_parse_message_fram_from_ec(ecReceivedMsg);
             if (ret < 0) {
                 printf("\nocmw_parse_message_fram_from_ec error");
@@ -1071,21 +1303,15 @@ void ocmw_deserialization_msgframe(const Component *subSystem,
         }
     }
     if (ecReceivedMsg->message.msgtype == OCMP_MSG_TYPE_COMMAND) {
-        if ((ecReceivedMsg->message.subsystem ==
-                            ecSendBufBkp->subsystem) &&
-            (ecReceivedMsg->message.componentID ==
-                          ecSendBufBkp->componentId) &&
-            (ecReceivedMsg->message.msgtype ==
-                              ecSendBufBkp->msgType) &&
-            (ecReceivedMsg->message.action ==
-                              OCMP_AXN_TYPE_REPLY) &&
-            (ecReceivedMsg->message.parameters ==
-                             ecSendBufBkp->paramId)) {
+        if ((ecReceivedMsg->message.subsystem == ecSendBufBkp->subsystem) &&
+            (ecReceivedMsg->message.componentID == ecSendBufBkp->componentId) &&
+            (ecReceivedMsg->message.msgtype == ecSendBufBkp->msgType) &&
+            (ecReceivedMsg->message.action == OCMP_AXN_TYPE_REPLY) &&
+            (ecReceivedMsg->message.parameters == ecSendBufBkp->paramId)) {
             if ((ecReceivedMsg->message.subsystem == DEBUG_SUBSYSTEM_NBR)) {
                 if (ecReceivedMsg->message.componentID < DEBUG_I2C) {
                     ocmw_deserialise_debug_i2c_value(ecReceivedMsg);
-                } else if (ecReceivedMsg->message.componentID ==
-                                                DEBUG_MDIO) {
+                } else if (ecReceivedMsg->message.componentID == DEBUG_MDIO) {
                     ocmw_deserialise_debug_mdio_value(ecReceivedMsg);
                 } else {
                     ocmw_deserialise_debug_gpio_value(ecReceivedMsg);
@@ -1096,9 +1322,9 @@ void ocmw_deserialization_msgframe(const Component *subSystem,
     }
     /* Free backup info if stored */
     for (index = 0; index < OCMW_VALUE_TYPE_MFG; index++) {
-        ocmw_free_global_pointer((void**)&s_paramEnumValue[index]);
+        ocmw_free_global_pointer((void **)&s_paramEnumValue[index]);
     }
     if (ecSendBufBkp) {
-        ocmw_free_global_pointer((void**)&ecSendBufBkp);
+        ocmw_free_global_pointer((void **)&ecSendBufBkp);
     }
 }

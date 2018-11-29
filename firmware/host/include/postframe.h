@@ -15,9 +15,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define POST_MAIN_PAYLOAD_SIZE                  3
-#define POST_MAIN_PAYLOAD_SUBSYSTEM_OFFSET      0
-#define POST_MAIN_PAYLOAD_DEVSN_OFFSET          1
-#define POST_MAIN_PAYLOAD_STATUS_OFFSET         2
+#define POST_MAIN_PAYLOAD_SIZE 3
+#define POST_MAIN_PAYLOAD_SUBSYSTEM_OFFSET 0
+#define POST_MAIN_PAYLOAD_DEVSN_OFFSET 1
+#define POST_MAIN_PAYLOAD_STATUS_OFFSET 2
 
 #endif /* _POST_H_ */

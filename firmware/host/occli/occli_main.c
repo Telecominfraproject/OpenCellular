@@ -25,18 +25,22 @@
 
 #define HISTORY ".occli_history" /* Saved under ${HOME} direcotory */
 
-#define SWAP(s, e)  do {                                \
-                    int32_t t; t = s; s = e; e = t;     \
-                    } while (0)
+#define SWAP(s, e) \
+    do {           \
+        int32_t t; \
+        t = s;     \
+        s = e;     \
+        e = t;     \
+    } while (0)
 
 /* MAX_CLIENTRY represents the maximum entries which autofill can take */
-#define     OCCLI_MAX_CLISTRING             1000
-#define     OCCLI_MAX_SUBSTRING             75
-#define     OCCLI_STRING_MAX_LEN            100
-#define     OCCLI_CALC_SCHEMA_SIZE          1
-#define     OCCLI_PARSE_SCHEMA              2
-#define     MAX_ETHERNET_PORT               4
-#define     OPENCELLULAR                    "opencellular# "
+#define OCCLI_MAX_CLISTRING 1000
+#define OCCLI_MAX_SUBSTRING 75
+#define OCCLI_STRING_MAX_LEN 100
+#define OCCLI_CALC_SCHEMA_SIZE 1
+#define OCCLI_PARSE_SCHEMA 2
+#define MAX_ETHERNET_PORT 4
+#define OPENCELLULAR "opencellular# "
 
 extern char *rl_line_buffer;
 static char *s_allParams[OCCLI_MAX_CLISTRING];
@@ -65,7 +69,7 @@ int8_t occli_trim_extra_spaces(char *string)
     length = strlen(string);
     end = string + length - 1;
 
-    while(end >= string && isblank(*end)) {
+    while (end >= string && isblank(*end)) {
         end--;
     }
 
@@ -79,7 +83,7 @@ int8_t occli_trim_extra_spaces(char *string)
  * Input(s)         :
  * Output(s)        : s_strCli
  ***************************************************************************/
-static int8_t occli_copy_text ()
+static int8_t occli_copy_text()
 {
     int8_t ret = FAILED;
     int16_t length;
@@ -91,18 +95,18 @@ static int8_t occli_copy_text ()
     }
 
     length = rl_point;
-    s_strCli = (char*)realloc(s_strCli, length + 1);
+    s_strCli = (char *)realloc(s_strCli, length + 1);
 
     if (s_strCli == NULL) {
         printf("\n ERROR: realloc");
     } else {
         ret = SUCCESS;
-        strncpy (s_strCli, rl_line_buffer, length);
+        strncpy(s_strCli, rl_line_buffer, length);
         s_strCli[length] = '\0';
     }
 
     if (ret == SUCCESS) {
-       ret = occli_trim_extra_spaces(s_strCli);
+        ret = occli_trim_extra_spaces(s_strCli);
     }
 
     return ret;
@@ -127,8 +131,9 @@ static int8_t occli_init_subSetParams(const char *text)
     }
 
     if (s_subSetParams != NULL) {
-        for (listIdx = 0; (s_subSetParams[listIdx] != NULL &&
-                    listIdx < OCCLI_MAX_SUBSTRING) ; listIdx++) {
+        for (listIdx = 0;
+             (s_subSetParams[listIdx] != NULL && listIdx < OCCLI_MAX_SUBSTRING);
+             listIdx++) {
             free(s_subSetParams[listIdx]);
             s_subSetParams[listIdx] = NULL;
         }
@@ -139,14 +144,14 @@ static int8_t occli_init_subSetParams(const char *text)
     while ((paramStr = s_allParams[listIdx])) {
         if (strncmp(text, paramStr, len) == 0) {
             subsetIdx++;
-            if(subsetIdx >= OCCLI_MAX_SUBSTRING) {
+            if (subsetIdx >= OCCLI_MAX_SUBSTRING) {
                 break;
             }
         }
         listIdx++;
     }
 
-    for (listIdx= 0; listIdx < subsetIdx; listIdx++) {
+    for (listIdx = 0; listIdx < subsetIdx; listIdx++) {
         s_subSetParams[listIdx] = (char *)calloc(1, OCCLI_STRING_MAX_LEN);
         if ((s_subSetParams[listIdx]) == NULL) {
             logerr("calloc error");
@@ -163,16 +168,16 @@ static int8_t occli_init_subSetParams(const char *text)
  * Input(s)         : text, state
  * Output(s)        :
  ***************************************************************************/
-static char* occli_all_param_generator(const char* text, int32_t state)
+static char *occli_all_param_generator(const char *text, int32_t state)
 {
     char *paramstr = NULL;
     char *token = NULL;
-    char subStr[OCCLI_STRING_MAX_LEN] = {0};
-    char tempStr[OCCLI_STRING_MAX_LEN] = {0};
+    char subStr[OCCLI_STRING_MAX_LEN] = { 0 };
+    char tempStr[OCCLI_STRING_MAX_LEN] = { 0 };
     static int32_t s_listidx = 0;
     static int32_t s_subSetIdx = 0;
     static int32_t s_len = 0;
-    int8_t index = 0 ;
+    int8_t index = 0;
     bool isEntryFound = false;
 
     if (text == NULL) {
@@ -211,18 +216,18 @@ static char* occli_all_param_generator(const char* text, int32_t state)
                 if (strncmp(text, "", 1) == 0) {
                     /* case where the user hasn't entered any string */
                     sprintf(tempStr, "%s", token);
-                } else if(strncmp(paramstr + s_len, "." , 1) == 0) {
+                } else if (strncmp(paramstr + s_len, ".", 1) == 0) {
                     /*
                      * case where the user has entered complete string
                      * for either subsystem/component (ie) "system"
                      */
-                    sprintf(tempStr, "%s.%s", text,token);
+                    sprintf(tempStr, "%s.%s", text, token);
                 } else {
                     /*
                      * case where the user has entered subset of the string
                      * for example "sys"
                      */
-                    sprintf(tempStr, "%s%s", text,token);
+                    sprintf(tempStr, "%s%s", text, token);
                 }
             }
             /*
@@ -235,7 +240,7 @@ static char* occli_all_param_generator(const char* text, int32_t state)
                     break;
                 }
             }
-            if(isEntryFound != true) {
+            if (isEntryFound != true) {
                 strcpy(s_subSetParams[s_subSetIdx], tempStr);
                 s_subSetIdx++;
                 return strdup(s_subSetParams[s_subSetIdx - 1]);
@@ -250,10 +255,10 @@ static char* occli_all_param_generator(const char* text, int32_t state)
  * Input(s)         : text, start, end
  * Output(s)        :
  ***************************************************************************/
-static char** occli_custom_completion(const char* text, int32_t start,
-        int32_t end)
+static char **occli_custom_completion(const char *text, int32_t start,
+                                      int32_t end)
 {
-    char** matches = NULL;
+    char **matches = NULL;
     int8_t ret = FAILED;
 
     if (text == NULL) {
@@ -284,7 +289,7 @@ static char** occli_custom_completion(const char* text, int32_t start,
  * Output(s)        : deststrPtr
  ***************************************************************************/
 static int8_t occli_strjoin(char **deststrPtr, const char *srcstr,
-        const char *delimstr)
+                            const char *delimstr)
 {
     char *tmp;
     const int32_t alloclen = OCCLI_STRING_SIZE;
@@ -339,9 +344,9 @@ static int8_t occli_strjoin(char **deststrPtr, const char *srcstr,
  * Input(s)         : pThreadData
  * Output(s)        :
  ***************************************************************************/
-void * occli_alertthread_messenger_to_ocmw(void *pThreadData)
+void *occli_alertthread_messenger_to_ocmw(void *pThreadData)
 {
-    char response[RES_STR_BUFF_SIZE] = {0};
+    char response[RES_STR_BUFF_SIZE] = { 0 };
     int32_t ret = 0;
 
     /* Receive the CLI command execution response string from OCMW over UDP
@@ -351,7 +356,8 @@ void * occli_alertthread_messenger_to_ocmw(void *pThreadData)
         memset(response, 0, sizeof(response));
         ret = occli_recv_alertmsg_from_ocmw(response, sizeof(response));
         if (ret < 0) {
-            printf("occli_recv_alertmsg_from_ocmw failed: error value : %d\n", ret);
+            printf("occli_recv_alertmsg_from_ocmw failed: error value : %d\n",
+                   ret);
         } else {
             printf("%s\n", response);
         }
@@ -368,15 +374,18 @@ int8_t occli_parse_cliString(char *cliString)
 {
     int8_t ret = FAILED;
     int16_t index = 0;
-    char tempStr[OCCLI_STRING_MAX_LEN] = {0};
+    char tempStr[OCCLI_STRING_MAX_LEN] = { 0 };
     char *token = NULL;
 
+    if (cliString == NULL) {
+        return ret;
+    }
     strcpy(tempStr, cliString);
     token = strtok(tempStr, " ");
 
-    for(index = 0; ((index < OCCLI_MAX_CLISTRING) &&
-                    (s_allParams[index] != NULL)); index++) {
-
+    for (index = 0;
+         ((index < OCCLI_MAX_CLISTRING) && (s_allParams[index] != NULL));
+         index++) {
         if (strcmp(token, s_allParams[index]) == 0) {
             ret = SUCCESS;
             break;
@@ -391,8 +400,7 @@ int8_t occli_parse_cliString(char *cliString)
  * Input(s)         : root, occliData->option
  * Output(s)        : s_allParams, occliData->totalStr, occliData->sizeNum
  ***************************************************************************/
-int8_t occli_frame_commands(const Component *root,
-                             OCCLI_ARRAY_PARAM *occliData)
+int8_t occli_frame_commands(const Component *root, OCCLI_ARRAY_PARAM *occliData)
 {
     const Component *subSystem = root;
     const Component *component = subSystem->components;
@@ -400,9 +408,7 @@ int8_t occli_frame_commands(const Component *root,
     const Command *command = NULL;
     const Driver *driver = NULL;
 
-
-    if ((root == NULL) ||
-            (occliData == NULL)) {
+    if ((root == NULL) || (occliData == NULL)) {
         logerr("Invalid Memory \n");
         return FAILED;
     }
@@ -413,14 +419,13 @@ int8_t occli_frame_commands(const Component *root,
         component = subSystem->components;
         while (component && component->name) {
             command = component->commands;
-            while (command &&
-                    command->name) {
+            while (command && command->name) {
                 if (occliData->option == OCCLI_CALC_SCHEMA_SIZE) {
                     occliData->sizeNum += 1;
                 } else {
                     snprintf(s_allParams[occliData->totalStr++],
-                            OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s",
-                            subSystem->name, component->name, command->name);
+                             OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s",
+                             subSystem->name, component->name, command->name);
                 }
                 command += 1;
             }
@@ -435,17 +440,16 @@ int8_t occli_frame_commands(const Component *root,
         component = subSystem->components;
         while (component && component->name) {
             driver = component->driver;
-            if(driver != NULL) {
+            if (driver != NULL) {
                 command = driver->commands;
-                while (command &&
-                        command->name) {
+                while (command && command->name) {
                     if (occliData->option == OCCLI_CALC_SCHEMA_SIZE) {
                         occliData->sizeNum += 1;
                     } else {
                         snprintf(s_allParams[occliData->totalStr++],
-                                    OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s",
-                                    subSystem->name, component->name,
-                                    command->name);
+                                 OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s",
+                                 subSystem->name, component->name,
+                                 command->name);
                     }
                     command += 1;
                 }
@@ -463,17 +467,16 @@ int8_t occli_frame_commands(const Component *root,
             subComponent = component->components;
             while (subComponent && subComponent->name) {
                 driver = subComponent->driver;
-                if(driver != NULL) {
+                if (driver != NULL) {
                     command = driver->commands;
-                    while (command &&
-                            command->name) {
+                    while (command && command->name) {
                         if (occliData->option == OCCLI_CALC_SCHEMA_SIZE) {
                             occliData->sizeNum += 1;
                         } else {
                             snprintf(s_allParams[occliData->totalStr++],
-                                        OCCLI_STRING_MAX_LEN, "%s.%s.%s.%s",
-                                        subSystem->name, component->name,
-                                        subComponent->name, command->name);
+                                     OCCLI_STRING_MAX_LEN, "%s.%s.%s.%s",
+                                     subSystem->name, component->name,
+                                     subComponent->name, command->name);
                         }
                         command += 1;
                     }
@@ -493,8 +496,8 @@ int8_t occli_frame_commands(const Component *root,
  * Output(s)        : ocmwclistr, occliData
  ***************************************************************************/
 int8_t occli_frame_string_from_schemaDriver(const Parameter *param,
-                        OCCLI_ARRAY_PARAM *occliData,
-                        strMsgFrame *strFrame)
+                                            OCCLI_ARRAY_PARAM *occliData,
+                                            strMsgFrame *strFrame)
 {
     if ((occliData == NULL) || (param == NULL) || (strFrame == NULL)) {
         logerr("Invalid Memory \n");
@@ -505,16 +508,14 @@ int8_t occli_frame_string_from_schemaDriver(const Parameter *param,
         occliData->sizeNum += 1;
     } else {
         if (strlen(strFrame->subcomponent)) {
-            snprintf(s_allParams[occliData->totalStr++],
-                OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s.%s.%s.%s",
-                strFrame->subsystem, strFrame->component,
-                strFrame->msgtype, strFrame->subcomponent,
-                param->name, strFrame->parameter);
+            snprintf(s_allParams[occliData->totalStr++], OCCLI_SNPRINTF_MAX_LEN,
+                     "%s.%s.%s.%s.%s.%s", strFrame->subsystem,
+                     strFrame->component, strFrame->msgtype,
+                     strFrame->subcomponent, param->name, strFrame->parameter);
         } else {
-            snprintf(s_allParams[occliData->totalStr++],
-                OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s.%s.%s",
-                strFrame->subsystem, strFrame->component,
-                strFrame->msgtype, param->name, strFrame->parameter);
+            snprintf(s_allParams[occliData->totalStr++], OCCLI_SNPRINTF_MAX_LEN,
+                     "%s.%s.%s.%s.%s", strFrame->subsystem, strFrame->component,
+                     strFrame->msgtype, param->name, strFrame->parameter);
         }
     }
     return SUCCESS;
@@ -527,8 +528,8 @@ int8_t occli_frame_string_from_schemaDriver(const Parameter *param,
  * Output(s)        : ocmwclistr, occliData
  ***************************************************************************/
 int8_t occli_frame_string_from_postDriver(const Post *param,
-                        OCCLI_ARRAY_PARAM *occliData,
-                        strMsgFrame *strFrame)
+                                          OCCLI_ARRAY_PARAM *occliData,
+                                          strMsgFrame *strFrame)
 {
     if ((occliData == NULL) || (param == NULL) || (strFrame == NULL)) {
         logerr("Invalid Memory \n");
@@ -539,16 +540,14 @@ int8_t occli_frame_string_from_postDriver(const Post *param,
         occliData->sizeNum += 1;
     } else {
         if (strlen(strFrame->subcomponent)) {
-            snprintf(s_allParams[occliData->totalStr++],
-                OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s.%s.%s.%s",
-                strFrame->subsystem, strFrame->component,
-                strFrame->msgtype, strFrame->subcomponent,
-                param->name, strFrame->parameter);
+            snprintf(s_allParams[occliData->totalStr++], OCCLI_SNPRINTF_MAX_LEN,
+                     "%s.%s.%s.%s.%s.%s", strFrame->subsystem,
+                     strFrame->component, strFrame->msgtype,
+                     strFrame->subcomponent, param->name, strFrame->parameter);
         } else {
-            snprintf(s_allParams[occliData->totalStr++],
-                OCCLI_SNPRINTF_MAX_LEN, "%s.%s.%s.%s.%s",
-                strFrame->subsystem, strFrame->component,
-                strFrame->msgtype, param->name, strFrame->parameter);
+            snprintf(s_allParams[occliData->totalStr++], OCCLI_SNPRINTF_MAX_LEN,
+                     "%s.%s.%s.%s.%s", strFrame->subsystem, strFrame->component,
+                     strFrame->msgtype, param->name, strFrame->parameter);
         }
     }
     return SUCCESS;
@@ -560,8 +559,8 @@ int8_t occli_frame_string_from_postDriver(const Post *param,
  * Output(s)        : ocmwclistr, occliData
  ***************************************************************************/
 int8_t occli_frame_string_from_schema(const Driver *devDriver,
-                        OCCLI_ARRAY_PARAM *occliData,
-                        strMsgFrame *strFrame)
+                                      OCCLI_ARRAY_PARAM *occliData,
+                                      strMsgFrame *strFrame)
 {
     const Post *postParam = NULL;
     const Parameter *param = NULL;
@@ -580,7 +579,8 @@ int8_t occli_frame_string_from_schema(const Driver *devDriver,
         } else {
             strcpy(strFrame->parameter, "get");
         }
-        ret = occli_frame_string_from_postDriver(postParam, occliData, strFrame);
+        ret =
+            occli_frame_string_from_postDriver(postParam, occliData, strFrame);
         postParam++;
     }
 
@@ -623,10 +623,9 @@ int8_t occli_frame_string(const Component *root, OCCLI_ARRAY_PARAM *occliData)
     const Driver *devDriver = NULL;
     int8_t ret = 0;
 
-    strMsgFrame *strFrame = (strMsgFrame *) malloc(sizeof(strMsgFrame));
+    strMsgFrame *strFrame = (strMsgFrame *)malloc(sizeof(strMsgFrame));
 
-    if ((strFrame == NULL) || (root == NULL) ||
-         (occliData == NULL)) {
+    if ((strFrame == NULL) || (root == NULL) || (occliData == NULL)) {
         logerr("Invalid Memory \n");
         return FAILED;
     }
@@ -641,8 +640,8 @@ int8_t occli_frame_string(const Component *root, OCCLI_ARRAY_PARAM *occliData)
             strcpy(strFrame->component, component->name);
             devDriver = component->driver;
             if (devDriver != NULL) {
-                ret = occli_frame_string_from_schema(devDriver,
-                                    occliData, strFrame);
+                ret = occli_frame_string_from_schema(devDriver, occliData,
+                                                     strFrame);
                 if (ret == FAILED) {
                     return ret;
                 }
@@ -652,8 +651,8 @@ int8_t occli_frame_string(const Component *root, OCCLI_ARRAY_PARAM *occliData)
                 strcpy(strFrame->subcomponent, subComponent->name);
                 devDriver = subComponent->driver;
                 if (devDriver != NULL) {
-                    ret = occli_frame_string_from_schema(devDriver,
-                                    occliData, strFrame);
+                    ret = occli_frame_string_from_schema(devDriver, occliData,
+                                                         strFrame);
                     if (ret == FAILED) {
                         return ret;
                     }
@@ -678,10 +677,10 @@ int32_t main(int32_t argc, char *argv[])
 {
     char *line = NULL;
     char *clistr = NULL;
-    char response[RES_STR_BUFF_SIZE] = {0};
+    char response[RES_STR_BUFF_SIZE] = { 0 };
     char historyFile[HIT_FILE_BUFF_SIZE];
     char *cmdstr = NULL;
-    const char* prompt = "opencellular# ";
+    const char *prompt = "opencellular# ";
     int32_t index = 0;
     int32_t ret = 0;
     pthread_t alertThreadId;
@@ -692,7 +691,7 @@ int32_t main(int32_t argc, char *argv[])
     initlog("occli");
 
     memset(&msgFrameParam, 0, sizeof(sMsgParam));
-    memset (&occliArray, 0, sizeof(OCCLI_ARRAY_PARAM));
+    memset(&occliArray, 0, sizeof(OCCLI_ARRAY_PARAM));
 
     occliArray.option = OCCLI_CALC_SCHEMA_SIZE;
 
@@ -708,11 +707,10 @@ int32_t main(int32_t argc, char *argv[])
         return FAILED;
     }
 
-    for (index= 0; index< occliArray.sizeNum; index++) {
-        if(!(s_allParams[index] = (char *)malloc(OCCLI_STRING_MAX_LEN))) {
+    for (index = 0; index < occliArray.sizeNum; index++) {
+        if (!(s_allParams[index] = (char *)malloc(OCCLI_STRING_MAX_LEN))) {
             return FAILED;
         }
-
     }
 
     occliArray.option = OCCLI_PARSE_SCHEMA;
@@ -735,9 +733,14 @@ int32_t main(int32_t argc, char *argv[])
         return FAILED;
     }
 
+    ret = pthread_create(&alertThreadId, NULL,
+                         occli_alertthread_messenger_to_ocmw, NULL);
+    if (ret != 0) {
+        return ret;
+    }
     /* Execute the OC command (argv[1:]) and exit */
     if (strcmp("occmd", basename(argv[0])) == 0) {
-        for (index= 1; index < argc; index++) {
+        for (index = 1; index < argc; index++) {
             if (occli_strjoin(&cmdstr, argv[index], " ") != 0) {
                 logerr("occli_strjoin error");
                 break;
@@ -765,17 +768,10 @@ int32_t main(int32_t argc, char *argv[])
     }
     /* Entering interactive CLI */
     else if (strcmp("occli", basename(argv[0])) == 0) {
-        ret = pthread_create(&alertThreadId, NULL,
-                occli_alertthread_messenger_to_ocmw, NULL);
-
-        if (ret != 0) {
-            return ret;
-        }
-
         /* Initialize readline */
         using_history();
         if ((snprintf(historyFile, HIT_FILE_BUFF_SIZE, "%s/%s", getenv("HOME"),
-                HISTORY)) < 0) {
+                      HISTORY)) < 0) {
             return FAILED;
         }
 
@@ -807,7 +803,7 @@ int32_t main(int32_t argc, char *argv[])
                 break;
             }
             /* Print the help manu */
-            if((strstr(clistr, "help"))) {
+            if ((strstr(clistr, "help"))) {
                 if ((strstr(clistr, "--help"))) {
                     ret = occli_printHelpMenu(sys_schema, clistr);
                     if (ret == FAILED) {
@@ -816,8 +812,8 @@ int32_t main(int32_t argc, char *argv[])
                     continue;
                 } else {
                     printf("%s : Error : Incorrect request\n", clistr);
-                    printf ("Usage : subsystem --help"
-                                " OR subsystem.component --help\n");
+                    printf("Usage : subsystem --help"
+                           " OR subsystem.component --help\n");
                     continue;
                 }
             }
@@ -844,13 +840,15 @@ int32_t main(int32_t argc, char *argv[])
         write_history(historyFile);
     }
 
-    for (index= 0; ((s_allParams[index] != NULL) &&
-                       (index < OCCLI_MAX_CLISTRING)); index++) {
+    for (index = 0;
+         ((s_allParams[index] != NULL) && (index < OCCLI_MAX_CLISTRING));
+         index++) {
         free(s_allParams[index]);
     }
 
-    for (index= 0; ((s_subSetParams[index] != NULL) &&
-                       (index < OCCLI_MAX_SUBSTRING)); index++) {
+    for (index = 0;
+         ((s_subSetParams[index] != NULL) && (index < OCCLI_MAX_SUBSTRING));
+         index++) {
         free(s_subSetParams[index]);
     }
     occli_deinit_comm();

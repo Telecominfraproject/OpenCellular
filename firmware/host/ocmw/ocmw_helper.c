@@ -16,7 +16,7 @@
 #include <logger.h>
 #include <ocmw_occli_comm.h>
 
-#define         SIZE_INT            sizeof (int32_t)
+#define SIZE_INT sizeof(int32_t)
 
 int8_t eepromStatusFlag = 0;
 
@@ -45,7 +45,7 @@ inline int32_t ocmw_sem_wait_nointr(sem_t *sem)
  * Output(s)        :
  ******************************************************************************/
 inline int32_t ocmw_sem_timedwait_nointr(sem_t *sem,
-        const struct timespec *timeout)
+                                         const struct timespec *timeout)
 {
     while (sem_timedwait(sem, timeout))
         if (errno == EINTR)
@@ -62,7 +62,7 @@ inline int32_t ocmw_sem_timedwait_nointr(sem_t *sem,
  * Output(s)        : dataSize, pos
  ******************************************************************************/
 void ocmw_dataparsing_from_db(int32_t paramIndex, int32_t *paramSizebuf,
-        int32_t *dataSize, int32_t *pos)
+                              int32_t *dataSize, int32_t *pos)
 {
     int32_t count;
     int32_t paramIdPresence;
@@ -80,7 +80,7 @@ void ocmw_dataparsing_from_db(int32_t paramIndex, int32_t *paramSizebuf,
     *pos = 0;
 
     for (count = 0; count < MAX_PARM_COUNT; count++) {
-        paramIdPresence = (paramIndex) / ((int) pow(2, count));
+        paramIdPresence = (paramIndex) / ((int)pow(2, count));
         if (paramIdPresence == 1) {
             break;
         }
@@ -100,8 +100,7 @@ void ocmw_dataparsing_from_db(int32_t paramIndex, int32_t *paramSizebuf,
  * Input(s)         : input, bufParamStruct
  * Output(s)        :
  ******************************************************************************/
-void ocmw_dataparsing_from_ec(ocmwSendRecvBuf *input,
-        bufParam * bufParamStruct)
+void ocmw_dataparsing_from_ec(ocmwSendRecvBuf *input, bufParam *bufParamStruct)
 {
     int32_t count = 0;
     int32_t paramIdPresence = 0;
@@ -120,11 +119,11 @@ void ocmw_dataparsing_from_ec(ocmwSendRecvBuf *input,
     int32_t *paramSizebuf = input->paramSizebuf;
 
     for (count = 0; count < numOfele; count++) {
-        bufParamStruct[count].paramindex = (paramInfo & ((int32_t) pow(2,
-                count + index)));
+        bufParamStruct[count].paramindex =
+            (paramInfo & ((int32_t)pow(2, count + index)));
 
-        paramIdPresence = bufParamStruct[count].paramindex / pow(2,
-                count + index);
+        paramIdPresence =
+            bufParamStruct[count].paramindex / pow(2, count + index);
 
         if (paramIdPresence == 0) {
             paramidSize = 0;
@@ -137,15 +136,15 @@ void ocmw_dataparsing_from_ec(ocmwSendRecvBuf *input,
                 bufParamStruct[count].paramval = 0;
                 break;
             case CHAR:
-                bufParamStruct[count].paramval = *((int8_t *) &pbuf[pos]);
+                bufParamStruct[count].paramval = *((int8_t *)&pbuf[pos]);
                 break;
 
             case SHORT:
-                bufParamStruct[count].paramval = *((int16_t *) &pbuf[pos]);
+                bufParamStruct[count].paramval = *((int16_t *)&pbuf[pos]);
                 break;
 
             case INT:
-                bufParamStruct[count].paramval = *((int32_t *) &pbuf[pos]);
+                bufParamStruct[count].paramval = *((int32_t *)&pbuf[pos]);
                 break;
 
             default:

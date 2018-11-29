@@ -12,7 +12,7 @@
 void occli_print_opencelluar()
 {
     printf("\nHELP Usage:\n\t\"subsystem --help\""
-                                " OR \"subsystem.component --help\"");
+           " OR \"subsystem.component --help\"");
     printf("\nEXIT:\n\t\"quit\"");
 
     printf("\nDisplay:\n\t\"Press Double TAB\"");
@@ -27,7 +27,8 @@ void occli_print_opencelluar()
  * Output(s)        : index, helpMenuArray
  ***************************************************************************/
 int8_t occli_fill_data_from_param(const Parameter *param,
-            helpMenu *helpMenuArray[], int32_t *index, char *helpMsgType)
+                                  helpMenu *helpMenuArray[], int32_t *index,
+                                  char *helpMsgType)
 {
     int32_t helpIndex = *index;
 
@@ -37,17 +38,17 @@ int8_t occli_fill_data_from_param(const Parameter *param,
     }
 
     if (param && param->name) {
-        strncpy(helpMenuArray[helpIndex]->msgType,
-                        helpMsgType,strlen(helpMsgType));
+        strncpy(helpMenuArray[helpIndex]->msgType, helpMsgType,
+                strlen(helpMsgType));
         if (strcmp(helpMsgType, "config") == 0) {
-            strncpy(helpMenuArray[helpIndex]->actionType,
-                                "get/set", strlen("get/set"));
+            strncpy(helpMenuArray[helpIndex]->actionType, "get/set",
+                    strlen("get/set"));
         } else {
             strncpy(helpMenuArray[helpIndex]->actionType, "get", strlen("get"));
         }
         do {
-            strncpy(helpMenuArray[helpIndex]->parameter,
-                            param->name, strlen(param->name));
+            strncpy(helpMenuArray[helpIndex]->parameter, param->name,
+                    strlen(param->name));
             param += 1;
             helpIndex++;
         } while (param && param->name);
@@ -63,8 +64,8 @@ int8_t occli_fill_data_from_param(const Parameter *param,
  * Output(s)        : index, helpMenuArray
  ***************************************************************************/
 int8_t occli_fill_data_from_command(const Command *command,
-                helpMenu *helpMenuArray[], int32_t *index,
-                char *subSysComp)
+                                    helpMenu *helpMenuArray[], int32_t *index,
+                                    char *subSysComp)
 {
     int32_t helpIndex = *index;
 
@@ -74,44 +75,44 @@ int8_t occli_fill_data_from_command(const Command *command,
     }
 
     if (command && command->name) {
-        strncpy(helpMenuArray[helpIndex]->msgType,
-                           "command", strlen("command"));
+        strncpy(helpMenuArray[helpIndex]->msgType, "command",
+                strlen("command"));
         while (command && command->name) {
-            strncpy(helpMenuArray[helpIndex]->actionType,
-                command->name, strlen(command->name));
+            strncpy(helpMenuArray[helpIndex]->actionType, command->name,
+                    strlen(command->name));
 
             if (strncmp(subSysComp, "debug", strlen("debug")) == 0) {
                 if (strstr(subSysComp, "I2C")) {
                     if (strcmp(command->name, "get") == 0) {
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Slave Address(Decimal)");
+                               "Slave Address(Decimal)");
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Number of Bytes(1/2)");
+                               "Number of Bytes(1/2)");
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Register Address(Decimal)");
+                               "Register Address(Decimal)");
                     } else {
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Slave Address(Decimal)");
+                               "Slave Address(Decimal)");
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Number of Bytes(1/2)");
+                               "Number of Bytes(1/2)");
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                "Register Address(Decimal)");
+                               "Register Address(Decimal)");
                         strcpy(helpMenuArray[helpIndex]->arguments,
-                                                "Register Data(Decimal)");
+                               "Register Data(Decimal)");
                     }
                 } else {
                     if (strcmp(command->name, "get") == 0) {
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                                "Pin Number");
+                               "Pin Number");
                     } else {
                         strcpy(helpMenuArray[helpIndex++]->arguments,
-                                                                "Pin Number");
+                               "Pin Number");
                         strcpy(helpMenuArray[helpIndex]->arguments,
-                                                                "Value(0/1)");
+                               "Value(0/1)");
                     }
                 }
             } else if ((strncmp(subSysComp, "hci", strlen("hci")) == 0) &&
-                                    (strcmp(command->name, "set") == 0)) {
+                       (strcmp(command->name, "set") == 0)) {
                 strcpy(helpMenuArray[helpIndex++]->arguments, "Off/Red/Green");
             }
             if (strcmp(command->name, "send") == 0) {
@@ -135,9 +136,8 @@ int8_t occli_fill_data_from_command(const Command *command,
  * Input(s)         : post, index
  * Output(s)        : index, helpMenuArray
  ***************************************************************************/
-int8_t occli_fill_data_from_post(const Post *post,
-                helpMenu *helpMenuArray[], int32_t *index,
-                char *subSysComp)
+int8_t occli_fill_data_from_post(const Post *post, helpMenu *helpMenuArray[],
+                                 int32_t *index, char *subSysComp)
 {
     int32_t helpIndex = *index;
 
@@ -146,12 +146,11 @@ int8_t occli_fill_data_from_post(const Post *post,
         return FAILED;
     }
 
-   if (post && post->name) {
-        strncpy(helpMenuArray[helpIndex]->msgType,
-                           "post", strlen("post"));
+    if (post && post->name) {
+        strncpy(helpMenuArray[helpIndex]->msgType, "post", strlen("post"));
         while (post && post->name) {
-            strncpy(helpMenuArray[helpIndex]->actionType,
-                post->name, strlen(post->name));
+            strncpy(helpMenuArray[helpIndex]->actionType, post->name,
+                    strlen(post->name));
             post += 1;
             helpIndex++;
         }
@@ -168,7 +167,8 @@ int8_t occli_fill_data_from_post(const Post *post,
  * Output(s)        : helpMenuArray, index
  ***************************************************************************/
 int8_t occli_fill_data_from_driver(const Driver *devDriver,
-            helpMenu *helpMenuArray[], int32_t *index, char *subSysComp)
+                                   helpMenu *helpMenuArray[], int32_t *index,
+                                   char *subSysComp)
 {
     const Parameter *param = NULL;
     const Command *command = NULL;
@@ -186,11 +186,10 @@ int8_t occli_fill_data_from_driver(const Driver *devDriver,
     ret = occli_fill_data_from_param(param, helpMenuArray, index, "status");
 
     command = devDriver->commands;
-    ret = occli_fill_data_from_command(command, helpMenuArray,
-                                                index, subSysComp);
+    ret =
+        occli_fill_data_from_command(command, helpMenuArray, index, subSysComp);
     post = devDriver->post;
-    ret = occli_fill_data_from_post (post, helpMenuArray,
-                                                index, subSysComp);
+    ret = occli_fill_data_from_post(post, helpMenuArray, index, subSysComp);
     return ret;
 }
 
@@ -200,8 +199,8 @@ int8_t occli_fill_data_from_driver(const Driver *devDriver,
  * Input(s)         : helpMenuArray, index, subSystem
  * Output(s)        : NA
  ***************************************************************************/
-void occli_printHelpMenu_on_console(helpMenu *helpMenuArray[],
-                                    int32_t index, char *subSystem)
+void occli_printHelpMenu_on_console(helpMenu *helpMenuArray[], int32_t index,
+                                    char *subSystem)
 {
     int32_t printIndex = 0;
 
@@ -218,24 +217,24 @@ void occli_printHelpMenu_on_console(helpMenu *helpMenuArray[],
         }
 
         printf("----------------------------------------------------------"
-                            "-------------------------------------------\n");
-        printf("%-12s%-12s%-15s%-10s%-15s%-20s%-15s\n",
-                "Subsystem", "Component", "SubComponent", "MsgType",
-                            "ActionType", "Parameter", "Arguments");
+               "-------------------------------------------\n");
+        printf("%-12s%-12s%-15s%-10s%-15s%-20s%-15s\n", "Subsystem",
+               "Component", "SubComponent", "MsgType", "ActionType",
+               "Parameter", "Arguments");
         printf("----------------------------------------------------------"
-                            "-------------------------------------------\n");
-        for(printIndex = 0; printIndex < index; printIndex++) {
+               "-------------------------------------------\n");
+        for (printIndex = 0; printIndex < index; printIndex++) {
             printf("%-12s%-12s%-15s%-10s%-15s%-20s%-15s\n",
-                helpMenuArray[printIndex]->subSystem,
-                helpMenuArray[printIndex]->component,
-                helpMenuArray[printIndex]->subComponent,
-                helpMenuArray[printIndex]->msgType,
-                helpMenuArray[printIndex]->actionType,
-                helpMenuArray[printIndex]->parameter,
-                helpMenuArray[printIndex]->arguments);
+                   helpMenuArray[printIndex]->subSystem,
+                   helpMenuArray[printIndex]->component,
+                   helpMenuArray[printIndex]->subComponent,
+                   helpMenuArray[printIndex]->msgType,
+                   helpMenuArray[printIndex]->actionType,
+                   helpMenuArray[printIndex]->parameter,
+                   helpMenuArray[printIndex]->arguments);
         }
         printf("----------------------------------------------------------"
-                            "-------------------------------------------\n");
+               "-------------------------------------------\n");
     } else if (strcmp(subSystem, "debug") == 0) {
         /*Printing for debug subSystem */
         printf("\nGet Example :\n");
@@ -245,49 +244,47 @@ void occli_printHelpMenu_on_console(helpMenu *helpMenuArray[],
         printf("debug.I2C.bus0 set 104 2 58 1\n");
         printf("debug.gbc.ioexpanderx70 set 1 0\n");
         printf("\n-------------------------------------------------------"
-                                    "----------------------------------------"
-                                                                "---------\n");
-        printf("%-15s%-15s%-15s%-15s%-15s%-20s\n",
-                "Subsystem", "Component", "SubComponent", "MsgType",
-                            "ActionType", "Arguments");
+               "----------------------------------------"
+               "---------\n");
+        printf("%-15s%-15s%-15s%-15s%-15s%-20s\n", "Subsystem", "Component",
+               "SubComponent", "MsgType", "ActionType", "Arguments");
         printf("-------------------------------------------------------"
-                                    "----------------------------------------"
-                                                                "---------\n");
-        for(printIndex = 0; printIndex < index; printIndex++) {
+               "----------------------------------------"
+               "---------\n");
+        for (printIndex = 0; printIndex < index; printIndex++) {
             printf("%-15s%-15s%-15s%-15s%-15s%-20s\n",
-                helpMenuArray[printIndex]->subSystem,
-                helpMenuArray[printIndex]->component,
-                helpMenuArray[printIndex]->subComponent,
-                helpMenuArray[printIndex]->msgType,
-                helpMenuArray[printIndex]->actionType,
-                helpMenuArray[printIndex]->arguments);
+                   helpMenuArray[printIndex]->subSystem,
+                   helpMenuArray[printIndex]->component,
+                   helpMenuArray[printIndex]->subComponent,
+                   helpMenuArray[printIndex]->msgType,
+                   helpMenuArray[printIndex]->actionType,
+                   helpMenuArray[printIndex]->arguments);
         }
         printf("-------------------------------------------------------"
-                                    "----------------------------------------"
-                                                            "---------\n");
+               "----------------------------------------"
+               "---------\n");
     } else {
         /*Printing for all othere subSystem */
         /*  Dispalay of parameter default value and unit in help menu
          *  will be take care with common schema factory config
-        */
+         */
         printf("\n------------------------------------------------------------"
-                                        "----------------------------------\n");
-        printf("%-12s%-17s%-18s%-12s%-12s%-23s\n",
-                "Subsystem", "Component", "SubComponent", "MsgType",
-                            "ActionType", "Parameter");
+               "----------------------------------\n");
+        printf("%-12s%-17s%-18s%-12s%-12s%-23s\n", "Subsystem", "Component",
+               "SubComponent", "MsgType", "ActionType", "Parameter");
         printf("\n------------------------------------------------------------"
-                                        "----------------------------------\n");
-        for(printIndex = 0; printIndex < index; printIndex++) {
+               "----------------------------------\n");
+        for (printIndex = 0; printIndex < index; printIndex++) {
             printf("%-12s%-17s%-18s%-12s%-12s%-23s\n",
-                helpMenuArray[printIndex]->subSystem,
-                helpMenuArray[printIndex]->component,
-                helpMenuArray[printIndex]->subComponent,
-                helpMenuArray[printIndex]->msgType,
-                helpMenuArray[printIndex]->actionType,
-                helpMenuArray[printIndex]->parameter);
+                   helpMenuArray[printIndex]->subSystem,
+                   helpMenuArray[printIndex]->component,
+                   helpMenuArray[printIndex]->subComponent,
+                   helpMenuArray[printIndex]->msgType,
+                   helpMenuArray[printIndex]->actionType,
+                   helpMenuArray[printIndex]->parameter);
         }
         printf("\n------------------------------------------------------------"
-                                        "----------------------------------\n");
+               "----------------------------------\n");
     }
 }
 
@@ -302,7 +299,7 @@ static void occli_free_helpMenupointer(helpMenu *helpMenuArray[])
     int32_t mallocIndex = 0;
 
     for (mallocIndex = 0; mallocIndex < OCCLI_HELP_MAX_SIZE; mallocIndex++) {
-        if(helpMenuArray[mallocIndex])
+        if (helpMenuArray[mallocIndex])
             free(helpMenuArray[mallocIndex]);
     }
 
@@ -327,9 +324,9 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
     char *token = NULL;
     char *cliStr = NULL;
     char *cmdBkp = NULL;
-    char componentStr[OCCLI_CHAR_ARRAY_SIZE] = {0};
-    char subSys[OCCLI_CHAR_ARRAY_SIZE] = {0};
-    char subSysComp[OCCLI_CHAR_ARRAY_SIZE] = {0};
+    char componentStr[OCCLI_CHAR_ARRAY_SIZE] = { 0 };
+    char subSys[OCCLI_CHAR_ARRAY_SIZE] = { 0 };
+    char subSysComp[OCCLI_CHAR_ARRAY_SIZE] = { 0 };
     int8_t ret = FAILED;
     int8_t count = 1;
     int8_t subCount = 0;
@@ -341,18 +338,18 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
         return FAILED;
     }
 
-    cmdBkp = (char *)malloc (sizeof(cmd));
+    cmdBkp = (char *)malloc(sizeof(cmd));
     if (cmdBkp == NULL) {
         logerr("Invalid Memory \n");
         return FAILED;
     }
-    strcpy(cmdBkp,cmd);
+    strcpy(cmdBkp, cmd);
 
     /* Tokenizing string for subsystem and component */
     cliStr = strtok(cmd, " ");
     if ((cliStr == NULL) || (strstr(cliStr, "help"))) {
         printf("%s : Error : Incorrect request\n", cmdBkp);
-        printf ("Usage : subsystem --help or subsystem.component --help\n");
+        printf("Usage : subsystem --help or subsystem.component --help\n");
         free(cmdBkp);
         return FAILED;
     } else {
@@ -365,8 +362,8 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
             count++;
             if (count > 2) {
                 printf("%s : Error : Incorrect request\n", cmdBkp);
-                printf ("Usage : subsystem --help"
-                            " OR subsystem.component --help\n");
+                printf("Usage : subsystem --help"
+                       " OR subsystem.component --help\n");
                 free(cmdBkp);
                 return FAILED;
             }
@@ -387,8 +384,8 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
     while (subSystem && subSystem->name) {
         if (strcmp(subSys, subSystem->name) == 0) {
             subCount++;
-            strncpy((helpMenuArray[index++]->subSystem),
-                                subSystem->name, strlen(subSystem->name));
+            strncpy((helpMenuArray[index++]->subSystem), subSystem->name,
+                    strlen(subSystem->name));
             component = subSystem->components;
             while (component && component->name) {
                 if ((count == 2)) {
@@ -399,16 +396,16 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
                         compCount++;
                     }
                 }
-                strncpy((helpMenuArray[index]->component),
-                                    component->name, strlen(component->name));
+                strncpy((helpMenuArray[index]->component), component->name,
+                        strlen(component->name));
                 sprintf(subSysComp, "%s.%s", subSystem->name, component->name);
                 command = component->commands;
-                ret = occli_fill_data_from_command(command,
-                            helpMenuArray, &index, subSysComp);
+                ret = occli_fill_data_from_command(command, helpMenuArray,
+                                                   &index, subSysComp);
                 devDriver = component->driver;
                 if (devDriver != NULL) {
-                    ret = occli_fill_data_from_driver(devDriver,
-                                            helpMenuArray, &index, subSysComp);
+                    ret = occli_fill_data_from_driver(devDriver, helpMenuArray,
+                                                      &index, subSysComp);
                     if (ret == FAILED) {
                         logerr("\noccli_fill_data_from_driver Error");
                         occli_free_helpMenupointer(helpMenuArray);
@@ -419,14 +416,14 @@ int8_t occli_printHelpMenu(const Component *root, char *cmd)
                 subComponent = component->components;
                 while (subComponent && subComponent->name) {
                     strncpy((helpMenuArray[index]->subComponent),
-                                        subComponent->name, strlen(subComponent->name));
+                            subComponent->name, strlen(subComponent->name));
                     command = subComponent->commands;
-                    ret = occli_fill_data_from_command(command,
-                                helpMenuArray, &index, subSysComp);
+                    ret = occli_fill_data_from_command(command, helpMenuArray,
+                                                       &index, subSysComp);
                     devDriver = subComponent->driver;
                     if (devDriver != NULL) {
-                        ret = occli_fill_data_from_driver(devDriver,
-                                            helpMenuArray, &index, subSysComp);
+                        ret = occli_fill_data_from_driver(
+                            devDriver, helpMenuArray, &index, subSysComp);
                         if (ret == FAILED) {
                             logerr("\noccli_fill_data_from_driver Error");
                             occli_free_helpMenupointer(helpMenuArray);

@@ -21,8 +21,8 @@
  * Input(s)         : strTokenArray, action, msgtype, paramstr
  * Output(s)        : paramvalue
  ***************************************************************************/
-int ocmw_msgproc_send_msg(char * strTokenArray[], uint8_t action,
-        int8_t msgtype, const int8_t* paramstr, void *paramvalue)
+int ocmw_msgproc_send_msg(char *strTokenArray[], uint8_t action, int8_t msgtype,
+                          const int8_t *paramstr, void *paramvalue)
 {
     int32_t ret = 0;
     uint8_t interface = 0;
@@ -34,10 +34,9 @@ int ocmw_msgproc_send_msg(char * strTokenArray[], uint8_t action,
     interface = OCMP_COMM_IFACE_UART;
 #endif /* INTERFACE_ETHERNET */
     ret = ocmw_msg_packetize_and_send(&strTokenArray[0], action, msgtype,
-            paramstr, interface, paramvalue);
+                                      paramstr, interface, paramvalue);
     if (ret != 0) {
         logerr("ocmw_msg_packetize_and_send failed \n");
     }
     return ret;
 }
-

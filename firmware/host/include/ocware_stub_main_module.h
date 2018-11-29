@@ -18,49 +18,49 @@
 #include <math.h>
 #include <ocmp_frame.h>
 
-#define OC_EC_MSG_SIZE                  (64)
-#define MAX_PAYLOAD_COUNT               (OC_EC_MSG_SIZE - sizeof (OCMPHeader))
+#define OC_EC_MSG_SIZE (64)
+#define MAX_PAYLOAD_COUNT (OC_EC_MSG_SIZE - sizeof(OCMPHeader))
 
 /* Max parameters to be stored in database */
-#define MAX_NUMBER_PARAM                400
-#define MAX_POST_DEVICE                 400
-#define MAX_I2C_COMP_NBR                1
-#define MAX_GPIO_COMP_NBR               1
-#define MAX_MDIO_COMP_NBR               1
+#define MAX_NUMBER_PARAM 400
+#define MAX_POST_DEVICE 400
+#define MAX_I2C_COMP_NBR 1
+#define MAX_GPIO_COMP_NBR 1
+#define MAX_MDIO_COMP_NBR 1
 
 /* Default values in the database */
-#define DEFAULT_INT8                    0x11
-#define DEFAULT_INT16                   0x2222
-#define DEFAULT_INT32                   0x33333333
-#define DEFAULT_INT64                   0x4444444444444444
-#define DEFAULT_ENUM                    0x05
-#define DEFAULT_STRING                  "stub"
+#define DEFAULT_INT8 0x11
+#define DEFAULT_INT16 0x2222
+#define DEFAULT_INT32 0x33333333
+#define DEFAULT_INT64 0x4444444444444444
+#define DEFAULT_ENUM 0x05
+#define DEFAULT_STRING "stub"
 
 /* default values in the debug subsystem */
-#define I2C_SLAVE_ADDRESS               1
-#define I2C_NUM_BYTES                   1
-#define I2C_REG_ADDRESS                 1
-#define I2C_REG_VALUE                   1
-#define GPIO_PIN_NBR                    1
-#define GPIO_VALUE                      1
+#define I2C_SLAVE_ADDRESS 1
+#define I2C_NUM_BYTES 1
+#define I2C_REG_ADDRESS 1
+#define I2C_REG_VALUE 1
+#define GPIO_PIN_NBR 1
+#define GPIO_VALUE 1
 
 /* size of strings and enum dataypes in schema */
-#define SIZE_OF_TYPE_REGISTRATION       1
-#define SIZE_OF_NWOP_STRUCT             3
-#define SIZE_OF_LAST_ERROR              3
-#define SIZE_OF_TYPE_MFG                10
-#define SIZE_OF_TYPE_GETMODEL           5
-#define SIZE_OF_TYPE_MODEL              4
-#define SIZE_OF_NWOP_STRUCT             3
-#define SIZE_OF_LAST_ERROR              3
-#define SIZE_OF_TYPE_OCSERIAL_INFO      18
-#define SIZE_OF_TYPE_GBCBOARD_INFO      18
-#define SIZE_OF_TYPE_MACADDR            13
+#define SIZE_OF_TYPE_REGISTRATION 1
+#define SIZE_OF_NWOP_STRUCT 3
+#define SIZE_OF_LAST_ERROR 3
+#define SIZE_OF_TYPE_MFG 10
+#define SIZE_OF_TYPE_GETMODEL 5
+#define SIZE_OF_TYPE_MODEL 4
+#define SIZE_OF_NWOP_STRUCT 3
+#define SIZE_OF_LAST_ERROR 3
+#define SIZE_OF_TYPE_OCSERIAL_INFO 18
+#define SIZE_OF_TYPE_GBCBOARD_INFO 18
+#define SIZE_OF_TYPE_MACADDR 13
 
 /* Masking related defines */
-#define MASK_MSB                        0xFF00
-#define MASK_LSB                        0xFF
-#define SHIFT_NIBBLE                    8
+#define MASK_MSB 0xFF00
+#define MASK_LSB 0xFF
+#define SHIFT_NIBBLE 8
 
 typedef struct {
     uint8_t subsystemId;
@@ -73,7 +73,7 @@ typedef struct {
     void *data;
 } OCWareStubDatabase;
 
-typedef struct{
+typedef struct {
     uint8_t SubsystemId;
     uint8_t DeviceNumber;
     ePostCode Status;
@@ -111,11 +111,17 @@ typedef struct {
     uint8_t value;
 } OCWareDebugGPIOinfo;
 
-typedef enum ocware_ret{
-	STUB_FAILED = -1,
-	STUB_SUCCESS = 0
-} ocware_stub_ret;
+typedef enum ocware_ret { STUB_FAILED = -1, STUB_SUCCESS = 0 } ocware_stub_ret;
 
+typedef struct {
+    uint8_t subsystemId;
+    uint8_t componentId;
+    uint8_t msgtype;
+    uint16_t paramId;
+    uint8_t paramSize;
+    uint8_t datatype;
+    void *data;
+} OCWareStubAlertData;
 
 extern int8_t debugGetCommand;
 extern int8_t debugSetCommand;
@@ -142,7 +148,8 @@ extern ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer);
+extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer,
+                                                         uint8_t *alertFlag);
 
 /******************************************************************************
  * Function Name    : ocware_stub_get_set_params
@@ -173,7 +180,8 @@ extern ocware_stub_ret ocware_stub_init_database(void);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer, int32_t bufferlen);
+extern ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer,
+                                                            int32_t bufferlen);
 /******************************************************************************
  * Function Name    : ocware_stub_init_ethernet_comm
  * Description      : initialise the socket IPC
@@ -201,7 +209,8 @@ extern ocware_stub_ret ocware_stub_deinit_ethernet_comm();
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer, int32_t bufferlen);
+extern ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer,
+                                                           int32_t bufferlen);
 /******************************************************************************
  * Function Name    : ocware_stub_get_database
  * Description      : Function to retrieve data from the DB
@@ -234,9 +243,9 @@ extern ocware_stub_ret ocware_stub_set_database(OCMPMessage *msgFrameData);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_get_post_result_paramvalue_from_table(
-        OCMPMessage *msgFrameData,
-        int8_t *payload);
+extern ocware_stub_ret
+ocware_stub_get_post_result_paramvalue_from_table(OCMPMessage *msgFrameData,
+                                                  int8_t *payload);
 /******************************************************************************
  * Function Name    :  ocware_stub_parse_debug_actiontype
  * Description      :  Convert debug actiontype into the SET/GET
@@ -247,7 +256,8 @@ extern ocware_stub_ret ocware_stub_get_post_result_paramvalue_from_table(
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameData);
+extern ocware_stub_ret
+ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameData);
 /******************************************************************************
  * Function Name    :  ocware_stub_get_post_database
  * Description      :  extract device number and status from the post database
@@ -262,5 +272,53 @@ extern ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameD
  ******************************************************************************/
 extern ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
                                                      char *payload);
+/******************************************************************************
+ * Function Name    : ocware_stub_parse_alert_get_message
+ * Description      : Parse alert messages from MW
+ *
+ * @param   buffer - output pointer to the message from MW
+ *          index  - index for record
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_parse_alert_get_message(char *buffer,
+                                                           int8_t index);
+/******************************************************************************
+ * Function Name    :  ocware_stub_get_alert_database
+ * Description      :  extract alert data from lookup table
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_get_alert_database(OCMPMessage *msgFrameData,
+                                                      char *payload,
+                                                      int8_t index);
+/******************************************************************************
+ * Function Name    :  ocware_stub_parse_command_from_schema
+ * Description      :  parse command from schema
+ *
+ * @param msgFrameData  - pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ *
+ * @return tempAlertFlag
+ ******************************************************************************/
+extern uint8_t ocware_stub_parse_command_from_schema(OCMPMessage *msgFrameData);
+/******************************************************************************
+ * Function Name    :  ocware_stub_frame_alert_msgframe
+ * Description      :  extract alert data from based on subsystem
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_frame_alert_msgframe(char *buffer);
 
 #endif /* __OCMW_STUB_H__ */

@@ -30,19 +30,22 @@ extern const Component sys_schema[];
 subSystemInfo systemInfo;
 
 extern ocwarePostResultData ocwarePostArray[TEMP_STR_BUFF_SIZE];
-extern uint8_t  ocwarePostArrayIndex;
+extern uint8_t ocwarePostArrayIndex;
+int8_t alertRecord = 1;
+extern int8_t alertFlag;
+
 ocwarePostReplyCode ocmwReplyCode[] = {
     /* Message Type, reply code, Description */
-    {OCMP_MSG_TYPE_POST, POST_DEV_NOSTATUS , "POST DEV NOSTATUS"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_MISSING, "DEV MISSING"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_ID_MISMATCH, "DEV ID MISMATCH"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_FOUND, "DEV FOUND"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_CFG_DONE, "CFG DONE"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_NO_CFG_REQ, "NO CFG REQUIRED"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_CFG_FAIL, "CFG FAILED"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_FAULTY, "FAULT"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_CRITICAL_FAULT, "CRITICAL FAULT"},
-    {OCMP_MSG_TYPE_POST, POST_DEV_NO_DRIVER_EXIST, "NO DRIVER EXIST"}
+    { OCMP_MSG_TYPE_POST, POST_DEV_NOSTATUS, "POST DEV NOSTATUS" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_MISSING, "DEV MISSING" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_ID_MISMATCH, "DEV ID MISMATCH" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_FOUND, "DEV FOUND" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_CFG_DONE, "CFG DONE" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_NO_CFG_REQ, "NO CFG REQUIRED" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_CFG_FAIL, "CFG FAILED" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_FAULTY, "FAULT" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_CRITICAL_FAULT, "CRITICAL FAULT" },
+    { OCMP_MSG_TYPE_POST, POST_DEV_NO_DRIVER_EXIST, "NO DRIVER EXIST" }
 };
 /******************************************************************************
  * Function Name    : ocmw_free_global_pointer
@@ -50,10 +53,10 @@ ocwarePostReplyCode ocmwReplyCode[] = {
  *                    global variable
  * Input(s)         : ptr
  * Output(s)        :
-******************************************************************************/
+ ******************************************************************************/
 void ocmw_free_global_pointer(void **ptr)
 {
-    if(*ptr != NULL) {
+    if (*ptr != NULL) {
         free(*ptr);
         *ptr = NULL;
     }
@@ -65,10 +68,9 @@ void ocmw_free_global_pointer(void **ptr)
  * Input(s)         : postResult
  * Output(s)        :
  ******************************************************************************/
-char ocmw_retrieve_post_results_count (ocwarePostResults *postResult)
+char ocmw_retrieve_post_results_count(ocwarePostResults *postResult)
 {
-    postResult->count =
-        sizeof(ocwarePostArray)/sizeof(ocwarePostArray[0]);
+    postResult->count = sizeof(ocwarePostArray) / sizeof(ocwarePostArray[0]);
     return SUCCESS;
 }
 
@@ -78,11 +80,11 @@ char ocmw_retrieve_post_results_count (ocwarePostResults *postResult)
  * Input(s)         : postResult
  * Output(s)        :
  ******************************************************************************/
-char ocmw_retrieve_post_results (ocwarePostResults *postResult)
+char ocmw_retrieve_post_results(ocwarePostResults *postResult)
 {
     memcpy(postResult->results, ocwarePostArray,
-            postResult->count * sizeof(ocwarePostResultData));
-    memset(ocwarePostArray,0,sizeof(ocwarePostResultData));
+           postResult->count * sizeof(ocwarePostResultData));
+    memset(ocwarePostArray, 0, sizeof(ocwarePostResultData));
     return SUCCESS;
 }
 
@@ -93,16 +95,16 @@ char ocmw_retrieve_post_results (ocwarePostResults *postResult)
  * Input(s)         : replyCode
  * Output(s)        :
  ******************************************************************************/
-char ocmw_retrieve_reply_code_desc (ocwarePostReplyCode *replyCode)
+char ocmw_retrieve_reply_code_desc(ocwarePostReplyCode *replyCode)
 {
     int32_t postSize = 0;
     int32_t sysIndex = 0;
 
-    postSize = sizeof(ocmwReplyCode)/sizeof(ocmwReplyCode[0]);
+    postSize = sizeof(ocmwReplyCode) / sizeof(ocmwReplyCode[0]);
 
     for (sysIndex = 0; sysIndex < postSize; sysIndex++) {
         if ((ocmwReplyCode[sysIndex].msgtype == replyCode->msgtype) &&
-                (ocmwReplyCode[sysIndex].replycode == replyCode->replycode)) {
+            (ocmwReplyCode[sysIndex].replycode == replyCode->replycode)) {
             memset(replyCode->desc, 0, OCMW_POST_DESC_SIZE);
             strncpy(replyCode->desc, ocmwReplyCode[sysIndex].desc,
                     strlen(ocmwReplyCode[sysIndex].desc));
@@ -118,8 +120,7 @@ char ocmw_retrieve_reply_code_desc (ocwarePostReplyCode *replyCode)
  * Input(s)         : subsystem, devsn, status
  * Output(s)        :
  ******************************************************************************/
-char ocmw_update_post_status(uint8_t subsystem, uint8_t devsn,
-        uint8_t status)
+char ocmw_update_post_status(uint8_t subsystem, uint8_t devsn, uint8_t status)
 {
     int32_t sysIndex = 0;
     for (sysIndex = 0; sysIndex < ocwarePostArrayIndex; sysIndex++) {
@@ -174,7 +175,7 @@ int32_t ocmw_init()
          * the msg coming from ethernet ec to ap
          */
         ret = pthread_create(&ethMsgPaserThreadId, NULL,
-                ocmw_thread_ethmsgparser, NULL);
+                             ocmw_thread_ethmsgparser, NULL);
         if (ret != 0) {
             return ret;
         }
@@ -183,7 +184,7 @@ int32_t ocmw_init()
          * the msg coming from uart ec to ap
          */
         ret = pthread_create(&uartMsgPaserThreadId, NULL,
-                ocmw_thread_uartmsgparser, NULL);
+                             ocmw_thread_uartmsgparser, NULL);
         if (ret != 0) {
             logerr("pthread_create() failed.");
         }
@@ -194,24 +195,23 @@ int32_t ocmw_init()
 
 /**************************************************************************
  * Function Name    : ocmw_tokenize_class_str
- * Description      : This Function used to extract the Subsystem,componentID, Messagetype,
- *                    parameter and Subcomponent from the param string
- * Input(s)         : str
+ * Description      : This Function used to extract the Subsystem,componentID,
+ *Messagetype, parameter and Subcomponent from the param string Input(s) : str
  * Output(s)        : msgFrame
  ***************************************************************************/
-static int32_t ocmw_tokenize_class_str( const int8_t *str,
-                    strMsgFrame *msgFrame, uint8_t msgtype)
+static int32_t ocmw_tokenize_class_str(const int8_t *str, strMsgFrame *msgFrame,
+                                       uint8_t msgtype)
 {
     char *token;
     int32_t count = 0;
-    char  *tempstr = (char *)malloc(PARAM_STR_MAX_BUFF_SIZE);
+    char *tempstr = (char *)malloc(PARAM_STR_MAX_BUFF_SIZE);
 
-    if(str == NULL)
+    if (str == NULL)
         return FAILED;
 
-    memset(tempstr,0,PARAM_STR_MAX_BUFF_SIZE);
-    memcpy(tempstr, str,PARAM_STR_MAX_BUFF_SIZE);
-    memset(msgFrame,0,sizeof(strMsgFrame));
+    memset(tempstr, 0, PARAM_STR_MAX_BUFF_SIZE);
+    memcpy(tempstr, str, PARAM_STR_MAX_BUFF_SIZE);
+    memset(msgFrame, 0, sizeof(strMsgFrame));
 
     token = strtok(tempstr, " .");
 
@@ -219,8 +219,7 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
         return FAILED;
 
     if (msgtype == OCMP_MSG_TYPE_COMMAND) {
-        if ((strcmp(token,"set") != 0) &&
-            ((strcmp(token,"get") != 0))) {
+        if ((strcmp(token, "set") != 0) && ((strcmp(token, "get") != 0))) {
             strcpy(msgFrame->parameter, token);
             while (token) {
                 if (count == 1) {
@@ -229,7 +228,7 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
                     strcpy(msgFrame->component, token);
                 }
                 token = strtok(NULL, " .");
-                count ++;
+                count++;
                 if (token == NULL)
                     break;
             }
@@ -248,14 +247,13 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
                     strcpy(msgFrame->parameter, token);
                 }
                 token = strtok(NULL, " .");
-                count ++;
+                count++;
                 if (token == NULL)
                     break;
             }
             if (count == 2) {
                 strcpy(msgFrame->component, "comp_all");
             }
-
         }
     } else {
         strcpy(msgFrame->subsystem, token);
@@ -266,7 +264,7 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
                 strcpy(msgFrame->msgtype, token);
             } else if (count == 3) {
                 strcpy(msgFrame->subcomponent, token);
-            } else if(count == 4) {
+            } else if (count == 4) {
                 strcpy(msgFrame->parameter, token);
             }
             token = strtok(NULL, " .");
@@ -276,7 +274,7 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
             strcpy(msgFrame->parameter, msgFrame->subcomponent);
         }
 
-        if (strncmp (msgFrame->component, "post", strlen("post")) == 0) {
+        if (strncmp(msgFrame->component, "post", strlen("post")) == 0) {
             strcpy(msgFrame->component, "post");
             strcpy(msgFrame->msgtype, "post");
             strcpy(msgFrame->parameter, msgFrame->subcomponent);
@@ -293,32 +291,33 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
  * Input(s)         :strTokenArray, msgFrame, ecMsgFrame, paramVal
  * Output(s)        :
  ******************************************************************************/
-void ocmw_fill_payload_data_for_commands(char * strTokenArray[],
-            strMsgFrame *msgFrame, OCMPMessageFrame *ecMsgFrame, void* paramVal)
+void ocmw_fill_payload_data_for_commands(char *strTokenArray[],
+                                         strMsgFrame *msgFrame,
+                                         OCMPMessageFrame *ecMsgFrame,
+                                         void *paramVal)
 {
     if (msgFrame == NULL) {
         return;
     }
     // Handling sending data for test module
     if (strncmp("testmodule", msgFrame->subsystem,
-                strlen(msgFrame->subsystem)) == 0 ) {
+                strlen(msgFrame->subsystem)) == 0) {
         if ((strncmp(strTokenArray[1], "send", strlen("send")) == 0) ||
             (strncmp(strTokenArray[1], "dial", strlen("dial")) == 0)) {
-            memcpy(&ecMsgFrame->message.info[0], paramVal,
-                    MAX_PARM_COUNT);
+            memcpy(&ecMsgFrame->message.info[0], paramVal, MAX_PARM_COUNT);
         } else {
             memset(ecMsgFrame->message.info, 0, MAX_PARM_COUNT);
         }
     }
     // Handling ethernet packet genrator command
-    if (strncmp("ethernet", msgFrame->subsystem,
-                strlen(msgFrame->subsystem)) == 0 ) {
-        if(strstr(strTokenArray[1], "loopBk")) {
+    if (strncmp("ethernet", msgFrame->subsystem, strlen(msgFrame->subsystem)) ==
+        0) {
+        if (strstr(strTokenArray[1], "loopBk")) {
             memcpy(&ecMsgFrame->message.info[0], paramVal, sizeof(uint8_t));
         } else if ((strncmp(strTokenArray[1], "en_pktGen",
-                                    strlen("en_pktGen")) == 0)) {
-            memcpy(&ecMsgFrame->message.info[0],
-                    (uint16_t *)paramVal, sizeof(uint16_t));
+                            strlen("en_pktGen")) == 0)) {
+            memcpy(&ecMsgFrame->message.info[0], (uint16_t *)paramVal,
+                   sizeof(uint16_t));
         }
     }
 }
@@ -328,8 +327,9 @@ void ocmw_fill_payload_data_for_commands(char * strTokenArray[],
  * Input(s)         :actionType, msgType, paramStr, interface, paramVal
  * Output(s)        :
  ******************************************************************************/
-int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
-   uint8_t msgType, const int8_t * paramStr, uint8_t interface, void* paramVal)
+int32_t ocmw_msg_packetize_and_send(char *strTokenArray[], uint8_t action,
+                                    uint8_t msgType, const int8_t *paramStr,
+                                    uint8_t interface, void *paramVal)
 {
     int32_t ret = 0;
     int32_t paramValue = 0;
@@ -348,36 +348,34 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
 
     paramValLen = strlen((char *)paramVal);
     if (!((msgType == OCMP_MSG_TYPE_COMMAND) &&
-            ((strncmp(strTokenArray[1], "get", strlen("get")) == 0) ||
-            (strncmp(strTokenArray[1], "set", strlen("get")) == 0)))) {
+          ((strcmp(strTokenArray[1], "get")) ||
+           (strncmp(strTokenArray[1], "set", strlen("get")) == 0)))) {
         if (paramValLen == 1 || paramValLen <= 5) {
-            logdebug ("Paramvalue is of integer type : %d\n", atoi( paramVal));
-        }
-        else {
+            logdebug("Paramvalue is of integer type : %d\n", atoi(paramVal));
+        } else {
             paramValFlag = 1;
-            logdebug ("Paramvalue is of string type : %s \n", (char *)paramVal);
+            logdebug("Paramvalue is of string type : %s \n", (char *)paramVal);
         }
     } else {
         paramValFlag = 1;
-        logdebug ("Paramvalue is of string type : %s \n", (char *)paramVal);
+        logdebug("Paramvalue is of string type : %s \n", (char *)paramVal);
     }
 
     if (paramStr == NULL) {
         logdebug(" Paramstr is NULL \n");
         return ret = FAILED;
     } else {
-
-        ocmw_tokenize_class_str(tempStr,&msgFramestruct,msgType);
+        ocmw_tokenize_class_str(tempStr, &msgFramestruct, msgType);
         if (msgType == OCMP_MSG_TYPE_COMMAND) {
-             ret = ocmw_parse_command_msgframe(sys_schema, &msgFramestruct,
-                                                     action, &ecSendBuf);
+            ret = ocmw_parse_command_msgframe(sys_schema, &msgFramestruct,
+                                              action, &ecSendBuf);
         } else if (msgType == OCMP_MSG_TYPE_POST) {
-            strcpy((char*)s_paramInfoBackup,msgFramestruct.parameter);
-            ret = ocmw_parse_post_msgframe(sys_schema, &msgFramestruct,
-                                                    action, &ecSendBuf);
+            strcpy((char *)s_paramInfoBackup, msgFramestruct.parameter);
+            ret = ocmw_parse_post_msgframe(sys_schema, &msgFramestruct, action,
+                                           &ecSendBuf);
         } else {
             ret = ocmw_parse_msgframe(sys_schema, &msgFramestruct, action,
-                                                            &ecSendBuf);
+                                      &ecSendBuf);
         }
         if (ret < 0) {
             return ret;
@@ -393,7 +391,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
 
     /* Frame the Core packet for sending data to ec */
     ecCoreMsg.action = ecSendBuf.actionType;
-    ecCoreMsg.msgtype =  ecSendBuf.msgType;
+    ecCoreMsg.msgtype = ecSendBuf.msgType;
     ecCoreMsg.componentID = ecSendBuf.componentId;
     ecCoreMsg.parameters = ecSendBuf.paramId;
     ecCoreMsg.subsystem = ecSendBuf.subsystem;
@@ -403,35 +401,33 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
     ecMsgFrame.message = ecCoreMsg;
 
     /* Populate the Core packet payload */
-    ecMsgFrame.message.info = (int8_t *) malloc(
-            sizeof(int8_t) * MAX_PARM_COUNT);
+    ecMsgFrame.message.info = (int8_t *)malloc(sizeof(int8_t) * MAX_PARM_COUNT);
     if (ecMsgFrame.message.info == NULL) {
         logdebug("\n Memory allocation failed \n");
         return ret = FAILED;
     }
     memset(ecMsgFrame.message.info, 0, MAX_PARM_COUNT);
     if ((msgType == OCMP_MSG_TYPE_POST) &&
-         (strncmp(strTokenArray[1], "set", strlen("set"))== 0)) {
+        (strncmp(strTokenArray[1], "set", strlen("set")) == 0)) {
         logdebug("OCMP_MSG_TYPE_POST:ENABLE:%s()\n", __func__);
     }
-    if(strncmp(msgFramestruct.subsystem,"debug",strlen("debug")) == 0) {
-        if (strncmp(msgFramestruct.component,"I2C",
-                strlen("I2C")) == 0) {
-            if((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
-                dataSize = 3 * sizeof (int8_t);
+    if (strncmp(msgFramestruct.subsystem, "debug", strlen("debug")) == 0) {
+        if (strncmp(msgFramestruct.component, "I2C", strlen("I2C")) == 0) {
+            if ((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
+                dataSize = 3 * sizeof(int8_t);
             } else {
                 dataSize = sizeof(debugI2CData);
             }
-        } else if (strncmp(msgFramestruct.component,"ethernet",
-                strlen("ethernet")) == 0) {
-            if((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
-                dataSize = sizeof (uint16_t);
+        } else if (strncmp(msgFramestruct.component, "ethernet",
+                           strlen("ethernet")) == 0) {
+            if ((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
+                dataSize = sizeof(uint16_t);
             } else {
                 dataSize = sizeof(debugMDIOData);
             }
         } else {
-            if((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
-                dataSize = sizeof (int8_t);
+            if ((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
+                dataSize = sizeof(int8_t);
             } else {
                 dataSize = sizeof(debugGPIOData);
             }
@@ -440,61 +436,54 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
     } else {
         dataSize = ecSendBuf.paramSize;
     }
-    if((strncmp(strTokenArray[1], "set", strlen("set")) == 0) &&
-                (msgType != OCMP_MSG_TYPE_POST)) {
+    if ((strncmp(strTokenArray[1], "set", strlen("set")) == 0) &&
+        (msgType != OCMP_MSG_TYPE_POST)) {
         pos = ecSendBuf.paramPos;
         if (paramValFlag == 0) {
-            paramValue = atoi( paramVal);
+            paramValue = atoi(paramVal);
             memcpy(&ecMsgFrame.message.info[pos], &paramValue, dataSize);
         } else {
-            if (strncmp(msgFramestruct.component,"I2C",
-                strlen("I2C")) == 0) {
+            if (strncmp(msgFramestruct.component, "I2C", strlen("I2C")) == 0) {
                 ecMsgFrame.message.info[pos] = I2CInfo.slaveAddress;
-                ecMsgFrame.message.info[pos + 1] =
-                                                    I2CInfo.numOfBytes;
-                ecMsgFrame.message.info[pos + 2] =
-                                                    I2CInfo.regAddress;
+                ecMsgFrame.message.info[pos + 1] = I2CInfo.numOfBytes;
+                ecMsgFrame.message.info[pos + 2] = I2CInfo.regAddress;
                 if (I2CInfo.numOfBytes == 1) {
                     ecMsgFrame.message.info[pos + 3] =
-                                                    (uint8_t)I2CInfo.regValue;
+                        (uint8_t)I2CInfo.regValue;
                 } else {
                     ecMsgFrame.message.info[pos + 4] =
-                                        (uint8_t)(I2CInfo.regValue & 0xff);
+                        (uint8_t)(I2CInfo.regValue & 0xff);
                     ecMsgFrame.message.info[pos + 3] =
-                                            (uint8_t)
-                    ((I2CInfo.regValue & 0xff00) >> 8);
+                        (uint8_t)((I2CInfo.regValue & 0xff00) >> 8);
                 }
-            } else if (strncmp(msgFramestruct.component,"ethernet",
-                strlen("ethernet")) == 0) {
-                ecMsgFrame.message.info[pos] = (uint8_t)
-                                                (MDIOInfo.regAddress & 0xff);
-                ecMsgFrame.message.info[pos + 1] = (uint8_t)
-                        ((MDIOInfo.regAddress & 0xff00) >> 8);
+            } else if (strncmp(msgFramestruct.component, "ethernet",
+                               strlen("ethernet")) == 0) {
+                ecMsgFrame.message.info[pos] =
+                    (uint8_t)(MDIOInfo.regAddress & 0xff);
+                ecMsgFrame.message.info[pos + 1] =
+                    (uint8_t)((MDIOInfo.regAddress & 0xff00) >> 8);
                 ecMsgFrame.message.info[pos + 2] =
-                                        (uint8_t)(MDIOInfo.regValue & 0xff);
+                    (uint8_t)(MDIOInfo.regValue & 0xff);
                 ecMsgFrame.message.info[pos + 3] =
-                                            (uint8_t)
-                    ((MDIOInfo.regValue & 0xff00) >> 8);
+                    (uint8_t)((MDIOInfo.regValue & 0xff00) >> 8);
 
             } else {
-                memcpy(&ecMsgFrame.message.info[pos], (char *) paramVal,
-                                                               paramValLen);
+                memcpy(&ecMsgFrame.message.info[pos], (char *)paramVal,
+                       paramValLen);
             }
         }
     }
-    if((strncmp(strTokenArray[1], "get", strlen("get")) == 0) &&
-            (ecMsgFrame.message.subsystem == DEBUG_SUBSYSTEM_NBR)) {
+    if ((strncmp(strTokenArray[1], "get", strlen("get")) == 0) &&
+        (ecMsgFrame.message.subsystem == DEBUG_SUBSYSTEM_NBR)) {
         pos = ecSendBuf.paramPos;
-        memcpy(&ecMsgFrame.message.info[pos], (char *) paramVal,
-                                                              paramValLen);
-
+        memcpy(&ecMsgFrame.message.info[pos], (char *)paramVal, paramValLen);
     }
-    //Fill payload data for commands
+    // Fill payload data for commands
     ocmw_fill_payload_data_for_commands(&strTokenArray[0], &msgFramestruct,
-                                                &ecMsgFrame, paramVal);
+                                        &ecMsgFrame, paramVal);
 
     if (!((msgType == OCMP_MSG_TYPE_POST) &&
-        (strncmp(strTokenArray[1], "get", strlen("get")) == 0))) {
+          (strncmp(strTokenArray[1], "get", strlen("get")) == 0))) {
         ocmw_send_msg(ecMsgFrame, interface);
     }
 
@@ -507,9 +496,8 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
         loopCountSend = systemInfo.Info[0].number;
         loopCountPost = systemInfo.Info[0].number;
 
-        while(loopCountSend < s_totalSubsystem) {
-            memset(&(ecMsgFrame.message.info[0]),
-                    loopCountSend, 1);
+        while (loopCountSend < s_totalSubsystem) {
+            memset(&(ecMsgFrame.message.info[0]), loopCountSend, 1);
             /* Send the message to ec */
             ocmw_send_msg(ecMsgFrame, interface);
             loopCountSend++;
@@ -562,7 +550,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
  * Input(s)         : pthreadData
  * Output(s)        :
  ******************************************************************************/
-void * ocmw_thread_uartmsgparser(void *pthreadData)
+void *ocmw_thread_uartmsgparser(void *pthreadData)
 {
     logdebug("Uart task created \n");
     while (1) {
@@ -579,14 +567,14 @@ void * ocmw_thread_uartmsgparser(void *pthreadData)
  * Input(s)         : pthreadData
  * Output(s)        :
  ******************************************************************************/
-void * ocmw_thread_ethmsgparser(void *pthreadData)
+void *ocmw_thread_ethmsgparser(void *pthreadData)
 {
-    int8_t ethRecvBuf[OCMP_MSG_SIZE] = {0};
+    int8_t ethRecvBuf[OCMP_MSG_SIZE] = { 0 };
 
     logdebug("Ethernet task created \n");
     while (1) {
         memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
-        ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf),OCMW_EC_DEV);
+        ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf), OCMW_EC_DEV);
         ocmw_ec_msgparser();
     }
 }
@@ -610,58 +598,58 @@ void ocmw_ec_msgparser(void)
     int32_t sendPktNonpayloadSize = 0;
     sMsgParam dmsgFrameParam;
     OCMPMessageFrame ecReceivedMsg;
+    alertRecord = 1;
 
-    sendPktNonpayloadSize = (sizeof(OCMPMessage) - sizeof(void *)
-            + sizeof(OCMPHeader));
+    sendPktNonpayloadSize =
+        (sizeof(OCMPMessage) - sizeof(void *) + sizeof(OCMPHeader));
 
-    ecReceivedMsg.message.info = (void *) malloc(
-            sizeof(char) * MAX_PARM_COUNT);
+    ecReceivedMsg.message.info = (void *)malloc(sizeof(char) * MAX_PARM_COUNT);
     if (ecReceivedMsg.message.info == NULL) {
         logerr("Memory allocation failed for "
-            "ecReceivedMsg.message.info \n");
+               "ecReceivedMsg.message.info \n");
 
         return;
     }
 
     /* parse the data packet */
-    memcpy((void *) &ecReceivedMsg, (void *) mcuMsgBuf, sendPktNonpayloadSize);
+    memcpy((void *)&ecReceivedMsg, (void *)mcuMsgBuf, sendPktNonpayloadSize);
     memcpy(ecReceivedMsg.message.info, &mcuMsgBuf[sendPktNonpayloadSize],
-            MAX_PARM_COUNT);
+           MAX_PARM_COUNT);
 
     msgType = ecReceivedMsg.message.msgtype;
     actionType = ecReceivedMsg.message.action;
     paramInfo = ecReceivedMsg.message.parameters;
-
-    /*
-     * TODO:Temporary fix for handling alerts
-     */
-    if (msgType == OCMP_MSG_TYPE_ALERT) {
-        free(ecReceivedMsg.message.info);
-        return;
-    }
 
     printf("Received from ec :\n");
     for (indexCount = 0; indexCount < OCMP_MSG_SIZE; indexCount++) {
         printf("0x%x  ", mcuMsgBuf[indexCount]);
     }
     printf("\n");
-
+    /*
+     * Alerts handling
+     */
+    if ((msgType == OCMP_MSG_TYPE_ALERT) || (alertFlag > 0)) {
+        ocmw_handle_alert_msg(sys_schema, &ecReceivedMsg, &alertRecord);
+        responseCount++;
+        ocmw_free_global_pointer((void **)&ecSendBufBkp);
+        return;
+    }
     /* In case of timeout, return from the thread
      * without processing the data to avoid sync issue.
      */
     if (s_semTimeOut) {
         s_semTimeOut = 0;
-        ocmw_free_global_pointer((void**)&ecSendBufBkp);
+        ocmw_free_global_pointer((void **)&ecSendBufBkp);
         return;
     }
 
     if ((msgType == OCMP_MSG_TYPE_POST) &&
-        strcmp((char*)s_paramInfoBackup,"set") == 0) {
+        strcmp((char *)s_paramInfoBackup, "set") == 0) {
         if (actionType == OCMP_AXN_TYPE_REPLY) {
             responseCount++;
         }
         /* Release the lock on which cli is waiting */
-        ocmw_free_global_pointer((void**)&ecSendBufBkp);
+        ocmw_free_global_pointer((void **)&ecSendBufBkp);
         sem_post(&semCliReturn);
         return;
     }
@@ -669,7 +657,7 @@ void ocmw_ec_msgparser(void)
     /* Release the lock on the POST msgtype semaphore */
     if (msgType == OCMP_MSG_TYPE_POST) {
         if (actionType != OCMP_AXN_TYPE_REPLY) {
-            ocmw_free_global_pointer((void**)&ecSendBufBkp);
+            ocmw_free_global_pointer((void **)&ecSendBufBkp);
             ret = sem_post(&semCommandPost);
             if (ret != 0) {
                 perror("sem_wait");
@@ -680,15 +668,15 @@ void ocmw_ec_msgparser(void)
         for (; loopCountPost < s_totalSubsystem;) {
             /* Waiting on the lock to be released by receiving  thread */
             for (indexCount = 0; indexCount < paramInfo; indexCount++) {
-                subsystemPost = ecReceivedMsg.message.info[indexCount
-                        * POST_MAIN_PAYLOAD_SIZE
-                        + POST_MAIN_PAYLOAD_SUBSYSTEM_OFFSET];
-                devsn = ecReceivedMsg.message.info[indexCount
-                        * POST_MAIN_PAYLOAD_SIZE
-                        + POST_MAIN_PAYLOAD_DEVSN_OFFSET];
-                status = ecReceivedMsg.message.info[indexCount
-                        * POST_MAIN_PAYLOAD_SIZE
-                        + POST_MAIN_PAYLOAD_STATUS_OFFSET];
+                subsystemPost = ecReceivedMsg.message
+                                    .info[indexCount * POST_MAIN_PAYLOAD_SIZE +
+                                          POST_MAIN_PAYLOAD_SUBSYSTEM_OFFSET];
+                devsn = ecReceivedMsg.message
+                            .info[indexCount * POST_MAIN_PAYLOAD_SIZE +
+                                  POST_MAIN_PAYLOAD_DEVSN_OFFSET];
+                status = ecReceivedMsg.message
+                             .info[indexCount * POST_MAIN_PAYLOAD_SIZE +
+                                   POST_MAIN_PAYLOAD_STATUS_OFFSET];
                 ret = ocmw_update_post_status(subsystemPost, devsn, status);
             }
 
@@ -703,7 +691,7 @@ void ocmw_ec_msgparser(void)
             } else {
                 /* Release the lock on which watchdog thread is waiting */
                 responseCount++;
-                ocmw_free_global_pointer((void**)&ecSendBufBkp);
+                ocmw_free_global_pointer((void **)&ecSendBufBkp);
                 sem_post(&semCliReturn);
             }
             return;
@@ -736,8 +724,8 @@ int32_t ocmw_send_msg(OCMPMessageFrame ecMsgFrame, uint8_t interface)
         case OCMP_COMM_IFACE_UART:
         case OCMP_COMM_IFACE_USB:
             /* Send the packetize data to ec  through uart*/
-            ret = ocmw_send_uart_msg_to_ec((uint8_t *) &ecMsgFrame,
-                                        OCMP_MSG_SIZE);
+            ret =
+                ocmw_send_uart_msg_to_ec((uint8_t *)&ecMsgFrame, OCMP_MSG_SIZE);
             break;
 
         case OCMP_COMM_IFACE_ETHERNET:
@@ -748,12 +736,24 @@ int32_t ocmw_send_msg(OCMPMessageFrame ecMsgFrame, uint8_t interface)
             sentDev = OCMW_EC_DEV;
 #endif
             /* Send the packetize data to ec  through ethernet*/
-            ret = ocmw_send_eth_msgto_ec((int8_t *) &ecMsgFrame,
-                                      OCMP_MSG_SIZE, sentDev);
+            ret = ocmw_send_eth_msgto_ec((int8_t *)&ecMsgFrame, OCMP_MSG_SIZE,
+                                         sentDev);
 #ifdef INTERFACE_STUB_EC
-            memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
-            ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf), OCMW_EC_STUB_DEV);
-            ocmw_ec_msgparser();
+            if (alertFlag > 0) {
+                while (1) {
+                    memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
+                    ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf),
+                                             OCMW_EC_STUB_DEV);
+                    ocmw_ec_msgparser();
+                    if (alertRecord == 0)
+                        break;
+                }
+            } else {
+                memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
+                ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf),
+                                         OCMW_EC_STUB_DEV);
+                ocmw_ec_msgparser();
+            }
 #endif
             break;
 
