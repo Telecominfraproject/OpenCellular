@@ -20,8 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static FE_Band_Cfg FE_BandCfg[RFFE_MAX_CHANNEL];
-
 typedef enum FE_ParamCfg {
     FE_CFG_BAND = 0,
 } FE_ParamCfg;

@@ -192,6 +192,7 @@ static void post_move_to_next_subsystem()
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
+#if 0
 static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg)
 {
     pPOSTMsg->message.subsystem = OC_SS_SYS; // OC_SUBSYSTEM_MAX_LIMIT subsystem
@@ -200,6 +201,7 @@ static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg)
     Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
                     (uint8_t *)pPOSTMsg);
 }
+#endif
 
 /*****************************************************************************
  **    FUNCTION NAME   : post_process_msg
@@ -260,6 +262,7 @@ static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem)
  **    RETURN TYPE     : None
  **
  *****************************************************************************/
+#if 0
 static OCMPMessageFrame *post_create_enable_msg(OCMPSubsystem OC_subSystem)
 {
     uint8_t dummyByte = 0xff;
@@ -275,6 +278,7 @@ static OCMPMessageFrame *post_create_enable_msg(OCMPSubsystem OC_subSystem)
         OC_subSystem, OCMP_MSG_TYPE_POST, actionType, 0x00, 0x00, 1);
     return postExeMsg;
 }
+#endif
 
 /*****************************************************************************
  **    FUNCTION NAME   : post_activate

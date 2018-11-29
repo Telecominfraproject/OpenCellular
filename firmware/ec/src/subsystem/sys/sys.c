@@ -38,7 +38,6 @@ Semaphore_Handle semFilesysMsg;
 
 Semaphore_Struct semFSstruct;
 
-static Queue_Struct fsRxMsg;
 static Queue_Struct fsTxMsg;
 
 Queue_Handle fsRxMsgQueue;

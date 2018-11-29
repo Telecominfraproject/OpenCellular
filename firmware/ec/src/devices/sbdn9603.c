@@ -197,6 +197,7 @@ bool sbd9603_get_regStatus(OBC_Iridium_Status_Data *pIridiumStatusData)
     return ret;
 }
 
+#if 0
 #include "helpers/memory.h"
 
 static void loopback_test(SBD_Handle hSbd, bool debugLogs)
@@ -252,3 +253,4 @@ static void loopback_test(SBD_Handle hSbd, bool debugLogs)
     /* FIXME: hack to keep thread alive so we keep looping */
     Semaphore_post(ss->sem);
 }
+#endif

@@ -22,7 +22,6 @@
 
 #define TESTMOD_TASK_PRIORITY 2
 #define TESTMOD_TASK_STACK_SIZE 2048
-static Char testmodTaskStack[TESTMOD_TASK_STACK_SIZE];
 
 static const char CTRL_Z = 26;
 
