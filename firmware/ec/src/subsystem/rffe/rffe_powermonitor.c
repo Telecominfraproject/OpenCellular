@@ -119,6 +119,8 @@ ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
         } else if (rfPowerSelect == RFFE_STAT_REV_POWER) {
             rfPowerDetect = RFFE_LB_R_POWER;
         }
+    } else {
+        rfPowerDetect = RFFE_INVALID_POWER;
     }
 
     /*   Bit 7 - Single-Ended/Differential Inputs(SD)

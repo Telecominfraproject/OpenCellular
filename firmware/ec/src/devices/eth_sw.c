@@ -531,7 +531,6 @@ ReturnStatus eth_sw_config_tiva_client(void *driver, void *params)
 {
     ReturnStatus ret = RETURN_OK;
     int count = 0;
-    Eth_cfg *s_eth_cfg = (Eth_cfg *)driver;
     Eth_TcpClient_Params *s_eth_tcpParams = (Eth_TcpClient_Params *)params;
 
     Task_Handle taskHandle_client;

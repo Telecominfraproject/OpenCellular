@@ -79,7 +79,6 @@ bool static _set_config(void *driver, unsigned int param_id, void *return_buf)
     rffeBand *band = (rffeBand *)return_buf;
     switch (param_id) {
         case FE_CFG_BAND: {
-            rffeChannel *cfg = driver;
             ret = rffe_ctrl_set_band(driverCfg->channel, *band);
             break;
         }

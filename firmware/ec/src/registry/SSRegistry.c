@@ -272,8 +272,6 @@ static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp,
                                unsigned int subsystem_id)
 {
     /* Determine driver & parameter */
-    unsigned int param_id = 0;
-    uint8_t *buf_ptr = pMsg->message.ocmp_data;
     bool dev_handled = false;
     switch (pMsg->message.action) {
         case OCMP_ACTION_TYPE_SET:

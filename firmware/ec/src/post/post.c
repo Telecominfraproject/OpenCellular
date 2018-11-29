@@ -70,7 +70,7 @@ static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem);
 static void post_activate(OCMPMessageFrame *pPOSTMsg);
 static void post_process_rx_msg(OCMPMessageFrame *pPOSTMsg);
 static void post_move_to_next_subsystem();
-static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg);
+/* static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg); */
 
 /*****************************************************************************
  **    FUNCTION NAME   : _post_complete
