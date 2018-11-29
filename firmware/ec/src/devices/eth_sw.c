@@ -18,6 +18,7 @@
 #include "registry/SSRegistry.h"
 #include "src/interfaces/Ethernet/tcp_tx_rx.h"
 
+#include <stdio.h>
 #include <ti/sysbios/knl/Task.h>
 #include <xdc/runtime/Error.h>
 

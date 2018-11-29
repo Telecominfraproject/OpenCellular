@@ -270,7 +270,7 @@ uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem,
 
     // Allocated space for queue node.
 
-    if (pRec = (queueRec_t *)malloc(sizeof(queueRec_t))) {
+    if ((pRec = (queueRec_t *)malloc(sizeof(queueRec_t)))) {
         pRec->pData = pMsg;
 
         Queue_enqueue(msgQueue, &pRec->_elem);
