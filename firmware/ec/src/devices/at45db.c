@@ -83,7 +83,7 @@ static ReturnStatus AT45DB_read_reg(AT45DB_Dev *dev,
  *****************************************************************************/
 static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
                                      void *cmdbuffer, /* cmd or opcode buffer */
-                                     uint8_t *regValue, uint32_t pageOffset,
+                                     const uint8_t *regValue, uint32_t pageOffset,
                                      uint32_t NumOfbytes, uint8_t writeCount)
 {
     ReturnStatus status = RETURN_NOTOK;
@@ -201,7 +201,7 @@ ReturnStatus at45db_data_read(AT45DB_Dev *dev, uint8_t *data,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-ReturnStatus at45db_data_write(AT45DB_Dev *dev, uint8_t *data,
+ReturnStatus at45db_data_write(AT45DB_Dev *dev, const uint8_t *data,
                                uint32_t data_size, uint32_t byte, uint32_t page)
 {
     ReturnStatus status = RETURN_NOTOK;

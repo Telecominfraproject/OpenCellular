@@ -81,7 +81,7 @@ int block_device_read(const struct lfs_config *cfg, lfs_block_t block,
  **
  *****************************************************************************/
 int block_device_write(const struct lfs_config *cfg, lfs_block_t block,
-                       lfs_off_t off, void *buffer, lfs_size_t size)
+                       lfs_off_t off, const void *buffer, lfs_size_t size)
 {
     if (at45db_data_write(cfg->context, buffer, size, off, block) !=
         RETURN_OK) {
@@ -217,7 +217,7 @@ static bool fsMsgHandler(OCMPMessageFrame *pMsg)
 {
     char fileName[] = "logs";
 
-    fileWrite(fileName, pMsg, FRAME_SIZE);
+    fileWrite(fileName, (uint8_t *)pMsg, FRAME_SIZE);
 
     return true;
 }
