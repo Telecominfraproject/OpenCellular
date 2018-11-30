@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 #include "common/inc/ocmp_wrappers/ocmp_testmodule.h"
-
+#include "inc/common/g510.h"
 #include "inc/common/global_header.h"
 
 typedef enum {

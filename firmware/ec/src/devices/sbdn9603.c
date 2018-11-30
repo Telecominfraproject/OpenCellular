@@ -13,7 +13,7 @@
 #include "Board.h"
 #include "devices/uart/sbd.h"
 #include "inc/common/global_header.h"
-#include "inc/subsystem/obc/obc.h"
+#include "inc/common/sbdn9603.h"
 #include "inc/subsystem/sdr/sdr.h" /* temporary - Only required for 12v enable */
 #include "helpers/array.h"
 #include "platform/oc-sdr/schema/schema.h"

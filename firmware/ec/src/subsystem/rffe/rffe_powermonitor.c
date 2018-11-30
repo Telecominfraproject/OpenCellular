@@ -93,7 +93,7 @@ ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
     ReturnStatus status = RETURN_OK;
     uint8_t adcConfigValue = 0x00;
     rffeBand band;
-    eRffePowerDetect rfPowerDetect;
+    eRffePowerDetect rfPowerDetect = RFFE_INVALID_POWER;
 
     if (!i2c_dev) {
         DEBUG("RFPOWERMONITOR:ERROR:: Invalid channel Access\n");
@@ -119,8 +119,6 @@ ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
         } else if (rfPowerSelect == RFFE_STAT_REV_POWER) {
             rfPowerDetect = RFFE_LB_R_POWER;
         }
-    } else {
-        rfPowerDetect = RFFE_INVALID_POWER;
     }
 
     /*   Bit 7 - Single-Ended/Differential Inputs(SD)

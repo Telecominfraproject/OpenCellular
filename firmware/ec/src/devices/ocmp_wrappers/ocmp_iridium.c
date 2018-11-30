@@ -11,9 +11,9 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "common/inc/ocmp_wrappers/ocmp_iridium.h"
-
-#include <inc/devices/sbd.h>
 #include "inc/common/global_header.h"
+#include "inc/common/sbdn9603.h"
+#include "inc/devices/sbd.h"
 
 static ePostCode _probe(void **driver)
 {

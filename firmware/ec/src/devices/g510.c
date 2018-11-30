@@ -10,11 +10,10 @@
 #include "helpers/array.h"
 #include "helpers/math.h"
 #include "helpers/uart.h"
+#include "inc/common/g510.h"
 #include "inc/common/global_header.h"
-#include "inc/subsystem/testModule/testModule.h"
 #include "platform/oc-sdr/schema/schema.h"
 #include "registry/SSRegistry.h"
-
 #include <ti/drivers/UART.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
@@ -101,6 +100,8 @@ static void call_state_cb(const GsmClccInfo *info, void *context)
             OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState);
             break;
         }
+        default:
+            break;
     }
 }
 

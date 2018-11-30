@@ -316,6 +316,17 @@ void OC_CONNECT1_initGPIO(void);
 void OC_CONNECT1_initI2C(void);
 
 /*!
+ *  @brief  Initialize board specific SPI settings
+ *
+ *  This function initializes the board specific SPI settings and then calls
+ *  the SPI_init API to initialize the SPI module.
+ *
+ *  The SPI peripherals controlled by the SPI module are determined by the
+ *  SPI_config variable.
+ */
+void OC_CONNECT1_initSPI(void);
+
+/*!
  *  @brief  Initialize board specific UART settings
  *
  *  This function initializes the board specific UART settings and then calls
