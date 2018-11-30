@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 
-/*Enumes are defined as per the SX1509 datasheet*/
+/* Enumes are defined as per the SX1509 datasheet */
 typedef enum SX1509Regs {
     SX1509_REG_INPUT_DISABLE_B = 0x00,
     SX1509_REG_INPUT_DISABLE_A,

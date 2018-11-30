@@ -272,6 +272,7 @@ pwr_process_get_status_parameters_data(ePower_StatusParamId paramIndex,
                                        uint8_t *pPowerStatusData)
 {
     ReturnStatus status = RETURN_OK;
+    *pPowerStatusData = 0;
     switch (paramIndex) {
         case PWR_STAT_POE_AVAILABILITY: {
             if ((Power_SourceInfo[PWR_SRC_POE].state == PWR_SRC_ACTIVE) ||

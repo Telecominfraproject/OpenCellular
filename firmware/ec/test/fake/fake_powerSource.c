@@ -12,8 +12,8 @@
 extern const OcGpio_FnTable GpioSX1509_fnTable;
 
 bool PWR_GpioPins[] = {
-    [OC_EC_PWR_PRSNT_SOLAR_AUX] = 0x1,
-    [OC_EC_PWR_PRSNT_POE] = 0x1,
+    [OC_EC_PWR_PRSNT_SOLAR_AUX] = PWR_STATE_ENABLE,
+    [OC_EC_PWR_PRSNT_POE] = PWR_STATE_ENABLE,
 };
 
 uint32_t PWR_GpioConfig[] = {

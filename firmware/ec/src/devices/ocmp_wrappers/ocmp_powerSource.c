@@ -26,8 +26,8 @@ static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-/* Parameters are not used as this is just used to test assigning the
-   alert_handler right now.*/
+/* Parameter postData is not used as this is just used to match the function
+ * defination */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _probe(void *driver, POSTData *postData)

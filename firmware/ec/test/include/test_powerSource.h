@@ -24,12 +24,12 @@
 #include <string.h>
 #include "unity.h"
 /* ======================== Constants & variables =========================== */
-#define I2C_BUS 5
 #define I2C_ADDR 0x71
-#define OC_EC_PWR_PRSNT_SOLAR_AUX 0x1E
-#define OC_EC_PWR_PRSNT_POE 0x55
-#define OC_EC_PWR_INVALID_PIN 0x57
+#define I2C_BUS 5
 #define OC_EC_PWR_INVALID_IO 0x82
+#define OC_EC_PWR_INVALID_PIN 0x57
+#define OC_EC_PWR_PRSNT_POE 0x55
+#define OC_EC_PWR_PRSNT_SOLAR_AUX 0x1E
 #define PWR_EXT_BAT_ENABLE_FIRST_BYTE 0x08
 #define PWR_EXT_BAT_ENABLE_SECOND_BYTE 0x00
 #define PWR_INT_BAT_ENABLE_FIRST_BYTE 0x10
@@ -38,7 +38,7 @@
 #define PWR_INT_EXT_BAT_DISABLE_SECOND_BYTE 0x00
 #define PWR_STATE_DISABLE 0x01
 #define PWR_STATE_ENABLE 0x00
-#define PWR_STAT_INVALID_PARAM 0x09
+#define PWR_STATE_INVALID_PARAM 0x09
 
 typedef enum ePowerSourceStatus {
     PWR_SRC_NOT_AVAILABLE = 0,

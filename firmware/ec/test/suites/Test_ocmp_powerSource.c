@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
 #include "include/test_powerSource.h"
 
 extern bool PWR_GpioPins[OC_EC_PWR_PRSNT_POE];
@@ -33,35 +41,35 @@ void suite_tearDown(void)
     fake_I2C_deinit();
 }
 /* ================================ Tests =================================== */
-void test_init(void)
+void test_ocmp_powerSource_init(void)
 {
-    PWR_GpioPins[OC_EC_PWR_PRSNT_SOLAR_AUX] = 0x1;
+    PWR_GpioPins[OC_EC_PWR_PRSNT_SOLAR_AUX] = PWR_STATE_ENABLE;
     AlertData alert_data = {
         .subsystem = 7,
         .componentId = 1,
         .deviceId = 0,
     };
-    AlertData *alert_data_cp = malloc(sizeof(AlertData));
-    *alert_data_cp = alert_data;
     TEST_ASSERT_EQUAL(
         POST_DEV_NO_CFG_REQ,
-        PWRSRC_fxnTable.cb_init(&gbc_pwr_powerSource, NULL, alert_data_cp));
+        PWRSRC_fxnTable.cb_init(&gbc_pwr_powerSource, NULL, &alert_data));
 }
 
-void test_probe(void)
+void test_ocmp_powerSource_probe(void)
 {
     POSTData postData;
     PWR_GpioConfig[OC_EC_PWR_PRSNT_SOLAR_AUX] = OCGPIO_CFG_OUTPUT;
     PWR_GpioConfig[OC_EC_PWR_PRSNT_POE] = OCGPIO_CFG_OUTPUT;
+    SX1509_regs[SX1509_REG_SENSE_HIGH_B] = OCGPIO_CFG_INPUT;
 
     TEST_ASSERT_EQUAL(POST_DEV_NOSTATUS, PWRSRC_fxnTable.cb_probe(
                                              &gbc_pwr_powerSource, &postData));
     TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT,
                       PWR_GpioConfig[OC_EC_PWR_PRSNT_SOLAR_AUX]);
     TEST_ASSERT_EQUAL(OCGPIO_CFG_INPUT, PWR_GpioConfig[OC_EC_PWR_PRSNT_POE]);
+    TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT, SX1509_regs[SX1509_REG_SENSE_HIGH_B]);
 }
 
-void test_get_status_poeAvailable(void)
+void test_ocmp_powerSource_get_status_poeAvailable(void)
 {
     /* POE State available */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -77,7 +85,7 @@ void test_get_status_poeAvailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* POE State Not Available */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     PWR_GpioPins[OC_EC_PWR_PRSNT_POE] = PWR_STATE_DISABLE;
     pwr_source_init();
     pwr_get_source_info(&gbc_pwr_powerSource);
@@ -87,7 +95,7 @@ void test_get_status_poeAvailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_poeAccessible(void)
+void test_ocmp_powerSource_get_status_poeAccessible(void)
 {
     /* POE State Accessible */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -103,7 +111,7 @@ void test_get_status_poeAccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* POE State Not Accessible */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     PWR_GpioPins[OC_EC_PWR_PRSNT_POE] = PWR_STATE_DISABLE;
     pwr_source_init();
     pwr_get_source_info(&gbc_pwr_powerSource);
@@ -113,7 +121,7 @@ void test_get_status_poeAccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_solaravailable(void)
+void test_ocmp_powerSource_get_status_solaravailable(void)
 {
     /* Solar State Available */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -129,7 +137,7 @@ void test_get_status_solaravailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* Solar State Not Available */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     PWR_GpioPins[OC_EC_PWR_PRSNT_SOLAR_AUX] = PWR_STATE_DISABLE;
     pwr_source_init();
     pwr_get_source_info(&gbc_pwr_powerSource);
@@ -139,7 +147,7 @@ void test_get_status_solaravailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_solaraccessible(void)
+void test_ocmp_powerSource_get_status_solaraccessible(void)
 {
     /* Solar State Accessible */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -155,7 +163,7 @@ void test_get_status_solaraccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* Solar State Not Accessible */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     PWR_GpioPins[OC_EC_PWR_PRSNT_SOLAR_AUX] = PWR_STATE_DISABLE;
     pwr_source_init();
     pwr_get_source_info(&gbc_pwr_powerSource);
@@ -165,7 +173,7 @@ void test_get_status_solaraccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_extavailable(void)
+void test_ocmp_powerSource_get_status_extavailable(void)
 {
     /* EXT Battery Available */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -181,7 +189,7 @@ void test_get_status_extavailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* EXT Battery Not Available */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     SX1509_regs[SX1509_REG_DATA_B] = PWR_INT_EXT_BAT_DISABLE_FIRST_BYTE;
     SX1509_regs[SX1509_REG_DATA_A] = PWR_INT_EXT_BAT_DISABLE_SECOND_BYTE;
     pwr_source_init();
@@ -192,7 +200,7 @@ void test_get_status_extavailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_extaccessible(void)
+void test_ocmp_powerSource_get_status_extaccessible(void)
 {
     /* EXT Battery Accessible */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -208,7 +216,7 @@ void test_get_status_extaccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* EXT Battery Not Accessible */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     SX1509_regs[SX1509_REG_DATA_B] = PWR_INT_EXT_BAT_DISABLE_FIRST_BYTE;
     SX1509_regs[SX1509_REG_DATA_A] = PWR_INT_EXT_BAT_DISABLE_SECOND_BYTE;
     pwr_source_init();
@@ -219,7 +227,7 @@ void test_get_status_extaccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_intavailable(void)
+void test_ocmp_powerSource_get_status_intavailable(void)
 {
     /* Int Battery Available */
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
@@ -235,7 +243,7 @@ void test_get_status_intavailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* Int Battery Not Available */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     SX1509_regs[SX1509_REG_DATA_B] = PWR_INT_EXT_BAT_DISABLE_FIRST_BYTE;
     SX1509_regs[SX1509_REG_DATA_A] = PWR_INT_EXT_BAT_DISABLE_SECOND_BYTE;
     pwr_source_init();
@@ -246,7 +254,7 @@ void test_get_status_intavailable(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_intaccessible(void)
+void test_ocmp_powerSource_get_status_intaccessible(void)
 {
     uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
     /* Int Battery Not Accessible */
@@ -263,7 +271,7 @@ void test_get_status_intaccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_ACTIVE_AVAILABLE, powerStatus);
 
     /* Int Battery Not Accessible */
-    powerStatus = PWR_SRC_NOT_AVAILABLE;
+    powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     SX1509_regs[SX1509_REG_DATA_B] = PWR_INT_EXT_BAT_DISABLE_FIRST_BYTE;
     SX1509_regs[SX1509_REG_DATA_A] = PWR_INT_EXT_BAT_DISABLE_SECOND_BYTE;
     pwr_source_init();
@@ -274,9 +282,9 @@ void test_get_status_intaccessible(void)
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
 
-void test_get_status_invalid_param(void)
+void test_ocmp_powerSource_get_status_invalid_param(void)
 {
-    uint8_t powerStatus = PWR_SRC_NOT_AVAILABLE;
+    uint8_t powerStatus = PWR_SRC_ACTIVE_AVAILABLE;
     /* Invalid Param Test */
     PWR_GpioPins[OC_EC_PWR_PRSNT_POE] = PWR_STATE_DISABLE;
     PWR_GpioPins[OC_EC_PWR_PRSNT_SOLAR_AUX] = PWR_STATE_DISABLE;
@@ -287,6 +295,6 @@ void test_get_status_invalid_param(void)
     pwr_get_source_info(&gbc_pwr_powerSource);
     TEST_ASSERT_EQUAL(
         true, PWRSRC_fxnTable.cb_get_status(
-                  &gbc_pwr_powerSource, PWR_STAT_INVALID_PARAM, &powerStatus));
+                  &gbc_pwr_powerSource, PWR_STATE_INVALID_PARAM, &powerStatus));
     TEST_ASSERT_EQUAL(PWR_SRC_NOT_AVAILABLE, powerStatus);
 }
