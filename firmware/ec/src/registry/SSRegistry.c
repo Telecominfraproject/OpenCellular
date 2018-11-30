@@ -128,7 +128,7 @@ void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
 static bool _handleMsgTypeCmd(OCMPMessageFrame *pMsg, const Component *comp)
 {
     const Command *cmd;
-    Component *dev;
+    const Component *dev;
     if (comp) {
         if (pMsg->message.parameters > 0) {
             dev = &comp->components[(pMsg->message.parameters) - 1];
@@ -237,10 +237,10 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
 static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
 {
     bool ret = false;
-    OCMPMessageFrame *buffer;
+    OCMPMessageFrame *buffer = NULL;
     const Post *postCmd = &comp->driver->post[(pMsg->message.action) - 1];
     if (postCmd && postCmd->cb_postCmd) {
-        ret = postCmd->cb_postCmd(&buffer);
+        ret = postCmd->cb_postCmd((void **)buffer);
         if (ret) {
             Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t *)buffer);
         }
@@ -262,7 +262,7 @@ static bool _handle_post_get_results(const Component *comp,
     bool ret = false;
     const Post *postCmd = &comp->driver->post[(pMsg->message.action) - 1];
     if (postCmd && postCmd->cb_postCmd) {
-        postCmd->cb_postCmd(pMsg);
+        postCmd->cb_postCmd((void **)pMsg);
         ret = true;
     }
     return ret;
