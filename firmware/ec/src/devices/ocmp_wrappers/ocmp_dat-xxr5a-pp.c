@@ -96,7 +96,7 @@ static bool _set_config(void *driver, unsigned int param_id, const void *data)
     }
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     /* TODO: perhaps GPIO should provide probe/test function? for now we'll
      * assume that reading from the pin will tell us if the pin is working */

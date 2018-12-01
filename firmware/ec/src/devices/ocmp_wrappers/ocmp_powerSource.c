@@ -26,7 +26,7 @@ static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     pwr_source_config(driver);
     return POST_DEV_NOSTATUS;

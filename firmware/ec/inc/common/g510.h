@@ -24,7 +24,7 @@
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
-ePostCode g510_task_init(void *driver, const void **config,
+ePostCode g510_task_init(void *driver, const void *config,
                          const void *alert_token);
 bool g510_get_imei(TestMod_2G_Status_Data *p2gStatusData);
 bool g510_get_imsi(TestMod_2G_Status_Data *p2gStatusData);

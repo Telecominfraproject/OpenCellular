@@ -9,7 +9,7 @@
 #include "common/inc/ocmp_wrappers/ocmp_rfwatchdog.h"
 
 #include "inc/subsystem/rffe/rffe_ctrl.h"
-
+#include "src/devices/i2c/threaded_int.h"
 void _rffe_watchdog_handler(void *context)
 {
     RfWatchdog_Cfg *cfg = context;

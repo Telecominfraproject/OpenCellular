@@ -83,5 +83,6 @@ ReturnStatus hci_led_turnoff_all(const HciLedCfg *driver);
 ReturnStatus hci_led_system_boot(const HciLedCfg *driver);
 ReturnStatus led_init(const HciLedCfg *driver);
 ePostCode led_probe(const HciLedCfg *driver, POSTData *postData);
+void led_configure(HciLedCfg *driver);
 
 #endif /* INA226_H_ */

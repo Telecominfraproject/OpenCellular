@@ -283,7 +283,7 @@ static void testModule_task(UArg a0, UArg a1)
     }
 }
 
-ePostCode g510_task_init(void *driver, const void **config,
+ePostCode g510_task_init(void *driver, const void *config,
                          const void *alert_token)
 {
     /* TODO: there's probably a better way to wait on the sim card */
