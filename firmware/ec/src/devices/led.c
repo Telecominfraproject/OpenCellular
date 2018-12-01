@@ -488,7 +488,7 @@ ReturnStatus led_init(const HciLedCfg *driver)
      - Disable input buffer (RegInputDisable)
      - Disable pull-up (RegPullUp)
      - Enable open drain (RegOpenDrain)
-     - Set direction to output (RegDir) – by default RegData is set high => LED
+     - Set direction to output (RegDir) \96 by default RegData is set high => LED
      OFF
      - Enable oscillator (RegClock)
      - Configure LED driver clock and mode if relevant (RegMisc)
@@ -530,7 +530,7 @@ ReturnStatus led_init(const HciLedCfg *driver)
             return status;
         }
 
-        /* Set direction to output (RegDir) –
+        /* Set direction to output (RegDir) \96
          * by default RegData is set high => LED OFF */
         status = ioexp_led_config_data_direction(&driver->sx1509_dev[index],
                                                  SX1509_REG_AB, 0x00, 0x00);
@@ -602,8 +602,8 @@ ePostCode led_probe(const HciLedCfg *driver, POSTData *postData)
     if (status != RETURN_OK) {
         return POST_DEV_MISSING;
     }
-    post_update_POSTData(postData, &driver->sx1509_dev[HCI_LED_DRIVER_LEFT].bus,
-                         &driver->sx1509_dev[HCI_LED_DRIVER_LEFT].slave_addr,
+    post_update_POSTData(postData, driver->sx1509_dev[HCI_LED_DRIVER_LEFT].bus,
+                         driver->sx1509_dev[HCI_LED_DRIVER_LEFT].slave_addr,
                          0xFF, 0xFF);
     return POST_DEV_FOUND;
 }

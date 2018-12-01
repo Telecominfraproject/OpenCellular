@@ -63,8 +63,13 @@ static uint8_t ui8uartdmaRxBuf[UART_RXBUF_SIZE];
  * The control table used by the uDMA controller.  This table must be aligned
  * to a 1024 byte boundary.
  *****************************************************************************/
-#pragma DATA_ALIGN(pui8ControlTable, 1024)
-
+#if defined(__TI_COMPILER_VERSION__)
+#    pragma DATA_ALIGN(pui8ControlTable, 1024)
+#elif defined(__IAR_SYSTEMS_ICC__)
+#    pragma data_alignment = 1024
+#elif defined(__GNUC__)
+__attribute__((aligned(1024)))
+#endif
 uint8_t pui8ControlTable[1024];
 
 /*****************************************************************************

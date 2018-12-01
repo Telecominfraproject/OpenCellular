@@ -15,7 +15,7 @@
 #include "inc/common/sbdn9603.h"
 #include "inc/devices/sbd.h"
 
-static ePostCode _probe(void **driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     /* TODO: this is a problem: we can't probe until we've initialized, but we
      * don't init until after probing */
