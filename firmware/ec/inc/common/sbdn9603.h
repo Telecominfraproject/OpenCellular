@@ -16,20 +16,15 @@
 #include "inc/subsystem/obc/obc.h"
 
 /*****************************************************************************
- *                              STRUCT DEFINITIONS
- *****************************************************************************/
-
-
-/*****************************************************************************
  *                             FUNCTION DECLARATIONS
  *****************************************************************************/
-ReturnStatus sbd_init(const Iridium_Cfg *iridium);
-bool sbd9603_get_queueLength(OBC_Iridium_Status_Data *pIridiumStatusData);
-bool sbd9603_get_lastError(OBC_Iridium_Status_Data *pIridiumStatusData);
 bool sbd9603_get_imei(OBC_Iridium_Status_Data *pIridiumStatusData);
+bool sbd9603_get_lastError(OBC_Iridium_Status_Data *pIridiumStatusData);
 bool sbd9603_get_mfg(OBC_Iridium_Status_Data *pIridiumStatusData);
 bool sbd9603_get_model(OBC_Iridium_Status_Data *pIridiumStatusData);
-bool sbd9603_get_signalqual(OBC_Iridium_Status_Data *pIridiumStatusData);
+bool sbd9603_get_queueLength(OBC_Iridium_Status_Data *pIridiumStatusData);
 bool sbd9603_get_regStatus(OBC_Iridium_Status_Data *pIridiumStatusData);
+bool sbd9603_get_signalqual(OBC_Iridium_Status_Data *pIridiumStatusData);
+ReturnStatus sbd_init(const Iridium_Cfg *iridium);
 
 #endif /* SBDN9603_H_ */
