@@ -142,6 +142,10 @@ ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
     }
 
     spiTransaction.count = data_size;
+    /* NOTE: This assignment results in a warning when const
+     *       is discarded by SPI_transfer in TI RTOS.
+     *       Refer to ti/drivers/SPI.c/h
+     */
     spiTransaction.txBuf = data;
     spiTransaction.rxBuf = NULL;
 
