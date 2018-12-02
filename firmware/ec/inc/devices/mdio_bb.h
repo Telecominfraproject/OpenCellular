@@ -26,5 +26,6 @@ int mdiobb_read(int phy, unsigned int reg);
 void mdiobb_write_by_paging_c45(int smi_device, unsigned int reg_addr,
                                 unsigned int data);
 unsigned int mdiobb_read_by_paging_c45(int smi_device, unsigned int reg_addr);
-
+void mdiobb_clear_bits_C45(int smi_device, unsigned int reg_addr,
+                           unsigned int datamask);
 #endif /* MDIO_BB_H_ */

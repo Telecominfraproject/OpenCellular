@@ -41,11 +41,18 @@ static UART_Handle UartMon_open(UART_Handle handle, UART_Params *params)
         return NULL;
     }
 
+#if 0
     /* This is a driver limitation - we only support blocking mode for now */
     if (params->readDataMode != UART_MODE_BLOCKING ||
         params->writeDataMode != UART_MODE_BLOCKING) {
         return NULL;
     }
+#else
+    /* Logically the same as above, but unsure if OK with TI UART Driver */
+    if (params->readDataMode || params->writeDataMode) {
+        return NULL;
+    }
+#endif
 
     obj->hUart_in = UART_open(cfg->uart_in_idx, params);
     if (!obj->hUart_in) {

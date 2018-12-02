@@ -245,7 +245,7 @@ ReturnStatus at45db_data_write(AT45DB_Dev *dev, const uint8_t *data,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
+static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint8_t *devID)
 {
     uint8_t txBuffer = AT45DB_DEVID_RD_OPCODE; /* opcode to get device id */
 
@@ -265,7 +265,7 @@ static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
  *****************************************************************************/
 ePostCode at45db_probe(AT45DB_Dev *dev, POSTData *postData)
 {
-    uint32_t value = 0;
+    uint8_t value = 0;
     uint16_t devId = 0;
     uint8_t manfId = 0;
 
