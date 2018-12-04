@@ -816,7 +816,7 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray
  * Output(s)        : strTokenArray
  ***************************************************************************/
-inline void ocmw_free_pointer(char **strTokenArray) {
+static void ocmw_free_pointer(char **strTokenArray) {
     if (strTokenArray) {
         free(strTokenArray);
     }

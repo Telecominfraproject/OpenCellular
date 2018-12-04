@@ -297,7 +297,7 @@ void occli_printHelpMenu_on_console(helpMenu *helpMenuArray[],
  * Input(s)         : helpMenuArray
  * Output(s)        : helpMenuArray
  ***************************************************************************/
-inline void occli_free_helpMenupointer(helpMenu *helpMenuArray[])
+static void occli_free_helpMenupointer(helpMenu *helpMenuArray[])
 {
     int32_t mallocIndex = 0;
 
