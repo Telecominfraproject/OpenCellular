@@ -163,6 +163,9 @@ $(PATHB)Test_OcGpio$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCGPIO_SRC)
 TEST_OCMP_LTC4015_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_ltc4015.c $(OCWARE_ROOT)/src/devices/ltc4015.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c stub/stub_GateMutex.c stub/stub_ltc4015.c $(OCWARE_ROOT)/src/post/post_util.c fake/fake_SX1509_register.c fake/fake_ltc4015_register.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
 $(PATHB)Test_ocmp_ltc4015$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_LTC4015_SRC) $(INC_M)
 
+TEST_OCMP_powerSource_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_powerSource.c $(OCWARE_ROOT)/src/devices/powerSource.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/post/post_util.c fake/fake_SX1509_register.c fake/fake_powerSource.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
+$(PATHB)Test_ocmp_powerSource$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_powerSource_SRC) $(INC_M)
+
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 	$(COV_CMDS)
