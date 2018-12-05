@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+#  Copyright (c) 2018-present, Facebook, Inc.
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree. An additional grant
+#  of patent rights can be found in the PATENTS file in the same directory.
+
+# Get all files that are different from master and only lint those. 
+fileList=`git --no-pager diff --name-only HEAD origin/master ./firmware/ec | grep ".\.c$\|.\.h$"`
+for f in $fileList; do
+   clang-format -style=file -i ${f}
+done
+echo "Linting the following files:"
+echo $fileList
+git diff > clang_format.patch
+
+# Delete if 0 size and exit with 0
+if [ ! -s clang_format.patch ]
+then
+    exit 0
+fi
+
+# There were lint issues and should exit with error
+exit 1
