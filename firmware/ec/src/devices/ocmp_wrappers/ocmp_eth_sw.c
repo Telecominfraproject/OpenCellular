@@ -188,6 +188,9 @@ static ePostCode _probe(void *driver, POSTData *postData)
 }
 
 #if 0
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static void _alert_handler(Eth_Sw_Events evt, int16_t value, void *alert_data)
 {
     unsigned int alert;

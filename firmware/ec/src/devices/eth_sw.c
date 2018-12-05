@@ -102,6 +102,9 @@ uint16_t get_interrupt_status(uint8_t port)
  * Internal IRQ handler - reads in triggered interrupts and dispatches CBs
  *****************************************************************************/
 #if 0
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static void _ethernet_sw_isr(void *context)
 {
     Eth_cfg *ethCfg = context;

@@ -56,7 +56,7 @@ void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress,
 
 extern void post_update_POSTStatus(POSTData *pData, ePostCode status);
 extern void post_init_POSTData(POSTData *pData, OCMPSubsystem subsystem,
-                        uint8_t devSno);
+                               uint8_t devSno);
 void post_update_POSTresult(POSTData *postData);
 
 static uint8_t deviceCount = 0;

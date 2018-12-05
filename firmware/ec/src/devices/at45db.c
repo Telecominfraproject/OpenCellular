@@ -83,8 +83,9 @@ static ReturnStatus AT45DB_read_reg(AT45DB_Dev *dev,
  *****************************************************************************/
 static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
                                      void *cmdbuffer, /* cmd or opcode buffer */
-                                     const uint8_t *regValue, uint32_t pageOffset,
-                                     uint32_t NumOfbytes, uint8_t writeCount)
+                                     const uint8_t *regValue,
+                                     uint32_t pageOffset, uint32_t NumOfbytes,
+                                     uint8_t writeCount)
 {
     ReturnStatus status = RETURN_NOTOK;
     SPI_Handle at45dbHandle = spi_get_handle(dev->cfg.dev.bus);

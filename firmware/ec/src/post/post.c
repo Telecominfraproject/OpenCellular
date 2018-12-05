@@ -193,6 +193,9 @@ static void post_move_to_next_subsystem()
  **
  *****************************************************************************/
 #if 0
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static void post_update_result_to_bigbrother(OCMPMessageFrame *pPOSTMsg)
 {
     pPOSTMsg->message.subsystem = OC_SS_SYS; // OC_SUBSYSTEM_MAX_LIMIT subsystem
@@ -263,6 +266,9 @@ static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem)
  **
  *****************************************************************************/
 #if 0
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static OCMPMessageFrame *post_create_enable_msg(OCMPSubsystem OC_subSystem)
 {
     uint8_t dummyByte = 0xff;

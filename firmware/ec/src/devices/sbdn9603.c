@@ -198,8 +198,10 @@ bool sbd9603_get_regStatus(OBC_Iridium_Status_Data *pIridiumStatusData)
 }
 
 #if 0
-#include "helpers/memory.h"
-
+#    include "helpers/memory.h"
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static void loopback_test(SBD_Handle hSbd, bool debugLogs)
 {
     static int loopCount = 1;
