@@ -1,0 +1,11 @@
+/Debug/
+/Release/
+/src/sysbios/
+/src/makefile.libs
+.xdchelp
+/.config/
+/.launches
+
+# NOTE: this should only be ignored when "Manage the project's 
+# target-configuration automatically" is selected in Properties->CCS General
+/targetConfigs/
