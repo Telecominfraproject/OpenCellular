@@ -12,19 +12,19 @@
 //*****************************************************************************
 #include "Board.h"
 #include "devices/uart/sbd.h"
-#include "inc/common/global_header.h"
-#include "inc/common/sbdn9603.h"
-#include "inc/subsystem/sdr/sdr.h" /* temporary - Only required for 12v enable */
 #include "helpers/array.h"
+#include "inc/common/global_header.h"
+#include "inc/devices/sbdn9603.h"
+#include "inc/subsystem/sdr/sdr.h" /* temporary - Only required for 12v enable */
 #include "platform/oc-sdr/schema/schema.h"
 #include "registry/SSRegistry.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 #include <ti/drivers/UART.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Clock.h>
-
-#include <stdlib.h>
-#include <string.h>
 
 //*****************************************************************************
 //                             MACROS DEFINITION

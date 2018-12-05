@@ -10,16 +10,17 @@
 #include "helpers/array.h"
 #include "helpers/math.h"
 #include "helpers/uart.h"
-#include "inc/common/g510.h"
 #include "inc/common/global_header.h"
+#include "inc/devices/g510.h"
 #include "platform/oc-sdr/schema/schema.h"
 #include "registry/SSRegistry.h"
-#include <ti/drivers/UART.h>
-#include <ti/sysbios/BIOS.h>
-#include <ti/sysbios/knl/Semaphore.h>
 
 #include <stdio.h>
 #include <string.h>
+
+#include <ti/drivers/UART.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Semaphore.h>
 
 /* TODO: move to helper? */
 #define STATIC_STRLEN(s) (ARRAY_SIZE(s) - 1)

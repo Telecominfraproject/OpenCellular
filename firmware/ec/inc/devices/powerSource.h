@@ -93,5 +93,4 @@ ReturnStatus
 pwr_process_get_status_parameters_data(ePower_StatusParamId paramIndex,
                                        uint8_t *pPowerStatusData);
 void pwr_source_config(PWRSRC_Dev *driver);
-
 #endif /* POWERSOURCE_H_ */

@@ -142,11 +142,11 @@ ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
     }
 
     spiTransaction.count = data_size;
-    /* NOTE: This assignment results in a warning when const
-     *       is discarded by SPI_transfer in TI RTOS.
-     *       Refer to ti/drivers/SPI.c/h
-     */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+    /* NOTE: const is discarded by SPI_transfer in TI RTOS. */
     spiTransaction.txBuf = data;
+#pragma GCC diagnostic pop
     spiTransaction.rxBuf = NULL;
 
     if (data_size > 0) {

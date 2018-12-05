@@ -10,15 +10,17 @@
 //*****************************************************************************
 // Standard Header files
 //*****************************************************************************
-#include <driverlib/sysctl.h>
 #include "inc/common/global_header.h"
 #include "inc/devices/88E6071_registers.h"
 #include "inc/devices/eth_sw.h"
 #include "inc/devices/mdio_bb.h"
 #include "registry/SSRegistry.h"
 #include "src/interfaces/Ethernet/tcp_tx_rx.h"
+
 #include <stdio.h>
 #include <string.h>
+
+#include <driverlib/sysctl.h>
 #include <ti/sysbios/knl/Task.h>
 #include <xdc/runtime/Error.h>
 

@@ -13,8 +13,8 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
-#include "inc/subsystem/testModule/testModule.h"
 #include "common/inc/global/post_frame.h"
+#include "inc/subsystem/testModule/testModule.h"
 
 /*****************************************************************************
  *                             FUNCTION DECLARATIONS
