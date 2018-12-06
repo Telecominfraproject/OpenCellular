@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 
+extern int32_t FlashUserGet(uint32_t *pui32User0, uint32_t *pui32User1);
+extern int32_t FlashUserSet(uint32_t ui32User0, uint32_t ui32User1);
+extern int32_t FlashUserSave(void);
+
 typedef enum { OC_SYS_CONF_MAC_ADDRESS = 0 } eOCConfigParamId;
 
 /*****************************************************************************
@@ -117,7 +121,7 @@ ReturnStatus _set_mac_address(const uint8_t *macAddress)
  **    RETURN TYPE     : true on Success and false on Failure
  **
  *****************************************************************************/
-static bool _mac_get_config_parameters_data(void **driver, unsigned int param,
+static bool _mac_get_config_parameters_data(void *driver, unsigned int param,
                                             void *pOCConfigData)
 {
     const eOCConfigParamId paramIndex = (eOCConfigParamId)param;
@@ -148,7 +152,7 @@ static bool _mac_get_config_parameters_data(void **driver, unsigned int param,
  **    RETURN TYPE     : true on Success and false on Failure
  **
  *****************************************************************************/
-static bool _mac_set_config_parameters_data(void **driver, unsigned int param,
+static bool _mac_set_config_parameters_data(void *driver, unsigned int param,
                                             const void *pOCConfigData)
 {
     const eOCConfigParamId paramIndex = (eOCConfigParamId)param;
@@ -167,8 +171,7 @@ static bool _mac_set_config_parameters_data(void **driver, unsigned int param,
     return (status == RETURN_OK);
 }
 
-static ePostCode _probe_mac(void *driver, const void *config,
-                            const void *alert_token)
+static ePostCode _probe_mac(void *driver, POSTData *postData)
 {
     uint8_t macAddress[14];
     uint32_t ulUser0 = 0, ulUser1 = 0;

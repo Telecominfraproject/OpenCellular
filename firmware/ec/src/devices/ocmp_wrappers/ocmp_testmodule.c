@@ -7,8 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 #include "common/inc/ocmp_wrappers/ocmp_testmodule.h"
-
 #include "inc/common/global_header.h"
+#include "inc/devices/g510.h"
 
 typedef enum {
     TWOG_IMEI = 0,
@@ -25,14 +25,14 @@ typedef enum {
     TWOG_PARAM_MAX /* Limiter */
 } eTestModule_StatusParam;
 
-static ePostCode _probe(void **driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     /* TODO: this is a problem: we can't probe until we've initialized, but we
      * don't init until after probing */
     return POST_DEV_FOUND;
 }
 
-static ePostCode _init(void *driver, const void **config,
+static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
     return g510_task_init(driver, config, alert_token);

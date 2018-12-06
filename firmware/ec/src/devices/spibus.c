@@ -121,8 +121,9 @@ ReturnStatus spi_reg_read(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
  **
  *****************************************************************************/
 ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
-                           void *regAddress, uint8_t *data, uint32_t data_size,
-                           uint32_t byte, uint8_t numofBytes)
+                           void *regAddress, const uint8_t *data,
+                           uint32_t data_size, uint32_t byte,
+                           uint8_t numofBytes)
 {
     ReturnStatus status = RETURN_OK;
     SPI_Transaction spiTransaction;
@@ -142,7 +143,11 @@ ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
     }
 
     spiTransaction.count = data_size;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+    /* NOTE: const is discarded by SPI_transfer in TI RTOS. */
     spiTransaction.txBuf = data;
+#pragma GCC diagnostic pop
     spiTransaction.rxBuf = NULL;
 
     if (data_size > 0) {

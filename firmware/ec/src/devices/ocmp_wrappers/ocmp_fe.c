@@ -72,14 +72,14 @@ bool static _get_config(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-bool static _set_config(void *driver, unsigned int param_id, void *return_buf)
+bool static _set_config(void *driver, unsigned int param_id,
+                        const void *return_buf)
 {
     bool ret = false;
     FE_Ch_Band_cfg *driverCfg = driver;
     rffeBand *band = (rffeBand *)return_buf;
     switch (param_id) {
         case FE_CFG_BAND: {
-            rffeChannel *cfg = driver;
             ret = rffe_ctrl_set_band(driverCfg->channel, *band);
             break;
         }
@@ -91,7 +91,7 @@ bool static _set_config(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-static ePostCode _probe(void *driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     return POST_DEV_FOUND;
 }

@@ -57,8 +57,9 @@ bool ocgpio_get(void *gpio_cfg, void *oc_gpio)
     return (ret == 0);
 }
 
-static ePostCode _probe(S_OCGPIO_Cfg *oc_gpio_cfg)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
+    S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)driver;
     if (OcGpio_probe(oc_gpio_cfg->port) != 0) {
         return POST_DEV_MISSING;
     } else {

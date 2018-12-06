@@ -399,7 +399,7 @@ static void _ina226_isr(void *context)
         uint16_t value;
         uint16_t new_mask = alert_mask & (~INA_ALERT_EN_MASK);
         INA226_Event evt;
-        uint16_t alert_lim;
+        uint16_t alert_lim = 0x0000;
         ina226_readCurrentLim(dev, &alert_lim);
 
         if (alert_mask & INA_MSK_SOL) {
@@ -563,7 +563,7 @@ ReturnStatus ina226_enableAlert(INA226_Dev *dev, INA226_Event evt)
  *****************************************************************************/
 ePostCode ina226_probe(INA226_Dev *dev, POSTData *postData)
 {
-    uint16_t devId = 0x00;
+    uint16_t devId = 0x0000;
     uint16_t manfId = 0x0000;
     if (ina226_getDevId(dev, &devId) != RETURN_OK) {
         return POST_DEV_MISSING;

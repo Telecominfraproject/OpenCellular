@@ -11,11 +11,11 @@
 //                                HEADER FILES
 //*****************************************************************************
 #include "common/inc/ocmp_wrappers/ocmp_iridium.h"
-
-#include <inc/devices/sbd.h>
 #include "inc/common/global_header.h"
+#include "inc/devices/sbd.h"
+#include "inc/devices/sbdn9603.h"
 
-static ePostCode _probe(void **driver)
+static ePostCode _probe(void *driver, POSTData *postData)
 {
     /* TODO: this is a problem: we can't probe until we've initialized, but we
      * don't init until after probing */

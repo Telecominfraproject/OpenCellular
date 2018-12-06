@@ -12,6 +12,7 @@
 #include "inc/common/system_states.h"
 #include "platform/oc-sdr/schema/schema.h"
 #include "src/registry/SSRegistry.h"
+#include <string.h>
 
 extern const Component sys_schema[OC_SS_MAX_LIMIT];
 extern OCSubsystem *ss_reg[SUBSYSTEM_COUNT];
@@ -52,6 +53,12 @@ void post_update_POSTData(POSTData *pData, uint8_t I2CBus, uint8_t devAddress,
     pData->devId = devId;
 }
 #else
+
+extern void post_update_POSTStatus(POSTData *pData, ePostCode status);
+extern void post_init_POSTData(POSTData *pData, OCMPSubsystem subsystem,
+                               uint8_t devSno);
+void post_update_POSTresult(POSTData *postData);
+
 static uint8_t deviceCount = 0;
 
 /* Execute POST for a given device driver (performs deep copy of alert_data) */
@@ -93,6 +100,8 @@ static ePostCode _postDriver(const Component *subsystem, const Component *dev,
                              "failed.");
         }
     }
+
+    return postcode;
 }
 
 ReturnStatus _execPost(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
@@ -118,7 +127,6 @@ ReturnStatus _execPost(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
         }
     }
     POSTData postData;
-    ePostCode postcode = POST_DEV_MISSING;
     uint8_t devSno = 0;
     const Component *comp = &subsystem->components[0];
     for (uint8_t comp_id = 0; (comp && comp->name);
@@ -198,7 +206,6 @@ ReturnStatus _execPost(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
 void post_update_POSTresult(POSTData *postData)
 {
     /* Write a device info to flash but use a dummy function for REV B boards.*/
-    uint8_t iter = 0;
     /* Dump structure at particular location*/
     if ((postData->subsystem == OC_SS_SYS) && (postData->devSno == 1)) {
         deviceCount = 0;

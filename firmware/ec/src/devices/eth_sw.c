@@ -10,14 +10,17 @@
 //*****************************************************************************
 // Standard Header files
 //*****************************************************************************
-#include "inc/devices/eth_sw.h"
-
-#include "inc/devices/88E6071_registers.h"
 #include "inc/common/global_header.h"
+#include "inc/devices/88E6071_registers.h"
+#include "inc/devices/eth_sw.h"
 #include "inc/devices/mdio_bb.h"
 #include "registry/SSRegistry.h"
 #include "src/interfaces/Ethernet/tcp_tx_rx.h"
 
+#include <stdio.h>
+#include <string.h>
+
+#include <driverlib/sysctl.h>
 #include <ti/sysbios/knl/Task.h>
 #include <xdc/runtime/Error.h>
 
@@ -98,6 +101,10 @@ uint16_t get_interrupt_status(uint8_t port)
 /*****************************************************************************
  * Internal IRQ handler - reads in triggered interrupts and dispatches CBs
  *****************************************************************************/
+#if 0
+/* NOTE: Commented out because unused, triggers -Wunused-function warning.
+ *       The function might be useful in the future.
+ */
 static void _ethernet_sw_isr(void *context)
 {
     Eth_cfg *ethCfg = context;
@@ -197,6 +204,7 @@ static void _ethernet_sw_isr(void *context)
         }
     }
 }
+#endif
 
 /*****************************************************************************
  *****************************************************************************/
@@ -528,7 +536,6 @@ ReturnStatus eth_sw_config_tiva_client(void *driver, void *params)
 {
     ReturnStatus ret = RETURN_OK;
     int count = 0;
-    Eth_cfg *s_eth_cfg = (Eth_cfg *)driver;
     Eth_TcpClient_Params *s_eth_tcpParams = (Eth_TcpClient_Params *)params;
 
     Task_Handle taskHandle_client;

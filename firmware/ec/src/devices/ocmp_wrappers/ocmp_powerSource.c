@@ -26,8 +26,6 @@ static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-/* Parameter postData is not used as this is just used to match the function
- * defination */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _probe(void *driver, POSTData *postData)
@@ -35,7 +33,10 @@ static ePostCode _probe(void *driver, POSTData *postData)
     pwr_source_config(driver);
     return POST_DEV_NOSTATUS;
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {

@@ -109,7 +109,7 @@ bool RFFE_InventoryGetStatus(void *driver, unsigned int param_id,
     return false;
 }
 
-static ePostCode _init_eeprom(void *driver, const void **config,
+static ePostCode _init_eeprom(void *driver, const void *config,
                               const void *alert_token)
 {
     Eeprom_Cfg *eeprom = (Eeprom_Cfg *)driver;

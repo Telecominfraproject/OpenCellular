@@ -11,16 +11,16 @@
 #include "helpers/math.h"
 #include "helpers/uart.h"
 #include "inc/common/global_header.h"
-#include "inc/subsystem/testModule/testModule.h"
+#include "inc/devices/g510.h"
 #include "platform/oc-sdr/schema/schema.h"
 #include "registry/SSRegistry.h"
+
+#include <stdio.h>
+#include <string.h>
 
 #include <ti/drivers/UART.h>
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
-
-#include <stdio.h>
-#include <string.h>
 
 /* TODO: move to helper? */
 #define STATIC_STRLEN(s) (ARRAY_SIZE(s) - 1)
@@ -101,6 +101,8 @@ static void call_state_cb(const GsmClccInfo *info, void *context)
             OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState);
             break;
         }
+        default:
+            break;
     }
 }
 
@@ -282,7 +284,7 @@ static void testModule_task(UArg a0, UArg a1)
     }
 }
 
-ePostCode g510_task_init(void *driver, const void **config,
+ePostCode g510_task_init(void *driver, const void *config,
                          const void *alert_token)
 {
     /* TODO: there's probably a better way to wait on the sim card */

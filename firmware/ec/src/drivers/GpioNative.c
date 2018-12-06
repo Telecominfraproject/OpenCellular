@@ -18,7 +18,7 @@
 
 static GateMutex_Handle s_cb_data_mutex;
 
-static int GpioNative_probe(void)
+static int GpioNative_probe(const OcGpio_Port *port)
 {
     // This probe function is just a dummy as we are all ready accessing EC.
     return OCGPIO_SUCCESS;

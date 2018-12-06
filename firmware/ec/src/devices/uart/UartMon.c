@@ -42,8 +42,11 @@ static UART_Handle UartMon_open(UART_Handle handle, UART_Params *params)
     }
 
     /* This is a driver limitation - we only support blocking mode for now */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wenum-compare"
     if (params->readDataMode != UART_MODE_BLOCKING ||
         params->writeDataMode != UART_MODE_BLOCKING) {
+#pragma GCC diagnostic pop
         return NULL;
     }
 

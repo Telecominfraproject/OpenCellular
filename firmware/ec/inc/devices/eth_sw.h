@@ -147,6 +147,7 @@ typedef struct Eth_TcpClient_Params {
     uint8_t repeat;
 } Eth_TcpClient_Params;
 
+void eth_sw_configure(Eth_cfg *ethCfg);
 ePostCode eth_sw_probe(POSTData *postData);
 ePostCode eth_sw_init(Eth_cfg *ethCfg);
 void eth_enable_interrupt(void);
@@ -175,6 +176,7 @@ ReturnStatus eth_sw_get_config_power_down(uint8_t port, uint8_t *power_dwn);
 ReturnStatus eth_sw_get_config_sleep_mode(uint8_t port, uint8_t *sleep_mode);
 ReturnStatus eth_sw_get_config_interrupt_enable(uint8_t port,
                                                 uint8_t *interrupt_enb);
+ReturnStatus eth_sw_config_tiva_client(void *driver, void *params);
 ReturnStatus eth_sw_enable_loopback(void *driver, void *params);
 ReturnStatus eth_sw_disable_loopback(void *driver, void *params);
 ReturnStatus eth_sw_enable_macloopback(uint8_t port);

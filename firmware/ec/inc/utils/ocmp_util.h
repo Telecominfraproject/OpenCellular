@@ -10,9 +10,9 @@
 #define INC_UTILS_OCMP_UTIL_H_
 
 #include "common/inc/global/ocmp_frame.h"
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*****************************************************************************
@@ -25,7 +25,6 @@
  **    RETURN TYPE     : OCMPMessageFrame
  **
  *****************************************************************************/
-
 OCMPMessageFrame *OCMP_mallocFrame(uint16_t len);
 
 /*****************************************************************************

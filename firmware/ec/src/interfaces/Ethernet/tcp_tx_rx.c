@@ -123,10 +123,12 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
     struct sockaddr_in sLocalAddr;
     /*Tiva operates at 120Mhz. We use delays based on this*/
     uint32_t g_ui32SysClock = 120000000;
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+#pragma GCC diagnostic ignored "-Wint-conversion"
     fdOpenSession(TaskSelf());
-
     lSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+#pragma GCC diagnostic pop
     if (lSocket < 0) {
         LOGGER_DEBUG("tcpHandler: socket failed\n");
         Task_exit();
@@ -138,11 +140,16 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
     memset((char *)&sLocalAddr, 0, sizeof(sLocalAddr));
     LOGGER_DEBUG(" Ip in client: %s\n", destIp);
     sLocalAddr.sin_family = AF_INET;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
     sLocalAddr.sin_addr.s_addr = inet_addr(destIp);
+#pragma GCC diagnostic pop
     sLocalAddr.sin_port = htons(arg0);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
     while (connect(lSocket, (struct sockaddr *)&sLocalAddr,
                    sizeof(sLocalAddr)) < 0) {
+#pragma GCC diagnostic pop
         SysCtlDelay(g_ui32SysClock / 100 / 3);
     }
     System_flush();
@@ -151,14 +158,20 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
     int nbytes = 14; /* Test Pattern length */
 
     while (numRepeat > 0) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
         send(lSocket, (char *)buffer, nbytes, 0);
+#pragma GCC diagnostic pop
         Task_sleep(500);
         numRepeat--;
         System_flush();
     }
     if (lSocket > 0)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
         close(lSocket);
     fdCloseSession(TaskSelf());
+#pragma GCC diagnostic pop
 }
 
 /*
@@ -283,7 +296,10 @@ int ethernet_start(void)
     /*
      * Configure necessary things for MDC/MDIO
      */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
     prepare_mdio();
+#pragma GCC diagnostic pop
     return (0);
 }
 

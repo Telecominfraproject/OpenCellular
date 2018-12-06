@@ -304,6 +304,8 @@ static bool AT_cmd_read_line(AT_Handle handle, At_RawResponse *res)
             // Omit the response suffix
             lineLen = 0;
             break;
+        default:
+            break;
     }
 
     // Read the rest of the line until we hit the suffix

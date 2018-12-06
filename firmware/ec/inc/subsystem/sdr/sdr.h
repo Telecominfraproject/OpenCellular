@@ -61,7 +61,7 @@ typedef struct Sdr_gpioCfg {
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-void sdr_pwr_control(Sdr_gpioCfg *driver,
+void sdr_pwr_control(const Sdr_gpioCfg *driver,
                      uint8_t control); /* TODO: hack to let OBC work */
 
 /* Schema hooks */
