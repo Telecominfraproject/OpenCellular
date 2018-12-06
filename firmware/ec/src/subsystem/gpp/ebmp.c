@@ -232,7 +232,7 @@ static void ebmp_handle_irq(void *context)
  **    ARGUMENTS       : None
  **    RETURN TYPE     : None
  *****************************************************************************/
-int ebmp_init(Gpp_gpioCfg *driver)
+ReturnStatus ebmp_init(Gpp_gpioCfg *driver)
 {
     pin_ap_boot_alert1 = &driver->pin_ap_boot_alert1;
     pin_ap_boot_alert2 = &driver->pin_ap_boot_alert2;
