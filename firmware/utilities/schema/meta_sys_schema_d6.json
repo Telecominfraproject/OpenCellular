@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title" : "OC-SDR schema",
+    "description" : "OC-SDR system specification",
+    "type": "array",
+    "items": {
+        "$ref": "#/definitions/Subsystem"
+    },
+    "definitions": {
+        "Subsystem": {
+            "title": "Subsystem",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "components": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Component"
+                    }
+                },
+                "driver_cfg": {"type": "string"},
+                "ssHookSet" : {
+                    "type" : "object",
+                    "items" : {
+                        "$ref": "#/definitions/SsHookSet"
+                    }
+                }				
+            },
+            "required": ["name", "components"]
+        },
+        "Component": {
+            "title" : "Component",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "components": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Subcomponent"
+                    }
+                },
+                "driver": {"type": "string"},
+                "driver_cfg": {"type": "string"},
+                "factory_config": {"type": "string"},
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Command"
+                    }
+                },
+                "ssHookSet" : {
+                    "type" : "object",
+                    "items" : {
+                        "$ref": "#/definitions/SsHookSet"
+                    }
+                },
+                "postDisabled": {"type" : "string"},
+                "ss" : {"type" : "string"}
+            },
+            "required": ["name"]
+        },
+        "Subcomponent" : {
+            "title" : "Subcomponent",
+            "type" : "object",
+            "properties": {
+                "name" : {"type" : "string"},
+                "driver" : {"type" : "string"},
+                "driver_cfg" : {"type" : "string"},
+                "postDisabled" : {"type" : "string"},
+                "factory_config" : {"type" : "string"}
+            },
+            "required" : ["name"]
+        },
+        "Command" : {
+            "title" : "Command",
+            "type" : "object",
+            "properties" : {
+                "name": {"type" : "string"},
+                "parameters" : {"type" : "string"},
+                "cb_cmd" : {"type" : "string"}
+            },
+            "required" : ["name"]
+        },
+        "SsHookSet" : {
+            "title" : "SSHookSet",
+            "type" : "object",
+            "properties" : {
+                "preInitFxn": {"type" : "string"},
+                "postInitFxn" : {"type" : "string"}
+            },
+            "required" : ["preInitFxn", "postInitFxn"]
+        }
+    }
+}

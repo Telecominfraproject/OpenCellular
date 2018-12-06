@@ -94,7 +94,10 @@ get_cfg:
 hash:
 	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(OUT) -ec
 
-oc_connect1: $(OUT)/OpenCellular.bin
+gen_schema:
+	cd ../utilities/schema; ./mk_schema.sh
+
+oc_connect1: gen_schema $(OUT)/OpenCellular.bin
 
 $(OUT)/%/compiler.opt $(OUT)/%/linker.cmd : %.cfg
 	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r release $<
