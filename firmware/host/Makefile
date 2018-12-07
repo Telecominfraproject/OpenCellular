@@ -1,9 +1,10 @@
 
 #Makefile for ocmw and cli
 
-CC=gcc
+#CC=gcc-4.8
+CC=aarch64-thunderx-linux-gnu-gcc
 CFLAGS=  -I./ocwdg -I./include -I./../ec -I./../ec/common -I./../ec/platform/oc-sdr/schema -I./../ec/common/inc/global -Wall -Werror -g -fshort-enums
-LIBS =   -lpthread -ledit -lm -lrt
+LIBS = -L/cross_compile_host/libs/built_libs/lib/ -lpthread -ledit -lm -lrt -lncurses
 src_ocmw = $(wildcard ocmw/*.c) $(wildcard ocwdg/*.c) $(wildcard util/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)
 src_occli = $(wildcard occli/*.c) $(wildcard util/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)
 src_ocware_stub = $(wildcard ocwarestub/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)

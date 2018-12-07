@@ -65,8 +65,8 @@ int32_t occli_init_comm(void)
         return ret;
     }
 
-    if (setsockopt(s_sockFd, SOL_SOCKET, SO_RCVTIMEO,
-                        &timeValObj, sizeof(timeValObj)) < 0) {
+    if (setsockopt(s_sockFd, SOL_SOCKET, SO_RCVTIMEO, &timeValObj,
+                   sizeof(timeValObj)) < 0) {
         logerr("setsockopt failed");
         ret = FAILED;
         return ret;
@@ -74,7 +74,7 @@ int32_t occli_init_comm(void)
 
     /* For Alert Capture */
     s_alertSockFd = socket(OCMW_SOCK_ALERT_DOMAIN, OCMW_SOCK_ALERT_TYPE,
-            OCMW_SOCK_ALERT_PROTOCOL);
+                           OCMW_SOCK_ALERT_PROTOCOL);
     if (s_alertSockFd < 0) {
         ret = -errno;
         logerr("socket creation error [%d-%s]", errno, strerror(errno));
@@ -93,8 +93,8 @@ int32_t occli_init_comm(void)
     }
 
     /* Bind host address to the socket */
-    ret = bind(s_alertSockFd, (struct sockaddr*) &s_alertServer,
-                    sizeof(s_alertServer));
+    ret = bind(s_alertSockFd, (struct sockaddr *)&s_alertServer,
+               sizeof(s_alertServer));
     if (ret < 0) {
         ret = -errno;
         logerr("bind error [%d-%s]", errno, strerror(errno));
@@ -133,8 +133,8 @@ int32_t occli_send_cmd_to_ocmw(const char *cmd, int32_t cmdlen)
 
     strncpy(s_displayStr, cmd, cmdlen);
     /* Send the CLI command string to OCMW over UDP socket */
-    ret = sendto(s_sockFd, cmd, cmdlen, 0,
-                (const struct sockaddr *) &s_siServer, strLen);
+    ret = sendto(s_sockFd, cmd, cmdlen, 0, (const struct sockaddr *)&s_siServer,
+                 strLen);
     if (ret < 0) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'sendto' [%d-%s]", errno, errstr);
@@ -157,8 +157,8 @@ int32_t occli_recv_cmd_resp_from_ocmw(char *resp, int32_t resplen)
 
     /* Receive the CLI command execution response string from OCMW over UDP
      socket */
-    ret = recvfrom(s_sockFd, resp, resplen, 0,
-        (struct sockaddr*) &s_siServer, (socklen_t*) &strLen);
+    ret = recvfrom(s_sockFd, resp, resplen, 0, (struct sockaddr *)&s_siServer,
+                   (socklen_t *)&strLen);
     if (ret < 0) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'recvfrom' [%d-%s]", ret, errstr);
@@ -182,7 +182,7 @@ int32_t occli_recv_alertmsg_from_ocmw(char *resp, int32_t resplen)
 
     /* Receive the Alert Message string from OCMW over UDP socket */
     ret = recvfrom(s_alertSockFd, resp, resplen, 0,
-            (struct sockaddr*) &s_alertServer, (socklen_t*) &strLen);
+                   (struct sockaddr *)&s_alertServer, (socklen_t *)&strLen);
     if (ret < 0) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'recvfrom' [%d-%s]", ret, errstr);

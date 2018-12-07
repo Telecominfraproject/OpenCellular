@@ -16,8 +16,8 @@ ocware_stub_ret ocware_stub_init_ethernet_comm(void)
     int32_t inet_atom = 0;
 
     /* Create socket */
-    s_stubSockFd = socket(OCMW_STUB_ETH_SOCK_DOMAIN,
-            OCMW_STUB_ETH_SOCK_TYPE, OCMW_STUB_ETH_SOCK_PROTOCOL);
+    s_stubSockFd = socket(OCMW_STUB_ETH_SOCK_DOMAIN, OCMW_STUB_ETH_SOCK_TYPE,
+                          OCMW_STUB_ETH_SOCK_PROTOCOL);
     if (s_stubSockFd < 0) {
         printf("socket creation error [%d-%s]", errno, strerror(errno));
         return STUB_FAILED;
@@ -28,8 +28,8 @@ ocware_stub_ret ocware_stub_init_ethernet_comm(void)
     s_ocmwStubServer.sin_family = OCMW_STUB_ETH_SOCK_DOMAIN;
     s_ocmwStubServer.sin_port = htons(OCMW_STUB_ETH_SOCK_SERVER_PORT);
     s_ocmwStubServer.sin_addr.s_addr = inet_addr(OCMW_STUB_ETH_SOCK_SERVER_IP);
-    inet_atom = inet_aton(OCMW_STUB_ETH_SOCK_SERVER_IP,
-				&s_ocmwStubServer.sin_addr);
+    inet_atom =
+        inet_aton(OCMW_STUB_ETH_SOCK_SERVER_IP, &s_ocmwStubServer.sin_addr);
     if (inet_atom == 0) {
         printf("inet_aton failed");
         return STUB_FAILED;
@@ -37,8 +37,8 @@ ocware_stub_ret ocware_stub_init_ethernet_comm(void)
     memset(s_ocmwStubServer.sin_zero, '\0', sizeof(s_ocmwStubServer.sin_zero));
 
     /*Bind socket with address struct*/
-    rc = bind(s_stubSockFd, (struct sockaddr *) &s_ocmwStubServer,
-                                                sizeof(s_ocmwStubServer));
+    rc = bind(s_stubSockFd, (struct sockaddr *)&s_ocmwStubServer,
+              sizeof(s_ocmwStubServer));
     if (rc != 0) {
         ocware_stub_deinit_ethernet_comm();
         printf("Ehernet init failed \n");
@@ -72,7 +72,7 @@ ocware_stub_ret ocware_stub_deinit_ethernet_comm()
  *         STUB_FAILED  - for failure
  ******************************************************************************/
 ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer,
-                                                        int32_t bufferlen)
+                                                     int32_t bufferlen)
 {
     int32_t rc = 0;
     const int32_t errstr_len = OCWARE_STUB_ERR_STR_LEN;
@@ -87,8 +87,7 @@ ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer,
     memcpy(data, *buffer, sizeof(data));
 
     rc = sendto(s_stubSockFd, data, OC_EC_MSG_SIZE, 0,
-                            (struct sockaddr *) &s_ocmwStubServer,
-                    dataLen);
+                (struct sockaddr *)&s_ocmwStubServer, dataLen);
     if (rc < 0) {
         strerror_r(errno, errstr, errstr_len);
         printf("Error: 'send' [%d-%s]", errno, errstr);
@@ -108,8 +107,8 @@ ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_recv_msgfrom_middleware(
-    char **buffer, int32_t bufferlen)
+ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer,
+                                                    int32_t bufferlen)
 {
     int32_t rc = 0;
     const int32_t errstr_len = OCWARE_STUB_ERR_STR_LEN;
@@ -120,10 +119,10 @@ ocware_stub_ret ocware_stub_recv_msgfrom_middleware(
     if (buffer == NULL) {
         return STUB_FAILED;
     }
-    /* Receive the CLI command execution response string from OCMW over UDP socket */
-    rc = recvfrom(s_stubSockFd, data, OC_EC_MSG_SIZE,
-            0, (struct sockaddr *) &s_ocmwStubServer,
-				(socklen_t*)&dataLen);
+    /* Receive the CLI command execution response string from OCMW over UDP
+     * socket */
+    rc = recvfrom(s_stubSockFd, data, OC_EC_MSG_SIZE, 0,
+                  (struct sockaddr *)&s_ocmwStubServer, (socklen_t *)&dataLen);
     if (rc < 0) {
         strerror_r(rc, errstr, errstr_len);
         logerr("Error: 'recv' [%d-%s]", rc, errstr);

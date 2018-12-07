@@ -14,6 +14,6 @@
  * @param buflen an input value (by value)
  *
  */
-extern void hexdisp(const unsigned char* buf, int buflen);
+extern void hexdisp(const unsigned char *buf, int buflen);
 
 #endif /* _UTIL_H_ */

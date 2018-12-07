@@ -28,41 +28,37 @@
 #include <ocmp_frame.h>
 #include <ocmw_uart_comm.h>
 
-#define Buf_PARAM_STRUCT_MAX_SIZE   16
-#define MAX_PARM_COUNT          (OCMP_MSG_SIZE - (sizeof(OCMPMessage)\
-                    - sizeof(void *) + sizeof (OCMPHeader)))
+#define Buf_PARAM_STRUCT_MAX_SIZE 16
+#define MAX_PARM_COUNT \
+    (OCMP_MSG_SIZE -   \
+     (sizeof(OCMPMessage) - sizeof(void *) + sizeof(OCMPHeader)))
 
-#define DEBUG_SUBSYSTEM_NBR         11
-#define DEBUG_I2C                   3
-#define DEBUG_MDIO                  8
+#define PARAM_STR_BUFF_SIZE 100
+#define PARAM_TYPE_BUFF_SIZE 32
 
-#define PARAM_STR_BUFF_SIZE         100
-#define PARAM_TYPE_BUFF_SIZE        32
-
-#define OCMW_MAX_SUBSYSTEM_SIZE     16
-#define OCMW_MAX_ACTION_SIZE        16
-#define OCMW_MAX_MSGTYPE_SIZE       16
-#define OCMW_COMMAND_BUFF_SIZE      20
-#define OCMW_POST_DESC_SIZE         24
-#define OCMW_HELP_FRAME_SIZE        40
-#define OCMW_POST_DEVICE_SIZE       40
-#define EEPROM_STATUS_MAX_SIZE      21
-#define EEPROM_SDR_STATUS_SIZE      19
-#define EEPROM_CONFIG_MAX_SIZE      14
-#define EEPROM_CONFIG_SIZE          18
-#define OCMW_MAX_POST_CODE_SIZE     100
-#define TEMP_STR_BUFF_SIZE          100
-
+#define OCMW_MAX_SUBSYSTEM_SIZE 16
+#define OCMW_MAX_ACTION_SIZE 16
+#define OCMW_MAX_MSGTYPE_SIZE 16
+#define OCMW_COMMAND_BUFF_SIZE 20
+#define OCMW_POST_DESC_SIZE 24
+#define OCMW_HELP_FRAME_SIZE 40
+#define OCMW_POST_DEVICE_SIZE 40
+#define EEPROM_STATUS_MAX_SIZE 21
+#define EEPROM_SDR_STATUS_SIZE 19
+#define EEPROM_CONFIG_MAX_SIZE 14
+#define EEPROM_CONFIG_SIZE 18
+#define OCMW_MAX_POST_CODE_SIZE 100
+#define TEMP_STR_BUFF_SIZE 100
 
 typedef enum {
-    VOID    = 0,
-    CHAR    = 1,
-    UCHAR   = 1,
-    SHORT   = 2,
-    USHORT  = 2,
-    INT     = 4,
-    UINT    = 4,
-    FLOAT   = 4
+    VOID = 0,
+    CHAR = 1,
+    UCHAR = 1,
+    SHORT = 2,
+    USHORT = 2,
+    INT = 4,
+    UINT = 4,
+    FLOAT = 4
 } DATA_TYPE;
 
 typedef enum {
@@ -96,25 +92,27 @@ typedef struct {
     int8_t paramPos;
     int8_t paramSize;
     char commandType[OCMW_COMMAND_BUFF_SIZE];
+    char cmdStr[MAX_PARM_COUNT];
 } ocmwSchemaSendBuf;
 
-typedef struct __attribute__((packed, aligned(1))){
-    uint8_t devsn;                              /* device serial Number */
+typedef struct __attribute__((packed, aligned(1))) {
+    uint8_t devsn; /* device serial Number */
     uint8_t subsystem;
-    char subsysName[OCMW_MAX_SUBSYSTEM_SIZE];   /* Subsystem Name */
-    char deviceName[OCMW_POST_DEVICE_SIZE];     /* Device Name */
-    uint8_t status;                         /* device status */
+    char subsysName[OCMW_MAX_SUBSYSTEM_SIZE]; /* Subsystem Name */
+    char deviceName[OCMW_POST_DEVICE_SIZE];   /* Device Name */
+    uint8_t status;                           /* device status */
 } ocwarePostResultData;
 
 typedef struct {
-    unsigned int count;                                         /* Device Status count */
-    ocwarePostResultData results[OCMW_MAX_POST_CODE_SIZE];    /* Post result structure */
+    unsigned int count; /* Device Status count */
+    ocwarePostResultData
+        results[OCMW_MAX_POST_CODE_SIZE]; /* Post result structure */
 } ocwarePostResults;
 
 typedef struct {
-    uint8_t msgtype;                    /* Post Message tyep */
-    uint8_t replycode;                  /* Reply type */
-    char desc[OCMW_POST_DESC_SIZE];     /* Device description */
+    uint8_t msgtype;                /* Post Message tyep */
+    uint8_t replycode;              /* Reply type */
+    char desc[OCMW_POST_DESC_SIZE]; /* Device description */
 } ocwarePostReplyCode;
 
 /*
@@ -129,7 +127,8 @@ extern int32_t ocmw_sem_wait_nointr(sem_t *sem);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_sem_timedwait_nointr(sem_t *sem, const struct timespec *timeout);
+extern int32_t ocmw_sem_timedwait_nointr(sem_t *sem,
+                                         const struct timespec *timeout);
 /*
  * @param paramindex an input value (by value)
  * @param paramSizebuf an input value (by pointer)
@@ -138,14 +137,14 @@ extern int32_t ocmw_sem_timedwait_nointr(sem_t *sem, const struct timespec *time
  *
  */
 extern void ocmw_dataparsing_from_db(int32_t paramIndex, int32_t *paramSizebuf,
-        int32_t *dataSize, int32_t *pos);
+                                     int32_t *dataSize, int32_t *pos);
 /*
  * @param input an input buffer (by pointer)
  * @param bufParamStruct an output buffer (by pointer)
  *
  */
 extern void ocmw_dataparsing_from_ec(ocmwSendRecvBuf *input,
-        bufParam * bufParamStruct);
+                                     bufParam *bufParamStruct);
 /*
  * @param uartInputBuf an input buffer (by pointer)
  *
@@ -157,7 +156,7 @@ extern int32_t ocmw_fill_inputstruct(ocmwSendRecvBuf *uartInputBuf);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int8_t ocmw_parse_eepromdata_from_ec (ocmwSendRecvBuf ecInputData);
+extern int8_t ocmw_parse_eepromdata_from_ec(ocmwSendRecvBuf ecInputData);
 /*
  * @param ecInputData an input data (by value)
  *

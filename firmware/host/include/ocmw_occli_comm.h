@@ -11,14 +11,14 @@
 
 #include <ocmw_helper.h>
 
-#define PARAMSTR_NUMBER_LEN         12
-#define TESTMOD_MAX_LEN             16
-#define RES_STR_BUFF_SIZE           10000
-#define TEMP_STR_BUFF_SIZE          100
-#define ALERT_STR_BUFF_SIZE         128
-#define CMD_STR_BUFF_SIZE           100
-#define OCMW_MAX_IMEI_SIZE          15
-#define OCMW_MAX_MSG_SIZE           20
+#define PARAMSTR_NUMBER_LEN 12
+#define TESTMOD_MAX_LEN 16
+#define RES_STR_BUFF_SIZE 10000
+#define TEMP_STR_BUFF_SIZE 100
+#define ALERT_STR_BUFF_SIZE 128
+#define CMD_STR_BUFF_SIZE 100
+#define OCMW_MAX_IMEI_SIZE 15
+#define OCMW_MAX_MSG_SIZE 20
 
 typedef struct {
     int8_t pin;
@@ -30,10 +30,11 @@ typedef struct {
     uint16_t regValue;
 } debugMDIOData;
 
-typedef struct  __attribute__((packed, aligned(1))){
+typedef struct __attribute__((packed, aligned(1))) {
     uint8_t slaveAddress;
+    uint8_t writeCount;
+    uint32_t regAddress;
     uint8_t numOfBytes;
-    uint8_t regAddress;
     uint16_t regValue;
 } debugI2CData;
 
@@ -85,14 +86,15 @@ extern int32_t ocmw_deinit_occli_comm(void);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_recv_clicmd_from_occli(char* cmdstr, int32_t cmdlen);
+extern int32_t ocmw_recv_clicmd_from_occli(char *cmdstr, int32_t cmdlen);
 /*
  * @param resp an input value (by pointer)
  * @param resplen an input value (by value)
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_send_clicmd_resp_to_occli(const char* resp, int32_t resplen);
+extern int32_t ocmw_send_clicmd_resp_to_occli(const char *resp,
+                                              int32_t resplen);
 /*
  * @param cmdstr an input value (by pointer)
  * @param response an output value (by pointer)
@@ -118,7 +120,7 @@ extern int32_t ocmw_deinit_occli_alert_comm(void);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_send_alert_to_occli(const char* buf, int32_t buflen);
+extern int32_t ocmw_send_alert_to_occli(const char *buf, int32_t buflen);
 
 extern char ocmw_retrieve_post_results_count(ocwarePostResults *psData);
 

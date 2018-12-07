@@ -57,7 +57,7 @@ int32_t ocmw_init_occli_comm()
     s_siServer.sin_port = htons(OCMW_SOCK_SERVER_PORT);
 
     /* Bind host address to the socket */
-    ret = bind(s_ssockFd, (struct sockaddr*) &s_siServer, sizeof(s_siServer));
+    ret = bind(s_ssockFd, (struct sockaddr *)&s_siServer, sizeof(s_siServer));
     if (ret < 0) {
         ret = -errno;
         logerr("bind error [%d-%s]", errno, strerror(errno));
@@ -71,8 +71,8 @@ int32_t ocmw_init_occli_comm()
 
     /***** Alert related socket init *****/
     /* Create socket */
-    s_ssockfdAlert = socket(OCMW_SOCK_DOMAIN, OCMW_SOCK_TYPE,
-                                                OCMW_SOCK_PROTOCOL);
+    s_ssockfdAlert =
+        socket(OCMW_SOCK_DOMAIN, OCMW_SOCK_TYPE, OCMW_SOCK_PROTOCOL);
     if (s_ssockfdAlert < 0) {
         ret = -errno;
         logerr("socket creation error [%d-%s]", errno, strerror(errno));
@@ -123,7 +123,7 @@ int32_t ocmw_deinit_occli_alert_comm(void)
  * Input(s)         : buf, buflen
  * Output(s)        :
  ***************************************************************************/
-int32_t ocmw_send_clicmd_resp_to_occli(const char* buf, int32_t buflen)
+int32_t ocmw_send_clicmd_resp_to_occli(const char *buf, int32_t buflen)
 {
     char errstr[OCMW_SOCKET_ERROR_SIZE];
     int32_t ret = 0;
@@ -131,7 +131,7 @@ int32_t ocmw_send_clicmd_resp_to_occli(const char* buf, int32_t buflen)
 
     /* Send the message buffer over IPC */
     ret = sendto(s_ssockFd, buf, buflen, 0,
-            (const struct sockaddr *) &s_siClient, destLen);
+                 (const struct sockaddr *)&s_siClient, destLen);
     if (ret == -1) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'sendto' [%d-%s]", errno, errstr);
@@ -145,15 +145,15 @@ int32_t ocmw_send_clicmd_resp_to_occli(const char* buf, int32_t buflen)
  * Input(s)         : buflen
  * Output(s)        : buf
  ***************************************************************************/
-int32_t ocmw_recv_clicmd_from_occli(char* buf, int32_t buflen)
+int32_t ocmw_recv_clicmd_from_occli(char *buf, int32_t buflen)
 {
     char errstr[OCMW_SOCKET_ERROR_SIZE];
     int32_t ret = 0;
     int32_t destLen = sizeof(s_siClient);
 
     /* Receive oc messages from other processes */
-    ret = recvfrom(s_ssockFd, buf, buflen, 0,
-                (struct sockaddr*) &s_siClient, (socklen_t*) &destLen);
+    ret = recvfrom(s_ssockFd, buf, buflen, 0, (struct sockaddr *)&s_siClient,
+                   (socklen_t *)&destLen);
     if (ret <= 0) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'recvfrom' [%d-%s]", errno, errstr);
@@ -168,7 +168,7 @@ int32_t ocmw_recv_clicmd_from_occli(char* buf, int32_t buflen)
  * Input(s)         : buf, buflen
  * Output(s)        :
  ***************************************************************************/
-int32_t ocmw_send_alert_to_occli(const char* buf, int32_t buflen)
+int32_t ocmw_send_alert_to_occli(const char *buf, int32_t buflen)
 {
     char errstr[OCMW_SOCKET_ERROR_SIZE];
     int32_t ret = 0;
@@ -176,7 +176,7 @@ int32_t ocmw_send_alert_to_occli(const char* buf, int32_t buflen)
 
     /* Send the message buffer over IPC */
     ret = sendto(s_ssockfdAlert, buf, buflen, 0,
-            (const struct sockaddr *) &s_siServerAlert, destLen);
+                 (const struct sockaddr *)&s_siServerAlert, destLen);
     if (ret == -1) {
         strerror_r(errno, errstr, OCMW_SOCKET_ERROR_SIZE);
         logerr("Error: 'sendto' [%d-%s]", errno, errstr);

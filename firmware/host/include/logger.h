@@ -12,44 +12,44 @@
 #include <syslog.h>
 #include <libgen.h>
 
-#define __filename__    (basename(__FILE__))
+#define __filename__ (basename(__FILE__))
 #ifdef CONSOLE_LOG
-#define logit(facility, fmt, ...)                           \
-{                                                           \
-    if(facility != LOG_DEBUG)                               \
-        printf(fmt "\n", ##__VA_ARGS__);                    \
-    else                                                    \
-        printf ("[%s:%d, %s()]:" fmt  "\n", __filename__,   \
-    __LINE__, __func__, ##__VA_ARGS__);                     \
-}
+#    define logit(facility, fmt, ...)                                     \
+        {                                                                 \
+            if (facility != LOG_DEBUG)                                    \
+                printf(fmt "\n", ##__VA_ARGS__);                          \
+            else                                                          \
+                printf("[%s:%d, %s()]:" fmt "\n", __filename__, __LINE__, \
+                       __func__, ##__VA_ARGS__);                          \
+        }
 
 #else /* syslog */
 
-#define logit(facility, fmt, ...)                           \
-{                                                           \
-    if(facility != LOG_DEBUG)                               \
-        syslog(facility, fmt "\n", ##__VA_ARGS__);          \
-    else                                                    \
-        syslog(facility, "<d> [%s:%d, %s()]: " fmt "\n",    \
-     __filename__, __LINE__, __func__, ##__VA_ARGS__);      \
-}
+#    define logit(facility, fmt, ...)                                          \
+        {                                                                      \
+            if (facility != LOG_DEBUG)                                         \
+                syslog(facility, fmt "\n", ##__VA_ARGS__);                     \
+            else                                                               \
+                syslog(facility, "<d> [%s:%d, %s()]: " fmt "\n", __filename__, \
+                       __LINE__, __func__, ##__VA_ARGS__);                     \
+        }
 
 #endif
 
-#define logemerg(fmt, ...)  logit(LOG_EMERG,   "<E> " fmt, ##__VA_ARGS__)
-#define logalert(fmt, ...)  logit(LOG_ALERT,   "<A> " fmt, ##__VA_ARGS__)
-#define logcrit(fmt, ...)   logit(LOG_CRIT,    "<C> " fmt, ##__VA_ARGS__)
-#define logerr(fmt, ...)    logit(LOG_ERR,     "<e> " fmt, ##__VA_ARGS__)
-#define logwarn(fmt, ...)   logit(LOG_WARNING, "<w> " fmt, ##__VA_ARGS__)
-#define lognotice(fmt, ...) logit(LOG_NOTICE,  "<n> " fmt, ##__VA_ARGS__)
-#define loginfo(fmt, ...)   logit(LOG_INFO,    "<i> " fmt, ##__VA_ARGS__)
-#define logdebug(fmt, ...)  logit(LOG_DEBUG,          fmt, ##__VA_ARGS__)
+#define logemerg(fmt, ...) logit(LOG_EMERG, "<E> " fmt, ##__VA_ARGS__)
+#define logalert(fmt, ...) logit(LOG_ALERT, "<A> " fmt, ##__VA_ARGS__)
+#define logcrit(fmt, ...) logit(LOG_CRIT, "<C> " fmt, ##__VA_ARGS__)
+#define logerr(fmt, ...) logit(LOG_ERR, "<e> " fmt, ##__VA_ARGS__)
+#define logwarn(fmt, ...) logit(LOG_WARNING, "<w> " fmt, ##__VA_ARGS__)
+#define lognotice(fmt, ...) logit(LOG_NOTICE, "<n> " fmt, ##__VA_ARGS__)
+#define loginfo(fmt, ...) logit(LOG_INFO, "<i> " fmt, ##__VA_ARGS__)
+#define logdebug(fmt, ...) logit(LOG_DEBUG, fmt, ##__VA_ARGS__)
 
 /*
  * @param ident an input value (by pointer)
  *
  */
-extern void initlog(const char* ident);
+extern void initlog(const char *ident);
 /*
  * deinitialize the logging routine
  *

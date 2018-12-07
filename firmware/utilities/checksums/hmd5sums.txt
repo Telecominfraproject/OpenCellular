@@ -1,0 +1,6 @@
+bbbff0b7ed6be2f634f13836c582b450  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/occli
+7c2b73b9eeec25f20f509b0c33e3c075  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/ocmw_uart
+4825aa9be9853ae733851207d82d66a6  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/ocmw_eth
+045efd2bc2b422716cdf30183de08411  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/ocmw_usb
+62769a5e90ee410b2ee2e57b2670f314  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/ocware_stub
+0a66141bf9b7e04af004347d50cb8366  /home/oc/schema_GBCV2/openCellular/firmware/host/bin/ocmw_eth_stub

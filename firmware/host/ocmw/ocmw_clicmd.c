@@ -22,8 +22,8 @@
 #include <ocmp_frame.h>
 #include <ctype.h>
 
-#define INVALID_SYNTAX      "Error : Invalid syntax"
-#define INSUFFICIENT_PARAM  "Error : Insufficient parameters"
+#define INVALID_SYNTAX "Error : Invalid syntax"
+#define INSUFFICIENT_PARAM "Error : Insufficient parameters"
 
 extern int8_t obcTestingmoduleData[MAX_PARM_COUNT];
 extern int8_t dataOutBufFromEc[MAX_PARM_COUNT];
@@ -32,7 +32,7 @@ extern int64_t recvdParamVal;
 extern int8_t eepromStatusFlag;
 extern int8_t eepromStatusFlag;
 extern int32_t eepromFlag;
-extern uint8_t  ocwarePostArrayIndex;
+extern uint8_t ocwarePostArrayIndex;
 debugI2CData I2CInfo;
 debugMDIOData MDIOInfo;
 
@@ -40,35 +40,35 @@ struct matchString {
     const char *key;
     ocmw_token_t token;
 } ocmwTokenTable[] = {
-        { "set", SET_STR },
-        { "get", GET_STR },
-        { "reset", RESET_STR },
-        { "enable", ENABLE_STR },
-        { "disable", DISABLE_STR },
-        {"active", ACTIVE_STR },
-        { "echo", ECHO_STR },
-        { "disconnect_nw", DISCONNECT_STR },
-        { "connect_nw", CONNECT_STR },
-        { "send", SEND_STR },
-        { "dial", DIAL_STR },
-        { "answer", ANSWER_STR },
-        { "hangup", HANGUP_STR },
-        { "en_loopBk", ELOOPBK_STR },
-        { "dis_loopBk", DLOOPBK_STR },
-        { "en_pktGen", EPKTGEN_STR },
-        { "dis_pktGen", DPKTGEN_STR },
-        { NULL, MAX_STR },
+    { "set", SET_STR },
+    { "get", GET_STR },
+    { "reset", RESET_STR },
+    { "enable", ENABLE_STR },
+    { "disable", DISABLE_STR },
+    { "active", ACTIVE_STR },
+    { "echo", ECHO_STR },
+    { "disconnect_nw", DISCONNECT_STR },
+    { "connect_nw", CONNECT_STR },
+    { "send", SEND_STR },
+    { "dial", DIAL_STR },
+    { "answer", ANSWER_STR },
+    { "hangup", HANGUP_STR },
+    { "en_loopBk", ELOOPBK_STR },
+    { "dis_loopBk", DLOOPBK_STR },
+    { "en_pktGen", EPKTGEN_STR },
+    { "dis_pktGen", DPKTGEN_STR },
+    { NULL, MAX_STR },
 };
 
 struct matchSetGet {
     const char *key;
     ocmw_setGet token;
 } ocmwSetGetTable[] = {
-        { "hci.led.fw", HCI_STR },
-        { "debug", DEBUG_STR },
-        {"system.comp_all.post.results", RESULT_STR  },
-        {"system.comp_all.post.enable", ENABLE_SET_STR  },
-        { NULL, GETSETMAX },
+    { "hci.led.fw", HCI_STR },
+    { "debug", DEBUG_STR },
+    { "system.comp_all.post.results", RESULT_STR },
+    { "system.comp_all.post.enable", ENABLE_SET_STR },
+    { NULL, GETSETMAX },
 };
 /**************************************************************************
  * Function Name    : ocmw_tokenize_class
@@ -84,7 +84,7 @@ static int32_t ocmw_tokenize_class(char *str, char *param, int32_t option)
 
     token = strtok(str, " .");
     if (token == NULL)
-            return -1;
+        return -1;
 
     while (token) {
         if (count == 2) {
@@ -94,9 +94,9 @@ static int32_t ocmw_tokenize_class(char *str, char *param, int32_t option)
         token = strtok(NULL, " .");
         count++;
 
-        if(option == 1){
-                    strncpy(param, token, PARAMSTR_NUMBER_LEN);
-                    break;
+        if (option == 1) {
+            strncpy(param, token, PARAMSTR_NUMBER_LEN);
+            break;
         }
     }
     return SUCCESS;
@@ -108,8 +108,8 @@ static int32_t ocmw_tokenize_class(char *str, char *param, int32_t option)
  * Input(s)         : cmdstr
  * Output(s)        : strTokenCount, strTokenArray
  ***************************************************************************/
-static int32_t ocmw_tokenize(const char *cmdstr,
-                                int32_t *strTokenCount, char ***strTokenArray)
+static int32_t ocmw_tokenize(const char *cmdstr, int32_t *strTokenCount,
+                             char ***strTokenArray)
 {
     char *str = NULL;
     char *saveptr = NULL;
@@ -125,7 +125,7 @@ static int32_t ocmw_tokenize(const char *cmdstr,
     paramStr = strrchr(cmdstr, '.');
     *paramStr = ' ';
 
-    for (index = 1, str = (char*) cmdstr;; index++, str = NULL) {
+    for (index = 1, str = (char *)cmdstr;; index++, str = NULL) {
         token = strtok_r(str, delim, &saveptr);
         if (token == NULL) {
             break;
@@ -133,8 +133,8 @@ static int32_t ocmw_tokenize(const char *cmdstr,
 
         localStrTokenCount++;
         temp = localStrTokenArray;
-        localStrTokenArray = realloc(localStrTokenArray,
-                    sizeof(char *) * localStrTokenCount);
+        localStrTokenArray =
+            realloc(localStrTokenArray, sizeof(char *) * localStrTokenCount);
         if (localStrTokenArray == NULL) {
             logerr("realloc failed");
             /* Free the original block of memory before realloc */
@@ -163,8 +163,7 @@ int32_t ocmw_check_numeric_number(char *numstring)
     int32_t len = strlen(numstring);
 
     while (index < len) {
-        if ((*(numstring + index) < '0') ||
-                    (*(numstring + index) > '9')) {
+        if ((*(numstring + index) < '0') || (*(numstring + index) > '9')) {
             return FAILED;
         }
         index++;
@@ -208,12 +207,12 @@ int8_t ocmw_string_parse(char *string, char *outStr)
  * Input(s)         : strTokenArray
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_set_config(char* strTokenArray[], char *response)
+static int32_t ocmw_handle_set_config(char *strTokenArray[], char *response)
 {
     char *paramStr;
     void *paramvalue;
     int32_t ret = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
@@ -224,11 +223,12 @@ static int32_t ocmw_handle_set_config(char* strTokenArray[], char *response)
     strcpy(tempParamStr, strTokenArray[0]);
 
     ret = ocmw_msgproc_send_msg(&strTokenArray[0], OCMP_AXN_TYPE_SET,
-                        OCMP_MSG_TYPE_CONFIG, (int8_t *) paramStr, paramvalue);
+                                OCMP_MSG_TYPE_CONFIG, (int8_t *)paramStr,
+                                paramvalue);
 
-    if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s : %s", strTokenArray[0],
-          strTokenArray[1], strTokenArray[2],
-          (ret != 0) ? "Failed" : "Success")) < 0) {
+    if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s : %s",
+                  strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                  (ret != 0) ? "Failed" : "Success")) < 0) {
         return FAILED;
     }
 
@@ -241,10 +241,10 @@ static int32_t ocmw_handle_set_config(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_show_config(char* strTokenArray[], char *response)
+static int32_t ocmw_handle_show_config(char *strTokenArray[], char *response)
 {
     char *paramStr;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
     int32_t paramVal = 0;
     int32_t ret = 0;
 
@@ -255,24 +255,26 @@ static int32_t ocmw_handle_show_config(char* strTokenArray[], char *response)
     paramStr = strTokenArray[0];
     strcpy(tempParamStr, strTokenArray[0]);
 
-
     ret = ocmw_msgproc_send_msg(&strTokenArray[0], OCMP_AXN_TYPE_GET,
-                OCMP_MSG_TYPE_CONFIG, (int8_t *) paramStr, &paramVal);
+                                OCMP_MSG_TYPE_CONFIG, (int8_t *)paramStr,
+                                &paramVal);
 
     if (ret != 0) {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : Failed",
-                tempParamStr, strTokenArray[1])) < 0) {
+                      tempParamStr, strTokenArray[1])) < 0) {
             return FAILED;
         }
     } else {
-        if (eepromFlag > 0){
+        if (eepromFlag > 0) {
             if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s",
-                tempParamStr, strTokenArray[1], dataOutBufFromEc)) < 0) {
+                          tempParamStr, strTokenArray[1], dataOutBufFromEc)) <
+                0) {
                 return FAILED;
             }
         } else {
             if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %" PRId64,
-                (int8_t *)tempParamStr, strTokenArray[1], recvdParamVal)) <0) {
+                          (int8_t *)tempParamStr, strTokenArray[1],
+                          recvdParamVal)) < 0) {
                 return FAILED;
             }
         }
@@ -286,12 +288,12 @@ static int32_t ocmw_handle_show_config(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_show_status(char* strTokenArray[], char *response)
+static int32_t ocmw_handle_show_status(char *strTokenArray[], char *response)
 {
     char *paramStr;
     int32_t ret = 0;
     int32_t value = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
@@ -300,23 +302,23 @@ static int32_t ocmw_handle_show_status(char* strTokenArray[], char *response)
     paramStr = strTokenArray[0];
     strcpy(tempParamStr, strTokenArray[0]);
 
-
     ret = ocmw_msgproc_send_msg(&strTokenArray[0], OCMP_AXN_TYPE_GET,
-            OCMP_MSG_TYPE_STATUS, (int8_t *) paramStr, (void*) &value);
+                                OCMP_MSG_TYPE_STATUS, (int8_t *)paramStr,
+                                (void *)&value);
 
     if (ret != 0) {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : Failed",
-                tempParamStr, strTokenArray[1])) < 0) {
+                      tempParamStr, strTokenArray[1])) < 0) {
             return FAILED;
         }
-     } else if (eepromFlag > 0) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s",
-                    tempParamStr, strTokenArray[1], dataOutBufFromEc)) < 0) {
-                return FAILED;
-            }
+    } else if (eepromFlag > 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s", tempParamStr,
+                      strTokenArray[1], dataOutBufFromEc)) < 0) {
+            return FAILED;
+        }
     } else {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %" PRId64,
-                tempParamStr, strTokenArray[1], recvdParamVal)) < 0) {
+                      tempParamStr, strTokenArray[1], recvdParamVal)) < 0) {
             return FAILED;
         }
     }
@@ -330,11 +332,11 @@ static int32_t ocmw_handle_show_status(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray, action
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
-        char *response)
+static int32_t ocmw_handle_debug_command_function(char *strTokenArray[],
+                                                  char *response)
 {
-    char paramStr[PARAM_STR_BUFF_SIZE] = {0};
-    char displayStr[PARAM_STR_BUFF_SIZE] = {0};
+    char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
+    char displayStr[PARAM_STR_BUFF_SIZE] = { 0 };
     void *paramvalue = NULL;
     int32_t value = 0;
     int32_t ret = 0;
@@ -344,86 +346,78 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
-    if((strncmp("debug", strTokenArray[0],
-        strlen("debug")) == 0) &&
-        (strncmp(strTokenArray[1], "set", strlen("set"))
-                                    == 0)) {
+    if ((strncmp("debug", strTokenArray[0], strlen("debug")) == 0) &&
+        (strncmp(strTokenArray[1], "set", strlen("set")) == 0)) {
         /* Registers debug option */
-        if((strncmp("debug.I2C", strTokenArray[0],
-            strlen("debug.I2C")) == 0) &&
-           (strncmp(strTokenArray[1], "set", strlen("set"))
-                                    == 0)) {
+        if (strstr(strTokenArray[0], "I2C") &&
+            (strncmp(strTokenArray[1], "set", strlen("set")) == 0)) {
             I2CInfo.slaveAddress = atoi(strTokenArray[2]);
-            I2CInfo.numOfBytes = atoi(strTokenArray[3]);
+            I2CInfo.writeCount = atoi(strTokenArray[3]);
             I2CInfo.regAddress = atoi(strTokenArray[4]);
-            I2CInfo.regValue = atoi(strTokenArray[5]);
-            paramvalue = (void*) &I2CInfo;
-            sprintf(displayStr, "%s (slave address :%s noOfBytes :%s"
-                " Register Address :%s) %s= %s", strTokenArray[0],
-                strTokenArray[2], strTokenArray[3],
-                strTokenArray[4], strTokenArray[1], strTokenArray[5]);
-        } else if ((strncmp("debug.ethernet", strTokenArray[0],
-            strlen("debug.ethernet")) == 0)) {
+            I2CInfo.numOfBytes = atoi(strTokenArray[5]);
+            I2CInfo.regValue = atoi(strTokenArray[6]);
+            paramvalue = (void *)&I2CInfo;
+            sprintf(displayStr,
+                    "%s (slave address :%s writeCount :%s"
+                    " Register Address :%s noOfBytes :%s) %s= %s",
+                    strTokenArray[0], strTokenArray[2], strTokenArray[3],
+                    strTokenArray[4], strTokenArray[5], strTokenArray[1],
+                    strTokenArray[6]);
+        } else if (strstr(strTokenArray[0], "debug.ethernet")) {
             MDIOInfo.regAddress = atoi(strTokenArray[2]);
             MDIOInfo.regValue = atoi(strTokenArray[3]);
-            paramvalue = (void*) &MDIOInfo;
+            paramvalue = (void *)&MDIOInfo;
             sprintf(displayStr, "%s (Register Address :%s) %s = %s",
-                strTokenArray[0], strTokenArray[2],
-                strTokenArray[1], strTokenArray[3]);
+                    strTokenArray[0], strTokenArray[2], strTokenArray[1],
+                    strTokenArray[3]);
         } else {
             GPIOInfo.pin = atoi(strTokenArray[2]);
             GPIOInfo.value = atoi(strTokenArray[3]);
-            paramvalue = (void*) &GPIOInfo;
-            sprintf(displayStr, "%s (Pin No :%s) %s = %s",
-                strTokenArray[0], strTokenArray[2],
-                strTokenArray[1], strTokenArray[3]);
+            paramvalue = (void *)&GPIOInfo;
+            sprintf(displayStr, "%s (Pin No :%s) %s = %s", strTokenArray[0],
+                    strTokenArray[2], strTokenArray[1], strTokenArray[3]);
         }
-    } else if((strncmp("debug", strTokenArray[0],
-        strlen("debug")) == 0) &&
-        (strncmp(strTokenArray[1], "get", strlen("get"))
-                                    == 0)) {
+    } else if ((strncmp("debug", strTokenArray[0], strlen("debug")) == 0) &&
+               (strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
         /* Registers debug option */
-        if((strncmp("debug.I2C", strTokenArray[0],
-                strlen("debug.I2C")) == 0) &&
-           (strncmp(strTokenArray[1], "get", strlen("get"))
-                                    == 0)) {
+        if (strstr(strTokenArray[0], "I2C") &&
+            (strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
             I2CInfo.slaveAddress = atoi(strTokenArray[2]);
-            I2CInfo.numOfBytes = atoi(strTokenArray[3]);
+            I2CInfo.writeCount = atoi(strTokenArray[3]);
             I2CInfo.regAddress = atoi(strTokenArray[4]);
-            paramvalue = (void*) &I2CInfo;
-            sprintf(displayStr, "%s (slave address :%s noOfBytes :%s"
-                " Register Address :%s) %s", strTokenArray[0],
-                strTokenArray[2], strTokenArray[3],
-                strTokenArray[4], strTokenArray[1]);
-         } else if ((strncmp("debug.ethernet", strTokenArray[0],
-            strlen("debug.ethernet")) == 0)) {
+            I2CInfo.numOfBytes = atoi(strTokenArray[5]);
+            paramvalue = (void *)&I2CInfo;
+            sprintf(displayStr,
+                    "%s (slave address :%s noOfBytes :%s"
+                    " Register Address :%s) %s",
+                    strTokenArray[0], strTokenArray[2], strTokenArray[3],
+                    strTokenArray[4], strTokenArray[1]);
+        } else if (strstr(strTokenArray[0], "debug.ethernet")) {
             MDIOInfo.regAddress = atoi(strTokenArray[2]);
-            paramvalue = (void*) &MDIOInfo;
+            paramvalue = (void *)&MDIOInfo;
             sprintf(displayStr, "%s (Register Address :%s) %s",
-                strTokenArray[0], strTokenArray[2],
-                strTokenArray[1]);
+                    strTokenArray[0], strTokenArray[2], strTokenArray[1]);
         } else {
             GPIOInfo.pin = atoi(strTokenArray[2]);
-            paramvalue = (void*) &GPIOInfo;
-            sprintf(displayStr, "%s (Pin No :%s) %s",
-                strTokenArray[0], strTokenArray[2],
-                strTokenArray[1]);
+            paramvalue = (void *)&GPIOInfo;
+            sprintf(displayStr, "%s (Pin No :%s) %s", strTokenArray[0],
+                    strTokenArray[2], strTokenArray[1]);
         }
     } else {
-        paramvalue = (void*) &value;
+        paramvalue = (void *)&value;
     }
-    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-        strTokenArray[1],strTokenArray[0])) < 0) {
+    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
+                  strTokenArray[0])) < 0) {
         return FAILED;
     }
-    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
-            OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr, paramvalue);
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, paramvalue);
 
     if (ret != SUCCESS) {
         snprintf(response, RES_STR_BUFF_SIZE, "%s : Failed", displayStr);
     } else {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s %s",
-                strTokenArray[0], dataOutBufFromEc)) < 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s %s", strTokenArray[0],
+                      dataOutBufFromEc)) < 0) {
             return FAILED;
         }
     }
@@ -436,105 +430,116 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
  * Input(s)         : strTokenArray, action
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_testmod_command_function(char* strTokenArray[],
-        char *response)
+static int32_t ocmw_handle_testmod_command_function(char *strTokenArray[],
+                                                    char *response)
 {
-    char paramStr[PARAM_STR_BUFF_SIZE] = {0};
-    char msgstr[PARAM_STR_BUFF_SIZE] = {0};
+    char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
+    char msgstr[PARAM_STR_BUFF_SIZE] = { 0 };
     void *paramvalue = NULL;
     int32_t value = 0;
     int32_t len = 0;
     int32_t ret = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
 
-    if ((strncmp(strTokenArray[1], "send", strlen("send"))) ==
-                          0) {
+    if ((strncmp(strTokenArray[1], "send", strlen("send"))) == 0) {
         if (strlen(strTokenArray[2]) > OCMW_MAX_IMEI_SIZE) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-                    "(number = %s, msg = %s) : Error : Number "
-                    "Invalid", strTokenArray[0], strTokenArray[1],
-                    strTokenArray[2], strTokenArray[3])) < 0) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE,
+                          "%s.%s "
+                          "(number = %s, msg = %s) : Error : Number "
+                          "Invalid",
+                          strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                          strTokenArray[3])) < 0) {
                 return FAILED;
             }
             return FAILED;
         }
         if (ocmw_check_numeric_number(strTokenArray[2]) != SUCCESS) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-                    "(number = %s, msg = %s) : Error : Number "
-                    "Invalid", strTokenArray[0], strTokenArray[1],
-                    strTokenArray[2], strTokenArray[3])) < 0) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE,
+                          "%s.%s "
+                          "(number = %s, msg = %s) : Error : Number "
+                          "Invalid",
+                          strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                          strTokenArray[3])) < 0) {
                 return FAILED;
             }
             return FAILED;
         }
         len = strlen(strTokenArray[3]);
-        len =
-        (len < OCMW_MAX_MSG_SIZE) ? len : OCMW_MAX_MSG_SIZE - 1;
-        if ((snprintf(msgstr, PARAM_STR_BUFF_SIZE, "%s",
-                strTokenArray[2]))
-                < 0) {
+        len = (len < OCMW_MAX_MSG_SIZE) ? len : OCMW_MAX_MSG_SIZE - 1;
+        if ((snprintf(msgstr, PARAM_STR_BUFF_SIZE, "%s", strTokenArray[2])) <
+            0) {
             return FAILED;
         }
         if ((snprintf(&msgstr[TESTMOD_MAX_LEN], PARAM_STR_BUFF_SIZE, "%s",
-                        strTokenArray[3])) < 0) {
+                      strTokenArray[3])) < 0) {
             return FAILED;
         }
-        paramvalue = (void *) msgstr;
-    } else if (strncmp(strTokenArray[1], "dial", strlen("dial")) ==
-                         0) {
+        paramvalue = (void *)msgstr;
+    } else if (strncmp(strTokenArray[1], "dial", strlen("dial")) == 0) {
         if (strlen(strTokenArray[2]) > OCMW_MAX_IMEI_SIZE) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-                    "(number = %s) : Error : Number "
-                    "Invalid", strTokenArray[0], strTokenArray[1], strTokenArray[2])) < 0) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE,
+                          "%s.%s "
+                          "(number = %s) : Error : Number "
+                          "Invalid",
+                          strTokenArray[0], strTokenArray[1],
+                          strTokenArray[2])) < 0) {
                 return FAILED;
             }
             return FAILED;
         }
         if (ocmw_check_numeric_number(strTokenArray[2]) != SUCCESS) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-                    "(number = %s) : Error : Number "
-                    "Invalid", strTokenArray[0], strTokenArray[1], strTokenArray[2])) < 0) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE,
+                          "%s.%s "
+                          "(number = %s) : Error : Number "
+                          "Invalid",
+                          strTokenArray[0], strTokenArray[1],
+                          strTokenArray[2])) < 0) {
                 return FAILED;
             }
             return FAILED;
         }
-        paramvalue = (void*) (strTokenArray[2]);
+        paramvalue = (void *)(strTokenArray[2]);
     } else {
-        paramvalue = (void*) &value;
+        paramvalue = (void *)&value;
     }
-    strcpy(tempParamStr,strTokenArray[0]);
-    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-        strTokenArray[1], strTokenArray[0])) < 0) {
+    strcpy(tempParamStr, strTokenArray[0]);
+    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
+                  strTokenArray[0])) < 0) {
         return FAILED;
     }
-    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
-            OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr,paramvalue);
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, paramvalue);
     if (strncmp(strTokenArray[1], "get", strlen("get")) == 0) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s",
-                tempParamStr, strTokenArray[1], dataOutBufFromEc)) < 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s", tempParamStr,
+                      strTokenArray[1], dataOutBufFromEc)) < 0) {
             return FAILED;
         }
     } else if (strncmp(strTokenArray[1], "send", strlen("send")) == 0) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s (number = %s msg = %s)"
-                " : %s", strTokenArray[0], strTokenArray[1], strTokenArray[2],
-                strTokenArray[3], (ret != SUCCESS) ? "Failed" : "Success")) < 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE,
+                      "%s.%s (number = %s msg = %s)"
+                      " : %s",
+                      strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                      strTokenArray[3],
+                      (ret != SUCCESS) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     } else if (strncmp(strTokenArray[1], "dial", strlen("dial")) == 0) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s (number = %s) :"
-                " %s", strTokenArray[0], strTokenArray[1], strTokenArray[2],
-                (ret != SUCCESS) ? "Failed" : "Success")) < 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE,
+                      "%s.%s (number = %s) :"
+                      " %s",
+                      strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                      (ret != SUCCESS) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     } else {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s", strTokenArray[0],
-                strTokenArray[1], (ret != SUCCESS) ? "Failed" : "Success")) <
-                0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s",
+                      strTokenArray[0], strTokenArray[1],
+                      (ret != SUCCESS) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     }
@@ -548,15 +553,15 @@ static int32_t ocmw_handle_testmod_command_function(char* strTokenArray[],
  * Input(s)         : strTokenArray, action
  * Output(s)        : response
  ***************************************************************************/
-static int8_t ocmw_handle_ethernet_command_function(char* strTokenArray[],
-        char *response)
+static int8_t ocmw_handle_ethernet_command_function(char *strTokenArray[],
+                                                    char *response)
 {
     char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
     void *paramvalue = NULL;
 
     int32_t value = 0;
     int32_t ret = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
@@ -564,36 +569,36 @@ static int8_t ocmw_handle_ethernet_command_function(char* strTokenArray[],
     }
     value = atoi(strTokenArray[2]);
 
-    if (((value > 2) || (value < 0)) &&
-           (strstr(strTokenArray[1],"loopBk"))) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-            "(number = %s) : Error : Number Invalid",
-            strTokenArray[0], strTokenArray[1], strTokenArray[2])) < 0) {
-
+    if (((value > 2) || (value < 0)) && (strstr(strTokenArray[1], "loopBk"))) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE,
+                      "%s.%s "
+                      "(number = %s) : Error : Number Invalid",
+                      strTokenArray[0], strTokenArray[1], strTokenArray[2])) <
+            0) {
             return FAILED;
         }
         return FAILED;
     }
 
-    paramvalue = (void*) &value;
-    strcpy(tempParamStr,strTokenArray[0]);
-    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-        strTokenArray[1],strTokenArray[0])) < 0) {
+    paramvalue = (void *)&value;
+    strcpy(tempParamStr, strTokenArray[0]);
+    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
+                  strTokenArray[0])) < 0) {
         return FAILED;
     }
-    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
-            OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr, paramvalue);
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, paramvalue);
     if (strncmp(strTokenArray[1], "dis_pktGen", strlen("dis_pktGen")) == 0) {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s",
-            strTokenArray[0], strTokenArray[1], (ret != 0) ? "Failed" :
-            "Success")) < 0) {
+                      strTokenArray[0], strTokenArray[1],
+                      (ret != 0) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     } else {
         /* processing enable_pktGen */
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s %s : %s",
-            strTokenArray[0], strTokenArray[1], strTokenArray[2],
-            (ret != 0) ? "Failed" : "Success")) < 0) {
+                      strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                      (ret != 0) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     }
@@ -605,38 +610,37 @@ static int8_t ocmw_handle_ethernet_command_function(char* strTokenArray[],
  * Input(s)         : strTokenArray, action
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_hci_led_set_command_function(char* strTokenArray[],
-        char *response)
+static int32_t ocmw_handle_hci_led_set_command_function(char *strTokenArray[],
+                                                        char *response)
 {
     char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
     void *paramvalue = NULL;
     int32_t value = 0;
     int32_t ret = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
     value = atoi(strTokenArray[2]);
-    paramvalue = (void*) &value;
-        strcpy(tempParamStr,strTokenArray[0]);
-    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-        strTokenArray[1],strTokenArray[0])) < 0) {
+    paramvalue = (void *)&value;
+    strcpy(tempParamStr, strTokenArray[0]);
+    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
+                  strTokenArray[0])) < 0) {
         return FAILED;
     }
-    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
-            OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr, paramvalue);
-    if (strncmp(strTokenArray[1], "get", strlen("get"))
-                                     == 0) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s",
-                tempParamStr, strTokenArray[1],dataOutBufFromEc)) < 0) {
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, paramvalue);
+    if (strncmp(strTokenArray[1], "get", strlen("get")) == 0) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s = %s", tempParamStr,
+                      strTokenArray[1], dataOutBufFromEc)) < 0) {
             return FAILED;
         }
     } else {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s %s : %s",
-            strTokenArray[0], strTokenArray[1], strTokenArray[2],
-            (ret != 0) ? "Failed" : "Success")) < 0) {
+                      strTokenArray[0], strTokenArray[1], strTokenArray[2],
+                      (ret != 0) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     }
@@ -649,13 +653,13 @@ static int32_t ocmw_handle_hci_led_set_command_function(char* strTokenArray[],
  * Input(s)         : strTokenArray, action
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_command_function(char* strTokenArray[],
-                                                        char *response)
+static int32_t ocmw_handle_command_function(char *strTokenArray[],
+                                            char *response)
 {
     char paramStr[PARAM_STR_BUFF_SIZE];
     int32_t ret = 0;
     int32_t paramVal = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
@@ -664,15 +668,14 @@ static int32_t ocmw_handle_command_function(char* strTokenArray[],
     strcpy(tempParamStr, strTokenArray[0]);
 
     if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
-        strTokenArray[0])) < 0) {
+                  strTokenArray[0])) < 0) {
         return FAILED;
     }
 
-    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
-            OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr, &paramVal);
-    if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s",
-                    strTokenArray[0], strTokenArray[1],
-                    (ret != 0) ? "Failed" : "Success")) < 0) {
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, &paramVal);
+    if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s", strTokenArray[0],
+                  strTokenArray[1], (ret != 0) ? "Failed" : "Success")) < 0) {
         return FAILED;
     }
 
@@ -685,7 +688,7 @@ static int32_t ocmw_handle_command_function(char* strTokenArray[],
  * Input(s)         : strTokenArray
  * Output(s)        : response
  ***************************************************************************/
-static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
+static int32_t ocmw_handle_post_command(char *strTokenArray[], char *response)
 {
     char paramStr[PARAM_STR_BUFF_SIZE], tmp[TEMP_STR_BUFF_SIZE];
     char subSys[PARAM_STR_BUFF_SIZE];
@@ -701,29 +704,30 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
         return FAILED;
     }
 
-    strcpy(subSys,postResult.results[0].subsysName);
+    strcpy(subSys, postResult.results[0].subsysName);
     if (strcmp("set", strTokenArray[1]) == 0) {
-        if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-            strTokenArray[0], strTokenArray[1])) < 0) {
+        if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[0],
+                      strTokenArray[1])) < 0) {
             return FAILED;
         }
         ret = ocmw_msgproc_send_msg(&strTokenArray[0], OCMP_AXN_TYPE_SET,
-                OCMP_MSG_TYPE_POST, (int8_t *) paramStr,&paramVal);
+                                    OCMP_MSG_TYPE_POST, (int8_t *)paramStr,
+                                    &paramVal);
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s : %s", paramStr,
-                        (ret != 0) ? "Failed" : "Success")) <
-                        0) {
+                      (ret != 0) ? "Failed" : "Success")) < 0) {
             return FAILED;
         }
     } else if (strcmp("get", strTokenArray[1]) == 0) {
         if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[0],
-                strTokenArray[1])) < 0) {
+                      strTokenArray[1])) < 0) {
             return FAILED;
         }
         ret = ocmw_msgproc_send_msg(&strTokenArray[0], OCMP_AXN_TYPE_GET,
-                OCMP_MSG_TYPE_POST, (int8_t *) paramStr, &paramVal);
+                                    OCMP_MSG_TYPE_POST, (int8_t *)paramStr,
+                                    &paramVal);
         if (ret != 0) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s : Failed", paramStr))
-                    < 0) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s : Failed",
+                          paramStr)) < 0) {
                 return FAILED;
             }
         }
@@ -735,18 +739,20 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
             return FAILED;
         }
 
-        strncpy(response,
-                "-------------------------------------------------------------------------------\n",
-                RES_STR_BUFF_SIZE);
-        if ((snprintf(tmp, TEMP_STR_BUFF_SIZE, "%-16s%-40s%-20s\n",
-                        "Subsystem", "Device Name", "POST Status")) < 0) {
+        strncpy(
+            response,
+            "-------------------------------------------------------------------------------\n",
+            RES_STR_BUFF_SIZE);
+        if ((snprintf(tmp, TEMP_STR_BUFF_SIZE, "%-16s%-40s%-20s\n", "Subsystem",
+                      "Device Name", "POST Status")) < 0) {
             return FAILED;
         }
 
         strncat(response, tmp, TEMP_STR_BUFF_SIZE);
-        if ((snprintf(tmp, TEMP_STR_BUFF_SIZE,
-                        "-------------------------------------------------------------------------------\n"))
-                < 0) {
+        if ((snprintf(
+                tmp, TEMP_STR_BUFF_SIZE,
+                "-------------------------------------------------------------------------------\n")) <
+            0) {
             return FAILED;
         }
         strncat(response, tmp, TEMP_STR_BUFF_SIZE);
@@ -758,34 +764,34 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
             if (ret < 0) {
                 strncpy(reply.desc, "", PARAM_STR_BUFF_SIZE);
             }
-            if (strcmp(subSys,postResult.results[index].subsysName) != 0) {
-                strcpy(subSys,postResult.results[index].subsysName);
+            if (strcmp(subSys, postResult.results[index].subsysName) != 0) {
+                strcpy(subSys, postResult.results[index].subsysName);
                 count = 0;
             }
 
             if (count > 0) {
                 strcpy(postResult.results[index].subsysName, " ");
                 if ((snprintf(tmp, TEMP_STR_BUFF_SIZE, "%-16s%-40s%-20s\n",
-                        postResult.results[index].subsysName,
-                        postResult.results[index].deviceName,
-                        reply.desc)) < 0) {
+                              postResult.results[index].subsysName,
+                              postResult.results[index].deviceName,
+                              reply.desc)) < 0) {
                     return FAILED;
                 }
                 strncat(response, tmp, TEMP_STR_BUFF_SIZE);
             } else {
-                strcpy(subSys,postResult.results[index].subsysName);
+                strcpy(subSys, postResult.results[index].subsysName);
                 postResult.results[index].subsysName[0] =
                     toupper(postResult.results[index].subsysName[0]);
                 if ((snprintf(tmp, TEMP_STR_BUFF_SIZE, "%-16s\n",
-                        postResult.results[index].subsysName)) < 0) {
+                              postResult.results[index].subsysName)) < 0) {
                     return FAILED;
                 }
                 strncat(response, tmp, TEMP_STR_BUFF_SIZE);
                 strcpy(postResult.results[index].subsysName, " ");
                 if ((snprintf(tmp, TEMP_STR_BUFF_SIZE, "%-16s%-40s%-20s\n",
-                        postResult.results[index].subsysName,
-                        postResult.results[index].deviceName,
-                        reply.desc)) < 0) {
+                              postResult.results[index].subsysName,
+                              postResult.results[index].deviceName,
+                              reply.desc)) < 0) {
                     return FAILED;
                 }
                 strncat(response, tmp, TEMP_STR_BUFF_SIZE);
@@ -793,9 +799,10 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
             }
         }
 
-        if ((snprintf(tmp, TEMP_STR_BUFF_SIZE,
-                        "-------------------------------------------------------------------------------\n"))
-                < 0) {
+        if ((snprintf(
+                tmp, TEMP_STR_BUFF_SIZE,
+                "-------------------------------------------------------------------------------\n")) <
+            0) {
             return FAILED;
         }
 
@@ -803,7 +810,8 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
 
     } else {
         if ((snprintf(response, RES_STR_BUFF_SIZE,
-                "%s.%s : Error : Unknown parameter ", strTokenArray[0], strTokenArray[1])) < 0) {
+                      "%s.%s : Error : Unknown parameter ", strTokenArray[0],
+                      strTokenArray[1])) < 0) {
             return FAILED;
         }
         return FAILED;
@@ -816,7 +824,8 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray
  * Output(s)        : strTokenArray
  ***************************************************************************/
-static void ocmw_free_pointer(char **strTokenArray) {
+static void ocmw_free_pointer(char **strTokenArray)
+{
     if (strTokenArray) {
         free(strTokenArray);
     }
@@ -831,8 +840,10 @@ static void ocmw_free_pointer(char **strTokenArray) {
 static ocmw_token_t ocmw_match_set_get_string(char *str)
 {
     struct matchSetGet *index = ocmwSetGetTable;
-    for(; index->key != NULL &&
-            strncmp(index->key, str, strlen(index->key)) != 0; ++index);
+    for (; index->key != NULL &&
+           strncmp(index->key, str, strlen(index->key)) != 0;
+         ++index)
+        ;
     return index->token;
 }
 /**************************************************************************
@@ -844,8 +855,10 @@ static ocmw_token_t ocmw_match_set_get_string(char *str)
 static ocmw_token_t ocmw_match_string(char *str)
 {
     struct matchString *index = ocmwTokenTable;
-    for(; index->key != NULL &&
-            strncmp(index->key, str, strlen(index->key)) != 0; ++index);
+    for (; index->key != NULL &&
+           strncmp(index->key, str, strlen(index->key)) != 0;
+         ++index)
+        ;
     return index->token;
 }
 /**************************************************************************
@@ -855,19 +868,18 @@ static ocmw_token_t ocmw_match_string(char *str)
  * Output(s)        : response
  ***************************************************************************/
 int32_t ocmw_frame_errorString(const char *cmdStr, char *errorString,
-                                                            char *response)
+                               char *response)
 {
     if (errorString == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
-    if (snprintf(response, RES_STR_BUFF_SIZE, "%s : %s",
-                cmdStr, errorString)) {
+    if (snprintf(response, RES_STR_BUFF_SIZE, "%s : %s", cmdStr, errorString)) {
         logerr("%s(): Sprintf error", __func__);
         return FAILED;
     }
     strcat(response, "\nPlease refer help menu:\n\"<subsystem>"
-            " --help or <subsytem>.<component> --help\"");
+                     " --help or <subsytem>.<component> --help\"");
     return SUCCESS;
 }
 /**************************************************************************
@@ -879,8 +891,8 @@ int32_t ocmw_frame_errorString(const char *cmdStr, char *errorString,
 int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
 {
     char **strTokenArray = NULL;
-    char class[PARAMSTR_NUMBER_LEN] = {0};
-    char paramStr[PARAM_STR_BUFF_SIZE] = {0};
+    char class[PARAMSTR_NUMBER_LEN] = { 0 };
+    char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
     int32_t strTokenCount = 0;
     int32_t ret = 0;
 
@@ -896,49 +908,52 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
     if (ret < 0) {
         logerr("Error: command string ocmw_tokenize failed");
         if ((snprintf(response, RES_STR_BUFF_SIZE,
-                "%s : Internal error occured in parsing CLI parameters",
-                cmdStr)) < 0) {
+                      "%s : Internal error occured in parsing CLI parameters",
+                      cmdStr)) < 0) {
             return FAILED;
         }
         ocmw_free_pointer(strTokenArray);
         return FAILED;
     } else {
-        if(strTokenCount > 1) {
+        if (strTokenCount > 1) {
             strncpy(paramStr, strTokenArray[0], strlen(strTokenArray[0]));
             /* Process the command */
-            switch(ocmw_match_string(strTokenArray[1])) {
+            switch (ocmw_match_string(strTokenArray[1])) {
                 case SET_STR:
-                    switch(ocmw_match_set_get_string(strTokenArray[0])) {
+                    switch (ocmw_match_set_get_string(strTokenArray[0])) {
                         case HCI_STR:
                             if (strTokenCount == 3) {
                                 ret = ocmw_handle_hci_led_set_command_function(
-                                        strTokenArray, response);
+                                    strTokenArray, response);
                                 ocmw_free_pointer(strTokenArray);
                                 return (ret != 0) ? FAILED : SUCCESS;
                             } else {
-                                ret = (strTokenCount < 3 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                ret =
+                                    (strTokenCount < 3 ?
+                                         ocmw_frame_errorString(
+                                             cmdStr, INSUFFICIENT_PARAM,
+                                             response) :
+                                         ocmw_frame_errorString(
+                                             cmdStr, INVALID_SYNTAX, response));
                                 ocmw_free_pointer(strTokenArray);
                                 return FAILED;
                             }
                             break;
                         case DEBUG_STR:
-                            if (strncmp("debug.I2C", strTokenArray[0],
-                                    strlen("debug.I2C")) == 0) {
-                                if (strTokenCount == 6) {
+                            if (strstr(strTokenArray[0], "I2C")) {
+                                if (strTokenCount == 7) {
                                     ret = ocmw_handle_debug_command_function(
-                                            strTokenArray, response);
+                                        strTokenArray, response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else {
-                                    ret = (strTokenCount < 6 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                    ret = (strTokenCount < 7 ?
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INSUFFICIENT_PARAM,
+                                                   response) :
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INVALID_SYNTAX,
+                                                   response));
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
@@ -950,10 +965,12 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else {
                                     ret = (strTokenCount < 4 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INSUFFICIENT_PARAM,
+                                                   response) :
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INVALID_SYNTAX,
+                                                   response));
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
@@ -961,14 +978,17 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                             break;
                         case ENABLE_SET_STR:
                             if (strTokenCount == 2) {
-                                ret = ocmw_handle_post_command(strTokenArray, response);
+                                ret = ocmw_handle_post_command(strTokenArray,
+                                                               response);
                                 return (ret != 0) ? FAILED : SUCCESS;
                             } else {
-                                ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                ret =
+                                    (strTokenCount < 2 ?
+                                         ocmw_frame_errorString(
+                                             cmdStr, INSUFFICIENT_PARAM,
+                                             response) :
+                                         ocmw_frame_errorString(
+                                             cmdStr, INVALID_SYNTAX, response));
                                 ocmw_free_pointer(strTokenArray);
                                 return FAILED;
                             }
@@ -977,26 +997,29 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                             if (strTokenCount == 3) {
                                 ocmw_tokenize_class(paramStr, class, 2);
                                 if (strcmp("config", class) == 0) {
-                                    ret = ocmw_handle_set_config(&strTokenArray[0],
-                                            response);
+                                    ret = ocmw_handle_set_config(
+                                        &strTokenArray[0], response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else {
-                                    if ((snprintf(response,
-                                        RES_STR_BUFF_SIZE, "[Error]: "
-                                        "Incorrect %s request '%s'",
-                                        strTokenArray[0],strTokenArray[1])) < 0) {
+                                    if ((snprintf(response, RES_STR_BUFF_SIZE,
+                                                  "[Error]: "
+                                                  "Incorrect %s request '%s'",
+                                                  strTokenArray[0],
+                                                  strTokenArray[1])) < 0) {
                                         return FAILED;
                                     }
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
                             } else {
-                                ret = (strTokenCount < 3 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                ret =
+                                    (strTokenCount < 3 ?
+                                         ocmw_frame_errorString(
+                                             cmdStr, INSUFFICIENT_PARAM,
+                                             response) :
+                                         ocmw_frame_errorString(
+                                             cmdStr, INVALID_SYNTAX, response));
                                 ocmw_free_pointer(strTokenArray);
                                 return FAILED;
                             }
@@ -1004,90 +1027,101 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                     }
                     break;
                 case GET_STR:
-                    switch(ocmw_match_set_get_string(strTokenArray[0])) {
+                    switch (ocmw_match_set_get_string(strTokenArray[0])) {
                         case RESULT_STR:
                             if (strTokenCount == 2) {
-                                ret = ocmw_handle_post_command(strTokenArray, response);
+                                ret = ocmw_handle_post_command(strTokenArray,
+                                                               response);
                                 ocmw_free_pointer(strTokenArray);
                                 return (ret != 0) ? FAILED : SUCCESS;
                             } else {
-                                ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                ret =
+                                    (strTokenCount < 2 ?
+                                         ocmw_frame_errorString(
+                                             cmdStr, INSUFFICIENT_PARAM,
+                                             response) :
+                                         ocmw_frame_errorString(
+                                             cmdStr, INVALID_SYNTAX, response));
                                 ocmw_free_pointer(strTokenArray);
                                 return FAILED;
                             }
                             break;
                         case DEBUG_STR:
-                            if (strncmp("debug.I2C", strTokenArray[0],
-                                    strlen("debug.I2C")) == 0) {
-                                if (strTokenCount == 5) {
+                            if (strstr(strTokenArray[0], "I2C")) {
+                                if (strTokenCount == 6) {
                                     ret = ocmw_handle_debug_command_function(
-                                            strTokenArray, response);
+                                        strTokenArray, response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else {
-                                    ret = (strTokenCount < 5 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                    ret = (strTokenCount < 6 ?
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INSUFFICIENT_PARAM,
+                                                   response) :
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INVALID_SYNTAX,
+                                                   response));
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
                             } else {
                                 if (strTokenCount == 3) {
                                     ret = ocmw_handle_debug_command_function(
-                                            strTokenArray, response);
+                                        strTokenArray, response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else {
                                     ret = (strTokenCount < 3 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INSUFFICIENT_PARAM,
+                                                   response) :
+                                               ocmw_frame_errorString(
+                                                   cmdStr, INVALID_SYNTAX,
+                                                   response));
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
                             }
                             break;
-                        default :
+                        default:
                             if (strTokenCount == 2) {
                                 ocmw_tokenize_class(paramStr, class, 2);
                                 if (strcmp("config", class) == 0) {
-                                    ret = ocmw_handle_show_config(&strTokenArray[0],
-                                            response);
+                                    ret = ocmw_handle_show_config(
+                                        &strTokenArray[0], response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else if (strcmp("status", class) == 0) {
-                                    ret = ocmw_handle_show_status(&strTokenArray[0],
-                                        response);
+                                    ret = ocmw_handle_show_status(
+                                        &strTokenArray[0], response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
                                 } else if (strcmp("alerts", class) == 0) {
-                                    /*  SCHEMA change :: Alert is not implimented */
-                                    /*   ret = ocmw_handle_show_alerts(&strTokenArray[0], response);
-                                    ocmw_free_pointer(strTokenArray);
+                                    /*  SCHEMA change :: Alert is not
+                                     * implimented */
+                                    /*   ret =
+                                    ocmw_handle_show_alerts(&strTokenArray[0],
+                                    response); ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;*/
                                 } else {
-                                    if ((snprintf(response,
-                                            RES_STR_BUFF_SIZE, "[Error]: "
-                                            "Incorrect %s request '%s'",
-                                            strTokenArray[0], strTokenArray[1])) < 0) {
+                                    if ((snprintf(response, RES_STR_BUFF_SIZE,
+                                                  "[Error]: "
+                                                  "Incorrect %s request '%s'",
+                                                  strTokenArray[0],
+                                                  strTokenArray[1])) < 0) {
                                         return FAILED;
                                     }
                                     ocmw_free_pointer(strTokenArray);
                                     return FAILED;
                                 }
                             } else {
-                                ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                ret =
+                                    (strTokenCount < 2 ?
+                                         ocmw_frame_errorString(
+                                             cmdStr, INSUFFICIENT_PARAM,
+                                             response) :
+                                         ocmw_frame_errorString(
+                                             cmdStr, INVALID_SYNTAX, response));
                                 ocmw_free_pointer(strTokenArray);
                                 return FAILED;
                             }
@@ -1099,16 +1133,17 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                 case ACTIVE_STR:
                 case ECHO_STR:
                     if (strTokenCount == 2) {
-                        ret = ocmw_handle_command_function(strTokenArray, response);
-                         ocmw_free_pointer(strTokenArray);
+                        ret = ocmw_handle_command_function(strTokenArray,
+                                                           response);
+                        ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
-                         ocmw_free_pointer(strTokenArray);
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
@@ -1116,84 +1151,84 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                 case CONNECT_STR:
                 case ANSWER_STR:
                 case HANGUP_STR:
-                     if (strTokenCount == 2) {
-                        ret = ocmw_handle_testmod_command_function(strTokenArray,
-                                                                response);
+                    if (strTokenCount == 2) {
+                        ret = ocmw_handle_testmod_command_function(
+                            strTokenArray, response);
                         ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
                         ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
                 case SEND_STR:
                     if (strTokenCount == 4) {
-                        ret = ocmw_handle_testmod_command_function(strTokenArray,
-                                response);
-                         ocmw_free_pointer(strTokenArray);
+                        ret = ocmw_handle_testmod_command_function(
+                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 4 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
-                         ocmw_free_pointer(strTokenArray);
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
                 case DIAL_STR:
                     if (strTokenCount == 3) {
-                        ret = ocmw_handle_testmod_command_function(strTokenArray,
-                                response);
-                         ocmw_free_pointer(strTokenArray);
+                        ret = ocmw_handle_testmod_command_function(
+                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 3 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
-                         ocmw_free_pointer(strTokenArray);
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
-               case ELOOPBK_STR:
-               case DLOOPBK_STR:
-               case EPKTGEN_STR:
+                case ELOOPBK_STR:
+                case DLOOPBK_STR:
+                case EPKTGEN_STR:
                     if (strTokenCount == 3) {
-                        ret = ocmw_handle_ethernet_command_function(strTokenArray,
-                                response);
-                         ocmw_free_pointer(strTokenArray);
+                        ret = ocmw_handle_ethernet_command_function(
+                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 3 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
-                         ocmw_free_pointer(strTokenArray);
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
                 case DPKTGEN_STR:
                     if (strTokenCount == 2) {
-                        ret = ocmw_handle_ethernet_command_function(strTokenArray,
-                                response);
-                         ocmw_free_pointer(strTokenArray);
+                        ret = ocmw_handle_ethernet_command_function(
+                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
                         return (ret != 0) ? FAILED : SUCCESS;
                     } else {
                         ret = (strTokenCount < 2 ?
-                                            ocmw_frame_errorString(cmdStr,
-                                            INSUFFICIENT_PARAM, response) :
-                                            ocmw_frame_errorString(cmdStr,
-                                            INVALID_SYNTAX, response));
-                         ocmw_free_pointer(strTokenArray);
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
@@ -1201,10 +1236,12 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                     break;
             }
         } else {
-            if ((snprintf(response, RES_STR_BUFF_SIZE,
+            if ((snprintf(
+                    response, RES_STR_BUFF_SIZE,
                     "%s : Error : Invalid parameters \n Please refer help menu"
                     ":\n\"<subsystem> --help or "
-                    "<subsytem>.<component> --help\"", cmdStr)) < 0) {
+                    "<subsytem>.<component> --help\"",
+                    cmdStr)) < 0) {
                 return FAILED;
             }
             ocmw_free_pointer(strTokenArray);

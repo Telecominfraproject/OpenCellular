@@ -32,8 +32,8 @@ uint8_t mcuMsgBuf[OCMP_MSG_SIZE];
  ***************************************************************************/
 int32_t main(int32_t argc, char **argv)
 {
-    char cmdstr[CMD_STR_BUFF_SIZE] = {0};
-    char response[RES_STR_BUFF_SIZE] = {0};
+    char cmdstr[CMD_STR_BUFF_SIZE] = { 0 };
+    char response[RES_STR_BUFF_SIZE] = { 0 };
     int32_t ret = 0;
 
     /* Initialize logging */
@@ -54,16 +54,16 @@ int32_t main(int32_t argc, char **argv)
 
 #ifdef INTERFACE_ETHERNET
     ret = ocmw_init_eth_comm(OCMW_EC_DEV);
-    if(ret != 0) {
-        printf ("ocmw_init_eth_comm() failed \n");
+    if (ret != 0) {
+        printf("ocmw_init_eth_comm() failed \n");
         return FAILED;
     }
 #endif /* INTERFACE_ETHERNET */
 
 #ifdef INTERFACE_STUB_EC
     ret = ocmw_init_eth_comm(OCMW_EC_STUB_DEV);
-    if(ret != 0) {
-        printf ("init_eth_comm() failed \n");
+    if (ret != 0) {
+        printf("init_eth_comm() failed \n");
         return FAILED;
     }
 #endif /* INTERFACE_ETHERNET */

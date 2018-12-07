@@ -36,8 +36,7 @@ extern const Component sys_schema[];
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_set_gpioinfo(int16_t gStructIndex,
-                                         char *payload)
+ocware_stub_ret ocware_stub_set_gpioinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugGPIOinfo **GPIOInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -48,8 +47,8 @@ ocware_stub_ret ocware_stub_set_gpioinfo(int16_t gStructIndex,
         return ret;
     }
 
-    GPIOInfo = (OCWareDebugGPIOinfo**)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index< MAX_GPIO_COMP_NBR; index++) {
+    GPIOInfo = (OCWareDebugGPIOinfo **)&s_ocwareGlobalData[gStructIndex].data;
+    for (index = 0; index < MAX_GPIO_COMP_NBR; index++) {
         if (GPIOInfo[index]->pin_nbr == payload[pos]) {
             ret = STUB_SUCCESS;
             GPIOInfo[index]->value = payload[pos + 1];
@@ -70,8 +69,7 @@ ocware_stub_ret ocware_stub_set_gpioinfo(int16_t gStructIndex,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_set_i2cinfo(int16_t gStructIndex,
-                                        char *payload)
+ocware_stub_ret ocware_stub_set_i2cinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugI2Cinfo **I2CInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -81,28 +79,39 @@ ocware_stub_ret ocware_stub_set_i2cinfo(int16_t gStructIndex,
         return ret;
     }
     I2CInfo = (OCWareDebugI2Cinfo **)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index < MAX_I2C_COMP_NBR; index++) {
+    for (index = 0; index < MAX_I2C_COMP_NBR; index++) {
         if (I2CInfo[index]->slaveAddress == payload[pos]) {
             ret = STUB_SUCCESS;
             break;
         }
     }
 
-    if (ret !=STUB_SUCCESS)
+    if (ret != STUB_SUCCESS)
         return ret;
 
-    I2CInfo[index]->slaveAddress =  payload[pos];
-    I2CInfo[index]->numOfBytes = payload[pos + 1];
-    I2CInfo[index]->regAddress = payload[pos + 2];
-    if (I2CInfo[index]->numOfBytes == 1) {
-        I2CInfo[index]->regValue = payload[pos + 3];
-    } else {
-        I2CInfo[index]->regValue = ((uint8_t)payload[pos + 3] << 0x08)
-                                                        +  payload[pos + 4];
-        payload[pos + 4] =
-            (uint8_t)(I2CInfo[index]->regValue & MASK_LSB);
+    I2CInfo[index]->slaveAddress = payload[pos];
+    I2CInfo[index]->writeCount = payload[pos + 1];
+    if (I2CInfo[index]->writeCount == 1) {
+        I2CInfo[index]->regAddress = payload[pos + 2];
+    } else if (I2CInfo[index]->writeCount == 2) {
+        // I2CInfo[index]->regAddress = (uint16_t) payload[pos + 2];
+        I2CInfo[index]->regAddress =
+            ((uint8_t)payload[pos + 3] << 8) + payload[pos + 2];
+        payload[pos + 2] = (uint8_t)(I2CInfo[index]->regAddress & MASK_LSB);
         payload[pos + 3] =
-            (uint8_t)((I2CInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
+            (uint8_t)((I2CInfo[index]->regAddress & 0xff00) >> SHIFT_NIBBLE);
+    } else {
+        I2CInfo[index]->regAddress = (uint32_t)payload[pos + 2];
+    }
+    I2CInfo[index]->numOfBytes = payload[pos + 6];
+    if (I2CInfo[index]->numOfBytes == 1) {
+        I2CInfo[index]->regValue = payload[pos + 7];
+    } else {
+        I2CInfo[index]->regValue =
+            ((uint8_t)payload[pos + 7] << 8) + payload[pos + 8];
+        payload[pos + 8] = (uint8_t)(I2CInfo[index]->regValue & MASK_LSB);
+        payload[pos + 7] =
+            (uint8_t)((I2CInfo[index]->regValue & 0xff00) >> SHIFT_NIBBLE);
     }
     return ret;
 }
@@ -116,8 +125,7 @@ ocware_stub_ret ocware_stub_set_i2cinfo(int16_t gStructIndex,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_set_mdioinfo(int16_t gStructIndex,
-                                        char *payload)
+ocware_stub_ret ocware_stub_set_mdioinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugMDIOinfo **MDIOInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -127,22 +135,21 @@ ocware_stub_ret ocware_stub_set_mdioinfo(int16_t gStructIndex,
         return ret;
     }
     MDIOInfo = (OCWareDebugMDIOinfo **)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index< MAX_MDIO_COMP_NBR; index++) {
+    for (index = 0; index < MAX_MDIO_COMP_NBR; index++) {
         if (MDIOInfo[index]->regAddress == payload[pos]) {
             ret = STUB_SUCCESS;
             break;
         }
     }
-    if (ret !=STUB_SUCCESS)
+    if (ret != STUB_SUCCESS)
         return ret;
 
     MDIOInfo[index]->regAddress = payload[pos];
-    MDIOInfo[index]->regValue = ((uint8_t)payload[pos + 3] << 0x08)
-                                                    +  payload[pos + 2];
-    payload[pos + 2] =
-            (uint8_t)(MDIOInfo[index]->regValue & MASK_LSB);
+    MDIOInfo[index]->regValue =
+        ((uint8_t)payload[pos + 3] << 0x08) + payload[pos + 2];
+    payload[pos + 2] = (uint8_t)(MDIOInfo[index]->regValue & MASK_LSB);
     payload[pos + 3] =
-            (uint8_t)((MDIOInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
+        (uint8_t)((MDIOInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
     return ret;
 }
 /******************************************************************************
@@ -163,20 +170,16 @@ ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
     int16_t index = 0;
     uint8_t pos = 0;
 
-    for(index = 0; index < MAX_POST_DEVICE; index++) {
-        if ((s_postGlobalArray[index].SubsystemId
-                == payload[0]) &&
+    for (index = 0; index < MAX_POST_DEVICE; index++) {
+        if ((s_postGlobalArray[index].SubsystemId == payload[0]) &&
             (s_postGlobalArray[index].DeviceNumber > 0)) {
-
             payload[pos] = s_postGlobalArray[index].SubsystemId;
-            payload[pos + 1] =
-                s_postGlobalArray[index].DeviceNumber;
-            payload[pos + 2] =
-                s_postGlobalArray[index].Status;
+            payload[pos + 1] = s_postGlobalArray[index].DeviceNumber;
+            payload[pos + 2] = s_postGlobalArray[index].Status;
             pos = pos + 3;
         }
     }
-    msgFrameData->parameters = pos/3;
+    msgFrameData->parameters = pos / 3;
     return STUB_SUCCESS;
 }
 /******************************************************************************
@@ -191,8 +194,7 @@ ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_get_gpioinfo(int16_t gStructIndex,
-                                         char *payload)
+ocware_stub_ret ocware_stub_get_gpioinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugGPIOinfo **GPIOInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -202,15 +204,15 @@ ocware_stub_ret ocware_stub_get_gpioinfo(int16_t gStructIndex,
     if (!(gStructIndex <= MAX_NUMBER_PARAM && payload)) {
         return ret;
     }
-    GPIOInfo = (OCWareDebugGPIOinfo**)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index< MAX_GPIO_COMP_NBR; index++) {
+    GPIOInfo = (OCWareDebugGPIOinfo **)&s_ocwareGlobalData[gStructIndex].data;
+    for (index = 0; index < MAX_GPIO_COMP_NBR; index++) {
         if (GPIOInfo[index]->pin_nbr == payload[pos]) {
             ret = STUB_SUCCESS;
             break;
         }
     }
 
-    if(ret == STUB_SUCCESS) {
+    if (ret == STUB_SUCCESS) {
         payload[pos] = GPIOInfo[index]->pin_nbr;
         payload[pos + 1] = GPIOInfo[index]->value;
     }
@@ -228,8 +230,7 @@ ocware_stub_ret ocware_stub_get_gpioinfo(int16_t gStructIndex,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_get_i2cinfo(int16_t gStructIndex,
-                                        char *payload)
+ocware_stub_ret ocware_stub_get_i2cinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugI2Cinfo **I2CInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -240,25 +241,40 @@ ocware_stub_ret ocware_stub_get_i2cinfo(int16_t gStructIndex,
         return ret;
     }
 
-    I2CInfo = (OCWareDebugI2Cinfo**)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index< MAX_I2C_COMP_NBR; index++) {
+    I2CInfo = (OCWareDebugI2Cinfo **)&s_ocwareGlobalData[gStructIndex].data;
+    for (index = 0; index < MAX_I2C_COMP_NBR; index++) {
         if (I2CInfo[index]->slaveAddress == payload[pos]) {
             ret = STUB_SUCCESS;
             break;
         }
     }
 
-    if(ret == STUB_SUCCESS) {
+    if (ret == STUB_SUCCESS) {
         payload[pos] = I2CInfo[index]->slaveAddress;
-        payload[pos + 1] = I2CInfo[index]->numOfBytes;
-        payload[pos + 2] = I2CInfo[index]->regAddress;
-        if (I2CInfo[index]->numOfBytes == 1) {
-            payload[pos + 3] = (uint8_t)I2CInfo[index]->regValue;
+        payload[pos + 1] = I2CInfo[index]->writeCount;
+        if (I2CInfo[index]->writeCount == 1) {
+            payload[pos + 2] = (uint8_t)I2CInfo[index]->regAddress;
+        } else if (I2CInfo[index]->writeCount == 2) {
+            payload[pos + 2] = (uint8_t)(I2CInfo[index]->regAddress & MASK_LSB);
+            payload[pos + 3] = (uint8_t)(
+                (I2CInfo[index]->regAddress & 0xff00) >> SHIFT_NIBBLE);
         } else {
-            payload[pos + 4]
-                = (uint8_t)(I2CInfo[index]->regValue & MASK_LSB);
-            payload[pos + 3] = (uint8_t)
-                    ((I2CInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
+            payload[pos + 2] = (uint8_t)(I2CInfo[index]->regValue & MASK_LSB);
+            payload[pos + 3] = (uint8_t)(
+                (I2CInfo[index]->regValue & 0x0000ff00) >> SHIFT_NIBBLE);
+            payload[pos + 4] =
+                (uint8_t)((I2CInfo[index]->regValue & 0x00ff0000) >> 16);
+            payload[pos + 5] =
+                (uint8_t)((I2CInfo[index]->regValue & 0xff000000) >> 24);
+        }
+        payload[pos + 6] = I2CInfo[index]->numOfBytes;
+
+        if (I2CInfo[index]->numOfBytes == 1) {
+            payload[pos + 7] = (uint8_t)I2CInfo[index]->regValue;
+        } else {
+            payload[pos + 8] = (uint8_t)(I2CInfo[index]->regValue & MASK_LSB);
+            payload[pos + 7] =
+                (uint8_t)((I2CInfo[index]->regValue & 0xff00) >> SHIFT_NIBBLE);
         }
     }
     return ret;
@@ -275,8 +291,7 @@ ocware_stub_ret ocware_stub_get_i2cinfo(int16_t gStructIndex,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_get_mdioinfo(int16_t gStructIndex,
-                                        char *payload)
+ocware_stub_ret ocware_stub_get_mdioinfo(int16_t gStructIndex, char *payload)
 {
     OCWareDebugMDIOinfo **MDIOInfo;
     ocware_stub_ret ret = STUB_FAILED;
@@ -287,20 +302,19 @@ ocware_stub_ret ocware_stub_get_mdioinfo(int16_t gStructIndex,
         return ret;
     }
 
-    MDIOInfo = (OCWareDebugMDIOinfo**)&s_ocwareGlobalData[gStructIndex].data;
-    for(index = 0; index < MAX_MDIO_COMP_NBR; index++) {
+    MDIOInfo = (OCWareDebugMDIOinfo **)&s_ocwareGlobalData[gStructIndex].data;
+    for (index = 0; index < MAX_MDIO_COMP_NBR; index++) {
         if (MDIOInfo[index]->regAddress == payload[pos]) {
             ret = STUB_SUCCESS;
             break;
         }
     }
 
-    if(ret == STUB_SUCCESS) {
+    if (ret == STUB_SUCCESS) {
         payload[pos] = MDIOInfo[index]->regAddress;
-        payload[pos + 2] = (uint8_t)
-                    (MDIOInfo[index]->regValue & MASK_LSB);
-        payload[pos + 3] = (uint8_t)
-                    ((MDIOInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
+        payload[pos + 2] = (uint8_t)(MDIOInfo[index]->regValue & MASK_LSB);
+        payload[pos + 3] =
+            (uint8_t)((MDIOInfo[index]->regValue & MASK_MSB) >> SHIFT_NIBBLE);
     }
     return ret;
 }
@@ -315,30 +329,29 @@ ocware_stub_ret ocware_stub_get_mdioinfo(int16_t gStructIndex,
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_debug_subsytem(int16_t gStructIndex,
-                                           char *payload,
+ocware_stub_ret ocware_stub_debug_subsytem(int16_t gStructIndex, char *payload,
                                            int8_t flag)
 {
     if (!(gStructIndex <= MAX_NUMBER_PARAM && payload)) {
         return STUB_FAILED;
     }
-    switch(s_ocwareGlobalData[gStructIndex].componentId) {
+    switch (s_ocwareGlobalData[gStructIndex].componentId) {
         case 2:
-            if ( flag == OCMP_AXN_TYPE_GET) {
+            if (flag == OCMP_AXN_TYPE_GET) {
                 ocware_stub_get_i2cinfo(gStructIndex, payload);
             } else {
                 ocware_stub_set_i2cinfo(gStructIndex, payload);
             }
             break;
         case 8:
-            if ( flag == OCMP_AXN_TYPE_GET) {
+            if (flag == OCMP_AXN_TYPE_GET) {
                 ocware_stub_get_mdioinfo(gStructIndex, payload);
             } else {
                 ocware_stub_set_mdioinfo(gStructIndex, payload);
             }
             break;
         default:
-            if ( flag == OCMP_AXN_TYPE_GET) {
+            if (flag == OCMP_AXN_TYPE_GET) {
                 ocware_stub_get_gpioinfo(gStructIndex, payload);
             } else {
                 ocware_stub_set_gpioinfo(gStructIndex, payload);
@@ -362,39 +375,38 @@ ocware_stub_ret ocware_stub_get_database(OCMPMessage *msgFrameData)
     ocware_stub_ret ret = STUB_FAILED;
     int8_t subsystem = 0;
     int8_t component = 0;
-    int8_t  msgtype = 0;
+    int8_t msgtype = 0;
     int8_t parampos = 0;
     int16_t paramId = 0;
     int16_t gStructIndex = 0;
 
-    if(msgFrameData == NULL) {
+    if (msgFrameData == NULL) {
         return ret;
     }
-    payload =  (char*)&msgFrameData->info;
+    payload = (char *)&msgFrameData->info;
     subsystem = msgFrameData->subsystem;
     component = msgFrameData->componentID;
     msgtype = msgFrameData->msgtype;
     paramId = msgFrameData->parameters;
 
-    for(gStructIndex = 0; gStructIndex < MAX_NUMBER_PARAM; gStructIndex++) {
-        if((subsystem == s_ocwareGlobalData[gStructIndex].subsystemId) &&
-           (component == s_ocwareGlobalData[gStructIndex].componentId) &&
-           (msgtype == s_ocwareGlobalData[gStructIndex].msgtype) &&
-           (paramId == s_ocwareGlobalData[gStructIndex].paramId))
-        {
+    for (gStructIndex = 0; gStructIndex < MAX_NUMBER_PARAM; gStructIndex++) {
+        if ((subsystem == s_ocwareGlobalData[gStructIndex].subsystemId) &&
+            (component == s_ocwareGlobalData[gStructIndex].componentId) &&
+            (msgtype == s_ocwareGlobalData[gStructIndex].msgtype) &&
+            (paramId == s_ocwareGlobalData[gStructIndex].paramId)) {
             ret = STUB_SUCCESS;
             parampos = s_ocwareGlobalData[gStructIndex].paramPos;
             break;
         }
     }
 
-    if(ret == STUB_SUCCESS) {
-        if(subsystem == s_debugSubsystem) {
+    if (ret == STUB_SUCCESS) {
+        if (subsystem == s_debugSubsystem) {
             ret = ocware_stub_debug_subsytem(gStructIndex, payload,
-                                                    OCMP_AXN_TYPE_GET);
+                                             OCMP_AXN_TYPE_GET);
         } else {
             strncpy(&payload[parampos],
-                    (char*)s_ocwareGlobalData[gStructIndex].data,
+                    (char *)s_ocwareGlobalData[gStructIndex].data,
                     s_ocwareGlobalData[gStructIndex].paramSize);
         }
     }
@@ -422,33 +434,32 @@ ocware_stub_ret ocware_stub_set_database(OCMPMessage *msgFrameData)
     int16_t paramId = 0;
     int16_t gStructIndex = 0;
 
-    if(msgFrameData == NULL) {
+    if (msgFrameData == NULL) {
         return ret;
     }
-    payload =  (char*)&msgFrameData->info;
+    payload = (char *)&msgFrameData->info;
     subsystem = msgFrameData->subsystem;
     component = msgFrameData->componentID;
     msgtype = msgFrameData->msgtype;
     paramId = msgFrameData->parameters;
 
-    for(gStructIndex = 0; gStructIndex < MAX_NUMBER_PARAM; gStructIndex++) {
-        if( (subsystem == s_ocwareGlobalData[gStructIndex].subsystemId) &&
+    for (gStructIndex = 0; gStructIndex < MAX_NUMBER_PARAM; gStructIndex++) {
+        if ((subsystem == s_ocwareGlobalData[gStructIndex].subsystemId) &&
             (component == s_ocwareGlobalData[gStructIndex].componentId) &&
             (msgtype == s_ocwareGlobalData[gStructIndex].msgtype) &&
-            (paramId == s_ocwareGlobalData[gStructIndex].paramId))
-        {
+            (paramId == s_ocwareGlobalData[gStructIndex].paramId)) {
             ret = STUB_SUCCESS;
             parampos = s_ocwareGlobalData[gStructIndex].paramPos;
             break;
         }
     }
 
-    if(ret == STUB_SUCCESS) {
-        if(subsystem == s_debugSubsystem) {
+    if (ret == STUB_SUCCESS) {
+        if (subsystem == s_debugSubsystem) {
             ret = ocware_stub_debug_subsytem(gStructIndex, payload,
-                                                    OCMP_AXN_TYPE_SET);
+                                             OCMP_AXN_TYPE_SET);
         } else {
-            strncpy((char*)s_ocwareGlobalData[gStructIndex].data,
+            strncpy((char *)s_ocwareGlobalData[gStructIndex].data,
                     &payload[parampos],
                     s_ocwareGlobalData[gStructIndex].paramSize);
         }
@@ -474,37 +485,37 @@ ocware_stub_ret ocware_stub_fill_init_value(const Parameter *param,
     int16_t def_lasterror = 0x101;
     int16_t def_netOp = 0x001;
 
-    if(param == NULL) {
+    if (param == NULL) {
         return STUB_FAILED;
     }
 
     paramtype = DATA_TYPE_MAP[param->type];
 
-    if (!strcmp("lasterror",param->name)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&def_lasterror);
+    if (!strcmp("lasterror", param->name)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&def_lasterror);
         return STUB_SUCCESS;
-    } else if (!strcmp("network_operatorinfo",param->name)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&def_netOp);
+    } else if (!strcmp("network_operatorinfo", param->name)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&def_netOp);
         return STUB_SUCCESS;
     }
-    if (!strcmp("uint16",paramtype)) {
+    if (!strcmp("uint16", paramtype)) {
         strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt16Val);
-    } else if (!strcmp("int16",paramtype)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defInt16Val);
-    } else if (!strcmp("uint8",paramtype)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
-    } else if (!strcmp("int8",paramtype)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
-    } else if (!strcmp("uint32",paramtype)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defInt32Val);
-    } else if (!strcmp("uint64",paramtype)) {
+    } else if (!strcmp("int16", paramtype)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt16Val);
+    } else if (!strcmp("uint8", paramtype)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt8Val);
+    } else if (!strcmp("int8", paramtype)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt8Val);
+    } else if (!strcmp("uint32", paramtype)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt32Val);
+    } else if (!strcmp("uint64", paramtype)) {
         strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt64Val);
-    } else if (!strcmp("string",paramtype)) {
+    } else if (!strcmp("string", paramtype)) {
         strcpy(s_ocwareGlobalData[gStructIndex].data, DEFAULT_STRING);
-    } else if (!strcmp("enum",paramtype)) {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defEnumVal);
+    } else if (!strcmp("enum", paramtype)) {
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defEnumVal);
     } else {
-        strcpy(s_ocwareGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
+        strcpy(s_ocwareGlobalData[gStructIndex].data, (char *)&s_defInt8Val);
     }
     return STUB_SUCCESS;
 }
@@ -520,9 +531,8 @@ ocware_stub_ret ocware_stub_fill_init_value(const Parameter *param,
  * @return Size of the parameter
  *
  ******************************************************************************/
-int8_t ocware_stub_get_paramSize(const char* paramtype,
-                                 int8_t msgtype,
-                                 const char* param_name)
+int8_t ocware_stub_get_paramSize(const char *paramtype, int8_t msgtype,
+                                 const char *param_name)
 {
     int8_t paramSize = 0;
 
@@ -531,46 +541,46 @@ int8_t ocware_stub_get_paramSize(const char* paramtype,
         return STUB_FAILED;
     }
 
-    if (!strcmp("uint16",paramtype)) {
+    if (!strcmp("uint16", paramtype)) {
         paramSize = sizeof(uint16_t);
-    } else if (!strcmp("int16",paramtype)) {
+    } else if (!strcmp("int16", paramtype)) {
         paramSize = sizeof(int16_t);
-    } else if (!strcmp("uint8",paramtype)) {
+    } else if (!strcmp("uint8", paramtype)) {
         paramSize = sizeof(uint8_t);
-    } else if (!strcmp("int8",paramtype)) {
+    } else if (!strcmp("int8", paramtype)) {
         paramSize = sizeof(int8_t);
-    } else if (!strcmp("uint32",paramtype)) {
+    } else if (!strcmp("uint32", paramtype)) {
         paramSize = sizeof(uint32_t);
-    } else if (!strcmp("uint64",paramtype)) {
+    } else if (!strcmp("uint64", paramtype)) {
         paramSize = sizeof(uint64_t);
-    } else if (!strcmp("string",paramtype)) {
-       if (s_typeFlag == OCSTUB_VALUE_TYPE_MFG) {
-       paramSize = SIZE_OF_TYPE_MFG;
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_MODEL) {
-           paramSize = SIZE_OF_TYPE_MODEL;
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_GETMODEL) {
-           paramSize = SIZE_OF_TYPE_GETMODEL;
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_OCSERIAL_INFO) {
-           paramSize = SIZE_OF_TYPE_OCSERIAL_INFO;
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_GBCBOARD_INFO) {
-           paramSize = SIZE_OF_TYPE_GBCBOARD_INFO;
-       } else {
-           if (msgtype == OCMP_MSG_TYPE_CONFIG) {
-               paramSize = EEPROM_CONFIG_MAX_SIZE;
-           } else if (msgtype == OCMP_MSG_TYPE_STATUS) {
-               paramSize = EEPROM_STATUS_MAX_SIZE;
-           }
-       }
-    } else if (!strcmp("enum",paramtype)) {
-       if (s_typeFlag == OCSTUB_VALUE_TYPE_REGISTRATION) {
+    } else if (!strcmp("string", paramtype)) {
+        if (s_typeFlag == OCSTUB_VALUE_TYPE_MFG) {
+            paramSize = SIZE_OF_TYPE_MFG;
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_MODEL) {
+            paramSize = SIZE_OF_TYPE_MODEL;
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_GETMODEL) {
+            paramSize = SIZE_OF_TYPE_GETMODEL;
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_OCSERIAL_INFO) {
+            paramSize = SIZE_OF_TYPE_OCSERIAL_INFO;
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_GBCBOARD_INFO) {
+            paramSize = SIZE_OF_TYPE_GBCBOARD_INFO;
+        } else {
+            if (msgtype == OCMP_MSG_TYPE_CONFIG) {
+                paramSize = EEPROM_CONFIG_MAX_SIZE;
+            } else if (msgtype == OCMP_MSG_TYPE_STATUS) {
+                paramSize = EEPROM_STATUS_MAX_SIZE;
+            }
+        }
+    } else if (!strcmp("enum", paramtype)) {
+        if (s_typeFlag == OCSTUB_VALUE_TYPE_REGISTRATION) {
             paramSize = SIZE_OF_TYPE_REGISTRATION; /* TO DO */
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_NWOP_STRUCT) {
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_NWOP_STRUCT) {
             paramSize = SIZE_OF_NWOP_STRUCT;
-       } else if (s_typeFlag == OCSTUB_VALUE_TYPE_LAST_ERROR) {
+        } else if (s_typeFlag == OCSTUB_VALUE_TYPE_LAST_ERROR) {
             paramSize = SIZE_OF_LAST_ERROR;
-       } else {
+        } else {
             paramSize = OCMW_VALUE_TYPE_ENUM;
-       }
+        }
     } else {
         paramSize = sizeof(int8_t);
     }
@@ -596,33 +606,34 @@ ocware_stub_ret ocware_stub_fill_init_debug_value(int16_t gStructIndex,
     OCWareDebugMDIOinfo MDIOInfo[MAX_MDIO_COMP_NBR];
     uint8_t index = 0;
 
-    if(gStructIndex >= MAX_NUMBER_PARAM) {
+    if (gStructIndex >= MAX_NUMBER_PARAM) {
         return STUB_FAILED;
     }
-    if ( flag == OCSTUB_VALUE_TYPE_GPIO_DEBUG) {
-        for(index = 0; index < MAX_GPIO_COMP_NBR; index++) {
+    if (flag == OCSTUB_VALUE_TYPE_GPIO_DEBUG) {
+        for (index = 0; index < MAX_GPIO_COMP_NBR; index++) {
             GPIOInfo[index].pin_nbr = GPIO_PIN_NBR + index;
             GPIOInfo[index].value = GPIO_VALUE;
         }
-        memcpy(s_ocwareGlobalData[gStructIndex].data,
-            (char *)GPIOInfo, sizeof(GPIOInfo)*MAX_GPIO_COMP_NBR);
+        memcpy(s_ocwareGlobalData[gStructIndex].data, (char *)GPIOInfo,
+               sizeof(GPIOInfo) * MAX_GPIO_COMP_NBR);
 
-    } else if ( flag == OCSTUB_VALUE_TYPE_MDIO_DEBUG){
-        for(index = 0; index < MAX_MDIO_COMP_NBR; index++) {
+    } else if (flag == OCSTUB_VALUE_TYPE_MDIO_DEBUG) {
+        for (index = 0; index < MAX_MDIO_COMP_NBR; index++) {
             MDIOInfo[index].regAddress = I2C_REG_ADDRESS + index;
             MDIOInfo[index].regValue = I2C_REG_VALUE;
         }
-        memcpy(s_ocwareGlobalData[gStructIndex].data,
-            (char *)MDIOInfo, sizeof(MDIOInfo)*MAX_MDIO_COMP_NBR);
-    }else {
-        for(index = 0; index < MAX_I2C_COMP_NBR; index++) {
+        memcpy(s_ocwareGlobalData[gStructIndex].data, (char *)MDIOInfo,
+               sizeof(MDIOInfo) * MAX_MDIO_COMP_NBR);
+    } else {
+        for (index = 0; index < MAX_I2C_COMP_NBR; index++) {
             I2CInfo[index].slaveAddress = I2C_SLAVE_ADDRESS + index;
-            I2CInfo[index].numOfBytes = I2C_NUM_BYTES;
+            I2CInfo[index].writeCount = I2C_WRITE_COUNT;
             I2CInfo[index].regAddress = I2C_REG_ADDRESS;
+            I2CInfo[index].numOfBytes = I2C_NUM_BYTES;
             I2CInfo[index].regValue = I2C_REG_VALUE;
         }
-        memcpy(s_ocwareGlobalData[gStructIndex].data,
-            (char *)I2CInfo, sizeof(I2CInfo)*MAX_I2C_COMP_NBR);
+        memcpy(s_ocwareGlobalData[gStructIndex].data, (char *)I2CInfo,
+               sizeof(I2CInfo) * MAX_I2C_COMP_NBR);
     }
 
     return STUB_SUCCESS;
@@ -653,17 +664,17 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
     int8_t commandCount = 0;
     s_debugSubsystem = subsystemNbr;
 
-    if((gStructIndex == NULL) || (subSystem == NULL)) {
+    if ((gStructIndex == NULL) || (subSystem == NULL)) {
         return STUB_FAILED;
     }
-    for(component = subSystem->components; component && component->name;
-                                                            component++) {
+    for (component = subSystem->components; component && component->name;
+         component++) {
         /* component loop */
         subComponent = component->components;
         count = 1;
         while (subComponent && subComponent->name) {
             driver = subComponent->driver;
-            if(driver !=NULL) {
+            if (driver != NULL) {
                 /* No Need to read every command as
                  * current implementation is to have one entry
                  * for one subsystem
@@ -671,70 +682,68 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
                 s_ocwareGlobalData[*gStructIndex].subsystemId = subsystemNbr;
                 s_ocwareGlobalData[*gStructIndex].componentId = componentNbr;
                 s_ocwareGlobalData[*gStructIndex].msgtype =
-                                                    OCMP_MSG_TYPE_COMMAND;
+                    OCMP_MSG_TYPE_COMMAND;
                 s_ocwareGlobalData[*gStructIndex].paramPos = 0;
 
-                if (strncmp(component->name,"I2C",
-                    strlen("I2C")) == 0) {
+                if (strstr(component->name, "I2C")) {
                     s_ocwareGlobalData[*gStructIndex].paramId = count;
-                    s_ocwareGlobalData[*gStructIndex].paramSize
-                            = sizeof(OCWareDebugI2Cinfo) * MAX_I2C_COMP_NBR;
-                    s_ocwareGlobalData[*gStructIndex].data
-                            = malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
+                    s_ocwareGlobalData[*gStructIndex].paramSize =
+                        sizeof(OCWareDebugI2Cinfo) * MAX_I2C_COMP_NBR;
+                    s_ocwareGlobalData[*gStructIndex].data =
+                        malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
                     if (s_ocwareGlobalData[*gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[*gStructIndex].data, 0,
-                                s_ocwareGlobalData[*gStructIndex].paramSize);
+                               s_ocwareGlobalData[*gStructIndex].paramSize);
                     }
-                    ret = ocware_stub_fill_init_debug_value(*gStructIndex,
-                                OCSTUB_VALUE_TYPE_I2C_DEBUG);
-                } else if (strncmp(component->name,"ethernet",
-                    strlen("ethernet")) == 0) {
+                    ret = ocware_stub_fill_init_debug_value(
+                        *gStructIndex, OCSTUB_VALUE_TYPE_I2C_DEBUG);
+                } else if (strstr(component->name, "ethernet")) {
                     s_ocwareGlobalData[*gStructIndex].paramId = count;
-                    s_ocwareGlobalData[*gStructIndex].paramSize
-                            = sizeof(OCWareDebugMDIOinfo) * MAX_MDIO_COMP_NBR;
-                    s_ocwareGlobalData[*gStructIndex].data
-                            = malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
+                    s_ocwareGlobalData[*gStructIndex].paramSize =
+                        sizeof(OCWareDebugMDIOinfo) * MAX_MDIO_COMP_NBR;
+                    s_ocwareGlobalData[*gStructIndex].data =
+                        malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
                     if (s_ocwareGlobalData[*gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[*gStructIndex].data, 0,
-                                s_ocwareGlobalData[*gStructIndex].paramSize);
+                               s_ocwareGlobalData[*gStructIndex].paramSize);
                     }
-                    ret = ocware_stub_fill_init_debug_value(*gStructIndex,
-                                OCSTUB_VALUE_TYPE_MDIO_DEBUG);
+                    ret = ocware_stub_fill_init_debug_value(
+                        *gStructIndex, OCSTUB_VALUE_TYPE_MDIO_DEBUG);
 
                 } else {
                     /* Currently its all GPIO */
                     s_ocwareGlobalData[*gStructIndex].paramId = count;
-                    s_ocwareGlobalData[*gStructIndex].paramSize
-                            = sizeof(OCWareDebugGPIOinfo) * MAX_GPIO_COMP_NBR;
-                    s_ocwareGlobalData[*gStructIndex].data
-                            = malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
+                    s_ocwareGlobalData[*gStructIndex].paramSize =
+                        sizeof(OCWareDebugGPIOinfo) * MAX_GPIO_COMP_NBR;
+                    s_ocwareGlobalData[*gStructIndex].data =
+                        malloc(s_ocwareGlobalData[*gStructIndex].paramSize);
                     if (s_ocwareGlobalData[*gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[*gStructIndex].data, 0,
-                                s_ocwareGlobalData[*gStructIndex].paramSize);
+                               s_ocwareGlobalData[*gStructIndex].paramSize);
                     }
-                    ret = ocware_stub_fill_init_debug_value(*gStructIndex,
-                               OCSTUB_VALUE_TYPE_GPIO_DEBUG);
+                    ret = ocware_stub_fill_init_debug_value(
+                        *gStructIndex, OCSTUB_VALUE_TYPE_GPIO_DEBUG);
                 }
                 (*gStructIndex)++;
-                if((debugGetCommand == STUB_FAILED) ||
-                        (debugSetCommand == STUB_FAILED)) {
+                if ((debugGetCommand == STUB_FAILED) ||
+                    (debugSetCommand == STUB_FAILED)) {
                     command = driver->commands;
                     commandCount = 0;
-                    while(command && command->name) {
+                    while (command && command->name) {
                         if ((strncmp(command->name, "get", strlen("get"))) ==
-                                0) {
+                            0) {
                             debugGetCommand = commandCount;
-                        } else if ((strncmp(command->name, "set",strlen("set")))
-                                == 0) {
+                        } else if ((strncmp(command->name, "set",
+                                            strlen("set"))) == 0) {
                             debugSetCommand = commandCount;
                         }
                         command += 1;
@@ -743,7 +752,7 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
                 }
             }
             subComponent += 1;
-            count ++;
+            count++;
         }
         componentNbr++;
     }
@@ -768,15 +777,28 @@ ocware_stub_ret ocware_stub_create_post_database()
     for (subSystem = sys_schema; subSystem && subSystem->name; subSystem++) {
         /* Subsystem loop */
         count = 1;
-        for(component = subSystem->components; component && component->name;
-                                                            component++) {
+        for (component = subSystem->components; component && component->name;
+             component++) {
             /* component loop */
-                subComponent = component->components;
-                if ((subComponent == NULL) &&
-                        (component->postDisabled != POST_DISABLED)) {
+            subComponent = component->components;
+            if ((subComponent == NULL) &&
+                (component->postDisabled != POST_DISABLED)) {
+                s_postGlobalArray[PostIndex].SubsystemId = subsystemNbr;
+                s_postGlobalArray[PostIndex].DeviceNumber = count;
+                if (count < 10) {
+                    s_postGlobalArray[PostIndex].Status = count - 1;
+                } else {
+                    s_postGlobalArray[PostIndex].Status = 9;
+                }
+                PostIndex++;
+                count++;
+            }
+            /* If subcomponents exist */
+            while (subComponent && subComponent->name) {
+                if (subComponent->postDisabled != POST_DISABLED) {
                     s_postGlobalArray[PostIndex].SubsystemId = subsystemNbr;
                     s_postGlobalArray[PostIndex].DeviceNumber = count;
-                    if(count < 10) {
+                    if (count < 10) {
                         s_postGlobalArray[PostIndex].Status = count - 1;
                     } else {
                         s_postGlobalArray[PostIndex].Status = 9;
@@ -784,24 +806,11 @@ ocware_stub_ret ocware_stub_create_post_database()
                     PostIndex++;
                     count++;
                 }
-                /* If subcomponents exist */
-                while (subComponent && subComponent->name) {
-                    if (subComponent->postDisabled != POST_DISABLED) {
-                        s_postGlobalArray[PostIndex].SubsystemId = subsystemNbr;
-                        s_postGlobalArray[PostIndex].DeviceNumber = count;
-                        if(count < 10) {
-                            s_postGlobalArray[PostIndex].Status = count - 1;
-                        } else {
-                            s_postGlobalArray[PostIndex].Status = 9;
-                        }
-                        PostIndex++;
-                        count++;
-                    }
-                    subComponent += 1;
-                } /* sub comp loop */
-        } /* component loop */
+                subComponent += 1;
+            } /* sub comp loop */
+        }     /* component loop */
         subsystemNbr++;
-    }/*subsystem loop */
+    } /*subsystem loop */
     return STUB_SUCCESS;
 }
 
@@ -820,16 +829,14 @@ ocware_stub_ret ocware_stub_init_post(const Driver *devDriver)
     const Post *post = NULL;
     uint16_t count = 0;
 
-    if(devDriver == NULL)
+    if (devDriver == NULL)
         return ret;
 
     post = devDriver->post;
     while (post && post->name) {
-        if (strncmp(post->name, "results",
-                strlen(post->name)) == 0) {
+        if (strncmp(post->name, "results", strlen(post->name)) == 0) {
             PostResult = pow(2, count);
-        } else if (strncmp(post->name, "enable",
-                strlen(post->name)) == 0) {
+        } else if (strncmp(post->name, "enable", strlen(post->name)) == 0) {
             PostEnable = pow(2, count);
         } else {
             printf("Post init failed\n");
@@ -839,11 +846,10 @@ ocware_stub_ret ocware_stub_init_post(const Driver *devDriver)
         post++;
     }
 
-    if ((PostResult != STUB_FAILED) &&
-        (PostEnable != STUB_FAILED)) {
+    if ((PostResult != STUB_FAILED) && (PostEnable != STUB_FAILED)) {
         ret = STUB_SUCCESS;
     } else {
-            printf("Post init failed\n");
+        printf("Post init failed\n");
     }
     return ret;
 }
@@ -857,7 +863,6 @@ ocware_stub_ret ocware_stub_init_post(const Driver *devDriver)
  ******************************************************************************/
 ocware_stub_ret ocware_stub_init_database()
 {
-
     ocware_stub_ret ret = STUB_FAILED;
     int8_t subsystemNbr = 0;
     int8_t componentNbr = 0;
@@ -877,21 +882,21 @@ ocware_stub_ret ocware_stub_init_database()
     for (subSystem = sys_schema; subSystem && subSystem->name; subSystem++) {
         /* Subsystem loop */
         componentNbr = 1;
-        if (strncmp(subSystem->name, "debug",
-                strlen(subSystem->name)) == 0) {
-            ocware_create_command_debug_database(subsystemNbr,
-                         &gStructIndex, subSystem);
+        if (strncmp(subSystem->name, "debug", strlen(subSystem->name)) == 0) {
+            ocware_create_command_debug_database(subsystemNbr, &gStructIndex,
+                                                 subSystem);
         }
-        for(component = subSystem->components; component && component->name;
-                                                        component++) {
+        for (component = subSystem->components; component && component->name;
+             component++) {
             /* component loop */
             devDriver = component->driver;
             if (devDriver != NULL) {
                 if (devDriver->post != NULL) {
-                /* POST is currently designed to be existing in one driver */
+                    /* POST is currently designed to be existing in one driver
+                     */
                     ret = ocware_stub_init_post(devDriver);
 
-                    if(ret != STUB_SUCCESS)
+                    if (ret != STUB_SUCCESS)
                         return ret;
                 }
                 /* This is for componenets w/o any sub component */
@@ -902,23 +907,23 @@ ocware_stub_ret ocware_stub_init_database()
                 while (param && param->name) { /*Parameter loop */
                     s_ocwareGlobalData[gStructIndex].subsystemId = subsystemNbr;
                     s_ocwareGlobalData[gStructIndex].componentId = componentNbr;
-                    s_ocwareGlobalData[gStructIndex].paramId
-                                       = pow(2,count);
+                    s_ocwareGlobalData[gStructIndex].paramId = pow(2, count);
                     s_ocwareGlobalData[gStructIndex].paramSize =
-                                        ocware_stub_get_paramSize (
-                                        DATA_TYPE_MAP[param->type],
-                                        OCMP_MSG_TYPE_CONFIG, param->name);
+                        ocware_stub_get_paramSize(DATA_TYPE_MAP[param->type],
+                                                  OCMP_MSG_TYPE_CONFIG,
+                                                  param->name);
                     s_ocwareGlobalData[gStructIndex].msgtype =
-                                                        OCMP_MSG_TYPE_CONFIG;
+                        OCMP_MSG_TYPE_CONFIG;
                     s_ocwareGlobalData[gStructIndex].paramPos = paramPos;
-                    s_ocwareGlobalData[gStructIndex].data = malloc(sizeof(char)*
-                                    s_ocwareGlobalData[gStructIndex].paramSize);
+                    s_ocwareGlobalData[gStructIndex].data =
+                        malloc(sizeof(char) *
+                               s_ocwareGlobalData[gStructIndex].paramSize);
                     if (s_ocwareGlobalData[gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[gStructIndex].data, 0,
-                                s_ocwareGlobalData[gStructIndex].paramSize);
+                               s_ocwareGlobalData[gStructIndex].paramSize);
                     }
                     ocware_stub_fill_init_value(param, gStructIndex);
                     paramPos += s_ocwareGlobalData[gStructIndex].paramSize;
@@ -932,70 +937,67 @@ ocware_stub_ret ocware_stub_init_database()
                 /* Status related parameters */
                 while (param && param->name) { /* Parameter loop */
                     if ((strncmp(subSystem->name, "obc",
-                            strlen(subSystem->name)) == 0) ||
+                                 strlen(subSystem->name)) == 0) ||
                         (strncmp(subSystem->name, "testmodule",
-                            strlen(subSystem->name)) == 0) ||
+                                 strlen(subSystem->name)) == 0) ||
                         (strncmp(subSystem->name, "system",
-                            strlen(subSystem->name)) == 0)) {
-                        if (strncmp(param->name, "mfg",
-                            strlen(param->name))== 0) {
+                                 strlen(subSystem->name)) == 0)) {
+                        if (strncmp(param->name, "mfg", strlen(param->name)) ==
+                            0) {
                             s_typeFlag = OCSTUB_VALUE_TYPE_MFG;
-                        } else if (strncmp(param->name,
-                            "model", strlen(param->name)) == 0) {
+                        } else if (strncmp(param->name, "model",
+                                           strlen(param->name)) == 0) {
                             if ((strncmp(subSystem->name, "testmodule",
-                                strlen(subSystem->name))) == 0) {
+                                         strlen(subSystem->name))) == 0) {
                                 s_typeFlag = OCSTUB_VALUE_TYPE_GETMODEL;
                             } else {
                                 s_typeFlag = OCSTUB_VALUE_TYPE_MODEL;
                             }
-                        } else if (strncmp(param->name,
-                            "registration", strlen(param->name)) == 0) {
+                        } else if (strncmp(param->name, "registration",
+                                           strlen(param->name)) == 0) {
                             s_typeFlag = OCSTUB_VALUE_TYPE_REGISTRATION;
-                        } else if(strncmp(param->name, "network_operatorinfo",
-                                    strlen(param->name)) == 0) {
-                            s_typeFlag =
-                                OCSTUB_VALUE_TYPE_NWOP_STRUCT;
-                        } else if(strncmp(param->name, "lasterror",
-                                    strlen(param->name)) == 0) {
-                            s_typeFlag =
-                                OCSTUB_VALUE_TYPE_LAST_ERROR;
-                        } else if(strncmp(param->name, "ocserialinfo",
-                                    strlen(param->name)) == 0) {
-                            s_typeFlag =
-                                OCSTUB_VALUE_TYPE_OCSERIAL_INFO;
-                        } else if(strncmp(param->name, "gbcboardinfo",
-                                    strlen(param->name)) == 0) {
-                            s_typeFlag =
-                                OCSTUB_VALUE_TYPE_GBCBOARD_INFO;
+                        } else if (strncmp(param->name, "network_operatorinfo",
+                                           strlen(param->name)) == 0) {
+                            s_typeFlag = OCSTUB_VALUE_TYPE_NWOP_STRUCT;
+                        } else if (strncmp(param->name, "lasterror",
+                                           strlen(param->name)) == 0) {
+                            s_typeFlag = OCSTUB_VALUE_TYPE_LAST_ERROR;
+                        } else if (strncmp(param->name, "ocserialinfo",
+                                           strlen(param->name)) == 0) {
+                            s_typeFlag = OCSTUB_VALUE_TYPE_OCSERIAL_INFO;
+                        } else if (strncmp(param->name, "gbcboardinfo",
+                                           strlen(param->name)) == 0) {
+                            s_typeFlag = OCSTUB_VALUE_TYPE_GBCBOARD_INFO;
                         } else {
                         }
                     }
                     s_ocwareGlobalData[gStructIndex].subsystemId = subsystemNbr;
                     s_ocwareGlobalData[gStructIndex].componentId = componentNbr;
-                    s_ocwareGlobalData[gStructIndex].paramId = pow(2,count);
+                    s_ocwareGlobalData[gStructIndex].paramId = pow(2, count);
                     s_ocwareGlobalData[gStructIndex].paramSize =
-                                ocware_stub_get_paramSize (
-                                            DATA_TYPE_MAP[param->type],
-                                            OCMP_MSG_TYPE_STATUS, param->name);
+                        ocware_stub_get_paramSize(DATA_TYPE_MAP[param->type],
+                                                  OCMP_MSG_TYPE_STATUS,
+                                                  param->name);
                     s_ocwareGlobalData[gStructIndex].paramPos = paramPos;
                     s_ocwareGlobalData[gStructIndex].msgtype =
-                                                        OCMP_MSG_TYPE_STATUS;
+                        OCMP_MSG_TYPE_STATUS;
                     paramPos += s_ocwareGlobalData[gStructIndex].paramSize;
-                    s_ocwareGlobalData[gStructIndex].data = malloc(sizeof(char)*
-                                s_ocwareGlobalData[gStructIndex].paramSize);
+                    s_ocwareGlobalData[gStructIndex].data =
+                        malloc(sizeof(char) *
+                               s_ocwareGlobalData[gStructIndex].paramSize);
                     if (s_ocwareGlobalData[gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[gStructIndex].data, 0,
-                                s_ocwareGlobalData[gStructIndex].paramSize);
+                               s_ocwareGlobalData[gStructIndex].paramSize);
                     }
                     ocware_stub_fill_init_value(param, gStructIndex);
                     if ((strncmp(subSystem->name, "obc",
-                        strlen(subSystem->name)) == 0) ||
+                                 strlen(subSystem->name)) == 0) ||
                         (strncmp(subSystem->name, "testmodule",
-                        strlen(subSystem->name)) == 0)) {
-                       s_ocwareGlobalData[gStructIndex].paramPos = 0;
+                                 strlen(subSystem->name)) == 0)) {
+                        s_ocwareGlobalData[gStructIndex].paramPos = 0;
                     }
                     gStructIndex++;
                     param += 1;
@@ -1011,7 +1013,7 @@ ocware_stub_ret ocware_stub_init_database()
 
             while (subComponent && subComponent->name) {
                 devDriver = subComponent->driver;
-                if(devDriver == NULL) {
+                if (devDriver == NULL) {
                     subComponent += 1;
                     continue;
                 }
@@ -1020,24 +1022,25 @@ ocware_stub_ret ocware_stub_init_database()
                 while (param && param->name) { /*Parameter loop */
                     s_ocwareGlobalData[gStructIndex].subsystemId = subsystemNbr;
                     s_ocwareGlobalData[gStructIndex].componentId = componentNbr;
-                    s_ocwareGlobalData[gStructIndex].paramId
-                                = pow(2,configCount);
-                    s_ocwareGlobalData[gStructIndex].paramSize
-                                = ocware_stub_get_paramSize (
-                                               DATA_TYPE_MAP[param->type],
-                                               OCMP_MSG_TYPE_CONFIG, param->name);
+                    s_ocwareGlobalData[gStructIndex].paramId =
+                        pow(2, configCount);
+                    s_ocwareGlobalData[gStructIndex].paramSize =
+                        ocware_stub_get_paramSize(DATA_TYPE_MAP[param->type],
+                                                  OCMP_MSG_TYPE_CONFIG,
+                                                  param->name);
                     s_ocwareGlobalData[gStructIndex].msgtype =
-                                                    OCMP_MSG_TYPE_CONFIG;
+                        OCMP_MSG_TYPE_CONFIG;
                     s_ocwareGlobalData[gStructIndex].paramPos = configParamPos;
-                    configParamPos += s_ocwareGlobalData[gStructIndex].paramSize;
-                    s_ocwareGlobalData[gStructIndex].data
-                                = malloc(s_ocwareGlobalData[gStructIndex].paramSize);
+                    configParamPos +=
+                        s_ocwareGlobalData[gStructIndex].paramSize;
+                    s_ocwareGlobalData[gStructIndex].data =
+                        malloc(s_ocwareGlobalData[gStructIndex].paramSize);
                     if (s_ocwareGlobalData[gStructIndex].data == NULL) {
                         printf("Malloc failed\n");
                         return STUB_FAILED;
                     } else {
                         memset(s_ocwareGlobalData[gStructIndex].data, 0,
-                                s_ocwareGlobalData[gStructIndex].paramSize);
+                               s_ocwareGlobalData[gStructIndex].paramSize);
                     }
                     ocware_stub_fill_init_value(param, gStructIndex);
                     gStructIndex++;
@@ -1047,37 +1050,38 @@ ocware_stub_ret ocware_stub_init_database()
                 param = devDriver->status;
                 /* Status related parameters */
                 while (param && param->name) { /* Parameter loop */
-                     s_ocwareGlobalData[gStructIndex].subsystemId = subsystemNbr;
-                     s_ocwareGlobalData[gStructIndex].componentId = componentNbr;
-                     s_ocwareGlobalData[gStructIndex].paramId
-                                    = pow(2,statusCount);
-                     s_ocwareGlobalData[gStructIndex].paramSize
-                                    = ocware_stub_get_paramSize (
-                                            DATA_TYPE_MAP[param->type],
-                                            OCMP_MSG_TYPE_STATUS, param->name);
-                     s_ocwareGlobalData[gStructIndex].paramPos = statusParamPos;
-                     s_ocwareGlobalData[gStructIndex].msgtype =
-                                                            OCMP_MSG_TYPE_STATUS;
-                     statusParamPos += s_ocwareGlobalData[gStructIndex].paramSize;
-                     s_ocwareGlobalData[gStructIndex].data
-                                 = malloc(s_ocwareGlobalData[gStructIndex].paramSize);
-                     if (s_ocwareGlobalData[gStructIndex].data == NULL) {
-                         printf("Malloc failed\n");
-                         return STUB_FAILED;
-                     } else {
-                         memset(s_ocwareGlobalData[gStructIndex].data, 0,
-                                s_ocwareGlobalData[gStructIndex].paramSize);
-                     }
-                     ocware_stub_fill_init_value(param, gStructIndex);
-                     gStructIndex++;
-                     param += 1;
-                     statusCount += 1;
+                    s_ocwareGlobalData[gStructIndex].subsystemId = subsystemNbr;
+                    s_ocwareGlobalData[gStructIndex].componentId = componentNbr;
+                    s_ocwareGlobalData[gStructIndex].paramId =
+                        pow(2, statusCount);
+                    s_ocwareGlobalData[gStructIndex].paramSize =
+                        ocware_stub_get_paramSize(DATA_TYPE_MAP[param->type],
+                                                  OCMP_MSG_TYPE_STATUS,
+                                                  param->name);
+                    s_ocwareGlobalData[gStructIndex].paramPos = statusParamPos;
+                    s_ocwareGlobalData[gStructIndex].msgtype =
+                        OCMP_MSG_TYPE_STATUS;
+                    statusParamPos +=
+                        s_ocwareGlobalData[gStructIndex].paramSize;
+                    s_ocwareGlobalData[gStructIndex].data =
+                        malloc(s_ocwareGlobalData[gStructIndex].paramSize);
+                    if (s_ocwareGlobalData[gStructIndex].data == NULL) {
+                        printf("Malloc failed\n");
+                        return STUB_FAILED;
+                    } else {
+                        memset(s_ocwareGlobalData[gStructIndex].data, 0,
+                               s_ocwareGlobalData[gStructIndex].paramSize);
+                    }
+                    ocware_stub_fill_init_value(param, gStructIndex);
+                    gStructIndex++;
+                    param += 1;
+                    statusCount += 1;
                 }
                 subComponent += 1;
             }
-        componentNbr++;
+            componentNbr++;
         }
-    subsystemNbr++;
+        subsystemNbr++;
     }
     ret = ocware_stub_create_post_database();
     return ret;
@@ -1095,7 +1099,7 @@ ocware_stub_ret ocware_stub_init_database()
 ocware_stub_ret ocware_stub_parse_command_message(char *buffer)
 {
     OCMPMessageFrame *msgFrame = (OCMPMessageFrame *)buffer;
-    OCMPMessage *msgFrameData = (OCMPMessage*)&msgFrame->message;
+    OCMPMessage *msgFrameData = (OCMPMessage *)&msgFrame->message;
     ocware_stub_ret ret = STUB_FAILED;
 
     if (buffer == NULL) {
@@ -1108,7 +1112,7 @@ ocware_stub_ret ocware_stub_parse_command_message(char *buffer)
      * similar to the get/set logic used in config msg type
      */
     ret = STUB_SUCCESS;
-    if(s_debugSubsystem == msgFrameData->subsystem) {
+    if (s_debugSubsystem == msgFrameData->subsystem) {
         ocware_stub_parse_debug_actiontype(msgFrameData);
         ret = ocware_stub_get_set_params(msgFrameData);
     }

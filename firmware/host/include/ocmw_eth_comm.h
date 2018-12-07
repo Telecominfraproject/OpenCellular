@@ -22,8 +22,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#define OCMW_EC_DEV             1
-#define OCMW_EC_STUB_DEV        2
+#define OCMW_EC_DEV 1
+#define OCMW_EC_STUB_DEV 2
 
 /*
  * Initialize the ocmw ethernet communication
@@ -43,12 +43,14 @@ extern int32_t ocmw_deinit_eth_comm(int32_t sentDev);
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen,int32_t sentDev);
+extern int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen,
+                                      int32_t sentDev);
 /*
  * @param resp an input value (by pointer)
  * @param resplen an input value (by value)
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_recv_eth_msgfrom_ec(int8_t *resp, int32_t resplen, int32_t sentDev);
+extern int32_t ocmw_recv_eth_msgfrom_ec(int8_t *resp, int32_t resplen,
+                                        int32_t sentDev);
 #endif /* _OCCLI_IPC_COMM_H_ */

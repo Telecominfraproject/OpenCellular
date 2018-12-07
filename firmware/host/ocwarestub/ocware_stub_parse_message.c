@@ -25,9 +25,7 @@ ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameData)
 {
     ocware_stub_ret ret = STUB_SUCCESS;
 
-    if ((debugSetCommand != STUB_FAILED) ||
-         (debugGetCommand != STUB_FAILED)) {
-
+    if ((debugSetCommand != STUB_FAILED) || (debugGetCommand != STUB_FAILED)) {
         if ((msgFrameData->action) == debugGetCommand) {
             msgFrameData->action = OCMP_AXN_TYPE_GET;
         } else if ((msgFrameData->action) == debugSetCommand) {
@@ -87,7 +85,6 @@ ocware_stub_ret ocware_stub_get_set_params(OCMPMessage *msgFrameData)
             ret = STUB_FAILED;
     }
     return ret;
-
 }
 /******************************************************************************
  * Function Name    : ocware_stub_parse_post_get_message
@@ -106,16 +103,16 @@ ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer)
     uint16_t paramId;
     char *payload = NULL;
 
-    if(buffer == NULL) {
+    if (buffer == NULL) {
         return ret;
     }
     msgFrame = (OCMPMessageFrame *)buffer;
-    msgFrameData = (OCMPMessage*)&msgFrame->message;
+    msgFrameData = (OCMPMessage *)&msgFrame->message;
     payload = (char *)&msgFrameData->info;
     msgFrameData->action = OCMP_AXN_TYPE_REPLY;
     paramId = msgFrameData->parameters;
 
-    if(paramId == PostResult) {
+    if (paramId == PostResult) {
         ret = ocware_stub_get_post_database(msgFrameData, payload);
     } else if (paramId == PostEnable) {
         ret = ocware_stub_handle_post_enable(msgFrameData);
