@@ -100,7 +100,7 @@ gen_schema:
 oc_connect1: gen_schema $(OUT)/OpenCellular.bin
 
 $(OUT)/%/compiler.opt $(OUT)/%/linker.cmd : %.cfg
-	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r release $<
+	$(CONFIGURO) -c $(TOOLCHAIN) -t $(TARGET) -p $(PLATFORM) -r debug $<
 	cp $(OUT)/$(CONFIG)/package/cfg/$*_$(ROV_XS_SUFFIX).rov.xs .
 
 $(MAIN_OBJS): %.o: %.c $(OUT)/$(CONFIG)/compiler.opt
