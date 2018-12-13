@@ -293,5 +293,5 @@ void test_eeprom_read_oc_info(void)
  * now */
 
 /* No test case are created for function i2c_eeprom_write and i2c_eeprom_read as
- * tthey are static function, Can not access them outside the file. Also they
+ * they are static function, Can not access them outside the file. Also they
  * are already covered as part of eeprom_reab and eeprom_write.*/
