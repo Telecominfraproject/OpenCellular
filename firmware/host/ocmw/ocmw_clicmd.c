@@ -117,8 +117,7 @@ static int32_t ocmw_tokenize(const char *cmdstr,
     char *strDot = NULL;
     char *saveptr = NULL;
     char *savePtrDot = NULL;
-    char *paramStr = NULL;
-   char *tempStr = NULL;
+    char *tempStr = NULL;
     char *token = NULL;
     char **localStrTokenArray = NULL;
     char **temp = NULL;
@@ -126,10 +125,6 @@ static int32_t ocmw_tokenize(const char *cmdstr,
     int32_t count = 0;
     int32_t localStrTokenCount = 0;
     int32_t index = 0;
-
-    /* Split the actiontype from the cmdstr */
-    paramStr = strrchr(cmdstr, '.');
-    *paramStr = ' ';
 
     for (index = 1, str = (char*) cmdstr;; index++, str = NULL) {
         token = strtok_r(str, delim, &saveptr);
@@ -608,19 +603,19 @@ static int8_t ocmw_handle_ethernet_command_function(char* strTokenArray[],
         strcpy(tempStr, strTokenArray[2]);
         ret = ocmw_tokenize_ip(tempStr);
         if (ret < 0) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
+            snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
                 "(number = %s) : Error : IP "
                 "Invalid", strTokenArray[0], strTokenArray[1],
-                strTokenArray[2])) < 0)
-                return FAILED;
+                strTokenArray[2]);
+            return FAILED;
         }
         port =  atoi(strTokenArray[3]);
         if ((port > 65535) || (port < 0)) {
-            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
+            snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
                 "(number = %s) : Error : PORT "
                 "Invalid", strTokenArray[0], strTokenArray[1],
-                strTokenArray[3])) < 0)
-                return FAILED;
+                strTokenArray[3]);
+            return FAILED;
         }
         clientInfo.port = port;
         clientInfo.noOfRepeat =  atoi(strTokenArray[4]);
@@ -1269,6 +1264,22 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                                             ocmw_frame_errorString(cmdStr,
                                             INVALID_SYNTAX, response));
                          ocmw_free_pointer(strTokenArray);
+                        return FAILED;
+                    }
+                    break;
+                case ECLIENT_STR:
+                    if (strTokenCount == 5) {
+                        ret = ocmw_handle_ethernet_command_function(
+                                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
+                        return (ret != 0) ? FAILED : SUCCESS;
+                    } else {
+                        ret = (strTokenCount < 5 ?
+                                            ocmw_frame_errorString(cmdStr,
+                                            INSUFFICIENT_PARAM, response) :
+                                            ocmw_frame_errorString(cmdStr,
+                                            INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
