@@ -41,7 +41,7 @@ typedef struct {
     uint8_t ip[4];
     uint16_t port;
     uint8_t noOfRepeat;
-}ethTivaClient;
+} ethTivaClient;
 
 typedef enum {
     SET_STR,
