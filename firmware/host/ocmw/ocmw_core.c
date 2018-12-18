@@ -20,6 +20,7 @@
 static int32_t loopCountPost = 0;
 extern debugI2CData I2CInfo;
 extern debugMDIOData MDIOInfo;
+extern ethTivaClient clientInfo;
 extern uint8_t mcuMsgBuf[OCMP_MSG_SIZE];
 extern ocmwSchemaSendBuf *ecSendBufBkp;
 int32_t responseCount = 0;
@@ -296,6 +297,7 @@ static int32_t ocmw_tokenize_class_str( const int8_t *str,
 void ocmw_fill_payload_data_for_commands(char * strTokenArray[],
             strMsgFrame *msgFrame, OCMPMessageFrame *ecMsgFrame, void* paramVal)
 {
+    uint8_t pos = 0;
     if (msgFrame == NULL) {
         return;
     }
@@ -310,7 +312,7 @@ void ocmw_fill_payload_data_for_commands(char * strTokenArray[],
             memset(ecMsgFrame->message.info, 0, MAX_PARM_COUNT);
         }
     }
-    // Handling ethernet packet genrator command
+    // Handling ethernet commands
     if (strncmp("ethernet", msgFrame->subsystem,
                 strlen(msgFrame->subsystem)) == 0 ) {
         if(strstr(strTokenArray[1], "loopBk")) {
@@ -319,6 +321,18 @@ void ocmw_fill_payload_data_for_commands(char * strTokenArray[],
                                     strlen("en_pktGen")) == 0)) {
             memcpy(&ecMsgFrame->message.info[0],
                     (uint16_t *)paramVal, sizeof(uint16_t));
+        } else if ((strncmp(strTokenArray[1], "en_tivaClient",
+                strlen("en_tivaClient")) == 0)) {
+            ecMsgFrame->message.info[pos] = (uint8_t) clientInfo.ip[0];
+            ecMsgFrame->message.info[pos + 1] = (uint8_t) clientInfo.ip[1];
+            ecMsgFrame->message.info[pos + 2] = (uint8_t) clientInfo.ip[2];
+            ecMsgFrame->message.info[pos + 3] = (uint8_t) clientInfo.ip[3];
+            ecMsgFrame->message.info[pos + 4] = (uint8_t)
+                                                (clientInfo.port & 0xff);
+            ecMsgFrame->message.info[pos + 5] = (uint8_t)
+                        ((clientInfo.port & 0xff00) >> 8);
+
+            ecMsgFrame->message.info[pos + 6] = (uint8_t) clientInfo.noOfRepeat;
         }
     }
 }

@@ -37,6 +37,12 @@ typedef struct  __attribute__((packed, aligned(1))){
     uint16_t regValue;
 } debugI2CData;
 
+typedef struct {
+    uint8_t ip[4];
+    uint16_t port;
+    uint8_t noOfRepeat;
+}ethTivaClient;
+
 typedef enum {
     SET_STR,
     GET_STR,
@@ -55,6 +61,7 @@ typedef enum {
     DLOOPBK_STR,
     EPKTGEN_STR,
     DPKTGEN_STR,
+    ECLIENT_STR,
     MAX_STR
 } ocmw_token_t;
 
