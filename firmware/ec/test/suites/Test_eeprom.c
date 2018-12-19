@@ -175,12 +175,6 @@ void test_eeprom_disable_write(void)
 
     /* Checking for NULL cfg */
     TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_disable_write(e_invalid_cfg));
-
-    /* Checking with invalid slave address */
-    TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_disable_write(&e_invalid_dev));
-
-    /* Checking with invalid bus address */
-    TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_disable_write(&e_invalid_bus));
 }
 
 void test_eeprom_enable_write(void)
@@ -193,12 +187,6 @@ void test_eeprom_enable_write(void)
 
     /* Checking for NULL cfg */
     TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_enable_write(e_invalid_cfg));
-
-    /* Checking with invalid slave address */
-    TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_enable_write(&e_invalid_dev));
-
-    /* Checking with invalid bus address */
-    TEST_ASSERT_EQUAL(RETURN_NOTOK, eeprom_enable_write(&e_invalid_bus));
 }
 /* Values are taken as per GBCV1 test board */
 void test_eeprom_read_board_info(void)

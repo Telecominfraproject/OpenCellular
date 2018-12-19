@@ -50,7 +50,7 @@ static ReturnStatus i2c_eeprom_read(I2C_Handle i2cHandle,
  *****************************************************************************/
 bool eeprom_init(Eeprom_Cfg *cfg)
 {
-    if ((cfg == NULL) || (cfg->pin_wp == NULL)) {
+    if (cfg == NULL) {
         return false;
     }
     /* Configure our WP pin (if any) and set to be low (protected) by default */
@@ -234,7 +234,7 @@ static ReturnStatus i2c_eeprom_read(I2C_Handle i2cHandle, uint16_t slaveAddress,
  *****************************************************************************/
 ReturnStatus eeprom_disable_write(Eeprom_Cfg *cfg)
 {
-    if ((cfg == NULL) || (cfg->pin_wp == NULL)) {
+    if (cfg == NULL) {
         return RETURN_NOTOK;
     }
     if (cfg->pin_wp) {
@@ -257,7 +257,7 @@ ReturnStatus eeprom_disable_write(Eeprom_Cfg *cfg)
  *****************************************************************************/
 ReturnStatus eeprom_enable_write(Eeprom_Cfg *cfg)
 {
-    if ((cfg == NULL) || (cfg->pin_wp == NULL)) {
+    if (cfg == NULL) {
         return RETURN_NOTOK;
     }
     if (cfg->pin_wp) {
