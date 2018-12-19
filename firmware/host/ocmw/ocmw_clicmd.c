@@ -550,13 +550,15 @@ static int8_t ocmw_tokenize_ip(char *str)
     uint8_t index = 0;
     int16_t ip[4] = {0};
 
-    if (str == NULL)
+    if (str == NULL) {
         return FAILED;
+    }
 
     token = strtok(str, ".");
 
-    if (token == NULL)
+    if (token == NULL) {
         return FAILED;
+    }
 
     ip[index++] = atoi(token);
 
