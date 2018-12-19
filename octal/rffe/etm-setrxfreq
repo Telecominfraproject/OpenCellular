@@ -30,7 +30,7 @@ if [ $? -eq 1 ]; then
 fi
 
 oncpu 0 /usr/bin/cn_rfdriver << eof > /dev/null
-d
+u
 $1
 q
 eof
