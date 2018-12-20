@@ -128,13 +128,14 @@ if [ -z $TX_FREQ ] ; then
     fi
 fi
 
+#################  Set Frequency  #####################
+etm-settxfreq ${TX_FREQ} 2> /dev/null
+
+#################  Drop Fractional TX_FREQ Portion  #####################
 TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
 
 #################  Get Band  #####################
 TX_BAND=$(bb-gettxband ${TX_FREQ} 2> /dev/null)
-
-#################  Set Frequency  #####################
-etm-settxfreq ${TX_FREQ} 2> /dev/null
 
 #######################  Check BandWidth  #######################
 if [ -z $TX_BW ] ; then

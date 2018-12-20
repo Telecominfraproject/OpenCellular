@@ -592,7 +592,7 @@ elif [ ${OP_MODE} == "pltd" ] ; then
 		log $LOG_LEVEL_ERROR "Could not start pltd-enablefe. Please set TX Frequency"
 		exit 1
 	fi
-	TX_FREQ=$(echo ${TX_FREQ} | cut -d "." -f 1)
+
 	pltd-enablefe -t ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR
 	if [ $? -ne 0 ] ; then
 		echo "$0 - Error start pltd-enablefe"
