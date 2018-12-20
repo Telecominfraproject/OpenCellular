@@ -82,12 +82,12 @@ Eeprom_Cfg enable_dev = {
     .i2c_dev = { 6, 0x45 },
     .pin_wp = &pin_inven_eeprom_wp,
     .type = { .page_size = 64, .mem_size = (256 / 8) },
-    .ss = EEPROM_SYSTEM_SUBSYSTEM,
+    .ss = OC_SS_SYS,
 };
 
 Eeprom_Cfg e_invalid_ss_cfg = {
     .i2c_dev = { 4, 0x50 },
     .pin_wp = &(OcGpio_Pin){ &gbc_io_0, 5 },
     .type = { .page_size = 64, .mem_size = (256 / 8) },
-    .ss = EEPROM_POWER_SUBSYSTEM,
+    .ss = OC_SS_PWR,
 };
