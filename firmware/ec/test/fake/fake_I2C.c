@@ -180,6 +180,7 @@ bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
         return false;
     }
     const Fake_I2C_Dev *dev = &dev_tbl[transaction->slaveAddress];
+    transaction->readCount = dev->addr_size * transaction->readCount;
 
     /* The write buffer must have at least the address in it */
     if (transaction->writeCount < dev->addr_size) {

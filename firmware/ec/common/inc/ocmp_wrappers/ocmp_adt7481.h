@@ -20,11 +20,7 @@ typedef union ADT7481_Config {
     int8_t limits[3];
 } ADT7481_Config;
 
-#ifdef UT_FRAMEWORK
-extern const Driver_fxnTable ADT7481_fxnTable;
-#else
 SCHEMA_IMPORT const Driver_fxnTable ADT7481_fxnTable;
-#endif
 
 static const Driver ADT7481 = {
     .name = "ADT7481",
