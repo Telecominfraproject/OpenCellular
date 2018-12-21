@@ -52,12 +52,13 @@ static void exit_handler(int unused)
     SysCtlReset();
 }
 
+extern void initialise_monitor_handles(void);
+
 /*Main Function */
 int main(void)
 {
     /* Install an exit handler to catch if we fault out */
 //    OcGpio_Pin pin_watchdog         = { &ec_io, OC_EC_WD_INPUT };
-
     System_atexit(exit_handler);
     openCellular_init();
     /* Call board init functions */
