@@ -14,8 +14,7 @@ dl_freq_5=875                       # downlink frequency
 ul_freq_5=830                       # uplink frequency
 
 band_28=28                         # enodeB band
-#dl_freq_28=780.5                       # downlink frequency
-dl_freq_28=790                       # downlink frequency
+dl_freq_28=780.5                       # downlink frequency
 ul_freq_28=725.5                       # uplink frequency
 # environment setting
 
