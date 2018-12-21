@@ -97,7 +97,7 @@ const Component sys_schema[] = {
          },
          {
              .name = "eeprom1",
-             .driver = &CAT24C04_psu_inv,
+             .driver = &CAT24C04_psu_sid,
              .driver_cfg = &eeprom_psu_sid,
          },
          {

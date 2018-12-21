@@ -265,3 +265,61 @@ ReturnStatus eeprom_enable_write(Eeprom_Cfg *cfg)
     /* TODO: error detection */
     return RETURN_OK;
 }
+
+#if 0
+/*
+ * The SKU method of turning on powere lines is currently not needed , we will keep it in codebase
+ * if similar implementation is needed in future
+ */
+
+void eeprom_init_powerLines(Eeprom_Cfg *eeprom_cfg )
+{
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_24v,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_5v0,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_3v3,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_gbcv2_on,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_12v_bb,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_12v_fe,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_20v_fe,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+    OcGpio_configure(&eeprom_cfg->power_cfg->pin_1v8,
+                     OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
+}
+
+ePostCode eeprom_handle_sku_id(Eeprom_Cfg *eeprom_cfg , Eeprom_Skucfg *sku_id)
+{
+    eeprom_init_powerLines(eeprom_cfg);
+    OcGpio_write(&eeprom_cfg->power_cfg->pin_12v_bb, 1);
+
+    switch (sku_id->band_nbr) {
+        case BAND3:
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_5v0, 1);
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_3v3, 1);
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_1v8, 1);
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_20v_fe, 1);
+            break;
+
+        case BAND5:
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_12v_fe, 1);
+            break;
+
+        case BAND28:
+            OcGpio_write(&eeprom_cfg->power_cfg->pin_12v_fe, 1);
+            break;
+
+        default:
+            /* Do Nothing */
+    }
+
+    if(sku_id->gbc_presence) {
+        OcGpio_write(&eeprom_cfg->power_cfg->pin_gbcv2_on, 1);
+    }
+    return POST_DEV_FOUND;
+}
+#endif

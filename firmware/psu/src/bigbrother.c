@@ -37,7 +37,6 @@ OcGpio_Pin pin_12v_fe   = { &pwr_io, 8};
 OcGpio_Pin pin_20v_fe   = { &pwr_io, 9};
 OcGpio_Pin pin_1v8   = { &pwr_io, 10};
 
-
 /* Global Task Configuration Variables */
 Task_Struct bigBrotherTask;
 Char bigBrotherTaskStack[BIGBROTHER_TASK_STACK_SIZE];
@@ -86,6 +85,38 @@ extern void uartdma_tx_createtask(void);
 //extern void watchdog_create_task(void);;
 
 /*****************************************************************************
+ **    FUNCTION NAME   : bb_init_powerLines
+ **
+ **    DESCRIPTION     : Turn on all the power rails on the PSU board
+ **
+ **    ARGUMENTS       : None
+ **
+ **    RETURN TYPE     : ReturnStatus
+ **
+ *****************************************************************************/
+ReturnStatus bb_init_powerLines()
+{
+    OcGpio_configure(&pin_24v,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_5v0,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_3v3,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_gbcv2_on,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_12v_bb,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_12v_fe,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_20v_fe,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+    OcGpio_configure(&pin_1v8,
+                 OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
+
+    return RETURN_OK
+}
+
+/*****************************************************************************
  **    FUNCTION NAME   : bb_sys_post_complete
  **
  **    DESCRIPTION     : Get POST results from EEPROM.
@@ -107,41 +138,8 @@ ReturnStatus bb_sys_post_complete()
         uartdma_rx_createtask();            // P - 07
         uartdma_tx_createtask();          // P - 07
         count++;
-      //  uart_enable();
-        /* TODO: enable this back */
-#if ENABLE_POWER
-        OcGpio_configure(&pin_24v,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_24v, 1);
 
-        OcGpio_configure(&pin_5v0,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_5v0, 1);
-
-        OcGpio_configure(&pin_3v3,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_3v3, 1);
-
-        OcGpio_configure(&pin_gbcv2_on,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_gbcv2_on, 1);
-
-        OcGpio_configure(&pin_12v_bb,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_12v_bb, 1);
-
-        OcGpio_configure(&pin_12v_fe,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_12v_fe, 1);
-
-        OcGpio_configure(&pin_20v_fe,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_20v_fe, 1);
-
-        OcGpio_configure(&pin_1v8,
-                         OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_LOW);
-        OcGpio_write(&pin_1v8, 1);
-#endif
+        bb_init_powerLines();
     }
     return status;
 }

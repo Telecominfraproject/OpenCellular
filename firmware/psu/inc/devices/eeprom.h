@@ -13,6 +13,7 @@
  *                               HEADER FILES
  *****************************************************************************/
 #include "common/inc/global/ocmp_frame.h" /* Temporary, just for OCMPSubsystem def */
+#include "common/inc/global/post_frame.h" /* Temporary, just for OCMPSubsystem def */
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
 
@@ -20,6 +21,9 @@
  *                             MACRO DEFINITIONS
  *****************************************************************************/
 #define OC_TEST_ADDRESS             0xFD0
+#define OC_SKU_BAND_ADDRESS         3
+#define OC_SKU_GBC_ADDRESS          1
+#if 0
 #define OC_CONNECT1_SERIAL_INFO     0x01C6
 #define OC_CONNECT1_SERIAL_SIZE     0x12
 #define OC_GBC_BOARD_INFO           0x01AC
@@ -32,6 +36,7 @@
 #define OC_RFFE_BOARD_INFO_SIZE     0x11
 #define OC_RFFE_DEVICE_INFO         0x0100 /*TODO: Update offsets*/
 #define OC_DEVICE_INFO_SIZE         0x0A
+#endif
 
 /*****************************************************************************
  *                             STRUCT DEFINITIONS
@@ -43,13 +48,41 @@ typedef struct EepromDev_Cfg {
     size_t page_size;
 } EepromDev_Cfg;
 
+typedef enum band_type {
+    BAND3 = 3,
+    BAND5 = 5,
+    BAND28 = 28
+}band_type;
+
+typedef struct Eeprom_Skucfg {
+    bool gbc_presence;
+    band_type band_nbr;
+}Eeprom_Skucfg;
+
+typedef struct Eeprom_PowerCfg {
+    OcGpio_Pin pin_24v;
+    OcGpio_Pin pin_5v0;
+    OcGpio_Pin pin_3v3;
+    OcGpio_Pin pin_gbcv2_on;
+    OcGpio_Pin pin_12v_bb;
+    OcGpio_Pin pin_12v_fe;
+    OcGpio_Pin pin_20v_fe;
+    OcGpio_Pin pin_1v8;
+} Eeprom_PowerCfg;
+
 typedef struct Eeprom_Cfg {
     I2C_Dev i2c_dev;
     OcGpio_Pin *pin_wp;
     EepromDev_Cfg type; /*!< Device specific config (page size, etc) */
     OCMPSubsystem ss; /* TODO: The HW config need not know about the subsytem
     to be fixed later */
+    Eeprom_PowerCfg *power_cfg;
 } Eeprom_Cfg, *Eeprom_Handle;
+
+typedef struct Eeprom_data {
+    uint8_t address;
+    uint8_t data;
+} Eeprom_data;
 
 typedef enum {
     OC_STAT_SYS_SERIAL_ID = 0,
@@ -88,5 +121,6 @@ ReturnStatus eeprom_read_device_info_record(const Eeprom_Cfg *cfg,
 ReturnStatus eeprom_write_device_info_record(Eeprom_Cfg *cfg,
                                              uint8_t recordNo,
                                              char * device_info);
+ePostCode eeprom_handle_sku_id(Eeprom_Cfg *eeprom_cfg , Eeprom_Skucfg *sku_id);
 
 #endif /* EEPROM_H_ */

@@ -32,11 +32,23 @@ SCHEMA_IMPORT const Driver_fxnTable LTC4274_fxnTable;
  *                               EEPROM CONFIG
  *****************************************************************************/
 
+Eeprom_PowerCfg power_line_cfg = {
+    .pin_24v   = { &pwr_io, 3},
+    .pin_5v0   = { &pwr_io, 4},
+    .pin_3v3   = { &pwr_io, 5},
+    .pin_gbcv2_on   = { &pwr_io, 6},
+    .pin_12v_bb   = { &pwr_io, 7},
+    .pin_12v_fe   = { &pwr_io, 8},
+    .pin_20v_fe   = { &pwr_io, 9},
+    .pin_1v8   = { &pwr_io, 10},
+};
+
 Eeprom_Cfg eeprom_psu_sid = {
     .i2c_dev = { OC_CONNECT1_I2C0, 0x56 },
 //    .pin_wp = &pin_s_id_eeprom_wp,
     .type = CAT24C256,
 //    .ss = OC_SS_SYS,
+    .power_cfg = &power_line_cfg,
 };
 
 Eeprom_Cfg eeprom_psu_inv = {
