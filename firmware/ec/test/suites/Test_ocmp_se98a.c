@@ -57,8 +57,8 @@ void suite_tearDown(void)
     fake_I2C_deinit(); /* This will automatically unregister devices */
 }
 /* ================================ Tests =================================== */
-// Parameters are not used as this is just used to test assigning the
-//   alert_handler right now.
+/* Parameters are not used as this is just used to test assigning the
+ *  alert_handler right now. */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
@@ -72,7 +72,7 @@ void test_ocmp_se98a_probe(void)
     uint8_t devId = 0;
     /* Test with the actual values
      * (dev id is hi-byte)
-     * (1131h = NXP Semiconductors PCI-SIG)*/
+     * (1131h = NXP Semiconductors PCI-SIG) */
     POSTData postData;
     SE98A_regs[SE98A_REG_DEVICE_ID] = SE98A_DEVICE_ID;
     SE98A_regs[SE98A_REG_MFG_ID] = SE98A_MFG_ID;
@@ -142,7 +142,6 @@ void test_ocmp_se98a_init(void)
     };
 
     /* Init with a pin associated */
-    // s_task_sleep_ticks = SE98A_DEFAULT_INIT_VALUE;
     TEST_ASSERT_EQUAL(POST_DEV_CFG_DONE,
                       SE98_fxnTable.cb_init(&gbc_gpp_ap_ts1,
                                             &fact_ap_se98a_ts1_cfg,
@@ -202,7 +201,7 @@ void test_ocmp_se98a_get_status(void)
     int8_t statusTemp = 0;
     int8_t expStatusTemp = 0;
     Se98aStatus paramId = SE98A_STATUS_TEMPERATURE;
-    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x019C; /* 25.75 */
+    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x019C;
     TEST_ASSERT_EQUAL(true, SE98_fxnTable.cb_get_status(&gbc_gpp_ap_ts1,
                                                         paramId, &statusTemp));
     expStatusTemp =
@@ -211,7 +210,7 @@ void test_ocmp_se98a_get_status(void)
 
     statusTemp = 0;
     expStatusTemp = 0;
-    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x1E64; /* -25.75 */
+    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x1E64;
     TEST_ASSERT_EQUAL(true, SE98_fxnTable.cb_get_status(&gbc_gpp_ap_ts1,
                                                         paramId, &statusTemp));
     expStatusTemp =
@@ -249,7 +248,7 @@ void test_ocmp_se98a_get_status(void)
      * support int8s - everything else is rounded for now */
     statusTemp = 0;
     expStatusTemp = 0;
-    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x17E0; /* -130 */
+    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x17E0;
     TEST_ASSERT_EQUAL(true, SE98_fxnTable.cb_get_status(&gbc_gpp_ap_ts1,
                                                         paramId, &statusTemp));
     expStatusTemp =
@@ -258,7 +257,7 @@ void test_ocmp_se98a_get_status(void)
 
     statusTemp = 0;
     expStatusTemp = 0;
-    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x0B40; /* 180 */
+    SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0x0B40;
     TEST_ASSERT_EQUAL(true, SE98_fxnTable.cb_get_status(&gbc_gpp_ap_ts1,
                                                         paramId, &statusTemp));
     expStatusTemp =
@@ -281,13 +280,13 @@ void test_ocmp_se98a_get_status(void)
     SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0xFC91;
     TEST_ASSERT_EQUAL(false, SE98_fxnTable.cb_get_status(&s_invalid_device,
                                                          paramId, &statusTemp));
-    /* Test with a missing bus*/
+    /* Test with a missing bus */
     statusTemp = 0;
     expStatusTemp = 0;
     SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0xFC91;
     TEST_ASSERT_EQUAL(false, SE98_fxnTable.cb_get_status(&s_invalid_bus,
                                                          paramId, &statusTemp));
-    /* Test with a invalid paramid*/
+    /* Test with a invalid paramid */
     statusTemp = 0;
     expStatusTemp = 0;
     SE98A_regs[SE98A_REG_MEASURED_TEMP] = 0xFC91;
@@ -334,7 +333,7 @@ test_ocmp_se98a_get_x_limit(eTempSensor_ConfigParamsId limitToConfig,
 
     limit = 0;
     expTempLimit = 0;
-    SE98A_regs[reg_addr] = 0x019C; /* 25.75 */
+    SE98A_regs[reg_addr] = 0x019C;
     TEST_ASSERT_EQUAL(true, SE98_fxnTable.cb_get_config(&gbc_gpp_ap_ts1,
                                                         limitToConfig, &limit));
     expTempLimit = ocmp_se98a_get_temp_value(SE98A_regs[reg_addr]);
