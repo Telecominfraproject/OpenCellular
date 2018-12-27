@@ -34,6 +34,22 @@ typedef enum {
     CONF_TEMP_SE98A_CRITICAL_LIMIT_REG
 } eTempSensor_ConfigParamsId;
 
+typedef enum Se98aStatus {
+    SE98A_STATUS_TEMPERATURE = 0,
+} Se98aStatus;
+
+typedef enum Se98aConfig {
+    SE98A_CONFIG_LIM_LOW = 0,
+    SE98A_CONFIG_LIM_HIGH,
+    SE98A_CONFIG_LIM_CRIT,
+} Se98aConfig;
+
+typedef enum Se98aAlert {
+    SE98A_ALERT_LOW = 0,
+    SE98A_ALERT_HIGH,
+    SE98A_ALERT_CRITICAL
+} Se98aAlert;
+
 typedef void (*SE98A_CallbackFn)(SE98A_Event evt, int8_t temperature,
                                  void *context);
 
