@@ -35,6 +35,7 @@ extern int32_t eepromFlag;
 extern uint8_t  ocwarePostArrayIndex;
 debugI2CData I2CInfo;
 debugMDIOData MDIOInfo;
+ethTivaClient clientInfo;
 
 struct matchString {
     const char *key;
@@ -57,6 +58,7 @@ struct matchString {
         { "dis_loopBk", DLOOPBK_STR },
         { "en_pktGen", EPKTGEN_STR },
         { "dis_pktGen", DPKTGEN_STR },
+        { "en_tivaClient", ECLIENT_STR },
         { NULL, MAX_STR },
 };
 
@@ -112,38 +114,64 @@ static int32_t ocmw_tokenize(const char *cmdstr,
                                 int32_t *strTokenCount, char ***strTokenArray)
 {
     char *str = NULL;
+    char *strDot = NULL;
     char *saveptr = NULL;
-    char *paramStr = NULL;
+    char *savePtrDot = NULL;
+    char *tempStr = NULL;
     char *token = NULL;
     char **localStrTokenArray = NULL;
     char **temp = NULL;
     const char *delim = " ";
+    int32_t count = 0;
     int32_t localStrTokenCount = 0;
     int32_t index = 0;
-
-    /* Split the actiontype from the cmdstr */
-    paramStr = strrchr(cmdstr, '.');
-    *paramStr = ' ';
 
     for (index = 1, str = (char*) cmdstr;; index++, str = NULL) {
         token = strtok_r(str, delim, &saveptr);
         if (token == NULL) {
             break;
         }
+        if (count) {
+            localStrTokenCount++;
+            temp = localStrTokenArray;
+            localStrTokenArray =
+                realloc(localStrTokenArray,
+                sizeof(char *) * localStrTokenCount);
+            if (localStrTokenArray == NULL) {
+                logerr("realloc failed");
+                /* Free the original block of memory before realloc */
+                if (temp != NULL) {
+                    free(temp);
+                }
+                return FAILED;
+           }
+            localStrTokenArray[localStrTokenCount - 1] = token;
+        } else {
+            tempStr = strrchr(token, '.');
+            *tempStr = ' ';
 
-        localStrTokenCount++;
-        temp = localStrTokenArray;
-        localStrTokenArray = realloc(localStrTokenArray,
+            for (index = 1, strDot = (char*) token;; index++, strDot = NULL) {
+                token = strtok_r(strDot, delim, &savePtrDot);
+                if (token == NULL) {
+                    break;
+                }
+                localStrTokenCount++;
+                temp = localStrTokenArray;
+                localStrTokenArray =
+                    realloc(localStrTokenArray,
                     sizeof(char *) * localStrTokenCount);
-        if (localStrTokenArray == NULL) {
-            logerr("realloc failed");
-            /* Free the original block of memory before realloc */
-            if (temp != NULL) {
-                free(temp);
+                if (localStrTokenArray == NULL) {
+                    logerr("realloc failed");
+                    /* Free the original block of memory before realloc */
+                     if (temp != NULL) {
+                        free(temp);
+                   }
+                   return FAILED;
+               }
+               localStrTokenArray[localStrTokenCount - 1] = token;
             }
-            return FAILED;
         }
-        localStrTokenArray[localStrTokenCount - 1] = token;
+        count++;
     }
 
     *strTokenCount = localStrTokenCount;
@@ -171,37 +199,6 @@ int32_t ocmw_check_numeric_number(char *numstring)
     }
     return SUCCESS;
 }
-#if 0
-/**************************************************************************
- * Function Name    : ocmw_string_parse
- * Description      : This Function used to parse the param string
- * Input(s)         : string
- * Output(s)        : outStr
- ***************************************************************************/
-int8_t ocmw_string_parse(char *string, char *outStr)
-{
-    char *token;
-    char string1[CHAR_SIZE_12] = { 0 };
-    char string2[CHAR_SIZE_12] = { 0 };
-
-    token = strtok(string, " .");
-    if (token == NULL) {
-        return FAILED;
-    }
-
-    strncpy(string1, token, CHAR_SIZE_12);
-    token = strtok(NULL, " .");
-    if (token == NULL) {
-        return FAILED;
-    }
-    strncpy(string2, token, CHAR_SIZE_12);
-
-    if ((snprintf(outStr, CHAR_SIZE_32, "%s.%s", string1, string2)) < 0) {
-        return FAILED;
-    }
-    return SUCCESS;
-}
-#endif
 /**************************************************************************
  * Function Name    : ocmw_handle_set_config
  * Description      : This Function used to handle the set config commands
@@ -541,7 +538,48 @@ static int32_t ocmw_handle_testmod_command_function(char* strTokenArray[],
     return ret;
 }
 /**************************************************************************
+ * Function Name    : ocmw_tokenize_ip
+ * Description      : This Function used to get ip address
+ * Input(s)         : str
+ * Output(s)        :
+ ***************************************************************************/
+static int8_t ocmw_tokenize_ip(char *str)
+{
+    char *token;
+    uint8_t count = 0;
+    uint8_t index = 0;
+    int16_t ip[4] = {0};
 
+    if (str == NULL) {
+        return FAILED;
+    }
+
+    token = strtok(str, ".");
+
+    if (token == NULL) {
+        return FAILED;
+    }
+
+    ip[index++] = atoi(token);
+
+    while (token) {
+        token = strtok(NULL, ".");
+        if (token == NULL)
+            break;
+        ip[index++] = (int16_t)atoi(token);
+    }
+    count = index;
+    for (index = 0; index < count; index++) {
+        if ((ip[index] > 255) || (ip[index] < 0)) {
+            return FAILED;
+        } else {
+            clientInfo.ip[index] = ip[index];
+        }
+    }
+    return SUCCESS;
+}
+
+/**************************************************************************
  * Function Name    : ocmw_handle_ethernet_command_function
  * Description      : This Function used to handle the loopBack and packent
  *                    genrator commands
@@ -552,41 +590,75 @@ static int8_t ocmw_handle_ethernet_command_function(char* strTokenArray[],
         char *response)
 {
     char paramStr[PARAM_STR_BUFF_SIZE] = { 0 };
+    char tempStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
     void *paramvalue = NULL;
-
+    int32_t port = 0;
     int32_t value = 0;
     int32_t ret = 0;
-    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = {0};
+    char displayStr[PARAM_STR_BUFF_SIZE] = {0};
 
     if (strTokenArray == NULL || response == NULL) {
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
-    value = atoi(strTokenArray[2]);
-
-    if (((value > 2) || (value < 0)) &&
-           (strstr(strTokenArray[1],"loopBk"))) {
-        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
-            "(number = %s) : Error : Number Invalid",
-            strTokenArray[0], strTokenArray[1], strTokenArray[2])) < 0) {
-
+    if (strstr(strTokenArray[1],"tivaClient")) {
+        strcpy(tempStr, strTokenArray[2]);
+        ret = ocmw_tokenize_ip(tempStr);
+        if (ret < 0) {
+            snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
+                "(number = %s) : Error : IP "
+                "Invalid", strTokenArray[0], strTokenArray[1],
+                strTokenArray[2]);
             return FAILED;
         }
-        return FAILED;
-    }
+        port =  atoi(strTokenArray[3]);
+        if ((port > 65535) || (port < 0)) {
+            snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
+                "(number = %s) : Error : PORT "
+                "Invalid", strTokenArray[0], strTokenArray[1],
+                strTokenArray[3]);
+            return FAILED;
+        }
+        clientInfo.port = port;
+        clientInfo.noOfRepeat =  atoi(strTokenArray[4]);
+        sprintf(displayStr, "%s IP Address :%s Port :%s"
+                " No of Repeat :%s", strTokenArray[0],
+                strTokenArray[2], strTokenArray[3],
+                strTokenArray[4]);
+         paramvalue = (void*) &clientInfo;
+    } else {
+        value = atoi(strTokenArray[2]);
 
-    paramvalue = (void*) &value;
-    strcpy(tempParamStr,strTokenArray[0]);
+        if (((value > 2) || (value < 0)) &&
+           (strstr(strTokenArray[1],"loopBk"))) {
+            if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s "
+                "(number = %s) : Error : Number "
+                "Invalid", strTokenArray[0], strTokenArray[1],
+                strTokenArray[2])) < 0) {
+            return FAILED;
+            }
+            return FAILED;
+        }
+        paramvalue = (void*) &value;
+    }
     if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s",
-        strTokenArray[1],strTokenArray[0])) < 0) {
+            strTokenArray[1],strTokenArray[0])) < 0) {
         return FAILED;
     }
     ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0,
             OCMP_MSG_TYPE_COMMAND, (int8_t *) paramStr, paramvalue);
     if (strncmp(strTokenArray[1], "dis_pktGen", strlen("dis_pktGen")) == 0) {
         if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s : %s",
-            strTokenArray[0], strTokenArray[1], (ret != 0) ? "Failed" :
-            "Success")) < 0) {
+            strTokenArray[0], strTokenArray[1],
+            (ret != 0) ? "Failed" : "Success")) < 0) {
+            return FAILED;
+        }
+    } else if (strstr(strTokenArray[1],"tivaClient")) {
+        if ((snprintf(response, RES_STR_BUFF_SIZE, "%s.%s %s %s %s : %s",
+                strTokenArray[0], strTokenArray[1],
+                strTokenArray[2], strTokenArray[3],
+                strTokenArray[4], (ret != 0) ? "Failed" :
+                "Success")) < 0) {
             return FAILED;
         }
     } else {
@@ -1194,6 +1266,22 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                                             ocmw_frame_errorString(cmdStr,
                                             INVALID_SYNTAX, response));
                          ocmw_free_pointer(strTokenArray);
+                        return FAILED;
+                    }
+                    break;
+                case ECLIENT_STR:
+                    if (strTokenCount == 5) {
+                        ret = ocmw_handle_ethernet_command_function(
+                                            strTokenArray, response);
+                        ocmw_free_pointer(strTokenArray);
+                        return (ret != 0) ? FAILED : SUCCESS;
+                    } else {
+                        ret = (strTokenCount < 5 ?
+                                            ocmw_frame_errorString(cmdStr,
+                                            INSUFFICIENT_PARAM, response) :
+                                            ocmw_frame_errorString(cmdStr,
+                                            INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }
                     break;
