@@ -153,6 +153,15 @@ class CalIQOffset(Calibration):
                 # 7. fix I offset to new value
                 print("\n7. fix I offset to new value")
                 type(self).enb.enb_adi_write_reg(str(hex(self.reg_tx_i)), str(sort_res[0][0]))
+
+                if (ant == 0):
+                    se = 'n'
+                    while (se != 'y'):
+                        se = raw_input("Are you ready to switch to ant2?(y):")
+                        if (se == 'y') or (se == 'Y'):
+                            se = 'y'
+                            print("\nNow testing ant2")
+                            break
         
         except:
             #print Exception, e

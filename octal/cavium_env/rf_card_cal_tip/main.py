@@ -599,11 +599,20 @@ class rfCardCal():
         try:
             if (self.cfg.test_set == 'agilent'):
                 print "connecting agilent test set"
-                ic.exg_connect()
-                ic.exg_init()
-                ic.mxa_connect()
-                ic.mxa_init()
-                ic.mxa_setup(test_config.dl_freq)
+                try:
+                    print "connecting exg"
+                    ic.exg_connect()
+                    ic.exg_init()
+                except:
+                    print "not connected to exg"
+
+                try:
+                    print "connecting mxa"
+                    ic.mxa_connect()
+                    ic.mxa_init()
+                    ic.mxa_setup(test_config.dl_freq)
+                except:
+                    print "not connected to mxa"
                 
             elif (self.cfg.test_set == 'anritsu'):
                 print "connecting anritsu test set"

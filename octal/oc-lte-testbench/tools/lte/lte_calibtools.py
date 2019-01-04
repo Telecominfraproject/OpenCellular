@@ -357,6 +357,7 @@ def dbn_to_dbm(dbn):
 def read_rfpal_in_dbm(context, ssh, tx):
     tx = real_tx(tx)
     output = _get_rfpal_pwr_in(context, ssh, tx)
+    #context.logger.debug('get_rfpal_pwr %s' % output)
     try:
         dbn = int(output)
     except ValueError:
@@ -466,9 +467,11 @@ def set_bb_atten_raw(context, ssh, tx, value):
 def set_bb_atten(context, ssh, tx, value):
     tx = real_tx(tx)
     value = clamp_warning(context, 'BB Attn', context.CALIBRATION_BB_ATTN_MIN, value, context.CALIBRATION_BB_ATTN_MAX)
+    print("min = %s, value = %s, max=%s " % (context.CALIBRATION_BB_ATTN_MIN, value, context.CALIBRATION_BB_ATTN_MAX))
     execute_command_from_calib_dir(ssh, 'bb-settxatt %d %d' % (tx, value))
     context.logger.debug("BB Attn %d set to %.2f dB" % (tx, value))
-    validate_pa_current(context, unreal_tx(tx))
+    time.sleep(3)
+    #validate_pa_current(context, unreal_tx(tx))
     return value
 ##endregion
 
@@ -518,7 +521,7 @@ def cn_rfdriver_command_list(context, command):
 
 def clamp_warning(context, value_name, minn, old_value, maxn):
     value = clamp(minn, old_value, maxn)
-    if old_value != value: context.logger.warning("%s value clamped ! Desired value=%.2f" % (value_name, old_value))
+    if old_value != value: context.logger.warning("%s value=%s clamped ! Desired value=%.2f" % (value_name, value, old_value))
     return value
 
 def clamp(minn, n, maxn):

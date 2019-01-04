@@ -13,7 +13,7 @@ import sys
 band = 0                            # DUT band
 dl_freq = 0                         # current downlink frequency
 ul_freq = 0                         # current uplink frequency
-wr_var_to_uboot = False             # T: write variable to uboot; F: don't write
+wr_var_to_uboot = True             # T: write variable to uboot; F: don't write
 
 class EnbConfig():
     

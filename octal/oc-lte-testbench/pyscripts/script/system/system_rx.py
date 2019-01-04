@@ -16,7 +16,7 @@ class PrepareCalibration():
     def SY_PRP040(self, context):
         for tx in range(2):
             const_name = 'CALIBRATION_BB_RX%d_GAIN' % tx
-            bb_gain = getattr(context, const_name)#context.server.env_var.get_value('gain%d' % lte_calibtools.real_tx(tx))
+            bb_gain = getattr(context, const_name) #context.server.env_var.get_value('gain%d' % lte_calibtools.real_tx(tx))
             for bw in context.CALIBRATION_LTE_BANDWIDTHS:
                 freq_range = getattr(context, 'CALIBRATION_BW%d_ALL_FREQS_UL' % bw)
                 pwr_range = [30]

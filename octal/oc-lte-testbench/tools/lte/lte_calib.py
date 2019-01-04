@@ -80,8 +80,7 @@ def generate_postprocess_tables(context, bw):
     pre_folder = context.CALIBRATION_PREPROCESS_FOLDER
     post_folder = context.CALIBRATION_POSTPROCESS_FOLDER
 
-	#FIXME, only ant1 for now
-    for tx in range(1):
+    for tx in range(2):
         bb_table = calib_utils.LTEBBCalibTable()
         tx_table = calib_utils.LTETXCalibTable()
         fb_table = calib_utils.LTEFBCalibTable()
@@ -526,9 +525,34 @@ def enable_fe(context, tx):
 ##region Calibration
 
 def calibrate_ocxo(context, tx, freq, force_calib=False):
+    # # from spectrum_example
+    # server = serverinterface.LocalLaunchedServerInterface(port=5050)
+    #
+    # server.spectrum = server.get_service_client_from_name('KeysightEXASpectrumClient', url='spectrum')
+    # server.spectrum.create_service("TCPIP0::K-N9030B-41982.local::inst0::INSTR")
+    #
+    # server.spectrum.instrument_reset()
+    # server.spectrum.setup_lte_dl_mode(lte_bw=5, mode='ACP', cont='OFF')
+    # server.spectrum.read_evm()
+    #
+    # # from rfmeasure
+    # def set_spectrum_path(context, path, tx):
+    #     tx_str = '%s%d' % (path, tx)
+    #     ret_val = context.server.rfswitch.set_switch_path('SPECTRUM', tx_str)
+    #     assert ret_val, "RFSwitch must be of type LossRFSwitch[...] for LTE"
+    #     loss = context.server.rfswitch.loss.get_loss_key(ret_val)
+    #     context.logger.debug("Spectrum linked with %s. %.2f dB loss" % (tx_str, loss))
+    #     context.server.spectrum.set_loss(loss)
+    #
+    ## things to add
+
+
     context.server.spectrum.instrument_reset()
-	
-	rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+
+
+    ## where the code originally started
+
+    rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
     spectrum = context.server.spectrum
     ssh = context.server.ssh
 
@@ -732,6 +756,136 @@ def calibrate_tx(context, tx, bw):
 
     lte_calibtools.set_tx_enable(context, tx, 0)
 
+def calibrate_tx_b28(context, tx, bw):
+    # rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+    context.logger.info("Calibrating TX %d w/ BW of %d MHz" % (lte_calibtools.real_tx(tx), bw))
+    spectrum = context.server.spectrum
+    ssh = context.server.ssh
+
+    actual_bw = int(context.server.env_var.get_value('bw'))
+
+    if bw != actual_bw:
+        context.logger.info("Changing bandwidth; requires reboot.")
+        lte_calibtools.reset_and_change_lte_bw(context, bw)
+
+    spectrum.setup_lte_dl_mode(lte_bw=bw, cont='ON')
+
+    #lte_calibtools.set_tx_enable(context, tx, 1)
+
+    #default values for tx and fb attn
+    # lte_calibtools.set_bb_atten(context, ssh, tx, context.CALIBRATION_BB_ATTN_INIT_ATTEN)
+    # lte_calibtools.set_tx_atten(context, ssh, tx, context.CALIBRATION_TX_ATTN_INIT_ATTEN)
+    # lte_calibtools.set_fb_atten(context, ssh, tx, context.CALIBRATION_FB_ATTN_INIT_ATTEN)
+
+    freq_range = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)
+    print ("freq_range = %s" % freq_range)
+    calibrate_by_freq_b28(context, ssh, spectrum, tx, bw, freq_range)
+
+    lte_calibtools.set_tx_enable(context, tx, 0)
+
+def calibrate_by_freq_b28(context, ssh, spectrum, tx, bw, freq_range):
+    bb_atten = []
+    tx_atten = []
+    fb_atten = []
+
+    last_values = None
+    unified_table = LTEUnifiedCalibTable(context)
+
+    #temp_before = context.server.sensor.temp_tx(tx)
+    with utils.stack_chdir(context.CALIBRATION_PREPROCESS_FOLDER):
+        with open('results_%dMHz_TX%d.csv' % (bw, tx), 'wb') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            for freq in freq_range:
+                context.logger.info("B28 Calibrating Attn values for TX %d @ %d MHz" % (lte_calibtools.real_tx(tx), freq))
+                #lte_calibtools.reset_rfpal(context)
+                last_values = calibrate_tx_freq_b5(context, tx, freq, init_values=last_values, debug_csv_writer=csv_writer, lte_unified_cable=unified_table)
+                #for ant2
+                # last_values = calibrate_tx_freq_b5(context, 1, freq, init_values=last_values,
+                #                                   debug_csv_writer=csv_writer, lte_unified_cable=unified_table)
+
+                bb_atten = bb_atten + [last_values[0]]
+                tx_atten = tx_atten + [last_values[1]]
+                fb_atten = fb_atten + [last_values[2]]
+
+                last_values = (last_values[0]+1, last_values[1]+1, last_values[2])
+                #last_values[0] = last_values[0] + 1
+                #last_values[1] = last_values[1] + 4
+
+    #temp_after = context.server.sensor.temp_tx(tx)
+
+    #temp_avg = (temp_after + temp_before)/2
+    temp_avg = 30
+    unified_table.set_temp(temp_avg)
+    pwr_range = range(30, 31)
+    print("going to save tx %s, but should go here %s" % (tx, lte_calibtools.real_tx(tx)))
+    with utils.stack_chdir(context.CALIBRATION_PREPROCESS_FOLDER):
+        utils.save_obj(unified_table, lte_unified_calib_table_file_name(bw=bw, tx=tx))
+        #utils.save_obj(unified_table, lte_unified_calib_table_file_name(bw=bw, tx=lte_calibtools.real_tx(tx)))
+
+    return unified_table
+
+def calibrate_tx_b5(context, tx, bw):
+    # rfmeasure.set_spectrum_path(context, 'UUT_ANT', tx)
+    context.logger.info("Calibrating TX %d w/ BW of %d MHz" % (lte_calibtools.real_tx(tx), bw))
+    spectrum = context.server.spectrum
+    ssh = context.server.ssh
+
+    actual_bw = int(context.server.env_var.get_value('bw'))
+
+    if bw != actual_bw:
+        context.logger.info("Changing bandwidth; requires reboot.")
+        lte_calibtools.reset_and_change_lte_bw(context, bw)
+
+    spectrum.setup_lte_dl_mode(lte_bw=bw, cont='ON')
+
+    #lte_calibtools.set_tx_enable(context, tx, 1)
+
+    #default values for tx and fb attn
+    # lte_calibtools.set_bb_atten(context, ssh, tx, context.CALIBRATION_BB_ATTN_INIT_ATTEN)
+    # lte_calibtools.set_tx_atten(context, ssh, tx, context.CALIBRATION_TX_ATTN_INIT_ATTEN)
+    # lte_calibtools.set_fb_atten(context, ssh, tx, context.CALIBRATION_FB_ATTN_INIT_ATTEN)
+
+    freq_range = getattr(context, 'CALIBRATION_BW%d_FREQS' % bw)
+    calibrate_by_freq_b5(context, ssh, spectrum, tx, bw, freq_range)
+
+    lte_calibtools.set_tx_enable(context, tx, 0)
+
+def calibrate_by_freq_b5(context, ssh, spectrum, tx, bw, freq_range):
+    bb_atten = []
+    tx_atten = []
+    fb_atten = []
+
+    last_values = None
+    unified_table = LTEUnifiedCalibTable(context)
+
+    #temp_before = context.server.sensor.temp_tx(tx)
+    with utils.stack_chdir(context.CALIBRATION_PREPROCESS_FOLDER):
+        with open('results_%dMHz_TX%d.csv' % (bw, tx), 'wb') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            for freq in freq_range:
+                context.logger.info("Calibrating Attn values for TX %d @ %d MHz" % (lte_calibtools.real_tx(tx), freq))
+                #lte_calibtools.reset_rfpal(context)
+                last_values = calibrate_tx_freq_b5(context, tx, freq, init_values=last_values, debug_csv_writer=csv_writer, lte_unified_cable=unified_table)
+
+                bb_atten = bb_atten + [last_values[0]]
+                tx_atten = tx_atten + [last_values[1]]
+                fb_atten = fb_atten + [last_values[2]]
+
+                last_values = (last_values[0]+1, last_values[1]+1, last_values[2])
+                #last_values[0] = last_values[0] + 1
+                #last_values[1] = last_values[1] + 4
+
+    #temp_after = context.server.sensor.temp_tx(tx)
+
+    #temp_avg = (temp_after + temp_before)/2
+    temp_avg = 30
+    unified_table.set_temp(temp_avg)
+    pwr_range = range(30, 31)
+    with utils.stack_chdir(context.CALIBRATION_PREPROCESS_FOLDER):
+        utils.save_obj(unified_table, lte_unified_calib_table_file_name(bw=bw, tx=tx))
+
+    return unified_table
+
 def calibrate_by_freq(context, ssh, spectrum, tx, bw, freq_range):
     bb_atten = []
     tx_atten = []
@@ -769,7 +923,7 @@ def calibrate_by_freq(context, ssh, spectrum, tx, bw, freq_range):
 
 
 def bb_atten_file_name(bw, tx):
-    return 'bbtxatten_b3_%d_ant%d.cal' % (bw, tx)
+    return 'bbtxatten_b28_%d_ant%d.cal' % (bw, tx)
 
 def tx_atten_file_name(bw, tx):
     return 'fetxatten_b3_%d_ant%d.cal' % (bw, tx)
@@ -785,6 +939,27 @@ def calibrate_tx_freq(context, tx, freq, init_values=None, debug_csv_writer=None
     bb_attn, rf_in_error = BBAttenuatorCalibrator(context, tx).calibrate_with_diff(freq, init_value=init_values[0])
     tx_attn, pwr_error = TXAttenuatorCalibrator(context, tx).calibrate_with_diff(freq, init_value=init_values[1])
     fb_attn, fb_error = FBAttenuatorCalibrator(context, tx).calibrate_with_diff(freq, init_value=init_values[2])
+
+    if lte_unified_cable is not None:
+        lte_unified_cable.add_measure(freq, bb_attn, tx_attn, fb_attn, rf_in_error, pwr_error, fb_error)
+
+    if debug_csv_writer is not None:
+        debug_csv_writer.writerow([freq, bb_attn, tx_attn, fb_attn, rf_in_error, pwr_error, fb_error])
+
+    return (bb_attn, tx_attn, fb_attn)
+
+def calibrate_tx_freq_b5(context, tx, freq, init_values=None, debug_csv_writer=None, lte_unified_cable=None):
+    if not init_values:
+        init_values = (None,None,None)
+
+    setup_etm_measurement(context, freq)
+    bb_attn, rf_in_error = BBAttenuatorCalibrator(context, tx).calibrate_with_diff_spectrum(freq, init_value=init_values[0])
+    #tx_attn, pwr_error = TXAttenuatorCalibrator(context, tx).calibrate_with_diff(freq, init_value=init_values[1])
+    #fb_attn, fb_error = FBAttenuatorCalibrator(context, tx).calibrate_with_diff(freq, init_value=init_values[2])
+    tx_attn = 0
+    pwr_error = 0
+    fb_attn = 0
+    fb_error = 0
 
     if lte_unified_cable is not None:
         lte_unified_cable.add_measure(freq, bb_attn, tx_attn, fb_attn, rf_in_error, pwr_error, fb_error)
@@ -828,6 +1003,33 @@ class AttenuatorCalibrator(object):
         self.done_callback(freq, current_atten)
         return current_atten, diff
 
+    def calibrate_with_diff_spectrum(self, freq, init_value=None):
+        if init_value is None:
+            #Start with known value
+            init_value = self.get_init_value()
+
+        current_atten = self.set_atten(init_value)
+        self.setup_signal(freq)
+
+        self.standard_wait()
+        diff, diff_required = self.get_diff_required_spectrum()
+        max_iter = 10
+        loose_acceptance_count = 0
+        while diff_required != 0 and max_iter > 0:
+            current_atten = self.set_atten(current_atten + diff_required)
+            #self.standard_wait()
+            diff, diff_required = self.get_diff_required_spectrum()
+            print("in loop: diff=%s, diff_required=%s" %(diff,diff_required))
+            if abs(diff_required) <= self.loose_acceptance():
+                loose_acceptance_count = loose_acceptance_count + 1
+
+            if loose_acceptance_count >= 3:
+                diff_required = 0
+
+            max_iter = max_iter - 1
+        self.done_callback_spectrum(freq, current_atten)
+        return current_atten, diff
+
     def calibrate(self, freq, init_value=None):
         return self.calibrate_with_diff(freq, init_value)[0]
 
@@ -857,6 +1059,24 @@ class AttenuatorCalibrator(object):
         self.iteration_callback(value)
         diff = self.pid(diff)
         #print("value=%.2f, target=%.2f, diff=%.2f" % (value, self.get_target(), diff))
+        round_diff = self.round_atten(diff)
+        return diff, round_diff
+
+    def get_diff_required_spectrum(self):
+
+        stable_diff = self.tight_acceptance()
+
+        # if self.is_power_close_to_target(value):
+            #Stabilize output when close
+            # self.context.logger.debug("Value = %.2f, stabilizing" % value)
+        value = self.read_power_spectrum()#utils.stabilize_output(_get_value, stable_diff=stable_diff, average_count=1, poll_rate=0.01)
+
+        #value = -18, target = -16.5
+        diff = value - self.get_target()
+        print("subtraction value=%.2f, target=%.2f, diff=%.2f" % (value, self.get_target(), diff))
+        self.iteration_callback(value)
+        diff = self.pid(diff)
+        print("value=%.2f, target=%.2f, diff=%.2f" % (value, self.get_target(), diff))
         round_diff = self.round_atten(diff)
         return diff, round_diff
 
@@ -926,11 +1146,31 @@ class BBAttenuatorCalibrator(BBGeneratedSignalCalibrator):
         self.previous = value
         return value
 
+    def read_power_spectrum(self):
+        #rfmeasure.set_spectrum_path(self.context, 'UUT_ANT', tx)
+        self.context.server.spectrum.set_loss(31)
+        if not hasattr(self, 'previous'):
+            self.previous = None
+        value = read_output_power(self.context, self.context.server.spectrum)
+        print ("First spectrum pwr val = %s" % value)
+        #value = lte_calibtools.read_rfpal_in_dbm(self.context, self.context.server.ssh, self.tx)
+        if not self.previous:
+            self.previous = value
+        while self.previous == value:
+            value = read_output_power(self.context, self.context.server.spectrum)
+            print ("Second spectrum pwr val = %s" % value)
+            #value = lte_calibtools.read_rfpal_in_dbm(self.context, self.context.server.ssh, self.tx)
+        self.previous = value
+        return value
+
     def standard_wait(self):
         time.sleep(self.context.CALIBRATION_STD_SLEEP)
 
     def iteration_callback(self, attn_db):
         self.context.logger.debug("RFPAL IN=%.2f, target=%.2f" % (attn_db, self.get_target()))
+
+    def done_callback_spectrum(self, freq, attn_db):
+        self.context.logger.info("[BB] f=%s, \tbb_attn=%s, \tin_pwr=%.2f" % (str(freq), str(attn_db), self.read_power_spectrum()))
 
     def done_callback(self, freq, attn_db):
         self.context.logger.info("[BB] f=%s, \tbb_attn=%s, \tin_pwr=%.2f, \tfb=%.2f" % (str(freq), str(attn_db), lte_calibtools.read_rfpal_in_dbm(self.context, self.context.server.ssh, self.tx), lte_calibtools.read_rfpal_fb_dbm(self.context, self.context.server.ssh, self.tx)))
