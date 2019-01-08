@@ -12,11 +12,17 @@
 #ifndef DEVICES_I2C_THREADED_INT_H_
 #define DEVICES_I2C_THREADED_INT_H_
 
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 
 typedef void (*ThreadedInt_Callback)(void *context);
 
-void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
+typedef struct pinConfig {
+    OCMPSubsystem subSystem;
+    OcGpio_Pin *alertPin;
+} pinConfig;
+
+void ThreadedInt_Init(pinConfig *pinCfg, ThreadedInt_Callback cb,
                       void *context);
 
 #endif /* DEVICES_I2C_THREADED_INT_H_ */

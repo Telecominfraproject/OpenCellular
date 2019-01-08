@@ -47,7 +47,7 @@ Eeprom_Cfg eeprom_psu_sid = {
     .i2c_dev = { OC_CONNECT1_I2C0, 0x56 },
 //    .pin_wp = &pin_s_id_eeprom_wp,
     .type = CAT24C256,
-//    .ss = OC_SS_SYS,
+//    .ss = OC_SS_PWR,
     .power_cfg = &power_line_cfg,
 };
 

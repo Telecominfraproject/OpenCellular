@@ -12,6 +12,9 @@
 //*****************************************************************************
 
 #include "Board.h"
+
+#include "common/inc/global/Framework.h"
+#include "devices/i2c/threaded_int.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
 #include "inc/devices/powerSource.h"
@@ -181,12 +184,42 @@ static ReturnStatus pwr_source_inuse(ePowerSource *inUse)
  **     RETURN TYPE    : None
  **
  *****************************************************************************/
-void pwr_source_init()
+void pwr_source_init(PWRSRC_Dev *dev, void *alert_token)
 {
     ePowerSource itr = PWR_SRC_EXT ;
+    const uint32_t pin_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
+    pinConfig *dc_presence;
+    pinConfig *poe_presence;
+    pinConfig *battery_presence;
+
     for (; itr < PWR_SRC_MAX; itr++) {
         Power_SourceInfo[itr].powerSource = itr;
         Power_SourceInfo[itr].state = PWR_SRC_NON_AVAILABLE;
+    }
+
+    if (&dev->cfg.pin_dc_present) {
+        if (OcGpio_configure(&dev->cfg.pin_dc_present, pin_cfg) < OCGPIO_SUCCESS) {
+            return ;
+        }
+        dc_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        dc_presence->alertPin = &dev->cfg.pin_dc_present;
+        ThreadedInt_Init(dc_presence, NULL, (void *)dev);
+    }
+    if (&dev->cfg.pin_poe_prsnt_n) {
+        if (OcGpio_configure(&dev->cfg.pin_poe_prsnt_n, pin_cfg) < OCGPIO_SUCCESS) {
+            return ;
+        }
+        poe_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        poe_presence->alertPin = &dev->cfg.pin_poe_prsnt_n;
+        ThreadedInt_Init(poe_presence, NULL, (void *)dev);
+    }
+    if (&dev->cfg.pin_int_bat_prsnt) {
+        if (OcGpio_configure(&dev->cfg.pin_int_bat_prsnt, pin_cfg) < OCGPIO_SUCCESS) {
+            return ;
+        }
+        battery_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        battery_presence->alertPin = &dev->cfg.pin_int_bat_prsnt;
+        ThreadedInt_Init(battery_presence, NULL, (void *)dev);
     }
 
     return;

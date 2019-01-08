@@ -8,17 +8,22 @@
  */
 
 #include "threaded_int.h"
-
+#include "common/inc/global/ocmp_frame.h"
 #include "inc/common/global_header.h"
 
 #include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Event.h>
 #include <ti/sysbios/knl/Semaphore.h>
 #include <ti/sysbios/knl/Task.h>
+
+#include <xdc/runtime/Error.h>
 
 // Threaded interrupt info
 //#define TI_TASKSTACKSIZE        1024
 #define TI_TASKSTACKSIZE        512
 #define TI_TASKPRIORITY         6
+#define EVENT_ALL               0xFFFFFFFF
+#define EVENT(x)                ((uint32_t)(1 << x))
 
 // This number is fairly superficial - just used to keep track of the
 // various tasks, it can be increased without much overhead
@@ -30,40 +35,98 @@ typedef struct InterruptConfig {
     ThreadedInt_Callback cb;    //!< Callback to run when interrupt occurs
     void *context;              //!< Pointer to pass to cb function
 } InterruptConfig;
-static InterruptConfig s_intConfigs[MAX_DEVICES] = {};
+
+typedef struct AlertConfig {
+    OCMPSubsystem subSystem;
+    OcGpio_Pin *irqPin;
+    ThreadedInt_Callback cb;
+    void *context;
+} AlertConfig;
+
+static AlertConfig s_intConfigs[MAX_DEVICES] = {};
 static int s_numDevices = 0;
+Event_Handle alertEvent;
 
-static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
-    Semaphore_Handle sem = context;
+void ThreadedInt_set_event(const OcGpio_Pin *pin)
+{
+    int8_t count = 0;
 
-    // TODO: this should probably be an assert
-    if (!sem) {
-        return;
+    for(count = 0; count <= s_numDevices; count++) {
+        /* Set up IRQ pin callback */
+        if(s_intConfigs[count].irqPin == pin) {
+            Event_post(alertEvent, EVENT(count));
+        }
     }
-
-    /* Just wake up the TI task */
-    Semaphore_post(sem);
 }
 
-static void ThreadedInt_Task(UArg arg0, UArg arg1) {
+void ThreadedInt_send_alert_message(int32_t result)
+{
+    uint8_t count = 0;
+    uint8_t size = sizeof(AlertConfig);
+    uint8_t *alertPtr = (uint8_t *)(&s_intConfigs[result]);
+    OCMPMessageFrame *sendMsg = create_ocmp_msg_frame(s_intConfigs[count].subSystem,
+                                                      OCMP_MSG_TYPE_ALERT,
+                                                       0x00, 0x00, 0x00, size);
+    for(count = 0; count < size; count++) {
+        sendMsg->message.ocmp_data[count] = alertPtr[count];
+    }
+
+}
+
+static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
+    ThreadedInt_set_event(pin);
+}
+
+static void ThreadedInt_Task(UArg arg0, UArg arg1)
+{
+    uint8_t count = 0;
+    uint32_t result = 0;
     InterruptConfig *cfg = (InterruptConfig *)arg0;
     if (!cfg) {
         DEBUG("Threaded Int started without configuration???\n");
         return;
     }
 
+    Error_Block errorBlock;
+    Error_init(&errorBlock);
+
+    alertEvent = Event_create(NULL, &errorBlock);
+    if (alertEvent == NULL) {
+        DEBUG("Event create failed");
+    }
+
+    for(int8_t count = 0; count <= s_numDevices; count++) {
+        /* Set up IRQ pin callback */
+        OcGpio_setCallback(s_intConfigs[count].irqPin, gpioIntFxn, NULL);
+        OcGpio_enableInt(s_intConfigs[count].irqPin);
+    }
+
     DEBUG("Threaded INT thread ready\n");
     while (true) {
-        Semaphore_pend(cfg->sem, BIOS_WAIT_FOREVER);
-        cfg->cb(cfg->context);
+        result = Event_pend(alertEvent, Event_Id_NONE, EVENT_ALL, BIOS_WAIT_FOREVER);
+        for(count = 0; count <= s_numDevices; count++) {
+            if(result & EVENT(count)) {
+                ThreadedInt_send_alert_message(count);
+            }
+        }
     }
 }
 
+void ThreadedInt_createtask()
+{
+    Task_Params taskParams;
+    Task_Params_init(&taskParams);
+    taskParams.stackSize = TI_TASKSTACKSIZE;
+    taskParams.priority = TI_TASKPRIORITY;
+    taskParams.arg0 = (uintptr_t)&s_intConfigs[s_numDevices];
+    Task_Handle task = Task_create(ThreadedInt_Task, &taskParams, NULL);
+
+    return;
+}
 // TODO: this function isn't thread safe at the moment
-void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
+void ThreadedInt_Init(pinConfig *pinCfg, ThreadedInt_Callback cb,
                       void *context) {
-    /*TODO: stop gap arrangement to prevent spawning tasks for monitoring alerts*/
- //   return;
+
     // Build up table of all devices for interrupt handling. This is an ok
     // workaround for TI RTOS GPIO interrupts for now (only using one device)
     if (s_numDevices >= MAX_DEVICES) {
@@ -72,38 +135,10 @@ void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
     }
     int devNum = s_numDevices++;
 
-    Semaphore_Handle sem = Semaphore_create(0, NULL, NULL);
-    if (!sem) {
-        DEBUG("ThrdInt::Can't create ISR semaphore\n");
-        return;
-    }
-
-    s_intConfigs[devNum] = (InterruptConfig) {
-        .sem = sem,
+    s_intConfigs[devNum] = (AlertConfig) {
+        .subSystem = pinCfg->subSystem,
+        .irqPin = pinCfg->alertPin,
         .cb = cb,
         .context = context,
     };
-
-    // Start interrupt handling task
-    // One task per interrupt, not that efficient, but we don't have much
-    // need to optimize into a thread pool
-    // TODO: look into error block and see if I should use it
-    Task_Params taskParams;
-    Task_Params_init(&taskParams);
-    taskParams.stackSize = TI_TASKSTACKSIZE;
-    taskParams.priority = TI_TASKPRIORITY;
-    taskParams.arg0 = (uintptr_t)&s_intConfigs[devNum];
-    Task_Handle task = Task_create(ThreadedInt_Task, &taskParams, NULL);
-    if (!task) {
-        DEBUG("ThrdInt::FATAL: Unable to start interrupt task\n");
-        Semaphore_delete(&sem);
-        s_numDevices--;
-        return;
-    }
-    // TODO: what do I do with task handle?
-
-    /* Set up IRQ pin callback */
-    OcGpio_setCallback(irqPin, gpioIntFxn, sem);
-    OcGpio_enableInt(irqPin);
 }
-

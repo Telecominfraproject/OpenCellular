@@ -64,7 +64,7 @@ typedef enum {
     PWR_STAT_BATT_ACTIVE
 } ePower_StatusParamId;
 
-void pwr_source_init(void);
+void pwr_source_init(PWRSRC_Dev *dev, void *alert_token);
 void pwr_get_source_info(PWRSRC_Dev *pwrSrcDev);
 
 #endif /* POWERSOURCE_H_ */

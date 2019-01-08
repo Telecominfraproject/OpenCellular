@@ -202,6 +202,7 @@ static ReturnStatus post_process_msg(OCMPSubsystem OC_subSystem)
     ReturnStatus status = RETURN_OK;
     if (OC_subSystem == OC_SS_MAX_LIMIT) {
         _post_complete();
+        bb_sys_post_complete();
         POST_subSystem = OC_SS_PWR;
     } else {
         OCMPMessageFrame *postFrame = post_create_execute_msg(OC_subSystem);
@@ -320,7 +321,6 @@ static void post_process_rx_msg(OCMPMessageFrame *pPOSTMsg)
         case OCMP_AXN_TYPE_ACTIVE:
         case OCMP_AXN_TYPE_REPLY:
              post_activate(pPOSTMsg);
-             bb_sys_post_complete();
              break;
         default:
         {

@@ -113,7 +113,7 @@ ReturnStatus bb_init_powerLines()
     OcGpio_configure(&pin_1v8,
                  OCGPIO_CFG_OUTPUT | OCGPIO_CFG_OUT_HIGH);
 
-    return RETURN_OK
+    return RETURN_OK;
 }
 
 /*****************************************************************************
@@ -130,17 +130,14 @@ ReturnStatus bb_sys_post_complete()
 {
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("BIGBROTHER:INFO::POST test is completed.\n");
-    static uint8_t count = 0;
 
-    if (count == 0) {
        // Task_sleep(60000);
         // TODO: Starting UART DMA Interface based on EBMP.
-        uartdma_rx_createtask();            // P - 07
-        uartdma_tx_createtask();          // P - 07
-        count++;
+    uartdma_rx_createtask();            // P - 07
+    uartdma_tx_createtask();          // P - 07
+    bb_init_powerLines();
+    ThreadedInt_createtask();
 
-        bb_init_powerLines();
-    }
     return status;
 }
 
