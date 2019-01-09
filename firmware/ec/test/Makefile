@@ -169,9 +169,6 @@ $(PATHB)Test_ocmp_powerSource$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_power
 TEST_OCMP_SE98A_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_se98a.c $(OCWARE_ROOT)/src/devices/se98a.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c stub/stub_se98a.c $(OCWARE_ROOT)/src/post/post_util.c fake/fake_se98a.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
 $(PATHB)Test_ocmp_se98a$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_SE98A_SRC) $(INC_M)
 
-TEST_OCMP_INA226_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_ina226.c $(OCWARE_ROOT)/src/devices/ina226.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c stub/stub_GateMutex.c stub/stub_GateMutex.c stub/stub_ina226.c $(OCWARE_ROOT)/src/post/post_util.c fake/fake_SX1509_register.c fake/fake_ina226.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_SDR.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_FE.c
-$(PATHB)Test_ocmp_ina226$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_INA226_SRC) $(INC_M)
-
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 	$(COV_CMDS)
