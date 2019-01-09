@@ -49,6 +49,21 @@
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
+typedef enum INA226Status {
+    INA226_STATUS_BUS_VOLTAGE = 0,
+    INA226_STATUS_SHUNT_VOLTAGE,
+    INA226_STATUS_CURRENT,
+    INA226_STATUS_POWER,
+} INA226Status;
+
+typedef enum INA226Config {
+    INA226_CONFIG_CURRENT_LIM = 0,
+} INA226Config;
+
+typedef enum INA226Alert {
+    INA226_ALERT_OVERCURRENT = 0,
+} INA226Alert;
+
 typedef enum INA226_Event {
     INA226_EVT_SOL = INA_MSK_SOL, /* Shunt over-voltage */
     INA226_EVT_SUL = INA_MSK_SUL, /* Shunt under-voltage */

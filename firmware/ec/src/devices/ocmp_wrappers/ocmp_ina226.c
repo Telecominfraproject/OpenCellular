@@ -11,21 +11,6 @@
 #include "common/inc/global/Framework.h"
 #include "inc/devices/ina226.h"
 
-typedef enum INA226Status {
-    INA226_STATUS_BUS_VOLTAGE = 0,
-    INA226_STATUS_SHUNT_VOLTAGE,
-    INA226_STATUS_CURRENT,
-    INA226_STATUS_POWER,
-} INA226Status;
-
-typedef enum INA226Config {
-    INA226_CONFIG_CURRENT_LIM = 0,
-} INA226Config;
-
-typedef enum INA226Alert {
-    INA226_ALERT_OVERCURRENT = 0,
-} INA226Alert;
-
 static bool _get_status(void *driver, unsigned int param_id, void *return_buf)
 {
     switch (param_id) {
