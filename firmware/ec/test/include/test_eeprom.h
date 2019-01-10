@@ -10,6 +10,7 @@
 #define _TEST_EEPROM_1_H
 
 #include "common/inc/global/ocmp_frame.h"
+#include "drivers/GpioPCA9557.h"
 #include "drivers/GpioSX1509.h"
 #include "drivers/OcGpio.h"
 #include "fake/fake_GPIO.h"
@@ -19,6 +20,7 @@
 #include "helpers/attribute.h"
 #include "helpers/memory.h"
 #include "inc/devices/eeprom.h"
+#include "include/test_PCA9557.h"
 #include "include/test_sx1509.h"
 #include <stdio.h>
 #include <string.h>
@@ -51,17 +53,22 @@
 #define EEPROM_DEFUALT_VALUE_NULL 0x0000
 #define EEPROM_DEVICE_SIZE 10
 #define EEPROM_DISABLE 0x00
+#define EEPROM_DISABLE_FE_WRITE 0x01
 #define EEPROM_DISABLE_WRITE 0xFF
 #define EEPROM_ENABLE 0x01
 #define EEPROM_ENABLE_WRITE 0xFB
 #define EEPROM_FE_BOARD_INFO "SA1718LIFE3FE0005"
 #define EEPROM_FE_DEVICE_INFO "SA1718LIFE3FE000580256"
+#define EEPROM_FFFF_REG_VALUE 0x0001
 #define EEPROM_GBC_BOARD_INFO "SA1718LIFE3GBC0041"
 #define EEPROM_GBC_DEVICE_INFO "SA1718LIFE3GBC004180256"
+#define EEPROM_INVALID_PARAM_ID 1
 #define EEPROM_SDR_BOARD_INFO "SA1718LIFE3SDR0032"
 #define EEPROM_SDR_DEVICE_INFO "SA1718LIFE3SDR003280256"
+#define EEPROM_SDR_INVENTORY_PARAM_ID 0
 #define EEPROM_SERIAL_INFO "SA1718C0450A100411"
 #define EEPROM_READ_WRITE_VALUE 0x0505
+#define EEPROM_RFFE_INVENTORY_PARAM_ID 0
 #define EEPROM_WRITE_SIZE 0x0A
 
 /* ======================== Constants & variables =========================== */
