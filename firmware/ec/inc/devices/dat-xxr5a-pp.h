@@ -27,7 +27,7 @@ typedef struct DATR5APP_Cfg {
             OcGpio_Pin pin_4db;
             OcGpio_Pin pin_8db;
             OcGpio_Pin pin_16db; /* Optional */
-            // OcGpio_Pin pin_tx_attn_enb;
+            //OcGpio_Pin pin_tx_attn_enb;
         };
         OcGpio_Pin pin_group[DATR5APP_PIN_COUNT];
     };

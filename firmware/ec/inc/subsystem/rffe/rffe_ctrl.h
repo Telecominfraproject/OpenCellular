@@ -19,7 +19,7 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define RFFE_IO_BOARD_CFG_ADDR 0x19
+#define RFFE_IO_BOARD_CFG_ADDR                      0x19
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -33,7 +33,7 @@ typedef enum rfChannel {
 
 typedef struct FE_Ch_Band_cfg {
     rffeChannel channel;
-} FE_Ch_Band_cfg;
+}FE_Ch_Band_cfg;
 
 /* RFFE Band Type */
 typedef enum {
@@ -49,7 +49,7 @@ typedef enum {
 
 typedef struct FE_Band_Cfg {
     rffeBand band;
-} FE_Band_Cfg;
+}FE_Band_Cfg;
 
 /* Power Amplifier Control Type */
 typedef enum rfPACtrl {
@@ -64,16 +64,16 @@ typedef struct RfWatchdog_Cfg {
     OcGpio_Pin *pin_interrupt;
 } RfWatchdog_Cfg;
 
-typedef struct Fe_Ch_Pwr_Cfg {
-    rffeChannel channel;
-    Fe_Cfg *fe_Rffecfg;
-} Fe_Ch_Pwr_Cfg;
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
+bool _get_config(void *driver, unsigned int param_id,
+                        void *return_buf);
+bool _set_config(void *driver, unsigned int param_id,
+                        void *return_buf);
 bool rffe_ctrl_set_band(rffeChannel channel, rffeBand band);
 bool rffe_ctrl_get_band(rffeChannel channel, rffeBand *band);
-ReturnStatus rffe_ctrl_configure_power_amplifier(Fe_Ch_Pwr_Cfg *channel,
+ReturnStatus rffe_ctrl_configure_power_amplifier(rffeChannel channel,
                                                  rffePaCtrlType rfPACtrl);
 bool RFFE_enablePA(void *driver, void *params);
 bool RFFE_disablePA(void *driver, void *params);

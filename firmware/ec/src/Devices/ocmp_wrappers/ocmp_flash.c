@@ -8,20 +8,20 @@
 *
 */
 
-#include "common/inc/global/Framework.h"
-#include "devices/i2c/threaded_int.h"
-#include "helpers/memory.h"
 #include "inc/devices/AT45DB.h"
 #include "inc/common/bigbrother.h"
+#include "common/inc/global/Framework.h"
+#include "devices/i2c/threaded_int.h"
 #include "inc/common/byteorder.h"
 #include "inc/common/global_header.h"
+#include "helpers/memory.h"
 #include "inc/utils/ocmp_util.h"
 
-#define FRAME_SIZE	 		64
-#define LAST_MSG_FLAG		0
 #define PAYLOAD_SIZE 		47
-#define NEXT_MSG_FLAG		1
+#define FRAME_SIZE	 		64
 #define NEXT_MSG_FLAG_POS	17
+#define NEXT_MSG_FLAG		1
+#define LAST_MSG_FLAG		0
 
 extern void fileRead(const char *path, UChar *buf, uint32_t size);
 uint32_t fileSize(const char *path);
@@ -33,7 +33,8 @@ static bool _read_flash(void *driver, void *buf)
 	uint32_t file_size = 0;
 	uint8_t *logFile;
 
-    OCMPMessageFrame *tMsg = (OCMPMessageFrame *) OCMP_mallocFrame(PAYLOAD_SIZE);
+    OCMPMessageFrame *tMsg = (OCMPMessageFrame *) OCMP_mallocFrame(
+    		PAYLOAD_SIZE);
 	file_size = fileSize(fileName);
 	logFile = (uint8_t*)malloc(file_size);
 	numOfMsg = file_size/FRAME_SIZE;

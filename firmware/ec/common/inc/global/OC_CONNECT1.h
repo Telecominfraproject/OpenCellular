@@ -13,44 +13,41 @@
 extern "C" {
 #endif
 
-#define OC_PMIC_ENABLE (1)
-#define OC_PMIC_DISABLE (0)
-#define OC_SDR_ENABLE (1)
-#define OC_SDR_DISABLE (0)
-#define OC_SDR_FE_IO_ENABLE (1)
-#define OC_SDR_FE_IO_DISABLE (0)
-#define OC_FE_ENABLE (1)
-#define OC_FE_DISABLE (0)
-#define OC_PWR_LION_BATT (1)
-#define OC_PWR_LEAD_BATT (0)
-#define OC_PWR_PSE_RESET_STATE (1)
-#define OC_PWR_PSE_ON_STATE (0)
-#define OC_GBC_PROC_ENABLE (1)
-#define OC_GBC_PROC_RESET (0)
-#define OC_SYNC_IOEXP_ENABLE (1)
-#define OC_SYNC_IOEXP_RESET (0)
-#define OC_HCI_LED_ENABLE (1)
-#define OC_HCI_LED_DISABLE (0)
-#define OC_ETH_SW_ENABLE (1)
-#define OC_ETH_SW_DISABLE (0)
-#define CAT24C256                              \
-    {                                          \
-        .page_size = 64, .mem_size = (256 / 8) \
-    }
+#define OC_PMIC_ENABLE          (1)
+#define OC_PMIC_DISABLE         (0)
+#define OC_SDR_ENABLE           (1)
+#define OC_SDR_DISABLE          (0)
+#define OC_SDR_FE_IO_ENABLE     (1)
+#define OC_SDR_FE_IO_DISABLE    (0)
+#define OC_FE_ENABLE            (1)
+#define OC_FE_DISABLE           (0)
+#define OC_PWR_LION_BATT        (1)
+#define OC_PWR_LEAD_BATT        (0)
+#define OC_PWR_PSE_RESET_STATE  (1)
+#define OC_PWR_PSE_ON_STATE     (0)
+#define OC_GBC_PROC_ENABLE      (1)
+#define OC_GBC_PROC_RESET       (0)
+#define OC_SYNC_IOEXP_ENABLE    (1)
+#define OC_SYNC_IOEXP_RESET     (0)
+#define OC_HCI_LED_ENABLE       (1)
+#define OC_HCI_LED_DISABLE      (0)
+#define OC_ETH_SW_ENABLE        (1)
+#define OC_ETH_SW_DISABLE       (0)
+#define CAT24C256 { .page_size = 64, .mem_size = (256 / 8) }
 
 /* GBC IO expander Slave address */
-#define BIGBROTHER_IOEXP0_ADDRESS 0x71
-#define BIGBROTHER_IOEXP1_ADDRESS 0x70
+#define BIGBROTHER_IOEXP0_ADDRESS           0x71
+#define BIGBROTHER_IOEXP1_ADDRESS           0x70
 /* SYNC IO expander Slave address */
-#define SYNC_IO_DEVICE_ADDR 0x71
+#define SYNC_IO_DEVICE_ADDR                 0x71
 /* SDR IO expander Slave address */
-#define SDR_FX3_IOEXP_ADDRESS 0x1E
+#define SDR_FX3_IOEXP_ADDRESS               0x1E
 /* RFFE IO expander Slave address */
-#define RFFE_CHANNEL1_IO_TX_ATTEN_ADDR 0x18
-#define RFFE_CHANNEL1_IO_RX_ATTEN_ADDR 0x1A
-#define RFFE_CHANNEL2_IO_TX_ATTEN_ADDR 0x1C
-#define RFFE_CHANNEL2_IO_RX_ATTEN_ADDR 0x1D
-#define RFFE_IO_REVPOWER_ALERT_ADDR 0x1B
+#define RFFE_CHANNEL1_IO_TX_ATTEN_ADDR      0x18
+#define RFFE_CHANNEL1_IO_RX_ATTEN_ADDR      0x1A
+#define RFFE_CHANNEL2_IO_TX_ATTEN_ADDR      0x1C
+#define RFFE_CHANNEL2_IO_RX_ATTEN_ADDR      0x1D
+#define RFFE_IO_REVPOWER_ALERT_ADDR         0x1B
 
 /*!
  *  @def    OC_CONNECT1_EMACName
@@ -82,10 +79,10 @@ typedef enum OC_EC_PORTGroupName {
     PN,
     PP,
     PQ
-} OC_EC_PORTGroupName;
+}OC_EC_PORTGroupName;
 
 typedef enum OC_CONNECT1_GPIOName {
-    // PA
+    //PA
     OC_EC_DEBUG_UART_RX = 0,
     OC_EC_DEBUG_UART_TX,
     OC_EC_PSE_I2C6_SCLK,
@@ -94,12 +91,12 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_SOC_UART3_TX,
     OC_EC_PWRMNTR_I2C6_SCLK,
     OC_EC_PWRMNTR_I2C6_SDA,
-    // PB
+    //PB
     OC_EC_LT4015_I2C0_SCLK = 8,
     OC_EC_LT40515I2C0_SDA,
     OC_EC_FLASH_nCS,
     OC_EC_FLASH_CLK,
-    // PC
+    //PC
     OC_EC_JTAG_TCK = 16,
     OC_EC_JTAG_TMS,
     OC_EC_JTAG_TDI,
@@ -108,40 +105,40 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_SYNCCONN_UART_TX,
     OC_EC_ETHSW_MDC,
     OC_EC_ETHSW_MDIO,
-    // PD
+    //PD
     OC_EC_SYNCCONN_I2C7_SCLK = 24,
     OC_EC_SYNCCONN_I2C7_SDA,
-    OC_EC_SDR_INA_ALERT,
-    OC_EC_PWR_PSE_RESET,
+    OC_EC_BUZZER_ON,
+    OC_EC_LIGHT_SENSE_INT,	/*pin changed for GBCv2*/
     OC_NOC_1,
-    OC_NOC_2,
-    OC_EC_PWR_PRSNT_SOLAR_AUX,
+    OC_EC_UART_SEL,
+    OC_EC_TPM_INT_REQ,
     OC_EC_SYNC_IOEXP_ALERT,
-    // PE
+    //PE
     OC_EC_GBC_IOEXP71_ALERT = 32,
-    OC_EC_FE_CONTROL, // OC_CONNECT1_GBC_TEMP_ALERT2,
+    OC_EC_FE_CONTROL,//OC_CONNECT1_GBC_TEMP_ALERT2,
     OC_EC_AP_GPIO1,
     OC_EC_GPP_AP_BM_1,
     OC_EC_FLASH_MOSI,
     OC_EC_FLASH_MISO,
-    // PF
+    //PF
     OC_EC_JTAG_TRD2 = 40,
     OC_EC_JTAG_TRD1,
     OC_EC_JTAG_TRD0,
     OC_EC_JTAG_TRCLK,
     OC_EC_JTAG_TRD3,
-    // PG
+    //PG
     OC_EC_TEMPSEN_I2C1_SCLK = 48,
     OC_EC_TEMPSEN_I2C1_SDA,
-    // PH
-    OC_EC_GPP_PMIC_CORE_PWR = 56,
-    OC_EC_GPP_SOC_PLTRST, // OC_CONNECT1_PLT_RST_STATUS,//OC_GPP_SOC_PLTRST,OC_CONNECT1_PLT_RST_STATUS
-    OC_EC_GPP_PMIC_CTRL,
-    OC_EC_GBC_INA_ALERT,
-    // PJ
+    //PH
+    OC_EC_TIVA_GPIO_PH0 = 56,
+    OC_EC_GPP_MSATA_PWR_EN, //OC_CONNECT1_PLT_RST_STATUS,//OC_GPP_SOC_PLTRST,OC_CONNECT1_PLT_RST_STATUS
+    OC_EC_GPP_OCT_12V_ONOFF,
+    OC_EC_TIVA_PWR_ALRT,
+    //PJ
     OC_EC_PWR_PD_NT2P = 64,
     OC_EC_GBC_AP_INA_ALERT,
-    // PK
+    //PK
     OC_EC_UART4_RXD = 72,
     OC_EC_UART4_CTS,
     OC_EC_UART4_RTS,
@@ -150,7 +147,7 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_TRXFECONN_I2C3_SDA,
     OC_EC_TRXFECONN_I2C4_SCLK,
     OC_EC_TRXFECONN_I2C4_SDA,
-    // PL
+    //PL
     OC_EC_TRXFECONN_I2C2_SCLK = 80,
     OC_EC_TRXFECONN_I2C2_SDA,
     OC_EC_GBC_PSE_ALERT,
@@ -159,31 +156,30 @@ typedef enum OC_CONNECT1_GPIOName {
     OC_EC_PWR_PRSNT_POE,
     OC_EC_USB_DP3,
     OC_EC_USB_DN3,
-    // PM
-    OC_EC_PWR_LION_ALERT = 88,
-    OC_EC_HCI_LED_RESET,
-    OC_EC_PWR_MPPT_LION,
-    OC_EC_PWR_LACID_ALERT,
+    //PM
+    OC_EC_TPM_I2C_MUX_SEL = 88,
+    OC_EC_LED_TIVA_GPIO,
+    OC_EC_TIVA_FE_RESET_OUT,
+    OC_EC_VRM_ALERT,
     OC_EC_RFFE_TEMP_INA_ALERT,
     OC_EC_ETH_SW_RESET,
     OC_EC_GBC_IOEXP70_INT,
     OC_EC_PWR_BATT_SELECT,
-    // PN
+    //PN
     OC_EC_PD_PWRGD_ALERT = 96,
     OC_EC_SDR_FPGA_TEMP_INA_ALERT,
     OC_EC_SDR_DEVICE_CONTROL,
     OC_EC_SDR_PWR_GD,
     OC_EC_FE_PWR_GD,
     OC_EC_MODULE_UART1_RIN,
-    // PP
-    OC_EC_SDR_FE_IO_RESET_CTRL =
-        104, // OC_EC_MPPT_LACID = 104, //OC_SDR_FE_IO_RESET_CTRL
+    //PP
+    OC_EC_SDR_FE_IO_RESET_CTRL = 104,//OC_EC_MPPT_LACID = 104, //OC_SDR_FE_IO_RESET_CTRL
     OC_EC_FE_RESET_OUT,
     OC_EC_SDR_PWR_CNTRL,
     OC_EC_GPP_PWRGD_PROTECTION,
     OC_EC_RFFE_RESET,
     OC_EC_GBC_DEBUG,
-    // PQ
+    //PQ
     OC_EC_FE_TRXFE_CONN_RESET = 112,
     OC_EC_GPP_MSATA_DAS,
     OC_EC_POE_OVERRIDE,
@@ -213,8 +209,8 @@ typedef enum OC_CONNECT1_I2CName {
  *  @brief  Enum of SPI names on the DK_TM4C129X dev board
  */
 typedef enum DK_TM4C129X_SPIName {
-    OC_CONNECT1_SPI0 = 0,
-    OC_CONNECT1_SPICOUNT
+	OC_CONNECT1_SPI1 = 0,
+	OC_CONNECT1_SPICOUNT
 } OC_CONNECT1_SPIName;
 
 /*!
@@ -247,6 +243,7 @@ typedef enum OC_CONNECT1_UARTName {
     OC_CONNECT1_UART0 = 0,
     OC_CONNECT1_UART3,
     OC_CONNECT1_UART4,
+    OC_CONNECT1_UART7,
 
     OC_CONNECT1_UARTXR0,
     OC_CONNECT1_UARTMON,
@@ -314,17 +311,6 @@ void OC_CONNECT1_initGPIO(void);
  *  I2C_config variable.
  */
 void OC_CONNECT1_initI2C(void);
-
-/*!
- *  @brief  Initialize board specific SPI settings
- *
- *  This function initializes the board specific SPI settings and then calls
- *  the SPI_init API to initialize the SPI module.
- *
- *  The SPI peripherals controlled by the SPI module are determined by the
- *  SPI_config variable.
- */
-void OC_CONNECT1_initSPI(void);
 
 /*!
  *  @brief  Initialize board specific UART settings

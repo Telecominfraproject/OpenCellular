@@ -18,57 +18,59 @@
  *                            MACRO DEFINITIONS
  *****************************************************************************/
 /* Start Of Frame & Message Lengths */
-#define OCMP_MSG_SOF 0x55
-#define OCMP_FRAME_TOTAL_LENGTH 64
+#define OCMP_MSG_SOF             0x55
+#define OCMP_FRAME_TOTAL_LENGTH  64
 #define OCMP_FRAME_HEADER_LENGTH 17
-#define OCMP_FRAME_MSG_LENGTH \
-    (OCMP_FRAME_TOTAL_LENGTH - OCMP_FRAME_HEADER_LENGTH)
+#define OCMP_FRAME_MSG_LENGTH    (OCMP_FRAME_TOTAL_LENGTH - OCMP_FRAME_HEADER_LENGTH)
 
 /*****************************************************************************
  *                          STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
 
 typedef enum {
-    OC_SS_BB = -1, // Hack around the fact that IPC reuses OCMP to allow us
-    //  to split BB (internal) and SYS (CLI) message handling
+    OC_SS_BB = -1,  //Hack around the fact that IPC reuses OCMP to allow us
+                    //  to split BB (internal) and SYS (CLI) message handling
     OC_SS_SYS = 0,
+#ifdef GBCV1
     OC_SS_PWR,
+#endif
     OC_SS_BMS,
     OC_SS_HCI,
     OC_SS_ETH_SWT,
+#ifdef GBCV2_STANDALONE
     OC_SS_OBC,
+#endif
     OC_SS_GPP,
+    OC_SS_DEBUG,
+#ifndef GBCV2_STANDALONE
+    OC_SS_MAX_LIMIT,
+#endif
     OC_SS_SDR,
     OC_SS_RF,
     OC_SS_SYNC,
     OC_SS_TEST_MODULE,
-    OC_SS_DEBUG,
-    OC_SS_MAX_LIMIT, // TODO:REV C Change
+    //OC_SS_MAX_LIMIT,//TODO:REV C Change
     OC_SS_WD
-    // OC_SS_ALERT_MNGR,
-    // OC_SS_MAX_LIMIT
+    //OC_SS_ALERT_MNGR,
+    //OC_SS_MAX_LIMIT
 } OCMPSubsystem;
 
 typedef enum {
-    OCMP_COMM_IFACE_UART = 1, // Uart             - 1
-    OCMP_COMM_IFACE_ETHERNET, // Ethernet         - 2
-    OCMP_COMM_IFACE_SBD,      // SBD(Satellite)   - 3
-    OCMP_COMM_IFACE_USB       // Usb              - 4
+    OCMP_COMM_IFACE_UART = 1,           // Uart             - 1
+    OCMP_COMM_IFACE_ETHERNET,           // Ethernet         - 2
+    OCMP_COMM_IFACE_SBD,                // SBD(Satellite)   - 3
+    OCMP_COMM_IFACE_USB                 // Usb              - 4
 } OCMPInterface;
 
 /*
  * OCMPMsgType - msg type specifies what is the communication all about.
  * It can be Configuration, Status, Alert, Command, Watchdog, Debug
  * OCMPMsgType 1 byte message.
- *
- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
- * ||     7     ||        6     ||        5     ||        4     ||        3 ||
- 2     ||        1     ||        0     ||
- *
- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-   ||                                                       Message Type ||
- *
- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ * ||     7     ||        6     ||        5     ||        4     ||        3     ||        2     ||        1     ||        0     ||
+ * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   ||                                                       Message Type                                                         ||
+ * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
  */
 typedef enum {
     OCMP_MSG_TYPE_CONFIG = 1,
@@ -127,26 +129,29 @@ typedef enum {
  * communication with EC from External entity (e.g. AP over UART, Ethernet
  * or SBD)
  */
-typedef enum { OCMP_DEBUG_READ = 1, OCMP_DEBUG_WRITE } eOCMPDebugOperation;
+typedef enum {
+    OCMP_DEBUG_READ = 1,
+    OCMP_DEBUG_WRITE
+} eOCMPDebugOperation;
 
 /* TODO::This OCWARE_HOST has to be removed with OCMP cleanUp*/
 #ifndef OCWARE_HOST
-#    define OC_SS OCMPSubsystem
-#    define OC_MSG_TYP OCMPMsgType
-#    define OC_AXN_TYP OCMPActionType
+    #define OC_SS OCMPSubsystem
+    #define OC_MSG_TYP OCMPMsgType
+    #define OC_AXN_TYP OCMPActionType
 #else
-#    define OC_SS uint8_t
-#    define OC_MSG_TYP uint8_t
-#    define OC_AXN_TYP uint8_t
-#    define OC_IFACE_TYP uint8_t
+    #define OC_SS uint8_t
+    #define OC_MSG_TYP uint8_t
+    #define OC_AXN_TYP uint8_t
+    #define OC_IFACE_TYP uint8_t
 #endif
 /*
  * Header is the field which will be containing SOF, Framelen,
  * Source Interface, Sequence number, and timestamp.
  */
-typedef struct __attribute__((packed, aligned(1))) {
-    uint8_t ocmpSof;      // SOF - It must be 0x55
-    uint8_t ocmpFrameLen; // Framelen - tells about the configuration size ONLY.
+typedef struct  __attribute__((packed, aligned(1))) {
+    uint8_t ocmpSof;             // SOF - It must be 0x55
+    uint8_t ocmpFrameLen;        // Framelen - tells about the configuration size ONLY.
     OCMPInterface ocmpInterface; // Interface - UART/Ethernet/SBD
     uint32_t ocmpSeqNumber;      // SeqNo - Don't know!!!
     uint32_t ocmpTimestamp;      // Timestamp - When AP sent the command?
@@ -156,16 +161,15 @@ typedef struct __attribute__((packed, aligned(1))) {
  * This is the Message structure for Subsystem level information
  */
 typedef struct __attribute__((packed, aligned(1))) {
-    OC_SS subsystem;     // RF/GPP/BMS/Watchdog etc..
-    uint8_t componentID; // Compononent ID. Different for different subsystem.
-    OCMPMsgType
-        msgtype;    // Msg type is Config/Status/Alert/Command/Watchdog/Debug
-    uint8_t action; // Action is - Get/Set/Reply.
-    uint16_t parameters; // List of Parameters to be set or get.
+    OC_SS subsystem;                // RF/GPP/BMS/Watchdog etc..
+    uint8_t componentID;            // Compononent ID. Different for different subsystem.
+    OCMPMsgType msgtype;            // Msg type is Config/Status/Alert/Command/Watchdog/Debug
+    uint8_t action;                 // Action is - Get/Set/Reply.
+    uint16_t parameters;            // List of Parameters to be set or get.
 #ifndef OCWARE_HOST
-    uint8_t ocmp_data[]; // The data payload.
+    uint8_t ocmp_data[];            // The data payload.
 #else
-    int8_t *info;
+    int8_t* info;
 #endif
 } OCMPMessage;
 

@@ -1,11 +1,3 @@
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
 #include "fake_I2C.h"
 #include <ti/drivers/I2C.h>
 
@@ -40,13 +32,11 @@ typedef struct Fake_I2C_Bus {
 /* TODO: if we can target XDC for Linux, we can simply provide this fake i2c
  * as an alternative i2c implementation
  */
-void fake_I2C_init(void)
-{
+void fake_I2C_init(void) {
     memset(dummy_bus, 0x00, sizeof(dummy_bus));
 }
 
-void fake_I2C_deinit(void)
-{
+void fake_I2C_deinit(void) {
     for (int i = 0; i < NUM_I2C_BUS; ++i) {
         if (dummy_bus[i].object) {
             free(dummy_bus[i].object);
@@ -55,11 +45,10 @@ void fake_I2C_deinit(void)
     }
 }
 
-void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr, void *reg_table,
-                                size_t tbl_size, size_t reg_size,
-                                size_t addr_size,
-                                Fake_I2C_Endianness endianness)
-{
+void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr,
+                                void *reg_table, size_t tbl_size,
+                                size_t reg_size, size_t addr_size,
+                                Fake_I2C_Endianness endianness) {
     if (bus >= NUM_I2C_BUS) {
         return;
     }
@@ -83,8 +72,7 @@ void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr, void *reg_table,
     };
 }
 
-void fake_I2C_unregisterDev(unsigned int bus, uint8_t addr)
-{
+void fake_I2C_unregisterDev(unsigned int bus, uint8_t addr) {
     Fake_I2C_Bus *fake_bus = dummy_bus[bus].object;
     Fake_I2C_Dev *dev_tbl = fake_bus->devs;
     if (dev_tbl) {
@@ -94,14 +82,12 @@ void fake_I2C_unregisterDev(unsigned int bus, uint8_t addr)
 
 /* ========================== Faked Functions =============================== */
 
-void I2C_close(I2C_Handle handle)
-{
+void I2C_close(I2C_Handle handle) {
     Fake_I2C_Bus *fake_bus = handle->object;
     fake_bus->open = false;
 }
 
-I2C_Handle I2C_open(unsigned int index, I2C_Params *params)
-{
+I2C_Handle I2C_open(unsigned int index, I2C_Params *params) {
     UNUSED(params);
 
     if (index >= NUM_I2C_BUS) {
@@ -116,15 +102,14 @@ I2C_Handle I2C_open(unsigned int index, I2C_Params *params)
     return &dummy_bus[index];
 }
 
-void I2C_Params_init(I2C_Params *params)
-{
+void I2C_Params_init(I2C_Params *params) {
     UNUSED(params);
 }
 
 /* Inverts arbitrarily large chunk of memory */
-static void reverse_bytes(const void *restrict data_in, void *restrict data_out,
-                          size_t size)
-{
+static void reverse_bytes(const void *restrict data_in,
+                          void *restrict data_out,
+                          size_t size) {
     for (size_t i = 0; i < size; ++i) {
         ((uint8_t *)data_out)[i] = ((uint8_t *)data_in)[size - i - 1];
     }
@@ -156,8 +141,7 @@ static void endian_conversion(const void *restrict data_in, size_t in_size,
     }
 }
 
-bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
-{
+bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction) {
     if (!handle) {
         return false; /* This is actually a crash in the proper driver */
     }
@@ -180,7 +164,6 @@ bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
         return false;
     }
     const Fake_I2C_Dev *dev = &dev_tbl[transaction->slaveAddress];
-    transaction->readCount = dev->addr_size * transaction->readCount;
 
     /* The write buffer must have at least the address in it */
     if (transaction->writeCount < dev->addr_size) {
@@ -209,8 +192,6 @@ bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
      * in chunks in the event that we have 16-bit (or larger) registers with
      * a different endianness than the host */
     if (write_count > 0) {
-        write_count =
-            ((dev->addr_size) * (transaction->writeCount)) - dev->addr_size;
         size_t write_size = MIN(write_count, dev->tbl_size - reg_addr);
         for (size_t i = 0; i < write_size / dev->reg_size; i += dev->reg_size) {
             endian_conversion(write_buf + i, dev->reg_size, dev->endianness,
@@ -221,8 +202,8 @@ bool I2C_transfer(I2C_Handle handle, I2C_Transaction *transaction)
     /* Read requested data into read buffer */
     /* TODO: what address do we read from if we also wrote data? */
     if (transaction->readCount > 0) {
-        size_t read_size =
-            MIN(transaction->readCount, dev->tbl_size - reg_addr);
+        size_t read_size = MIN(transaction->readCount,
+                               dev->tbl_size - reg_addr);
         for (size_t i = 0; i < read_size / dev->reg_size; i += 2) {
             endian_conversion(mem_addr + i, dev->reg_size, __BYTE_ORDER__,
                               read_buf + i, dev->reg_size, dev->endianness);

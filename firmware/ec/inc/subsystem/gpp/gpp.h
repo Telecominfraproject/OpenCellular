@@ -20,23 +20,24 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define GPP_TASK_PRIORITY 2
-#define GPP_TASK_STACK_SIZE 2048
+#define GPP_TASK_PRIORITY                       2
+#define GPP_TASK_STACK_SIZE                     2048
 
 /*
  * Define all the constant information of GPP subsystem here, like device
  * addresses or Constant configuration values or NUMBER of sensors.
  */
-#define GPP_TEMP_SENSOR_NOS 3
+#define GPP_TEMP_SENSOR_NOS                     3
 
 /*
  * Device address of GPP sub system are as below.
  */
-#define GPP_AP_TEMPSENS1_ADDR 0x1A
-#define GPP_AP_TEMPSENS2_ADDR 0x1D
-#define GPP_AP_TEMPSENS3_ADDR 0x1C
-#define GPP_AP_CURRENT_SENSOR_ADDR 0x44
-#define GPP_MSATA_CURRENT_SENSOR_ADDR 0x45
+#define GPP_AP_TEMPSENS3_ADDR                   0x1A
+#define GPP_AP_CURRENT_SENSOR_ADDR              0x44
+#define GPP_MSATA_CURRENT_SENSOR_ADDR           0x45
+#define GPP_MP2951_TEMPSENS_ADDR                0X19
+#define GPP_MP2951_SLAVE_ADDR                   0X20
+#define GPP_SLB9645_TPM_ADDR                    0X20
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
@@ -52,14 +53,21 @@ typedef struct mSATA_Cfg {
 } mSATA_Cfg;
 
 typedef struct Gpp_gpioCfg {
+#ifdef GBCV1
     OcGpio_Pin pin_soc_pltrst_n;
+#endif
     OcGpio_Pin pin_soc_corepwr_ok;
     OcGpio_Pin pin_msata_ec_das;
+#ifdef GBCV1
     OcGpio_Pin pin_lt4256_ec_pwrgd;
-    OcGpio_Pin pin_ap_12v_onoff;
-    OcGpio_Pin pin_ec_reset_to_proc;
-    OcGpio_Pin pin_ap_boot_alert1;
-    OcGpio_Pin pin_ap_boot_alert2;
+#endif
+    OcGpio_Pin pin_ap_12v_onoff; //Octeon 12 V
+    OcGpio_Pin pin_ec_reset_to_proc; //Octeon reset to proc.
+    OcGpio_Pin pin_ap_boot_alert1; //OCT GPIO 3
+    OcGpio_Pin pin_ap_boot_alert2; //OCt GPIO 4
+#ifndef GBCV1
+    OcGpio_Pin pin_ap_msata_pwr_enable; //MSATA PWR Enable.
+#endif
 } Gpp_gpioCfg;
 
 bool gpp_pre_init(void *driver, void *returnValue);

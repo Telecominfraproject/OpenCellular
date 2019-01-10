@@ -66,11 +66,11 @@
 #include <driverlib/udma.h>
 
 #ifndef TI_DRIVERS_UART_DMA
-#    define TI_DRIVERS_UART_DMA 0
+#define TI_DRIVERS_UART_DMA 0
 #endif
 
 #ifndef TI_EXAMPLES_PPP
-#    define TI_EXAMPLES_PPP 0
+#define TI_EXAMPLES_PPP 0
 #else
 /* prototype for NIMU init function */
 extern int USBSerialPPP_NIMUInit();
@@ -80,11 +80,11 @@ extern int USBSerialPPP_NIMUInit();
  *  =============================== DMA ===============================
  */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_ALIGN(dmaControlTable, 1024)
+#pragma DATA_ALIGN(dmaControlTable, 1024)
 #elif defined(__IAR_SYSTEMS_ICC__)
-#    pragma data_alignment = 1024
+#pragma data_alignment=1024
 #elif defined(__GNUC__)
-__attribute__((aligned(1024)))
+__attribute__ ((aligned (1024)))
 #endif
 static tDMAControlTable dmaControlTable[32];
 static bool dmaInitialized = false;
@@ -155,9 +155,9 @@ void OC_CONNECT1_initGeneral(void)
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOQ);
 
     // TODO: why did we comment this out?
-    // SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOR);
-    // SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOS);
-    // SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOT);
+    //SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOR);
+    //SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOS);
+    //SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOT);
 }
 
 /*
@@ -165,9 +165,9 @@ void OC_CONNECT1_initGeneral(void)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(EMAC_config, ".const:EMAC_config")
-#    pragma DATA_SECTION(emacHWAttrs, ".const:emacHWAttrs")
-#    pragma DATA_SECTION(NIMUDeviceTable, ".data:NIMUDeviceTable")
+#pragma DATA_SECTION(EMAC_config, ".const:EMAC_config")
+#pragma DATA_SECTION(emacHWAttrs, ".const:emacHWAttrs")
+#pragma DATA_SECTION(NIMUDeviceTable, ".data:NIMUDeviceTable")
 #endif
 
 #include <ti/drivers/EMAC.h>
@@ -203,16 +203,20 @@ EMACSnow_Object emacObjects[OC_CONNECT1_EMACCOUNT];
 unsigned char macAddress[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
 const EMACSnow_HWAttrs emacHWAttrs[OC_CONNECT1_EMACCOUNT] = {
-    [OC_CONNECT1_EMAC0] = { .baseAddr = EMAC0_BASE,
-                            .intNum = INT_EMAC0,
-                            .intPriority = (~0),
-                            .macAddress = macAddress }
+    [OC_CONNECT1_EMAC0] = {
+        .baseAddr = EMAC0_BASE,
+        .intNum = INT_EMAC0,
+        .intPriority = (~0),
+        .macAddress = macAddress
+    }
 };
 
 const EMAC_Config EMAC_config[] = {
-    [OC_CONNECT1_EMAC0] = { .fxnTablePtr = &EMACSnow_fxnTable,
-                            .object = &emacObjects[OC_CONNECT1_EMAC0],
-                            .hwAttrs = &emacHWAttrs[OC_CONNECT1_EMAC0] },
+    [OC_CONNECT1_EMAC0] = {
+        .fxnTablePtr = &EMACSnow_fxnTable,
+        .object = &emacObjects[OC_CONNECT1_EMAC0],
+        .hwAttrs = &emacHWAttrs[OC_CONNECT1_EMAC0]
+    },
     { NULL, NULL, NULL }
 };
 
@@ -238,15 +242,15 @@ void OC_CONNECT1_initEMAC(void)
         macAddress[3] = ((ulUser1 >> 0) & 0xff);
         macAddress[4] = ((ulUser1 >> 8) & 0xff);
         macAddress[5] = ((ulUser1 >> 16) & 0xff);
-    } else if (macAddress[0] == 0xff && macAddress[1] == 0xff &&
-               macAddress[2] == 0xff && macAddress[3] == 0xff &&
-               macAddress[4] == 0xff && macAddress[5] == 0xff) {
+    } else if (macAddress[0] == 0xff && macAddress[1] == 0xff
+               && macAddress[2] == 0xff && macAddress[3] == 0xff
+               && macAddress[4] == 0xff && macAddress[5] == 0xff) {
         System_printf("Change the macAddress variable to valid Mac address");
     }
 
-    //    GPIOPinConfigure(GPIO_PF0_EN0LED0); /* OC_CONNECT1_USR_D3 */
-    //    GPIOPinConfigure(GPIO_PF4_EN0LED1); /* OC_CONNECT1_USR_D4 */
-    //    GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+//    GPIOPinConfigure(GPIO_PF0_EN0LED0); /* OC_CONNECT1_USR_D3 */
+//    GPIOPinConfigure(GPIO_PF4_EN0LED1); /* OC_CONNECT1_USR_D4 */
+//    GPIOPinTypeEthernetLED(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
 
     /* Once EMAC_init is called, EMAC_config cannot be changed */
     EMAC_init();
@@ -257,7 +261,7 @@ void OC_CONNECT1_initEMAC(void)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(GPIOTiva_config, ".const:GPIOTiva_config")
+#pragma DATA_SECTION(GPIOTiva_config, ".const:GPIOTiva_config")
 #endif
 
 #include <ti/drivers/GPIO.h>
@@ -274,70 +278,80 @@ extern GPIO_PinConfig gpioPinConfigs[];
 GPIO_PinConfig gpioPinConfigs[OC_EC_GPIOCOUNT] = {
     [OC_EC_SOC_UART3_TX] =
         GPIOTiva_PA_5 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
-    [OC_EC_FLASH_nCS] = GPIOTiva_PB_4 | GPIO_CFG_OUT_STD |
-                        GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
-    [OC_EC_SDR_INA_ALERT] =
-        GPIOTiva_PD_2 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_PWR_PSE_RESET] = GPIOTiva_PD_3 | GPIO_CFG_OUT_STD |
-                            GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
-    [OC_EC_PWR_PRSNT_SOLAR_AUX] = GPIOTiva_PD_6 | GPIO_CFG_IN_PU,
+	[OC_EC_FLASH_nCS] =
+		GPIOTiva_PB_4 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+	[OC_EC_BUZZER_ON] =
+		GPIOTiva_PD_2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+	[OC_EC_UART_SEL] =
+		GPIOTiva_PD_5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_LIGHT_SENSE_INT] =
+        GPIOTiva_PD_3 | GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_FALLING, /*pin changed for GBCv2*/
+    [OC_EC_TPM_INT_REQ] =
+        GPIOTiva_PD_6 | GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_FALLING ,
     [OC_EC_SYNC_IOEXP_ALERT] =
         GPIOTiva_PD_7 | GPIO_CFG_IN_PU | GPIO_CFG_IN_INT_FALLING,
     [OC_EC_GBC_IOEXP71_ALERT] =
         GPIOTiva_PE_0 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_FE_CONTROL] = GPIOTiva_PE_1 | GPIO_CFG_OUT_STD |
-                         GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_FE_CONTROL] =
+        GPIOTiva_PE_1 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
     [OC_EC_GPP_AP_BM_1] =
         GPIOTiva_PE_3 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
-    [OC_EC_GPP_PMIC_CORE_PWR] = GPIOTiva_PH_0 | GPIO_CFG_IN_PU,
-    [OC_EC_GPP_SOC_PLTRST] =
-        GPIOTiva_PH_1 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
-    [OC_EC_GPP_PMIC_CTRL] = GPIOTiva_PH_2 | GPIO_CFG_OUT_STD |
-                            GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
-    [OC_EC_GBC_INA_ALERT] =
+    [OC_EC_TIVA_GPIO_PH0] =
+        GPIOTiva_PH_0 | GPIO_CFG_IN_PU ,
+    [OC_EC_GPP_MSATA_PWR_EN] =
+        GPIOTiva_PH_1 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+    [OC_EC_GPP_OCT_12V_ONOFF] =
+        GPIOTiva_PH_2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_TIVA_PWR_ALRT] =
         GPIOTiva_PH_3 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_PWR_PD_NT2P] = GPIOTiva_PJ_0 | GPIO_CFG_IN_PU,
+    [OC_EC_PWR_PD_NT2P] =
+        GPIOTiva_PJ_0 | GPIO_CFG_IN_PU ,
     [OC_EC_GBC_AP_INA_ALERT] =
         GPIOTiva_PJ_1 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
     [OC_EC_GBC_PSE_ALERT] =
         GPIOTiva_PL_2 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
     [OC_EC_GPP_AP_BM_2] =
         GPIOTiva_PL_3 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
-    [OC_EC_PWR_PRSNT_POE] = GPIOTiva_PL_5 | GPIO_CFG_IN_PU,
-    [OC_EC_PWR_LION_ALERT] =
-        GPIOTiva_PM_0 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_HCI_LED_RESET] = GPIOTiva_PM_1 | GPIO_CFG_OUT_STD |
-                            GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
-    [OC_EC_PWR_LACID_ALERT] =
+    [OC_EC_PWR_PRSNT_POE] =
+        GPIOTiva_PL_5 | GPIO_CFG_IN_PU ,
+    [OC_EC_TPM_I2C_MUX_SEL] =
+        GPIOTiva_PM_0 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_LED_TIVA_GPIO] =
+        GPIOTiva_PM_1 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_VRM_ALERT] =
         GPIOTiva_PM_3 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
     [OC_EC_RFFE_TEMP_INA_ALERT] =
         GPIOTiva_PM_4 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_ETH_SW_RESET] = GPIOTiva_PM_5 | GPIO_CFG_OUT_STD |
-                           GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
-    [OC_EC_PWR_BATT_SELECT] = GPIOTiva_PM_7 | GPIO_CFG_OUT_STD |
-                              GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+    [OC_EC_ETH_SW_RESET] =
+        GPIOTiva_PM_5 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+    [OC_EC_PWR_BATT_SELECT] =
+        GPIOTiva_PM_7 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
     [OC_EC_PD_PWRGD_ALERT] =
         GPIOTiva_PN_0 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_BOTH_EDGES,
     [OC_EC_SDR_FPGA_TEMP_INA_ALERT] =
         GPIOTiva_PN_1 | GPIO_CFG_IN_NOPULL | GPIO_CFG_IN_INT_FALLING,
-    [OC_EC_SDR_PWR_GD] = GPIOTiva_PN_3 | GPIO_CFG_IN_NOPULL,
-    [OC_EC_SDR_DEVICE_CONTROL] = GPIOTiva_PN_2 | GPIO_CFG_OUT_STD |
-                                 GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
-    [OC_EC_FE_PWR_GD] = GPIOTiva_PN_4 | GPIO_CFG_IN_NOPULL,
-    [OC_EC_SDR_FE_IO_RESET_CTRL] = GPIOTiva_PP_1 | GPIO_CFG_OUT_STD |
-                                   GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
-    [OC_EC_SDR_PWR_CNTRL] = GPIOTiva_PP_2 | GPIO_CFG_OUT_STD |
-                            GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
-    [OC_EC_GPP_PWRGD_PROTECTION] = GPIOTiva_PP_3 | GPIO_CFG_IN_PU,
-    [OC_EC_RFFE_RESET] = GPIOTiva_PP_4 | GPIO_CFG_OUT_STD |
-                         GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_SDR_PWR_GD] =
+        GPIOTiva_PN_3 | GPIO_CFG_IN_NOPULL,
+    [OC_EC_SDR_DEVICE_CONTROL] =
+        GPIOTiva_PN_2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_FE_PWR_GD] =
+        GPIOTiva_PN_4 | GPIO_CFG_IN_NOPULL,
+    [OC_EC_SDR_FE_IO_RESET_CTRL] =
+        GPIOTiva_PP_1 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_SDR_PWR_CNTRL] =
+        GPIOTiva_PP_2 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    [OC_EC_GPP_PWRGD_PROTECTION] =
+        GPIOTiva_PP_3 | GPIO_CFG_IN_PU ,
+    [OC_EC_RFFE_RESET] =
+        GPIOTiva_PP_4 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
     [OC_EC_FE_TRXFE_CONN_RESET] = /* Watchdog nAO pin */
-    GPIOTiva_PQ_0 | GPIO_CFG_IN_NOPULL,
-    [OC_EC_GPP_MSATA_DAS] = GPIOTiva_PQ_1 | GPIO_CFG_IN_PU,
-    [OC_EC_GPP_RST_TO_PROC] = GPIOTiva_PQ_3 | GPIO_CFG_OUT_STD |
-                              GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
-    [OC_EC_SYNC_RESET] = GPIOTiva_PQ_4 | GPIO_CFG_OUT_STD |
-                         GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+        GPIOTiva_PQ_0 | GPIO_CFG_IN_NOPULL,
+    [OC_EC_GPP_MSATA_DAS] =
+        GPIOTiva_PQ_1 | GPIO_CFG_IN_PU ,
+    [OC_EC_GPP_RST_TO_PROC] =
+        GPIOTiva_PQ_3 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
+    [OC_EC_SYNC_RESET] =
+        GPIOTiva_PQ_4 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_HIGH,
 };
 
 /*
@@ -349,15 +363,15 @@ GPIO_PinConfig gpioPinConfigs[OC_EC_GPIOCOUNT] = {
  *       We have lots of RAM right now, so just set it to full size of
  *       GPIO array
  */
-GPIO_CallbackFxn gpioCallbackFunctions[OC_EC_GPIOCOUNT] = {};
+GPIO_CallbackFxn gpioCallbackFunctions[OC_EC_GPIOCOUNT] = { };
 
 /* The device-specific GPIO_config structure */
 const GPIOTiva_Config GPIOTiva_config = {
-    .pinConfigs = (GPIO_PinConfig *)gpioPinConfigs,
-    .callbacks = (GPIO_CallbackFxn *)gpioCallbackFunctions,
+    .pinConfigs = (GPIO_PinConfig *) gpioPinConfigs,
+    .callbacks = (GPIO_CallbackFxn *) gpioCallbackFunctions,
     .numberOfPinConfigs = sizeof(gpioPinConfigs) / sizeof(GPIO_PinConfig),
-    .numberOfCallbacks =
-        sizeof(gpioCallbackFunctions) / sizeof(GPIO_CallbackFxn),
+    .numberOfCallbacks = sizeof(gpioCallbackFunctions) /
+                         sizeof(GPIO_CallbackFxn),
     .intPriority = (~0)
 };
 
@@ -374,9 +388,9 @@ OcGpio_Port ec_io;
 OcGpio_Port gbc_io_1;
 OcGpio_Port gbc_io_0;
 OcGpio_Port sdr_fx3_io;
-// OcGpio_Port sdr_eeprom_wp_io;
+//OcGpio_Port sdr_eeprom_wp_io;
 OcGpio_Port fe_ch1_gain_io;
-OcGpio_Port fe_ch2_gain_io;
+OcGpio_Port fe_ch2_gain_io ;
 OcGpio_Port fe_ch1_lna_io;
 OcGpio_Port fe_ch2_lna_io;
 OcGpio_Port fe_watchdog_io;
@@ -388,30 +402,27 @@ OcGpio_Port ec_io = {
 
 OcGpio_Port gbc_io_0 = {
     .fn_table = &GpioSX1509_fnTable,
-    .cfg =
-        &(SX1509_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C6, BIGBROTHER_IOEXP0_ADDRESS },
-            .pin_irq = &(OcGpio_Pin){ &ec_io, OC_EC_GBC_IOEXP71_ALERT },
-        },
+    .cfg = &(SX1509_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C6, BIGBROTHER_IOEXP0_ADDRESS },
+        .pin_irq = &(OcGpio_Pin){ &ec_io, OC_EC_GBC_IOEXP71_ALERT },
+    },
     .object_data = &(SX1509_Obj){},
 };
 
 OcGpio_Port gbc_io_1 = {
     .fn_table = &GpioSX1509_fnTable,
-    .cfg =
-        &(SX1509_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C6, BIGBROTHER_IOEXP1_ADDRESS },
-            .pin_irq = NULL, /* This IO expander doesn't provide interrupts */
-        },
+    .cfg = &(SX1509_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C6, BIGBROTHER_IOEXP1_ADDRESS },
+        .pin_irq = NULL, /* This IO expander doesn't provide interrupts */
+    },
     .object_data = &(SX1509_Obj){},
 };
 
 OcGpio_Port sdr_fx3_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C3, SDR_FX3_IOEXP_ADDRESS },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C3, SDR_FX3_IOEXP_ADDRESS },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
@@ -426,56 +437,50 @@ OcGpio_Port sdr_fx3_io = {
 
 OcGpio_Port fe_ch1_gain_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL1_IO_TX_ATTEN_ADDR },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL1_IO_TX_ATTEN_ADDR },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
 OcGpio_Port fe_ch2_gain_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL2_IO_TX_ATTEN_ADDR },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL2_IO_TX_ATTEN_ADDR },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
 OcGpio_Port fe_ch1_lna_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL1_IO_RX_ATTEN_ADDR },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL1_IO_RX_ATTEN_ADDR },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
 OcGpio_Port fe_ch2_lna_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL2_IO_RX_ATTEN_ADDR },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C2, RFFE_CHANNEL2_IO_RX_ATTEN_ADDR },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
 OcGpio_Port fe_watchdog_io = {
     .fn_table = &GpioPCA9557_fnTable,
-    .cfg =
-        &(PCA9557_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C2, RFFE_IO_REVPOWER_ALERT_ADDR },
-        },
+    .cfg = &(PCA9557_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C2, RFFE_IO_REVPOWER_ALERT_ADDR },
+    },
     .object_data = &(PCA9557_Obj){},
 };
 
-OcGpio_Port sync_io = {
+OcGpio_Port sync_io  = {
     .fn_table = &GpioSX1509_fnTable,
-    .cfg =
-        &(SX1509_Cfg){
-            .i2c_dev = { OC_CONNECT1_I2C7, SYNC_IO_DEVICE_ADDR },
-            .pin_irq = &(OcGpio_Pin){ &ec_io, OC_EC_SYNC_IOEXP_ALERT },
-        },
+    .cfg = &(SX1509_Cfg) {
+        .i2c_dev = { OC_CONNECT1_I2C7, SYNC_IO_DEVICE_ADDR },
+        .pin_irq = &(OcGpio_Pin){ &ec_io, OC_EC_SYNC_IOEXP_ALERT },
+    },
     .object_data = &(SX1509_Obj){},
 };
 
@@ -495,8 +500,8 @@ void OC_CONNECT1_initGPIO(void)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(I2C_config, ".const:I2C_config")
-#    pragma DATA_SECTION(i2cTivaHWAttrs, ".const:i2cTivaHWAttrs")
+#pragma DATA_SECTION(I2C_config, ".const:I2C_config")
+#pragma DATA_SECTION(i2cTivaHWAttrs, ".const:i2cTivaHWAttrs")
 #endif
 
 #include <ti/drivers/I2C.h>
@@ -505,57 +510,89 @@ void OC_CONNECT1_initGPIO(void)
 I2CTiva_Object i2cTivaObjects[OC_CONNECT1_I2CCOUNT];
 
 const I2CTiva_HWAttrs i2cTivaHWAttrs[OC_CONNECT1_I2CCOUNT] = {
-    [OC_CONNECT1_I2C0] = { .baseAddr = I2C0_BASE,
-                           .intNum = INT_I2C0,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C1] = { .baseAddr = I2C1_BASE,
-                           .intNum = INT_I2C1,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C2] = { .baseAddr = I2C2_BASE,
-                           .intNum = INT_I2C2,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C3] = { .baseAddr = I2C3_BASE,
-                           .intNum = INT_I2C3,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C4] = { .baseAddr = I2C4_BASE,
-                           .intNum = INT_I2C4,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C6] = { .baseAddr = I2C6_BASE,
-                           .intNum = INT_I2C6,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C7] = { .baseAddr = I2C7_BASE,
-                           .intNum = INT_I2C7,
-                           .intPriority = (~0) },
-    [OC_CONNECT1_I2C8] = { .baseAddr = I2C8_BASE,
-                           .intNum = INT_I2C8,
-                           .intPriority = (~0) },
+    [OC_CONNECT1_I2C0] = {
+        .baseAddr = I2C0_BASE,
+        .intNum = INT_I2C0,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C1] = {
+        .baseAddr = I2C1_BASE,
+        .intNum = INT_I2C1,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C2] = {
+        .baseAddr = I2C2_BASE,
+        .intNum = INT_I2C2,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C3] = {
+        .baseAddr = I2C3_BASE,
+        .intNum = INT_I2C3,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C4] = {
+        .baseAddr = I2C4_BASE,
+        .intNum = INT_I2C4,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C6] = {
+        .baseAddr = I2C6_BASE,
+        .intNum = INT_I2C6,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C7] = {
+        .baseAddr = I2C7_BASE,
+        .intNum = INT_I2C7,
+        .intPriority = (~0)
+    },
+    [OC_CONNECT1_I2C8] = {
+        .baseAddr = I2C8_BASE,
+        .intNum = INT_I2C8,
+        .intPriority = (~0)
+    },
 };
 
 const I2C_Config I2C_config[] = {
-    [OC_CONNECT1_I2C0] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C0],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C0] },
-    [OC_CONNECT1_I2C1] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C1],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C1] },
-    [OC_CONNECT1_I2C2] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C2],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C2] },
-    [OC_CONNECT1_I2C3] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C3],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C3] },
-    [OC_CONNECT1_I2C4] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C4],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C4] },
-    [OC_CONNECT1_I2C6] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C6],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C6] },
-    [OC_CONNECT1_I2C7] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C7],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C7] },
-    [OC_CONNECT1_I2C8] = { .fxnTablePtr = &I2CTiva_fxnTable,
-                           .object = &i2cTivaObjects[OC_CONNECT1_I2C8],
-                           .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C8] },
+    [OC_CONNECT1_I2C0] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C0],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C0]
+    },
+    [OC_CONNECT1_I2C1] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C1],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C1]
+    },
+    [OC_CONNECT1_I2C2] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C2],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C2]
+    },
+    [OC_CONNECT1_I2C3] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C3],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C3]
+    },
+    [OC_CONNECT1_I2C4] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C4],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C4]
+    },
+    [OC_CONNECT1_I2C6] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C6],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C6]
+    },
+    [OC_CONNECT1_I2C7] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C7],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C7]
+    },
+    [OC_CONNECT1_I2C8] = {
+        .fxnTablePtr = &I2CTiva_fxnTable,
+        .object = &i2cTivaObjects[OC_CONNECT1_I2C8],
+        .hwAttrs = &i2cTivaHWAttrs[OC_CONNECT1_I2C8]
+    },
     { NULL, NULL, NULL }
 };
 
@@ -658,8 +695,8 @@ void OC_CONNECT1_initI2C(void)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(SPI_config, ".const:SPI_config")
-#    pragma DATA_SECTION(spiTivaDMAHWAttrs, ".const:spiTivaDMAHWAttrs")
+#pragma DATA_SECTION(SPI_config, ".const:SPI_config")
+#pragma DATA_SECTION(spiTivaDMAHWAttrs, ".const:spiTivaDMAHWAttrs")
 #endif
 
 #include <ti/drivers/SPI.h>
@@ -668,32 +705,36 @@ void OC_CONNECT1_initI2C(void)
 SPITivaDMA_Object spiTivaDMAObjects[OC_CONNECT1_SPICOUNT];
 
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_ALIGN(spiTivaDMAscratchBuf, 32)
+#pragma DATA_ALIGN(spiTivaDMAscratchBuf, 32)
 #elif defined(__IAR_SYSTEMS_ICC__)
-#    pragma data_alignment = 32
+#pragma data_alignment=32
 #elif defined(__GNUC__)
-__attribute__((aligned(32)))
+__attribute__ ((aligned (32)))
 #endif
 uint32_t spiTivaDMAscratchBuf[OC_CONNECT1_SPICOUNT];
 
 const SPITivaDMA_HWAttrs spiTivaDMAHWAttrs[OC_CONNECT1_SPICOUNT] = {
-    { .baseAddr = SSI1_BASE,
-      .intNum = INT_SSI1,
-      .intPriority = (~0),
-      .scratchBufPtr = &spiTivaDMAscratchBuf[0],
-      .defaultTxBufValue = 0,
-      .rxChannelIndex = UDMA_CHANNEL_SSI1RX,
-      .txChannelIndex = UDMA_CHANNEL_SSI1TX,
-      .channelMappingFxn = uDMAChannelAssign,
-      .rxChannelMappingFxnArg = UDMA_CH24_SSI1RX,
-      .txChannelMappingFxnArg = UDMA_CH25_SSI1TX },
+    {
+        .baseAddr = SSI1_BASE,
+        .intNum = INT_SSI1,
+        .intPriority = (~0),
+        .scratchBufPtr = &spiTivaDMAscratchBuf[0],
+        .defaultTxBufValue = 0,
+        .rxChannelIndex = UDMA_CHANNEL_SSI1RX,
+        .txChannelIndex = UDMA_CHANNEL_SSI1TX,
+        .channelMappingFxn = uDMAChannelAssign,
+        .rxChannelMappingFxnArg = UDMA_CH24_SSI1RX,
+        .txChannelMappingFxnArg = UDMA_CH25_SSI1TX
+    },
 };
 
 const SPI_Config SPI_config[] = {
-    [OC_CONNECT1_SPI0] = { .fxnTablePtr = &SPITivaDMA_fxnTable,
-                           .object = &spiTivaDMAObjects[OC_CONNECT1_SPI0],
-                           .hwAttrs = &spiTivaDMAHWAttrs[OC_CONNECT1_SPI0] },
-    { NULL, NULL, NULL },
+    {
+        .fxnTablePtr = &SPITivaDMA_fxnTable,
+        .object = &spiTivaDMAObjects[0],
+        .hwAttrs = &spiTivaDMAHWAttrs[0]
+    },
+    {NULL, NULL, NULL},
 };
 /*
  *  ======== OC_CONNECT1_initSPI ========
@@ -718,35 +759,38 @@ void OC_CONNECT1_initSPI(void)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(UART_config, ".const:UART_config")
-#    pragma DATA_SECTION(uartTivaHWAttrs, ".const:uartTivaHWAttrs")
+#pragma DATA_SECTION(UART_config, ".const:UART_config")
+#pragma DATA_SECTION(uartTivaHWAttrs, ".const:uartTivaHWAttrs")
 #endif
 
 #include <ti/drivers/UART.h>
 #if TI_DRIVERS_UART_DMA
-#    include <ti/drivers/uart/UARTTivaDMA.h>
+#include <ti/drivers/uart/UARTTivaDMA.h>
 
 UARTTivaDMA_Object uartTivaObjects[OC_CONNECT1_UARTCOUNT];
 
-const UARTTivaDMA_HWAttrs uartTivaHWAttrs[OC_CONNECT1_UARTCOUNT] =
-    { [OC_CONNECT1_UART3] = {
-          .baseAddr = UART0_BASE,
-          .intNum = INT_UART0,
-          .intPriority = (~0),
-          .rxChannelIndex = UDMA_CH8_UART0RX,
-          .txChannelIndex = UDMA_CH9_UART0TX,
-      } };
+const UARTTivaDMA_HWAttrs uartTivaHWAttrs[OC_CONNECT1_UARTCOUNT] = {
+    [OC_CONNECT1_UART3] = {
+        .baseAddr = UART0_BASE,
+        .intNum = INT_UART0,
+        .intPriority = (~0),
+        .rxChannelIndex = UDMA_CH8_UART0RX,
+        .txChannelIndex = UDMA_CH9_UART0TX,
+    }
+};
 
 const UART_Config UART_config[] = {
-    [OC_CONNECT1_UART3] = { .fxnTablePtr = &UARTTivaDMA_fxnTable,
-                            .object = &uartTivaObjects[0],
-                            .hwAttrs = &uartTivaHWAttrs[0] },
+    [OC_CONNECT1_UART3] = {
+        .fxnTablePtr = &UARTTivaDMA_fxnTable,
+        .object = &uartTivaObjects[0],
+        .hwAttrs = &uartTivaHWAttrs[0]
+    },
     { NULL, NULL, NULL }
 };
 #else
-#    include <ti/drivers/uart/UARTTiva.h>
-#    include "devices/i2c/XR20M1170.h" // TODO: is devices the right directory? also, is it confusing to have this in i2c?
-#    include "devices/uart/UartMon.h"
+#include <ti/drivers/uart/UARTTiva.h>
+#include "devices/i2c/XR20M1170.h" // TODO: is devices the right directory? also, is it confusing to have this in i2c?
+#include "devices/uart/UartMon.h"
 
 UARTTiva_Object uartTivaObjects[3];
 unsigned char uartTivaRingBuffer[3][64];
@@ -756,24 +800,38 @@ unsigned char XR20M1170RingBuffer[1][64];
 
 // TODO: probably more efficient to use DMA drivers
 const UARTTiva_HWAttrs uartTivaHWAttrs[] = {
-    { .baseAddr = UART0_BASE,
-      .intNum = INT_UART0,
-      .intPriority = (~0),
-      .flowControl = UART_FLOWCONTROL_NONE,
-      .ringBufPtr = uartTivaRingBuffer[0],
-      .ringBufSize = sizeof(uartTivaRingBuffer[0]) },
-    { .baseAddr = UART3_BASE,
-      .intNum = INT_UART3,
-      .intPriority = (~0),
-      .flowControl = UART_FLOWCONTROL_NONE,
-      .ringBufPtr = uartTivaRingBuffer[1],
-      .ringBufSize = sizeof(uartTivaRingBuffer[1]) },
-    { .baseAddr = UART4_BASE,
-      .intNum = INT_UART4,
-      .intPriority = (~0),
-      .flowControl = UART_FLOWCONTROL_RX | UART_FLOWCONTROL_TX,
-      .ringBufPtr = uartTivaRingBuffer[2],
-      .ringBufSize = sizeof(uartTivaRingBuffer[2]) },
+    {
+        .baseAddr = UART0_BASE,
+        .intNum = INT_UART0,
+        .intPriority = (~0),
+        .flowControl = UART_FLOWCONTROL_NONE,
+        .ringBufPtr  = uartTivaRingBuffer[0],
+        .ringBufSize = sizeof(uartTivaRingBuffer[0])
+    },
+    {
+        .baseAddr = UART3_BASE,
+        .intNum = INT_UART3,
+        .intPriority = (~0),
+        .flowControl = UART_FLOWCONTROL_NONE,
+        .ringBufPtr  = uartTivaRingBuffer[1],
+        .ringBufSize = sizeof(uartTivaRingBuffer[1])
+    },
+    {
+        .baseAddr = UART4_BASE,
+        .intNum = INT_UART4,
+        .intPriority = (~0),
+        .flowControl = UART_FLOWCONTROL_RX | UART_FLOWCONTROL_TX,
+        .ringBufPtr  = uartTivaRingBuffer[2],
+        .ringBufSize = sizeof(uartTivaRingBuffer[2])
+    },
+    {
+        .baseAddr = UART7_BASE,
+        .intNum = INT_UART7,
+        .intPriority = (~0),
+        .flowControl = UART_FLOWCONTROL_RX | UART_FLOWCONTROL_TX,
+        .ringBufPtr  = uartTivaRingBuffer[3],
+        .ringBufSize = sizeof(uartTivaRingBuffer[3])
+    },
 };
 
 // TODO: flow control settings
@@ -786,12 +844,11 @@ const XR20M1170_HWAttrs XR20M1170HWAttrs = {
     // i2c bit rate
     // uart interrupt
     .i2cIndex = OC_CONNECT1_I2C7,
-    .i2cSlaveAddress =
-        0x60 >> 1, // TODO: i2c driver uses 7-bit address...sort of annoying
+    .i2cSlaveAddress = 0x60 >> 1, // TODO: i2c driver uses 7-bit address...sort of annoying
     .xtal1_freq = 14745600, // 14.7456 MHz
     .pin_irq = &(OcGpio_Pin){ &gbc_io_0, 0, OCGPIO_CFG_IN_PU },
     .flowControl = XR20M1170_FLOWCONTROL_TX | XR20M1170_FLOWCONTROL_RX,
-    .ringBufPtr = XR20M1170RingBuffer[0],
+    .ringBufPtr  = XR20M1170RingBuffer[0],
     .ringBufSize = sizeof(XR20M1170RingBuffer[0]),
 };
 
@@ -802,24 +859,36 @@ const UartMon_Cfg uart_mon_cfg = {
 };
 
 const UART_Config UART_config[OC_CONNECT1_UARTCOUNT + 1] = {
-    [OC_CONNECT1_UART0] = { .fxnTablePtr = &UARTTiva_fxnTable,
-                            .object = &uartTivaObjects[0],
-                            .hwAttrs = &uartTivaHWAttrs[0] },
-    [OC_CONNECT1_UART3] = { .fxnTablePtr = &UARTTiva_fxnTable,
-                            .object = &uartTivaObjects[1],
-                            .hwAttrs = &uartTivaHWAttrs[1] },
-    [OC_CONNECT1_UART4] = { .fxnTablePtr = &UARTTiva_fxnTable,
-                            .object = &uartTivaObjects[2],
-                            .hwAttrs = &uartTivaHWAttrs[2] },
-    [OC_CONNECT1_UARTXR0] = { .fxnTablePtr = &XR20M1170_fxnTable,
-                              .object = &XR20M1170Objects,
-                              .hwAttrs = &XR20M1170HWAttrs },
-    [OC_CONNECT1_UARTMON] =
-        {
-            .fxnTablePtr = &UartMon_fxnTable,
-            .object = &uart_mon_obj,
-            .hwAttrs = &uart_mon_cfg,
-        },
+    [OC_CONNECT1_UART0] = {
+        .fxnTablePtr = &UARTTiva_fxnTable,
+        .object = &uartTivaObjects[0],
+        .hwAttrs = &uartTivaHWAttrs[0]
+    },
+    [OC_CONNECT1_UART3] = {
+        .fxnTablePtr = &UARTTiva_fxnTable,
+        .object = &uartTivaObjects[1],
+        .hwAttrs = &uartTivaHWAttrs[1]
+    },
+    [OC_CONNECT1_UART4] = {
+        .fxnTablePtr = &UARTTiva_fxnTable,
+        .object = &uartTivaObjects[2],
+        .hwAttrs = &uartTivaHWAttrs[2]
+    },
+    [OC_CONNECT1_UART7] = {
+        .fxnTablePtr = &UARTTiva_fxnTable,
+        .object = &uartTivaObjects[3],
+        .hwAttrs = &uartTivaHWAttrs[3]
+    },
+    [OC_CONNECT1_UARTXR0] = {
+        .fxnTablePtr = &XR20M1170_fxnTable,
+        .object = &XR20M1170Objects,
+        .hwAttrs = &XR20M1170HWAttrs
+    },
+    [OC_CONNECT1_UARTMON] = {
+        .fxnTablePtr = &UartMon_fxnTable,
+        .object = &uart_mon_obj,
+        .hwAttrs = &uart_mon_cfg,
+    },
     { NULL, NULL, NULL }
 };
 
@@ -829,33 +898,49 @@ const UART_Config UART_config[OC_CONNECT1_UARTCOUNT + 1] = {
 void OC_CONNECT1_initUART(void)
 {
     // Debug UART
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+   // SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+   // GPIOPinConfigure(GPIO_PA0_U0RX);
+   // GPIOPinConfigure(GPIO_PA1_U0TX);
+   // GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+   // SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3);
+   // GPIOPinConfigure(GPIO_PA4_U3RX);
+   // GPIOPinConfigure(GPIO_PA5_U3TX);
+   // GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_4 | GPIO_PIN_5);
 
     // AP UART
-    // SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3);
-    // GPIOPinConfigure(GPIO_PA4_U3RX);
-    // GPIOPinConfigure(GPIO_PA5_U3TX);
-    // GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+    //SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3);
+    //GPIOPinConfigure(GPIO_PA4_U3RX);
+    //GPIOPinConfigure(GPIO_PA5_U3TX);
+    //GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_4 | GPIO_PIN_5);
 
     // XR20M1170 IRQ pin
-    // GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_5);
+    //GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_5);
 
     // GSM Module UART
+
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART7);
+    GPIOPinConfigure(GPIO_PC4_U7RX);
+    GPIOPinConfigure(GPIO_PC5_U7TX);
+    GPIOPinTypeUART(GPIO_PORTC_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART4);
     GPIOPinConfigure(GPIO_PK0_U4RX);
     GPIOPinConfigure(GPIO_PK1_U4TX);
-    GPIOPinConfigure(GPIO_PK2_U4RTS);
-    GPIOPinConfigure(GPIO_PK3_U4CTS);
-    GPIOPinTypeUART(GPIO_PORTK_BASE,
-                    GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
+    GPIOPinTypeUART(GPIO_PORTK_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3);
+    GPIOPinConfigure(GPIO_PA4_U3RX);
+    GPIOPinConfigure(GPIO_PA5_U3TX);
+    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_4 | GPIO_PIN_5);
 
     /* Initialize the UART driver */
-#    if TI_DRIVERS_UART_DMA
+#if TI_DRIVERS_UART_DMA
     OC_CONNECT1_initDMA();
-#    endif
+#endif
     UART_init();
 }
 #endif /* TI_DRIVERS_UART_DMA */
@@ -908,7 +993,8 @@ void OC_CONNECT1_initUSB(OC_CONNECT1_USBMode usbMode)
          *  program.  PQ4 is active low; set the pin as input with a weak
          *  pull-up.
          */
-        GPIOPadConfigSet(GPIO_PORTQ_BASE, GPIO_PIN_4, GPIO_STRENGTH_2MA,
+        GPIOPadConfigSet(GPIO_PORTQ_BASE, GPIO_PIN_4,
+        GPIO_STRENGTH_2MA,
                          GPIO_PIN_TYPE_STD_WPU);
         GPIOIntTypeSet(GPIO_PORTQ_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE);
         GPIOIntClear(GPIO_PORTQ_BASE, GPIO_PIN_4);
@@ -929,8 +1015,8 @@ void OC_CONNECT1_initUSB(OC_CONNECT1_USBMode usbMode)
  */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#    pragma DATA_SECTION(Watchdog_config, ".const:Watchdog_config")
-#    pragma DATA_SECTION(watchdogTivaHWAttrs, ".const:watchdogTivaHWAttrs")
+#pragma DATA_SECTION(Watchdog_config, ".const:Watchdog_config")
+#pragma DATA_SECTION(watchdogTivaHWAttrs, ".const:watchdogTivaHWAttrs")
 #endif
 
 #include <ti/drivers/Watchdog.h>
@@ -939,20 +1025,20 @@ void OC_CONNECT1_initUSB(OC_CONNECT1_USBMode usbMode)
 WatchdogTiva_Object watchdogTivaObjects[OC_CONNECT1_WATCHDOGCOUNT];
 
 const WatchdogTiva_HWAttrs watchdogTivaHWAttrs[OC_CONNECT1_WATCHDOGCOUNT] = {
-    [OC_CONNECT1_WATCHDOG0] =
-        {
-            .baseAddr = WATCHDOG0_BASE,
-            .intNum = INT_WATCHDOG,
-            .intPriority = (~0),
-            .reloadValue = 80000000 // 1 second period at default CPU clock freq
+    [OC_CONNECT1_WATCHDOG0] = {
+        .baseAddr = WATCHDOG0_BASE,
+        .intNum = INT_WATCHDOG,
+        .intPriority = (~0),
+        .reloadValue = 80000000 // 1 second period at default CPU clock freq
         },
 };
 
 const Watchdog_Config Watchdog_config[] = {
-    [OC_CONNECT1_WATCHDOG0] =
-        { .fxnTablePtr = &WatchdogTiva_fxnTable,
-          .object = &watchdogTivaObjects[OC_CONNECT1_WATCHDOG0],
-          .hwAttrs = &watchdogTivaHWAttrs[OC_CONNECT1_WATCHDOG0] },
+    [OC_CONNECT1_WATCHDOG0] = {
+        .fxnTablePtr = &WatchdogTiva_fxnTable,
+        .object = &watchdogTivaObjects[OC_CONNECT1_WATCHDOG0],
+        .hwAttrs = &watchdogTivaHWAttrs[OC_CONNECT1_WATCHDOG0]
+    },
     { NULL, NULL, NULL },
 };
 

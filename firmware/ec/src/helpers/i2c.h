@@ -9,9 +9,9 @@
 #pragma once
 
 #ifndef HELPERS_I2C_H_
-#    define HELPERS_I2C_H_
+#define HELPERS_I2C_H_
 
-#    include <ti/drivers/I2C.h>
+#include <ti/drivers/I2C.h>
 
 bool I2C_write(I2C_Handle handle, uint8_t reg, unsigned char slaveAddress,
                const void *buffer, size_t size);

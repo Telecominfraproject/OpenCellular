@@ -12,6 +12,7 @@
 #include "common/inc/global/Framework.h"
 #include "inc/common/post.h"
 
-ReturnStatus _execPost(OCMPMessageFrame *pMsg, unsigned int subsystem_id);
+ReturnStatus _execPost(OCMPMessageFrame *pMsg,
+                              unsigned int subsystem_id);
 
 #endif /* INC_COMMON_POST_UTIL_H_ */

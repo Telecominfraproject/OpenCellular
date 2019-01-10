@@ -1,11 +1,3 @@
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
 #include "fake/fake_GPIO.h"
 #include "helpers/array.h"
 #include "helpers/attribute.h"
@@ -30,13 +22,13 @@ static uint32_t OcGpio_GpioConfig[] = {
 };
 
 static OcGpio_Pin s_fake_pin = {
-    .port = &s_fake_io_port,
+    .port = &s_fake_io_port, 
     .idx = 1,
 };
 /* ============================= Boilerplate ================================ */
 void suite_setUp(void)
 {
-    FakeGpio_registerDevSimple(OcGpio_GpioPins, OcGpio_GpioConfig);
+    FakeGpio_registerDevSimple(OcGpio_GpioPins, OcGpio_GpioConfig);                               
 }
 
 void setUp(void)
@@ -51,25 +43,25 @@ void suite_tearDown(void)
 {
 }
 
-void test_ocgpio_init(void)
+void test_ocgpio_init()
 {
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_init(&s_fake_io_port));
 }
 
-void test_ocgpio_read(void)
+void test_ocgpio_read()
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(1, OcGpio_read(&s_fake_pin));
 }
 
-void test_ocgpio_write(void)
+void test_ocgpio_write()
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_write(&s_fake_pin, 0));
     TEST_ASSERT_EQUAL(0, OcGpio_GpioPins[1]);
 }
 
-void test_ocgpio_configure(void)
+void test_ocgpio_configure()
 {
     OcGpio_GpioPins[1] = 1;
     TEST_ASSERT_EQUAL(OCGPIO_SUCCESS, OcGpio_configure(&s_fake_pin, 8));

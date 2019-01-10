@@ -9,8 +9,8 @@
 #pragma once
 
 #ifndef HELPERS_ARRAY_H_
-#    define HELPERS_ARRAY_H_
+#define HELPERS_ARRAY_H_
 
-#    define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 #endif /* HELPERS_ARRAY_H_ */

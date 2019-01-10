@@ -19,8 +19,8 @@
 #include <ti/sysbios/knl/Task.h>
 
 /* RFFE device config */
-extern void *fe_ch1_ads7830;
-extern void *fe_ch2_ads7830;
+extern void* fe_ch1_ads7830;
+extern void* fe_ch2_ads7830;
 
 /*****************************************************************************
  *                             HANDLES DEFINITION
@@ -49,8 +49,7 @@ static ReturnStatus rffe_powermonitor_read_adcpower(const I2C_Dev *i2c_dev,
                                                     uint16_t *rfpower)
 {
     DEBUG("RFPOWERMONITOR:INFO:: Configuring ADS7830 device 0x%x with "
-          "Command Byte Value 0x%x\n",
-          i2c_dev->slave_addr, adcConfigValue);
+          "Command Byte Value 0x%x\n", i2c_dev->slave_addr, adcConfigValue);
 
     I2C_Handle adcHandle = i2c_get_handle(i2c_dev->bus);
     if (!adcHandle) {
@@ -67,8 +66,7 @@ static ReturnStatus rffe_powermonitor_read_adcpower(const I2C_Dev *i2c_dev,
                                        adcConfigValue, rfpower, 1);
     if (status != RETURN_OK) {
         LOGGER_ERROR("RFPOWERMONITOR:ERROR:: Failed reading power value from "
-                     "ADS7830 device 0x%x.\n",
-                     i2c_dev->slave_addr);
+                     "ADS7830 device 0x%x.\n", i2c_dev->slave_addr);
         return RETURN_NOTOK;
     }
 
@@ -87,13 +85,13 @@ static ReturnStatus rffe_powermonitor_read_adcpower(const I2C_Dev *i2c_dev,
  **
  *****************************************************************************/
 ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
-                                          eRffeStatusParamId rfPowerSelect,
-                                          uint16_t *rfpower)
+                                                 eRffeStatusParamId rfPowerSelect,
+                                                 uint16_t *rfpower)
 {
     ReturnStatus status = RETURN_OK;
     uint8_t adcConfigValue = 0x00;
     rffeBand band;
-    eRffePowerDetect rfPowerDetect = RFFE_INVALID_POWER;
+    eRffePowerDetect rfPowerDetect;
 
     if (!i2c_dev) {
         DEBUG("RFPOWERMONITOR:ERROR:: Invalid channel Access\n");
@@ -101,7 +99,7 @@ ReturnStatus rffe_powermonitor_read_power(const I2C_Dev *i2c_dev,
     }
 
     /* Get the RF Band Configuration for the requested RF Channel */
-    // status = rffe_ctrl_get_band(rfchannel, &band);
+    //status = rffe_ctrl_get_band(rfchannel, &band);
 
     /* TODO: not ideal, but it's ultimately hardcoded. this makes our lives
      * a bit easier for now */
@@ -180,7 +178,8 @@ static void rffe_powermonitor_task_fxn(UArg a0, UArg a1)
 
         /* Read RF FE Forward Power on channel 1 */
         status = rffe_powermonitor_read_power(fe_ch1_ads7830,
-                                              RFFE_STAT_FW_POWER, &rfPower);
+                                              RFFE_STAT_FW_POWER,
+                                              &rfPower);
         if (status == RETURN_OK) {
             DEBUG("RFPOWERMONITOR:INFO:: RF Channel 1 Forward Power is %d.\n",
                   rfPower);
@@ -188,7 +187,8 @@ static void rffe_powermonitor_task_fxn(UArg a0, UArg a1)
 
         /* Read RF FE Forward Power on channel 2 */
         status = rffe_powermonitor_read_power(fe_ch2_ads7830,
-                                              RFFE_STAT_FW_POWER, &rfPower);
+                                              RFFE_STAT_FW_POWER,
+                                              &rfPower);
         if (status == RETURN_OK) {
             DEBUG("RFPOWERMONITOR:INFO:: RF Channel 2 Forward Power is %d.\n",
                   rfPower);

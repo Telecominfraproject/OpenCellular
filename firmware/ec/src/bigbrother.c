@@ -72,9 +72,8 @@ extern void usb_rx_createtask(void);
 extern void usb_tx_createtask(void);
 extern void uartdma_rx_createtask(void);
 extern void uartdma_tx_createtask(void);
-extern void ebmp_create_task(void);
-extern void watchdog_create_task(void);
-;
+//extern void ebmp_create_task(void);
+extern void watchdog_create_task(void);;
 
 /*****************************************************************************
  **    FUNCTION NAME   : bigbrother_process_tx_msg
@@ -91,7 +90,7 @@ static ReturnStatus bigbrother_process_tx_msg(uint8_t *pMsg)
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother TX Message.\n");
     if (pMsg != NULL) {
-        Util_enqueueMsg(gossiperTxMsgQueue, semGossiperMsg, (uint8_t *)pMsg);
+        Util_enqueueMsg(gossiperTxMsgQueue, semGossiperMsg, (uint8_t*) pMsg);
     } else {
         LOGGER_ERROR("BIGBROTHER::ERROR::No Valid Pointer.\n");
     }
@@ -132,10 +131,10 @@ static ReturnStatus bigbrother_process_rx_msg(uint8_t *pMsg)
 {
     ReturnStatus status = RETURN_OK;
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother RX Message.\n");
-    OCMPMessageFrame *pOCMPMessageFrame = (OCMPMessageFrame *)pMsg;
+    OCMPMessageFrame * pOCMPMessageFrame = (OCMPMessageFrame *) pMsg;
     if (pOCMPMessageFrame != NULL) {
         LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg recieved with Length: 0x%x,"
-                     "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
+                    "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
                      pOCMPMessageFrame->header.ocmpFrameLen,
                      pOCMPMessageFrame->header.ocmpInterface,
                      pOCMPMessageFrame->header.ocmpSeqNumber,
@@ -187,23 +186,41 @@ extern OcGpio_Port gbc_io_0;
 /* These pins aren't properly referenced in a subsystem yet, so we'll define
  * them here for now */
 
-// OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
-// OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1,
-// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_s_id_eeprom_wp       = {
-// &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_uart_sel = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
-// OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
-// OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
-// OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
-// OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
-// OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
-// OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10,
-// OCGPIO_CFG_OUT_OD_NOPULL }; OcGpio_Pin pin_int_bat_prsnt        = {
-// &gbc_io_0, 11 }; OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
-OcGpio_Pin pin_ec_syncconn_gpio1 = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
-OcGpio_Pin pin_eth_sw_ec_intn = { &gbc_io_0, 14 };
+//OcGpio_Pin pin_r_irq_intrpt         = { &gbc_io_0, 0, OCGPIO_CFG_IN_PU };
+//OcGpio_Pin pin_inven_eeprom_wp      = { &gbc_io_0, 1, OCGPIO_CFG_OUT_OD_NOPULL };
+//OcGpio_Pin pin_s_id_eeprom_wp       = { &gbc_io_0, 2, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_uart_sel             = { &gbc_io_0, 3, OCGPIO_CFG_OUT_OD_NOPULL };
+//OcGpio_Pin pin_tempsen_evt1         = { &gbc_io_0, 4 };
+//OcGpio_Pin pin_tempsen_evt2         = { &gbc_io_0, 5 };
+//OcGpio_Pin pin_tempsen_evt3         = { &gbc_io_0, 6 };
+//OcGpio_Pin pin_tempsen_evt4         = { &gbc_io_0, 7 };
+//OcGpio_Pin pin_tempsen_evt5         = { &gbc_io_0, 8 };
+//OcGpio_Pin pin_buzzer_on            = { &gbc_io_0, 10, OCGPIO_CFG_OUT_OD_NOPULL };
+//OcGpio_Pin pin_int_bat_prsnt        = { &gbc_io_0, 11 };
+//OcGpio_Pin pin_ext_bat_prsnt        = { &gbc_io_0, 12 };
+OcGpio_Pin pin_ec_syncconn_gpio1  = { &gbc_io_0, 13, OCGPIO_CFG_OUT_OD_NOPULL };
+OcGpio_Pin pin_eth_sw_ec_intn     = { &gbc_io_0, 14 };
 
-OcGpio_Pin pin_v5_a_pgood = { &gbc_io_1, 3, OCGPIO_CFG_IN_PU };
+/* change to line 224 for gbc v2 */
+
+//OcGpio_Pin pin_v5_a_pgood   = { &gbc_io_1, 3, OCGPIO_CFG_IN_PU };
+
+OcGpio_Pin OCT_SYS_PLL_PMUL0   = { &gbc_io_1, 0, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_SYS_PLL_PMUL1   = { &gbc_io_1, 1, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_SYS_PLL_PMUL2   = { &gbc_io_1, 2, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_SYS_PLL_PMUL3   = { &gbc_io_1, 3, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_SYS_PLL_PMUL4   = { &gbc_io_1, 4, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL0   =     { &gbc_io_1, 5, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL1   =     { &gbc_io_1, 6, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL2   =     { &gbc_io_1, 7, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL3   =     { &gbc_io_1, 8, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL4   =     { &gbc_io_1, 9, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin OCT_PLL_MUL5   =     { &gbc_io_1, 10, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin BOOT_METHOD_GPIO_0   = { &gbc_io_1, 11, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin BOOT_METHOD_GPIO_1   = { &gbc_io_1, 12, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin BOOT_METHOD_GPIO_2   = { &gbc_io_1, 13, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin BOOT_METHOD_GPIO_3   = { &gbc_io_1, 14, OCGPIO_CFG_OUT_STD };
+OcGpio_Pin TRXFE_PWR_ALRT   = { &gbc_io_1, 15, OCGPIO_CFG_IN_NOPULL };
 
 extern OcGpio_Port sync_io;
 extern OcGpio_Port sdr_fx3_io;
@@ -235,22 +252,22 @@ ReturnStatus bigbrother_ioexp_init(void)
      * IO13 - NA
      * IO14 - NA
      * IO15 - NA
-     */
+    */
 
     /* TODO: we need a better spot to init. our IO expanders, but this works
      * for now
      */
     OcGpio_init(&gbc_io_1);
-    OcGpio_init(&sync_io);
-    OcGpio_init(&sdr_fx3_io);
-    OcGpio_init(&fe_ch1_gain_io);
-    OcGpio_init(&fe_ch2_gain_io);
-    OcGpio_init(&fe_ch1_lna_io);
-    OcGpio_init(&fe_ch2_lna_io);
-    OcGpio_init(&fe_watchdog_io);
+   // OcGpio_init(&sync_io); /* change to line 270 for gbc v2 */
+  //  OcGpio_init(&sdr_fx3_io);
+  //  OcGpio_init(&fe_ch1_gain_io);
+   // OcGpio_init(&fe_ch2_gain_io);
+  //  OcGpio_init(&fe_ch1_lna_io);
+   // OcGpio_init(&fe_ch2_lna_io);
+  //  OcGpio_init(&fe_watchdog_io);
 
     /* Initialize pins that aren't covered yet by a subsystem */
-    OcGpio_configure(&pin_v5_a_pgood, OCGPIO_CFG_INPUT);
+ //   OcGpio_configure(&pin_v5_a_pgood, OCGPIO_CFG_INPUT);
 
     /* Initialize IO Expander SX1509 GPIO Pins - 0x71 */
     /* IO pins - 0x71
@@ -273,20 +290,66 @@ ReturnStatus bigbrother_ioexp_init(void)
      */
     OcGpio_init(&gbc_io_0);
 
-    // OcGpio_configure(&pin_r_irq_intrpt, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_inven_eeprom_wp, OCGPIO_CFG_OUTPUT);
-    // OcGpio_configure(&pin_s_id_eeprom_wp, OCGPIO_CFG_OUTPUT);
-    OcGpio_configure(&pin_uart_sel, OCGPIO_CFG_OUTPUT);
-    // OcGpio_configure(&pin_tempsen_evt1, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_tempsen_evt2, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_tempsen_evt3, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_tempsen_evt4, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_tempsen_evt5, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_buzzer_on, OCGPIO_CFG_OUTPUT);
-    // OcGpio_configure(&pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
-    // OcGpio_configure(&pin_ext_bat_prsnt, OCGPIO_CFG_INPUT);
-    OcGpio_configure(&pin_ec_syncconn_gpio1, OCGPIO_CFG_OUTPUT);
-    OcGpio_configure(&pin_eth_sw_ec_intn, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_r_irq_intrpt, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_inven_eeprom_wp, OCGPIO_CFG_OUTPUT);
+    //OcGpio_configure(&pin_s_id_eeprom_wp, OCGPIO_CFG_OUTPUT);
+//    OcGpio_configure(&pin_uart_sel, OCGPIO_CFG_OUTPUT); /* change for gbc v2 */
+    //OcGpio_configure(&pin_tempsen_evt1, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_tempsen_evt2, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_tempsen_evt3, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_tempsen_evt4, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_tempsen_evt5, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_buzzer_on, OCGPIO_CFG_OUTPUT);
+    //OcGpio_configure(&pin_int_bat_prsnt, OCGPIO_CFG_INPUT);
+    //OcGpio_configure(&pin_ext_bat_prsnt, OCGPIO_CFG_INPUT);
+//    OcGpio_configure(&pin_ec_syncconn_gpio1, OCGPIO_CFG_OUTPUT); /* change for gbc v2 */
+//    OcGpio_configure(&pin_eth_sw_ec_intn, OCGPIO_CFG_INPUT); /* change for gbc v2 */
+
+    /*Configuration*/
+    OcGpio_configure(&OCT_SYS_PLL_PMUL0, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_SYS_PLL_PMUL1, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_SYS_PLL_PMUL2, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_SYS_PLL_PMUL3, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_SYS_PLL_PMUL4, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL0, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL1, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL2, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL3, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL4, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&OCT_PLL_MUL5, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&BOOT_METHOD_GPIO_0, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&BOOT_METHOD_GPIO_1, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&BOOT_METHOD_GPIO_2, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&BOOT_METHOD_GPIO_3, OCGPIO_CFG_OUTPUT);
+    OcGpio_configure(&TRXFE_PWR_ALRT, OCGPIO_CFG_INPUT);
+    /*Enabling*/
+    OcGpio_write(&OCT_SYS_PLL_PMUL0, false);
+    OcGpio_write(&OCT_SYS_PLL_PMUL1, false);
+    OcGpio_write(&OCT_SYS_PLL_PMUL2, true);
+    OcGpio_write(&OCT_SYS_PLL_PMUL3, false);
+   //##Added 07/05
+    SysCtlDelay(64000000);
+    SysCtlDelay(64000000);
+   // SysCtlDelay(64000000);
+   // SysCtlDelay(64000000);
+    //##
+    //
+//    uint8_t val =0;
+//    OcGpio_configure(&OCT_SYS_PLL_PMUL0, OCGPIO_CFG_INPUT);
+//    val = OcGpio_read(&OCT_SYS_PLL_PMUL3);
+//    LOGGER_DEBUG("BIGBROTHER:INFO::PMUL3 is 0x%x.\n",val);
+
+    OcGpio_write(&OCT_SYS_PLL_PMUL4, false);
+    OcGpio_write(&OCT_PLL_MUL0, false);
+    OcGpio_write(&OCT_PLL_MUL1, false);
+    OcGpio_write(&OCT_PLL_MUL2, false);
+    OcGpio_write(&OCT_PLL_MUL3, true);
+    OcGpio_write(&OCT_PLL_MUL4, true);
+    OcGpio_write(&OCT_PLL_MUL5, false);
+    OcGpio_write(&BOOT_METHOD_GPIO_0, true);
+    OcGpio_write(&BOOT_METHOD_GPIO_1, true);
+    OcGpio_write(&BOOT_METHOD_GPIO_2, true);
+    OcGpio_write(&BOOT_METHOD_GPIO_3, true);
 
     return status;
 }
@@ -308,10 +371,10 @@ static void bigborther_spwan_task(void)
     /* Check the list for possible devices connected. */
 
     /* Launches other tasks */
-    usb_rx_createtask();   // P - 05
-    usb_tx_createtask();   // P - 04
-    gossiper_createtask(); // P - 06
-    ebmp_create_task();
+    usb_rx_createtask();                // P - 05
+    usb_tx_createtask();                // P - 04
+    gossiper_createtask();              // P - 06
+    //ebmp_create_task();
     watchdog_create_task();
 
     /* Initialize subsystem interface to set up interfaces and launch
@@ -334,20 +397,17 @@ static void bigbrother_init(void)
     /*Creating Semaphore for RX Message Queue*/
     semBigBrotherMsg = Semaphore_create(0, NULL, NULL);
     if (semBigBrotherMsg == NULL) {
-        LOGGER_ERROR(
-            "BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
+        LOGGER_ERROR("BIGBROTHER:ERROR::BIGBROTHER RX Semaphore creation failed.\n");
     }
     /*Creating RX Message Queue*/
     bigBrotherRxMsgQueue = Util_constructQueue(&bigBrotherRxMsg);
-    LOGGER_DEBUG(
-        "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-        bigBrotherRxMsgQueue);
+    LOGGER_DEBUG("BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+                 bigBrotherRxMsgQueue);
 
     /*Creating TX Message Queue*/
     bigBrotherTxMsgQueue = Util_constructQueue(&bigBrotherTxMsg);
-    LOGGER_DEBUG(
-        "BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
-        bigBrotherTxMsgQueue);
+    LOGGER_DEBUG("BIGBROTHER:INFO::Constructing message Queue for 0x%x Big Brother RX Messages.\n",
+                 bigBrotherTxMsgQueue);
 }
 
 /*****************************************************************************
@@ -368,22 +428,22 @@ static void bigbrother_taskfxn(UArg a0, UArg a1)
     bigbrother_ioexp_init();
     hci_buzzer_beep(1);
 
-    // Create Tasks.
+    //Create Tasks.
     bigborther_spwan_task();
-    // Perform POST
+    //Perform POST
     bigborther_initiate_post();
     while (true) {
         if (Semaphore_pend(semBigBrotherMsg, BIOS_WAIT_FOREVER)) {
             while (!Queue_empty(bigBrotherRxMsgQueue)) {
-                uint8_t *pWrite =
-                    (uint8_t *)Util_dequeueMsg(bigBrotherRxMsgQueue);
+                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
+                                  bigBrotherRxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_rx_msg(pWrite);
                 }
             }
             while (!Queue_empty(bigBrotherTxMsgQueue)) {
-                uint8_t *pWrite =
-                    (uint8_t *)Util_dequeueMsg(bigBrotherTxMsgQueue);
+                uint8_t *pWrite = (uint8_t *) Util_dequeueMsg(
+                                  bigBrotherTxMsgQueue);
                 if (pWrite) {
                     bigbrother_process_tx_msg(pWrite);
                 }

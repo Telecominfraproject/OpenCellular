@@ -14,15 +14,16 @@
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define EBMP_TASK_STACK_SIZE 1024
-#define EBMP_TASK_PRIORITY 2
+#define EBMP_TASK_STACK_SIZE        1024
+#define EBMP_TASK_PRIORITY          2
 
 /*****************************************************************************
  *                         STRUCT/ENUM DEFINITIONS
  *****************************************************************************/
 /*
- * GPP states are define here. Where we define various states GPP or AP can be
- * in. S0_SC[059] and S5[09] are the inputs T0: AP SOC under Reset.       (0,0)
+ * GPP states are define here. Where we define various states GPP or AP can be in.
+ * S0_SC[059] and S5[09] are the inputs
+ * T0: AP SOC under Reset.       (0,0)
  * T1: AP starts the booting.    (0,0)
  * T2: AP starts DDR init.       (0,1)
  * T3: PCIe and SPC init.           (1,1)
@@ -45,7 +46,7 @@ typedef enum {
 } apStates;
 
 typedef enum {
-    AP_RESET = 0,
+    AP_RESET    = 0,
     AP_BOOT_PROGRESS_MONITOR_1 = 1,
     AP_BOOT_PROGRESS_MONITOR_2 = 2
 } apBootMonitor;
@@ -53,6 +54,6 @@ typedef enum {
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/
-ReturnStatus ebmp_init(Gpp_gpioCfg *driver);
+void ebmp_init(Gpp_gpioCfg* driver);
 
 #endif /* EBMP_H_ */

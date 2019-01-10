@@ -10,10 +10,9 @@
 #ifndef FAKE_GPIO_H_
 #define FAKE_GPIO_H_
 
-#include "common/inc/global/OC_CONNECT1.h"
 #include "src/drivers/OcGpio.h"
 
-#define FAKE_GPIO_PIN_COUNT OC_EC_GPIOCOUNT
+#define FAKE_GPIO_PIN_COUNT 8
 
 typedef struct FakeGpio_Obj {
     struct {
@@ -25,6 +24,5 @@ typedef struct FakeGpio_Obj {
 extern const OcGpio_FnTable FakeGpio_fnTable;
 
 void FakeGpio_triggerInterrupt(const OcGpio_Pin *pin);
-void FakeGpio_registerDevSimple(void *GpioPins, void *GpioConfig);
 
 #endif /* FAKE_GPIO_H_ */

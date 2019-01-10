@@ -1,11 +1,3 @@
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
 #ifndef FAKE_I2C_H_
 #define FAKE_I2C_H_
 
@@ -32,9 +24,9 @@ void fake_I2C_deinit(void);
  * @param reg_size Size of each register in the device
  * @param addr_size Size of register addresses (typically 1-2B)
  */
-void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr, void *reg_table,
-                                size_t tbl_size, size_t reg_size,
-                                size_t addr_size,
+void fake_I2C_registerDevSimple(unsigned int bus, uint8_t addr,
+                                void *reg_table, size_t tbl_size,
+                                size_t reg_size, size_t addr_size,
                                 Fake_I2C_Endianness endianness);
 
 /*!

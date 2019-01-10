@@ -18,18 +18,15 @@
 
 static GateMutex_Handle s_cb_data_mutex;
 
-static int GpioNative_probe(const OcGpio_Port *port)
-{
-    // This probe function is just a dummy as we are all ready accessing EC.
+static int GpioNative_probe(void) {
+    //This probe function is just a dummy as we are all ready accessing EC.
     return OCGPIO_SUCCESS;
 }
-void GpioNative_init(void)
-{
+void GpioNative_init(void) {
     s_cb_data_mutex = GateMutex_create(NULL, NULL);
 }
 
-static int GpioNative_write(const OcGpio_Pin *pin, bool value)
-{
+static int GpioNative_write(const OcGpio_Pin *pin, bool value) {
     if (pin->hw_cfg & OCGPIO_CFG_INVERT) {
         value = !value;
     }
@@ -37,8 +34,7 @@ static int GpioNative_write(const OcGpio_Pin *pin, bool value)
     return OCGPIO_SUCCESS;
 }
 
-static int GpioNative_read(const OcGpio_Pin *pin)
-{
+static int GpioNative_read(const OcGpio_Pin *pin) {
     bool value = GPIO_read(pin->idx);
     if (pin->hw_cfg & OCGPIO_CFG_INVERT) {
         value = !value;
@@ -46,8 +42,7 @@ static int GpioNative_read(const OcGpio_Pin *pin)
     return value;
 }
 
-static int GpioNative_configure(const OcGpio_Pin *pin, uint32_t cfg)
-{
+static int GpioNative_configure(const OcGpio_Pin *pin, uint32_t cfg) {
     /* TODO: translate config values to account for inversion
      * eg. If inverted, change rising edge trigger to falling edge
      */
@@ -91,8 +86,7 @@ static int GpioNative_configure(const OcGpio_Pin *pin, uint32_t cfg)
         }
     } else {
         ti_cfg |= GPIO_CFG_OUTPUT;
-        ti_cfg |=
-            (hw_cfg.out_cfg << GPIO_CFG_IO_LSB); /* Include od/pu/pd cfg */
+        ti_cfg |= (hw_cfg.out_cfg << GPIO_CFG_IO_LSB); /* Include od/pu/pd cfg */
         ti_cfg |= (hw_cfg.out_str << GPIO_CFG_OUT_STRENGTH_LSB);
         ti_cfg |= (io_cfg.default_val << GPIO_CFG_OUT_BIT);
     }
@@ -119,8 +113,7 @@ static GpioCallbackData *cb_data[120];
 /* Wrapper to allow us to map TI-GPIO callback to all our subscribers (with
  * context passing)
  */
-static void _nativeCallback(unsigned int idx)
-{
+static void _nativeCallback(unsigned int idx) {
     GpioCallbackData *cbData = cb_data[idx];
     while (cbData) {
         cbData->callback(cbData->pin, cbData->context);
@@ -129,8 +122,8 @@ static void _nativeCallback(unsigned int idx)
 }
 
 static int GpioNative_setCallback(const OcGpio_Pin *pin,
-                                  OcGpio_CallbackFn callback, void *context)
-{
+                                  OcGpio_CallbackFn callback,
+                                  void *context) {
     /* TODO: we may want to support callback removal at some point */
     if (!callback) {
         return OCGPIO_FAILURE;
@@ -167,14 +160,12 @@ static int GpioNative_setCallback(const OcGpio_Pin *pin,
 
 /* TODO: what if multiple tasks are sharing a pin and one of them
  * disables the interrupt? */
-static int GpioNative_disableInt(const OcGpio_Pin *pin)
-{
+static int GpioNative_disableInt(const OcGpio_Pin *pin) {
     GPIO_disableInt(pin->idx);
     return OCGPIO_SUCCESS;
 }
 
-static int GpioNative_enableInt(const OcGpio_Pin *pin)
-{
+static int GpioNative_enableInt(const OcGpio_Pin *pin) {
     GPIO_enableInt(pin->idx);
     return OCGPIO_SUCCESS;
 }
@@ -188,3 +179,4 @@ const OcGpio_FnTable GpioNative_fnTable = {
     .disableInt = GpioNative_disableInt,
     .enableInt = GpioNative_enableInt,
 };
+
