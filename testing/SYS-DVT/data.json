@@ -1,0 +1,55 @@
+{
+	"modules": {
+		"bb_sensor": {
+			"sys_path": "/sys/bb_sensor",
+			"get_vars": {
+				"bb_shunt_voltage": {
+					"unit": "mV"
+				},
+
+				"bb_bus_voltage": {
+					"unit": "mV"
+				},
+				"bb_current": {
+					"unit": "mA"
+				},
+				"bb_power": {
+					"unit": "mW"
+				}
+			},
+			"set_vars": "NULL"
+
+		},
+		"bb_temperature": {
+			"sys_path": "/sys/bb_temp",
+			"get_vars": {
+				"bb_input_temp": {
+					"unit": "Celcius"
+				},
+
+				"bb_max_temp": {
+					"unit": "Celcius"
+				},
+				"bb_max_hyst": {
+					"unit": "Celcius"
+				}
+
+			},
+			"set_vars": {
+				"bb_max_temp": {
+					"max_val": "100",
+					"min_val": "-15",
+					"unit": "Celcius"
+				},
+				"bb_max_hyst": {
+					"max_val": "100",
+					"min_val": "-15",
+					"unit": "Celcius"
+				}
+			}
+		},
+		"Help": "./occmd.py <module_name> <get/set> <param> <value>",
+		"version": "0.1"
+	}
+
+}
