@@ -45,10 +45,10 @@ Queue_Handle uartTxMsgQueue;
 
 /* Global Task Configuration Variables */
 Task_Struct ocUARTDMATask;
-Char ocUARTDMATaskStack[OCUARTDMA_TASK_STACK_SIZE];
+static Char ocUARTDMATaskStack[OCUARTDMA_TASK_STACK_SIZE];
 
 Task_Struct ocUARTDMATxTask;
-Char ocUARTDMATxTaskStack[OCUARTDMATX_TASK_STACK_SIZE];
+static Char ocUARTDMATxTaskStack[OCUARTDMATX_TASK_STACK_SIZE];
 
 /*****************************************************************************
  * The transmit and receive buffers used for the UART transfers.  There is one
@@ -70,7 +70,7 @@ static uint8_t ui8uartdmaRxBuf[UART_RXBUF_SIZE];
 #elif defined(__GNUC__)
 __attribute__((aligned(1024)))
 #endif
-uint8_t pui8ControlTable[1024];
+static uint8_t pui8ControlTable[1024];
 
 /*****************************************************************************
  *

@@ -64,7 +64,7 @@ CFLAGS += -isystem$(XDC_PATH) -isystem$(BIOS_PATH) -isystem$(TIDRIVER_PATH) -isy
 
 LD = $(TOOLCHAIN)/bin/arm-none-eabi-gcc
 LFLAGS = -nostartfiles -static -Wl,--gc-sections -march=armv7e-m -Wl,-T,OC_CONNECT1.lds
-LFLAGS += --specs=nosys.specs -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LFLAGS += --specs=nosys.specs --specs=nano.specs -mfloat-abi=hard -mfpu=fpv4-sp-d16
 LFLAGS += -Wl,--print-memory-usage #Optional
 LFLAGS += -Xlinker -Map=$(OUT)/main.map #Optional
 LLIBS = -L$(TIVAWARE_DIR)/driverlib/gcc/
