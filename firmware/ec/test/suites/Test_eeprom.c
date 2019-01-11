@@ -99,28 +99,28 @@ void test_eeprom_read(void)
     TEST_ASSERT_EQUAL_HEX(EEPROM_READ_WRITE_VALUE, buffer);
 
     /* Checking for NULL cfg */
-    buffer = EEPROM_DEFUALT_VALUE_NULL;
+    buffer = EEPROM_DEFAULT_VALUE_NULL;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_READ_WRITE_VALUE;
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read(e_invalid_cfg, OC_CONNECT1_SERIAL_INFO,
                                   &buffer, sizeof(buffer)));
 
     /* Checking with invalid slave address */
-    buffer = EEPROM_DEFUALT_VALUE_NULL;
+    buffer = EEPROM_DEFAULT_VALUE_NULL;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_READ_WRITE_VALUE;
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read(&e_invalid_dev, OC_CONNECT1_SERIAL_INFO,
                                   &buffer, sizeof(buffer)));
 
     /* Checking with invalid bus address */
-    buffer = EEPROM_DEFUALT_VALUE_NULL;
+    buffer = EEPROM_DEFAULT_VALUE_NULL;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_READ_WRITE_VALUE;
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read(&e_invalid_bus, OC_CONNECT1_SERIAL_INFO,
                                   &buffer, sizeof(buffer)));
 
     /* Checking with 0xFFFF register */
-    buffer = EEPROM_DEFUALT_VALUE_NULL;
+    buffer = EEPROM_DEFAULT_VALUE_NULL;
     EEPROM_regs[EEPROM_REG_FFFF] = EEPROM_READ_WRITE_VALUE;
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read(&eeprom_gbc_sid, EEPROM_REG_FFFF,
                                              &buffer, sizeof(buffer)));
@@ -130,7 +130,7 @@ void test_eeprom_read(void)
 void test_eeprom_write(void)
 {
     uint16_t buffer = EEPROM_READ_WRITE_VALUE;
-    EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_DEFUALT_VALUE_NULL;
+    EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_DEFAULT_VALUE_NULL;
 
     TEST_ASSERT_EQUAL(RETURN_OK,
                       eeprom_write(&eeprom_gbc_inv, OC_CONNECT1_SERIAL_INFO,
@@ -139,7 +139,7 @@ void test_eeprom_write(void)
                             EEPROM_regs[EEPROM_REG_SERIAL_INFO_1]);
 
     /* Test with size > page_size */
-    EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_DEFUALT_VALUE_NULL;
+    EEPROM_regs[EEPROM_REG_SERIAL_INFO_1] = EEPROM_DEFAULT_VALUE_NULL;
     TEST_ASSERT_EQUAL(RETURN_OK,
                       eeprom_write(&eeprom_gbc_inv, OC_CONNECT1_SERIAL_INFO,
                                    &buffer, EEPROM_BIG_WRITE_SIZE));
@@ -201,7 +201,7 @@ void test_eeprom_read_board_info(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_BC;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_41;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
 
     TEST_ASSERT_EQUAL(RETURN_OK,
                       eeprom_read_board_info(&eeprom_gbc_inv, buffer));
@@ -216,7 +216,7 @@ void test_eeprom_read_board_info(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_DR;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_32;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_OK,
                       eeprom_read_board_info(&eeprom_sdr_inv, buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_SDR_BOARD_INFO, buffer);
@@ -230,31 +230,31 @@ void test_eeprom_read_board_info(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_E0;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_05;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_OK,
                       eeprom_read_board_info(&eeprom_fe_inv, buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_FE_BOARD_INFO, buffer);
 
     /* Checking for invalid subsystem cfg */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read_board_info(&e_invalid_ss_cfg, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);
 
     /* Checking for NULL cfg */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read_board_info(e_invalid_cfg, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);
 
     /* Checking with invalid slave address */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read_board_info(&e_invalid_dev, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);
 
     /* Checking with invalid bus address */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_NOTOK,
                       eeprom_read_board_info(&e_invalid_bus, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);
@@ -272,7 +272,7 @@ void test_eeprom_read_oc_info(void)
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_7] = EEPROM_ASCII_VAL_10;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_8] = EEPROM_ASCII_VAL_04;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_9] = EEPROM_ASCII_VAL_11;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(RETURN_OK, eeprom_read_oc_info(buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_SERIAL_INFO, buffer);
 }

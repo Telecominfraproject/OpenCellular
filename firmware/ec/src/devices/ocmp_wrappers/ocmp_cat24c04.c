@@ -49,7 +49,7 @@ static bool _sid_get_status_parameters_data(void *driver, unsigned int param,
             status = RETURN_NOTOK;
         }
     }
-    return status;
+    return (status == RETURN_OK);
 }
 
 /*****************************************************************************

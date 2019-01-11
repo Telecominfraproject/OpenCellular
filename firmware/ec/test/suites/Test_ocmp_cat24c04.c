@@ -88,9 +88,9 @@ void test_init_eeprom(void)
     Eeprom_GpioConfig[0x02] = OCGPIO_CFG_OUT_HIGH;
     EEPROM_regs[EEPROM_REG_DEF_INIT] = EEPROM_READ_WRITE_VALUE;
     EEPROM_regs[EEPROM_REG_FFFF] = EEPROM_FFFF_REG_VALUE;
-    PCA9557_regs[PCA9557_REGS_OUTPUT_VALUE] = EEPROM_DEFUALT_VALUE_NULL;
-    SX1509_regs[SX1509_REG_DATA_B] = EEPROM_DEFUALT_VALUE_NULL;
-    SX1509_regs[SX1509_REG_DATA_A] = EEPROM_DEFUALT_VALUE_NULL;
+    PCA9557_regs[PCA9557_REGS_OUTPUT_VALUE] = EEPROM_DEFAULT_VALUE_NULL;
+    SX1509_regs[SX1509_REG_DATA_B] = EEPROM_DEFAULT_VALUE_NULL;
+    SX1509_regs[SX1509_REG_DATA_A] = EEPROM_DEFAULT_VALUE_NULL;
 
     AlertData alert_data = {
         .subsystem = 0,
@@ -150,7 +150,7 @@ void test_RFFE_InventoryGetStatus(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_E0;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_05;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
 
     TEST_ASSERT_EQUAL(
         true, CAT24C04_fe_inv_fxnTable.cb_get_status(
@@ -158,7 +158,7 @@ void test_RFFE_InventoryGetStatus(void)
     TEST_ASSERT_EQUAL_STRING(EEPROM_FE_BOARD_INFO, buffer);
 
     /* Invalid Param ID */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(false,
                       CAT24C04_fe_inv_fxnTable.cb_get_status(
                           &eeprom_fe_inv, EEPROM_INVALID_PARAM_ID, buffer));
@@ -186,14 +186,14 @@ void test_Sdr_InventoryGetStatus(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_DR;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_32;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(
         true, CAT24C04_sdr_inv_fxnTable.cb_get_status(
                   &eeprom_sdr_inv, EEPROM_SDR_INVENTORY_PARAM_ID, buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_SDR_BOARD_INFO, buffer);
 
     /* Invalid Param ID*/
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     TEST_ASSERT_EQUAL(false,
                       CAT24C04_sdr_inv_fxnTable.cb_get_status(
                           &eeprom_sdr_inv, EEPROM_INVALID_PARAM_ID, buffer));
@@ -223,15 +223,15 @@ void test_sid_get_status_parameters_data(void)
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_7] = EEPROM_ASCII_VAL_10;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_8] = EEPROM_ASCII_VAL_04;
     EEPROM_regs[EEPROM_REG_SERIAL_INFO_9] = EEPROM_ASCII_VAL_11;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
 
-    TEST_ASSERT_EQUAL(RETURN_OK,
+    TEST_ASSERT_EQUAL(true,
                       CAT24C04_gbc_sid_fxnTable.cb_get_status(
                           &eeprom_gbc_sid, OC_STAT_SYS_SERIAL_ID, buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_SERIAL_INFO, buffer);
 
     /* For OC_STAT_SYS_GBC_BOARD_ID */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
     EEPROM_regs[EEPROM_REG_BOARD_INFO_1] = EEPROM_ASCII_VAL_SA;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_2] = EEPROM_ASCII_VAL_17;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_3] = EEPROM_ASCII_VAL_18;
@@ -241,15 +241,15 @@ void test_sid_get_status_parameters_data(void)
     EEPROM_regs[EEPROM_REG_BOARD_INFO_7] = EEPROM_ASCII_VAL_BC;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_8] = EEPROM_ASCII_VAL_00;
     EEPROM_regs[EEPROM_REG_BOARD_INFO_9] = EEPROM_ASCII_VAL_41;
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
-    TEST_ASSERT_EQUAL(RETURN_OK,
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    TEST_ASSERT_EQUAL(true,
                       CAT24C04_gbc_sid_fxnTable.cb_get_status(
                           &eeprom_gbc_sid, OC_STAT_SYS_GBC_BOARD_ID, buffer));
     TEST_ASSERT_EQUAL_STRING(EEPROM_GBC_BOARD_INFO, buffer);
 
     /* Invalid ParamID */
-    memset(buffer, EEPROM_DEFUALT_VALUE_NULL, EEPROM_BOARD_SIZE);
-    TEST_ASSERT_EQUAL(RETURN_NOTOK,
+    memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
+    TEST_ASSERT_EQUAL(false,
                       CAT24C04_gbc_sid_fxnTable.cb_get_status(
                           &eeprom_gbc_sid, OC_STAT_SYS_STATE, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);

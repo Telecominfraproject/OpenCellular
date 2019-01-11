@@ -10,7 +10,6 @@
 #define _TEST_PCA9557_H
 
 #include "drivers/GpioPCA9557.h"
-#include <stdint.h>
 
 typedef enum PCA9557Regs {
     PCA9557_REGS_INPUT_VALUE = 0x00,
