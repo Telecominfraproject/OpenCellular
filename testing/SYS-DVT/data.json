@@ -1,7 +1,7 @@
 {
 	"module": {
 		"bb_current": {
-			"sys_path": "/sys/bb_sensor",
+			"sys_path": "/home/oc/sys/bb_sensor",
 			"get_vars": {
 				"bb_shunt_voltage": {
 					"unit": "mV"
@@ -21,7 +21,7 @@
 
 		},
 		"bb_temp": {
-			"sys_path": "/sys/bb_temp",
+			"sys_path": "/home/oc/sys/bb_temp",
 			"get_vars": {
 				"bb_input_temp": {
 					"unit": "Celcius"
