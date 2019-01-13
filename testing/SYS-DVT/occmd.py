@@ -1,8 +1,14 @@
 import os
 import sys
 import json
+from subprocess import Popen, PIPE
+import shlex
 
 DB_FILE = "data.json"
+MODULE_NAME = 0
+OPERATION = 1
+PARAM = 2
+VALUE = 3
 
 class dvt():
 
@@ -13,9 +19,31 @@ class dvt():
         self.value = ''
         self.dbfile = dbfile
         self.db = ''
+        self.arglist = ''
 
     def get(self):
-        pass
+        d = self.db['module'][self.module]['get']
+        for x in d:
+            if((x == self.arglist[PARAM]) or (self.arglist[PARAM] == 'all') ):
+                if(x == 'all'):
+                    print "all\n"
+                else:
+                    d = d[x]
+                    buf = self.run_command(d['cmd']+ ' ' + d['path'] + d['exe'])
+                    print x + ' : ' + buf.rstrip('\n') + ' ' + d['unit']
+
+    def run_command(self, command):
+        buf = ""
+        process = Popen(shlex.split(command), stdout=PIPE)
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                buf  = buf + output
+                #print buf
+        rc = process.poll()
+        return buf
 
     def set(self):
         pass
@@ -27,6 +55,7 @@ class dvt():
         print("value: %s" %(self.value))
         print("DB file: %s" %(self.dbfile))
 
+
     def load_db(self):
         try:
             f = open(self.dbfile)
@@ -37,56 +66,54 @@ class dvt():
             sys.exit(-1);
 
         return 0
+   
+    def parse(self):
+        d = self.db['module']
+
+        try:
+            # Find module name
+            for x in d:
+                if(x == self.arglist[MODULE_NAME]):
+                    if((x == 'help') or (x == 'version')):
+                        print(d[x])
+                        return 0
+                    else:
+                        # Find operation
+                        self.module = x
+                        d = d[x]
+                        for y in d:
+                            if(y == self.arglist[OPERATION]):
+                                eval('self.'+y+'()')
+                                return 0
+
+                        return -1
+                            
+            return -1
+
+        except:
+                print("Failure during parse\n")
+                sys.exit(-1)
+                
+
+
+    # Store the args for processing
+    def load_args(self, args):
+       
+        self.arglist = args
+        self.arglist = self.arglist[1:]
 
     def print_cmds(self):
         pass;
 
-def check_args(args, a):
-    
-    # check for module name
-    try:
-        if((len(args) < 1) or (args[1] == 'help')):
-            return -1
-
-        for x in a.db['module']:
-            if(x == args[1]):
-                a.module = x
-                break
-
-        if a.module == '':
-            return -1
-        else:
-            # Check for get/set
-            if(len(args) < 2 and (args[2] == 'get' or args[2] == 'set')):
-                return -1
-            else:
-                a.operation = args[2]
-                if(a.operation == 'set'):
-                    if(len(args) < 4):
-                        return -1
-                    else:
-                        a.param = args[3]
-                        a.value = args[4]
-                else: # get
-                    if(len(args) < 3):
-                        return -1
-                    else:
-                        a.param = args[3]
-        return 0
-
-    except:
-        return -1
 
 def main():
     a = dvt(DB_FILE)
     a.load_db()
-    if(check_args(sys.argv, a)):
-         print a.db['module']['help']
-         sys.exit(-1)
+    a.load_args(sys.argv)
 
-   # We have a valid request request process it
-    a.print_vars() 
-
+    if(a.parse()):
+        print a.db['module']['help'] 
+                        
     sys.exit(0)
 
 

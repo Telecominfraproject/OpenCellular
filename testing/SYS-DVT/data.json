@@ -1,55 +1,46 @@
 {
 	"module": {
-		"bb_current": {
-			"sys_path": "/home/oc/sys/bb_sensor",
-			"get_vars": {
-				"bb_shunt_voltage": {
-					"unit": "mV"
-				},
-
-				"bb_bus_voltage": {
-					"unit": "mV"
-				},
-				"bb_current": {
-					"unit": "mA"
-				},
-				"bb_power": {
-					"unit": "mW"
-				}
-			},
-			"set_vars": null
-
-		},
 		"bb_temp": {
-			"sys_path": "/home/oc/sys/bb_temp",
-			"get_vars": {
+			"get": {
 				"bb_input_temp": {
-					"unit": "Celcius"
+				                    "path":"/home/oc/sys/bb_temp/",
+						    "exe":"input",
+						    "cmd":"cat",
+					            "unit": "Celcius"
 				},
 
 				"bb_max_temp": {
-					"unit": "Celcius"
+				                    "path":"/home/oc/sys/bb_temp/",
+						    "exe":"max",
+						    "cmd":"cat",
+					            "unit": "Celcius"
 				},
 				"bb_max_hyst": {
-					"unit": "Celcius"
+				                   "path":"/home/oc/sys/bb_temp/",
+						   "exe":"hyst",
+						   "cmd":"cat",
+					           "unit": "Celcius"
 				}
-
 			},
-			"set_vars": {
+			"set": {
 				"bb_max_temp": {
-					"max_val": 125,
-					"min_val": -25,
-					"unit": "Celcius"
-				},
+				                 "path":"/home/oc/sys/bb_temp/",
+						 "exe":"max",
+						 "cmd":"echo",
+					         "max": 125,
+					         "min": -25,
+					         "unit": "Celcius"
+				               },
 				"bb_max_hyst": {
-					"max_val": 125,
-					"min_val": -25,
-					"unit": "Celcius"
+				                 "path":"/home/oc/sys/bb_current/hyst",
+						 "cmd":"echo",
+					         "max": 125,
+					         "min": -25,
+					         "unit": "Celcius"
 				}
 			}
 		},
-		"help": "./occmd.py <module_name> <get/set> <param> <value>",
+		"help": "./occmd.py <module_name> <get/set> <param/all> <value>",
 		"version": "0.1"
 	}
-
 }
