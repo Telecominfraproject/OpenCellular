@@ -67,13 +67,12 @@ OcGpio_Port gbc_io_0 = {
 };
 
 OcGpio_Port fe_ch1_lna_io = {
-    .fn_table = &GpioSX1509_fnTable,
+    .fn_table = &GpioPCA9557_fnTable,
     .cfg =
-        &(SX1509_Cfg){
-            .i2c_dev = { 6, 0x45 },
-            .pin_irq = NULL,
+        &(PCA9557_Cfg){
+            .i2c_dev = { 2, 0x18 },
         },
-    .object_data = &(SX1509_Obj){},
+    .object_data = &(PCA9557_Obj){},
 };
 
 static OcGpio_Pin pin_inven_eeprom_wp = { &gbc_io_0, 2, 32 };
