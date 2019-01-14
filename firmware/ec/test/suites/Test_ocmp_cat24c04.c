@@ -249,8 +249,7 @@ void test_sid_get_status_parameters_data(void)
 
     /* Invalid ParamID */
     memset(buffer, EEPROM_DEFAULT_VALUE_NULL, EEPROM_BOARD_SIZE);
-    TEST_ASSERT_EQUAL(false,
-                      CAT24C04_gbc_sid_fxnTable.cb_get_status(
-                          &eeprom_gbc_sid, OC_STAT_SYS_STATE, buffer));
+    TEST_ASSERT_EQUAL(false, CAT24C04_gbc_sid_fxnTable.cb_get_status(
+                                 &eeprom_gbc_sid, OC_STAT_SYS_STATE, buffer));
     TEST_ASSERT_EQUAL_STRING("\0", buffer);
 }
