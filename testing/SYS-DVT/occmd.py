@@ -6,6 +6,7 @@ import subprocess
 #import shlex
 
 DB_FILE = "data.json"
+# cmdline format ModuleName/Operation<get/set>/Param/Value
 MODULE_NAME = 0
 OPERATION = 1
 PARAM = 2
@@ -22,7 +23,7 @@ class dvt():
         self.db = ''
         self.arglist = ''
 
-    def get(self):
+    def _get(self):
         d = self.db['module'][self.module]['get']
         for x in d:
             #print x
@@ -35,7 +36,7 @@ class dvt():
             
         return 0
 
-    def set(self):
+    def _set(self):
         max_val = 0
         min_val = 0
         d = self.db['module'][self.module]['set']
@@ -78,15 +79,6 @@ class dvt():
         rc = process.poll()
         return buf
 
-
-    def print_vars(self):
-        print("module_name: %s" %(self.module))
-        print("operation: %s" %(self.operation))
-        print("param: %s" %(self.param))
-        print("value: %s" %(self.value))
-        print("DB file: %s" %(self.dbfile))
-
-
     def load_db(self):
         try:
             f = open(self.dbfile)
@@ -97,7 +89,8 @@ class dvt():
             sys.exit(-1);
 
         return 0
-   
+
+    # Does first level parsing 
     def parse(self):
         d = self.db['module']
 
@@ -114,7 +107,7 @@ class dvt():
                         d = d[x]
                         for y in d:
                             if(y == self.arglist[OPERATION]):
-                                eval('self.'+y+'()')
+                                eval('self._'+y+'()')
                                 return 0
 
                         return -1
@@ -124,6 +117,10 @@ class dvt():
         except:
                 print("Check params")
                 return -1
+
+    # Parse the json and print the command lines for help
+    def print_cmdline(self):
+        pass        
 
     # Store the args for processing
     def load_args(self, args):
