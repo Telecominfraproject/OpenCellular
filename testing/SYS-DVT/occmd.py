@@ -1,8 +1,9 @@
 import os
 import sys
 import json
-from subprocess import Popen, PIPE
-import shlex
+import subprocess
+#from subprocess import Popen, PIPE
+#import shlex
 
 DB_FILE = "data.json"
 MODULE_NAME = 0
@@ -24,17 +25,49 @@ class dvt():
     def get(self):
         d = self.db['module'][self.module]['get']
         for x in d:
+            #print x
+            
             if((x == self.arglist[PARAM]) or (self.arglist[PARAM] == 'all') ):
-                if(x == 'all'):
-                    print "all\n"
+                buf = self.run_command(d[x]['cmd']+ ' ' + d[x]['path'] + d[x]['exe'])
+                print x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit'] 
+                if(self.arglist[PARAM] != 'all'):
+                    break
+            
+        return 0
+
+    def set(self):
+        max_val = 0
+        min_val = 0
+        d = self.db['module'][self.module]['set']
+        # Validate the value
+        if(self.arglist[VALUE] == ''):
+            return -1
+        for x in d:
+            print x
+            if( x == self.arglist[PARAM]):
+                print x
+                max_val = int(d[x]['max'])
+                min_val = int(d[x]['min'])
+                print max_val
+                print min_val
+                print self.arglist[VALUE]
+                if(int(self.arglist[VALUE]) <= max_val and int(self.arglist[VALUE] >= min_val)):
+                    # Value good; Now continue
+                    buf = (d[x]['cmd'] + " " + self.arglist[VALUE] + " > "+ d[x]['path'] + d[x]['exe'])
+                    print buf
+                    self.run_command(buf)
+                    break
+                    #print x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit']
                 else:
-                    d = d[x]
-                    buf = self.run_command(d['cmd']+ ' ' + d['path'] + d['exe'])
-                    print x + ' : ' + buf.rstrip('\n') + ' ' + d['unit']
+                    print("error: Value out of range\n")
+
+        return 0
+
 
     def run_command(self, command):
         buf = ""
-        process = Popen(shlex.split(command), stdout=PIPE)
+        #process = Popen(shlex.split(command), stdout=PIPE)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
         while True:
             output = process.stdout.readline()
             if output == '' and process.poll() is not None:
@@ -45,8 +78,6 @@ class dvt():
         rc = process.poll()
         return buf
 
-    def set(self):
-        pass
 
     def print_vars(self):
         print("module_name: %s" %(self.module))
@@ -91,10 +122,8 @@ class dvt():
             return -1
 
         except:
-                print("Failure during parse\n")
-                sys.exit(-1)
-                
-
+                print("Check params")
+                return -1
 
     # Store the args for processing
     def load_args(self, args):
