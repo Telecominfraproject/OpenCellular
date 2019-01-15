@@ -30,6 +30,23 @@ if __name__ == '__main__':
     # config_script_loader.load_config('CALIBRATION', '$DEFAULT')
 
     context = config_loader.get_conf()
+
+    context.path_loss = raw_input("What is the path loss?")
+    print("\nUsing a path loss of " + context.path_loss + "db")
+
+    context.analyzer_name = "TCPIP0::K-N9030B-80108.local::hislip0::INSTR"
+    se = 'n'
+    while (se != 'y'):
+        print("\nUsing analyzer " + context.analyzer_name)
+        se = raw_input("Is this the correct analyzer?(y/n):")
+        if (se == 'y') or (se == 'Y'):
+            se = 'y'
+            print("\nWill use analyzer " + context.analyzer_name)
+            break
+        else:
+            context.analyzer_name = raw_input("Please enter the correct analyzer name:")
+
+
     # context = config_script_loader.get_conf()
     context.logger = create_logger()
     context.server = serverinterface.LocalLaunchedServerInterface(port=5050)
@@ -44,6 +61,11 @@ if __name__ == '__main__':
 
     # This clears /mnt/app if True
     context.FLASH_CLEAR_APP = False
+
+
+
+
+
 
     # COM PORT
     from tools.lte.lte_comport import LTECOMServiceClient
@@ -67,11 +89,15 @@ if __name__ == '__main__':
     context.server.spectrum = context.server.get_service_client_from_name('KeysightEXASpectrumClient', url='spectrum')
     # commenting out for now to test on analyzer later
     # hislip is working for borrowed
-    context.server.spectrum.create_service("TCPIP0::K-N9030B-80108.local::hislip0::INSTR")
+    #context.server.spectrum.create_service("TCPIP0::K-N9030B-80108.local::hislip0::INSTR")
     # NRG
     # context.server.spectrum.create_service("TCPIP0::K-N9030B-41982.local::inst0::INSTR")
     # system near door\
-    #context.server.spectrum.create_service("TCPIP0::K-N9010B-10686.local::hislip0::INSTR")
+    # context.server.spectrum.create_service("TCPIP0::K-N9010B-10686.local::hislip0::INSTR")
+    context.server.spectrum.create_service(context.analyzer_name)
+
+
+
 
     with utils.stack_chdir(ROOT_FOLDER):
         context.BB_MAC_ADDR = MAC_ADDR

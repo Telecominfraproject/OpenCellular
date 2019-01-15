@@ -1148,7 +1148,10 @@ class BBAttenuatorCalibrator(BBGeneratedSignalCalibrator):
 
     def read_power_spectrum(self):
         #rfmeasure.set_spectrum_path(self.context, 'UUT_ANT', tx)
-        self.context.server.spectrum.set_loss(31)
+        #self.context.server.spectrum.set_loss(31)
+        float_path_loss = float(self.context.path_loss)
+        #print("Path Loss = %f" % float_path_loss)
+        self.context.server.spectrum.set_loss(float_path_loss)
         if not hasattr(self, 'previous'):
             self.previous = None
         value = read_output_power(self.context, self.context.server.spectrum)
