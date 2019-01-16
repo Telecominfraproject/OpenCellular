@@ -26,8 +26,8 @@ class PrepareCalibration():
                 fe_rx_attens = [rx_attn_value*context.CALIBRATION_RX_ATTN_RESOLUTION_DIVIDER]*(len(freq_range))
                 with utils.stack_chdir(context.CALIBRATION_POSTPROCESS_FOLDER):
                     context.logger.debug('Writing Temp RX Table for bw=%s and tx=%s' % (str(bw), str(tx)))
-                    calib_utils.LTEFERXCalibTable().set_values(freq_range, pwr_range, temp, fe_rx_attens).save(bandwidth=bw, tx=tx)
-                    calib_utils.LTEBBRXCalibTable().set_values(freq_range, bb_rx_attens).save(bandwidth=bw, tx=tx)
+                    calib_utils.LTEFERXCalibTable().set_values(freq_range, pwr_range, temp, fe_rx_attens).save(band=context.RF_BAND, bandwidth=bw, tx=tx)
+                    calib_utils.LTEBBRXCalibTable().set_values(freq_range, bb_rx_attens).save(band=context.RF_BAND, bandwidth=bw, tx=tx)
 
     #@testrunner.not_implemented
     #@testrunner.testcase("Calibrate RX1", critical=True)

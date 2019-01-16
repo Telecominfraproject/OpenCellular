@@ -21,7 +21,7 @@ class ConfigurationLoader():
     def get_conf(self):
         return self.conf_obj
 
-    def load_config(self, test_type, product):
+    def load_config(self, test_type, product, band):
         section = self._get_test_type(test_type)
         product_entries = self._get_product_entries(section, product)
         product_folder_and_config = eval(product_entries).split(',')
@@ -36,11 +36,19 @@ class ConfigurationLoader():
         self.load_config_file(os.path.join(base_path, product_folder, '.test.ini'), must_exist=False)
         # DSTest manually adding the below for calibration
         self.load_config_file(os.path.join(base_path, '.calib_const.ini'))
+
+        rf_band_ini = '.rf_band' + band + '.ini'
+        test_ini = '.test' + band + '.ini'
+
+        self.load_config_file(os.path.join(base_path, rf_band_ini))
+        self.load_config_file(os.path.join(base_path, 'system', test_ini))
+
+
         #self.load_config_file(os.path.join(base_path, '.rf_band3.ini'))
-        self.load_config_file(os.path.join(base_path, '.rf_band5.ini'))
+        # self.load_config_file(os.path.join(base_path, '.rf_band5.ini'))
         #self.load_config_file(os.path.join(base_path, '.rf_band28.ini'))
         #self.load_config_file(os.path.join(base_path, 'system', '.test3.ini'))
-        self.load_config_file(os.path.join(base_path, 'system', '.test5.ini'))
+        # self.load_config_file(os.path.join(base_path, 'system', '.test5.ini'))
         # self.load_config_file(os.path.join(base_path, 'system', '.test28.ini'))
 
 
