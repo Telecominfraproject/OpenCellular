@@ -71,13 +71,13 @@ typedef struct {
     uint8_t paramPos;
     uint8_t datatype;
     void *data;
-} OCWareStubDatabase;
+}OCWareStubDatabase;
 
 typedef struct{
     uint8_t SubsystemId;
     uint8_t DeviceNumber;
     ePostCode Status;
-} OCWareStubPostData;
+}OCWareStubPostData;
 
 typedef enum {
     OCSTUB_VALUE_ZERO,
@@ -92,29 +92,29 @@ typedef enum {
     OCSTUB_VALUE_TYPE_I2C_DEBUG,
     OCSTUB_VALUE_TYPE_GPIO_DEBUG,
     OCSTUB_VALUE_TYPE_MDIO_DEBUG,
-} OCWareStubsizeflag;
+}OCWareStubsizeflag;
 
 typedef struct {
     uint8_t slaveAddress;
     uint8_t numOfBytes;
     uint8_t regAddress;
     uint16_t regValue;
-} OCWareDebugI2Cinfo;
+}OCWareDebugI2Cinfo;
 
 typedef struct {
     uint16_t regAddress;
     uint16_t regValue;
-} OCWareDebugMDIOinfo;
+}OCWareDebugMDIOinfo;
 
 typedef struct {
     uint8_t pin_nbr;
     uint8_t value;
-} OCWareDebugGPIOinfo;
+}OCWareDebugGPIOinfo;
 
 typedef enum ocware_ret{
 	STUB_FAILED = -1,
 	STUB_SUCCESS = 0
-} ocware_stub_ret;
+}ocware_stub_ret;
 
 
 extern int8_t debugGetCommand;
@@ -131,7 +131,7 @@ extern int8_t PostEnable;
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer);
+ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer);
 
 /******************************************************************************
  * Function Name    : ocware_stub_parse_command_message
@@ -142,7 +142,7 @@ extern ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer);
+ocware_stub_ret ocware_stub_parse_command_message(char *buffer);
 
 /******************************************************************************
  * Function Name    : ocware_stub_get_set_params
@@ -154,7 +154,7 @@ extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_get_set_params(OCMPMessage *msgFrameData);
+ocware_stub_ret ocware_stub_get_set_params(OCMPMessage *msgFrameData);
 /******************************************************************************
  * Function Name    : ocware_stub_init_database
  * Description      : Parse the schema and add entries in the DB
@@ -162,7 +162,7 @@ extern ocware_stub_ret ocware_stub_get_set_params(OCMPMessage *msgFrameData);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_init_database(void);
+ocware_stub_ret ocware_stub_init_database(void);
 /******************************************************************************
  * Function Name    : ocware_stub_send_msgframe_middleware
  * Description      : send message to the MW
@@ -173,7 +173,7 @@ extern ocware_stub_ret ocware_stub_init_database(void);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer, int32_t bufferlen);
+ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer, int32_t bufferlen);
 /******************************************************************************
  * Function Name    : ocware_stub_init_ethernet_comm
  * Description      : initialise the socket IPC
@@ -181,7 +181,7 @@ extern ocware_stub_ret ocware_stub_send_msgframe_middleware(char **buffer, int32
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_init_ethernet_comm(void);
+ocware_stub_ret ocware_stub_init_ethernet_comm(void);
 /******************************************************************************
  * Function Name    : ocware_stub_deinit_ethernet_comm
  * Description      : close the IPC socket
@@ -189,7 +189,7 @@ extern ocware_stub_ret ocware_stub_init_ethernet_comm(void);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_deinit_ethernet_comm();
+ocware_stub_ret ocware_stub_deinit_ethernet_comm();
 /******************************************************************************
  * Function Name    : ocware_stub_recv_msgfrom_middleware
  * Description      : Receive message from MW
@@ -201,7 +201,7 @@ extern ocware_stub_ret ocware_stub_deinit_ethernet_comm();
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer, int32_t bufferlen);
+ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer, int32_t bufferlen);
 /******************************************************************************
  * Function Name    : ocware_stub_get_database
  * Description      : Function to retrieve data from the DB
@@ -212,7 +212,7 @@ extern ocware_stub_ret ocware_stub_recv_msgfrom_middleware(char **buffer, int32_
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_get_database(OCMPMessage *msgFrameData);
+ocware_stub_ret ocware_stub_get_database(OCMPMessage *msgFrameData);
 /******************************************************************************
  * Function Name    : ocware_stub_set_database
  * Description      : Function to modify data in the DB
@@ -223,7 +223,7 @@ extern ocware_stub_ret ocware_stub_get_database(OCMPMessage *msgFrameData);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_set_database(OCMPMessage *msgFrameData);
+ocware_stub_ret ocware_stub_set_database(OCMPMessage *msgFrameData);
 /******************************************************************************
  * Function Name    : ocware_stub_get_post_result_paramvalue_from_table
  * Description      : Fill payload with the post information
@@ -234,7 +234,7 @@ extern ocware_stub_ret ocware_stub_set_database(OCMPMessage *msgFrameData);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_get_post_result_paramvalue_from_table(
+ocware_stub_ret ocware_stub_get_post_result_paramvalue_from_table(
         OCMPMessage *msgFrameData,
         int8_t *payload);
 /******************************************************************************
@@ -247,7 +247,7 @@ extern ocware_stub_ret ocware_stub_get_post_result_paramvalue_from_table(
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameData);
+ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameData);
 /******************************************************************************
  * Function Name    :  ocware_stub_get_post_database
  * Description      :  extract device number and status from the post database
@@ -260,7 +260,7 @@ extern ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameD
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
-                                                     char *payload);
+ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
+                                              char *payload);
 
 #endif /* __OCMW_STUB_H__ */

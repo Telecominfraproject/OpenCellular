@@ -2,11 +2,12 @@
 #Makefile for ocmw and cli
 
 CC=gcc
-CFLAGS=  -I./ocwdg -I./include -I./../ec -I./../ec/common -I./../ec/platform/oc-sdr/schema -I./../ec/common/inc/global -Wall -Werror -g -fshort-enums
+CFLAGS=  -I./ocwdg -I./include -I./../PSU -I./../PSU/common -I./../PSU/platform/oc-sdr/schema -I./../PSU/common/inc/global -Wall -Werror -g -fshort-enums
 LIBS =   -lpthread -ledit -lm -lrt
-src_ocmw = $(wildcard ocmw/*.c) $(wildcard ocwdg/*.c) $(wildcard util/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)
-src_occli = $(wildcard occli/*.c) $(wildcard util/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)
-src_ocware_stub = $(wildcard ocwarestub/*.c) $(wildcard ../ec/platform/oc-sdr/schema/*.c)
+#src_ocmw = $(wildcard ocmw/*.c) $(wildcard ocwdg/*.c) $(wildcard util/*.c) $(wildcard ../firmware/platform/oc-sdr/schema/*.c)
+src_ocmw = $(wildcard ocmw/*.c) $(wildcard ocwdg/*.c) $(wildcard util/*.c) $(wildcard ../PSU/platform/oc-sdr/schema/*.c)
+src_occli = $(wildcard occli/*.c) $(wildcard util/*.c) $(wildcard ../PSU/platform/oc-sdr/schema/*.c)
+src_ocware_stub = $(wildcard ocwarestub/*.c) $(wildcard ../PSU/platform/oc-sdr/schema/*.c)
 output_dir = bin
 
 # --- Build  binary and executable files
@@ -15,14 +16,8 @@ default:
 	@mkdir -p $(output_dir)
 	make all
 	
-all:	get_cfg ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub hash
-
-get_cfg:
-	cd ../utilities/build; ./envDetect.sh
-
-hash:
-	cd ../utilities/checksums; ./hashes.sh $(shell pwd)/$(output_dir) -host
-
+all:	ocmw_uart ocmw_usb ocmw_eth occli ocmw_eth_stub ocware_stub
+	
 .PHONY:	occli
 
 ocmw_uart:   $(OBJECTS)
@@ -47,4 +42,4 @@ occli:   $(OBJECTS)
 
 # --- remove binary and executable files
 clean:
-	rm -fr $(output_dir)/*
+	rm -fr $(output_dir)/ocmw_eth_stub $(output_dir)/ocmw_eth $(output_dir)/ocmw_usb $(output_dir)/ocmw_uart $(output_dir)/occli $(output_dir)/ocware_stub

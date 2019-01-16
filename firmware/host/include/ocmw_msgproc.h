@@ -11,7 +11,7 @@
 
 #include "ocmp_frame.h"
 
-extern int ocmw_msgproc_send_msg(char * argv[], uint8_t action, int8_t msgtype,
-                                 const int8_t* paramstr, void* paramvalue);
+int ocmw_msgproc_send_msg(char * argv[], uint8_t action, int8_t msgtype,
+                        const int8_t* paramstr, void* paramvalue);
 
 #endif /* _OCMW_MSGPROC_H_ */

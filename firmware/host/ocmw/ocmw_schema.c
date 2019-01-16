@@ -302,7 +302,7 @@ void ocmw_get_noOfElements(const Parameter *param_list, int32_t *noOfElement,
  ******************************************************************************/
 int32_t ocmw_parse_command_msgframe(const Component *compBase,
                             strMsgFrame *msgFrame, uint8_t actiontype,
-                            ocmwSchemaSendBuf *ecSendBuf)
+                            ocmwSchemaSendBuf *ecSendBuf, char * strTokenArray[])
 {
     const Component *component = NULL;
     const Component *subSystem = compBase;
@@ -445,6 +445,7 @@ int32_t ocmw_parse_command_msgframe(const Component *compBase,
         strncpy(ecSendBuf->commandType, msgFrame->parameter,
                                 strlen(msgFrame->parameter));
     }
+    strcpy(ecSendBuf->cmdStr, strTokenArray[0]);
     memcpy(ecSendBufBkp,ecSendBuf,sizeof(ocmwSchemaSendBuf));
 
     free(sMsgFrameParam);
@@ -1081,11 +1082,10 @@ void ocmw_deserialization_msgframe(const Component *subSystem,
                               OCMP_AXN_TYPE_REPLY) &&
             (ecReceivedMsg->message.parameters ==
                              ecSendBufBkp->paramId)) {
-            if ((ecReceivedMsg->message.subsystem == DEBUG_SUBSYSTEM_NBR)) {
-                if (ecReceivedMsg->message.componentID < DEBUG_I2C) {
+            if (strstr(ecSendBufBkp->cmdStr, "debug")) {
+                    if (strstr(ecSendBufBkp->cmdStr, "I2C")) {
                     ocmw_deserialise_debug_i2c_value(ecReceivedMsg);
-                } else if (ecReceivedMsg->message.componentID ==
-                                                DEBUG_MDIO) {
+                } else if (strstr(ecSendBufBkp->cmdStr, "ethernet")) {
                     ocmw_deserialise_debug_mdio_value(ecReceivedMsg);
                 } else {
                     ocmw_deserialise_debug_gpio_value(ecReceivedMsg);

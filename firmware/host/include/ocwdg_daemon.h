@@ -20,11 +20,11 @@ sem_t semEcWdgMsg;
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocwdg_init(void);
+int32_t ocwdg_init(void);
 /*
  * @param pthreadData an input value (by pointer)
  *
  */
-extern void * ocwdg_thread_comm_with_ec(void *pthreadData);
+void * ocwdg_thread_comm_with_ec(void *pthreadData);
 
 #endif /* _OCWGD_DAEMON_H_ */

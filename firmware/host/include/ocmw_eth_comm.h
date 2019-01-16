@@ -30,25 +30,26 @@
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_init_eth_comm(int32_t sentDev);
+int32_t ocmw_init_eth_comm(int32_t sentDev);
 /*
  * Deinitialize the ocmw ethernet communication
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_deinit_eth_comm(int32_t sentDev);
+int32_t ocmw_deinit_eth_comm(int32_t sentDev);
 /*
  * @param cmd an input string (by pointer)
  * @param cmdlen an input value (by value)
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen,int32_t sentDev);
+int32_t ocmw_send_eth_msgto_ec(const int8_t *cmd, int32_t cmdlen,int32_t sentDev);
 /*
  * @param resp an input value (by pointer)
  * @param resplen an input value (by value)
  *
  * @return true if function succeeds, false otherwise
  */
-extern int32_t ocmw_recv_eth_msgfrom_ec(int8_t *resp, int32_t resplen, int32_t sentDev);
+int32_t ocmw_recv_eth_msgfrom_ec(int8_t *resp, int32_t resplen, int32_t sentDev);
+
 #endif /* _OCCLI_IPC_COMM_H_ */

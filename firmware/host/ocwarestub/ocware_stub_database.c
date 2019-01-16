@@ -674,8 +674,7 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
                                                     OCMP_MSG_TYPE_COMMAND;
                 s_ocwareGlobalData[*gStructIndex].paramPos = 0;
 
-                if (strncmp(component->name,"I2C",
-                    strlen("I2C")) == 0) {
+                if (strstr(component->name,"I2C")) {
                     s_ocwareGlobalData[*gStructIndex].paramId = count;
                     s_ocwareGlobalData[*gStructIndex].paramSize
                             = sizeof(OCWareDebugI2Cinfo) * MAX_I2C_COMP_NBR;
@@ -690,8 +689,7 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
                     }
                     ret = ocware_stub_fill_init_debug_value(*gStructIndex,
                                 OCSTUB_VALUE_TYPE_I2C_DEBUG);
-                } else if (strncmp(component->name,"ethernet",
-                    strlen("ethernet")) == 0) {
+                } else if (strstr(component->name,"ethernet")) {
                     s_ocwareGlobalData[*gStructIndex].paramId = count;
                     s_ocwareGlobalData[*gStructIndex].paramSize
                             = sizeof(OCWareDebugMDIOinfo) * MAX_MDIO_COMP_NBR;

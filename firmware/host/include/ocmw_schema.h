@@ -40,12 +40,13 @@ typedef enum ErrorSource {
   ERR_RC_INTERNAL = 0,
   ERR_SRC_CMS = 1,
   ERR_SRC_CME = 2
-} Source;
+}Source;
 
 typedef enum OperatorStat {
     TWOG_SIM_STAT_UNKNOWN = 0x00,
     TWOG_SIM_STAT_AVAILABLE = 0x01,
     TWOG_SIM_STAT_CURRENT = 0x02,
     TWOG_SIM_STAT_FORBIDDEN = 0x03,
-} eOperatorStat;
+}eOperatorStat;
 #endif /* _OCMW_SCHEMA_H_ */
+

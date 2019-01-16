@@ -175,7 +175,7 @@ int32_t ocmw_init_ec_comm(handle_msg_from_ec_t msghndlr)
      * CLOCAL - program doesn't own the tty. */
     newtio.c_cflag |= (CLOCAL | CREAD);
     newtio.c_cc[VTIME] = 10; /* Inter character TIME=t*0.1s, where t=10. */
-    newtio.c_cc[VMIN] = 0; //33; /* EC message frame size = 32 bytes */
+    newtio.c_cc[VMIN] = 64; //33; /* EC message frame size = 32 bytes */
     newtio.c_iflag &= ~(IXON | IXOFF | IXANY); /* No SW flow control */
     newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
     newtio.c_oflag &= ~OPOST;
@@ -303,8 +303,8 @@ int32_t ocmw_find_ttyacm_port(char *pathName)
         printf(" No ttyACM port found \n");
         return ret = -1;
     } else {
-        sprintf(pathName, "/dev/ttyACM%d", nodeNum);
-        printf(" ttyACM port = %s \n", pathName);
+        sprintf(pathName, "/dev/ttyUSB%d", nodeNum);
+        printf(" ttyUSB port = %s \n", pathName);
         /* close */
         pclose(fp);
     }

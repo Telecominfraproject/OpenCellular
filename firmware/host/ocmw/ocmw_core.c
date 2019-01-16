@@ -51,7 +51,7 @@ ocwarePostReplyCode ocmwReplyCode[] = {
  * Input(s)         : ptr
  * Output(s)        :
 ******************************************************************************/
-void ocmw_free_global_pointer(void **ptr)
+inline void ocmw_free_global_pointer(void **ptr)
 {
     if(*ptr != NULL) {
         free(*ptr);
@@ -370,7 +370,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
         ocmw_tokenize_class_str(tempStr,&msgFramestruct,msgType);
         if (msgType == OCMP_MSG_TYPE_COMMAND) {
              ret = ocmw_parse_command_msgframe(sys_schema, &msgFramestruct,
-                                                     action, &ecSendBuf);
+                                        action, &ecSendBuf, &strTokenArray[0]);
         } else if (msgType == OCMP_MSG_TYPE_POST) {
             strcpy((char*)s_paramInfoBackup,msgFramestruct.parameter);
             ret = ocmw_parse_post_msgframe(sys_schema, &msgFramestruct,
@@ -414,16 +414,14 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
          (strncmp(strTokenArray[1], "set", strlen("set"))== 0)) {
         logdebug("OCMP_MSG_TYPE_POST:ENABLE:%s()\n", __func__);
     }
-    if(strncmp(msgFramestruct.subsystem,"debug",strlen("debug")) == 0) {
-        if (strncmp(msgFramestruct.component,"I2C",
-                strlen("I2C")) == 0) {
+    if(strstr(strTokenArray[0],"debug")) {
+        if (strstr(strTokenArray[0],"I2C")) {
             if((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
                 dataSize = 3 * sizeof (int8_t);
             } else {
                 dataSize = sizeof(debugI2CData);
             }
-        } else if (strncmp(msgFramestruct.component,"ethernet",
-                strlen("ethernet")) == 0) {
+        } else if (strstr(strTokenArray[0], "ethernet")) {
             if((strncmp(strTokenArray[1], "get", strlen("get")) == 0)) {
                 dataSize = sizeof (uint16_t);
             } else {
@@ -447,8 +445,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
             paramValue = atoi( paramVal);
             memcpy(&ecMsgFrame.message.info[pos], &paramValue, dataSize);
         } else {
-            if (strncmp(msgFramestruct.component,"I2C",
-                strlen("I2C")) == 0) {
+            if (strstr(strTokenArray[0], "I2C")) {
                 ecMsgFrame.message.info[pos] = I2CInfo.slaveAddress;
                 ecMsgFrame.message.info[pos + 1] =
                                                     I2CInfo.numOfBytes;
@@ -464,8 +461,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
                                             (uint8_t)
                     ((I2CInfo.regValue & 0xff00) >> 8);
                 }
-            } else if (strncmp(msgFramestruct.component,"ethernet",
-                strlen("ethernet")) == 0) {
+            } else if (strstr(strTokenArray[0], "debug.ethernet")) {
                 ecMsgFrame.message.info[pos] = (uint8_t)
                                                 (MDIOInfo.regAddress & 0xff);
                 ecMsgFrame.message.info[pos + 1] = (uint8_t)
@@ -483,8 +479,8 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
         }
     }
     if((strncmp(strTokenArray[1], "get", strlen("get")) == 0) &&
-            (ecMsgFrame.message.subsystem == DEBUG_SUBSYSTEM_NBR)) {
-        pos = ecSendBuf.paramPos;
+            (strstr(strTokenArray[0], "debug"))) {
+                pos = ecSendBuf.paramPos;
         memcpy(&ecMsgFrame.message.info[pos], (char *) paramVal,
                                                               paramValLen);
 

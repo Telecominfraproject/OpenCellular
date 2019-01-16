@@ -66,6 +66,7 @@ struct matchSetGet {
 } ocmwSetGetTable[] = {
         { "hci.led.fw", HCI_STR },
         { "debug", DEBUG_STR },
+        { "psubms.debug", POWER_DEBUG_STR },
         {"system.comp_all.post.results", RESULT_STR  },
         {"system.comp_all.post.enable", ENABLE_SET_STR  },
         { NULL, GETSETMAX },
@@ -344,14 +345,12 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
         logerr("%s(): NULL pointer error", __func__);
         return FAILED;
     }
-    if((strncmp("debug", strTokenArray[0],
-        strlen("debug")) == 0) &&
+    if((strstr(strTokenArray[0], "debug")) &&
         (strncmp(strTokenArray[1], "set", strlen("set"))
                                     == 0)) {
         /* Registers debug option */
-        if((strncmp("debug.I2C", strTokenArray[0],
-            strlen("debug.I2C")) == 0) &&
-           (strncmp(strTokenArray[1], "set", strlen("set"))
+        if((strstr(strTokenArray[0], "I2C")) &&
+            (strncmp(strTokenArray[1], "set", strlen("set"))
                                     == 0)) {
             I2CInfo.slaveAddress = atoi(strTokenArray[2]);
             I2CInfo.numOfBytes = atoi(strTokenArray[3]);
@@ -362,8 +361,7 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
                 " Register Address :%s) %s= %s", strTokenArray[0],
                 strTokenArray[2], strTokenArray[3],
                 strTokenArray[4], strTokenArray[1], strTokenArray[5]);
-        } else if ((strncmp("debug.ethernet", strTokenArray[0],
-            strlen("debug.ethernet")) == 0)) {
+        } else if (strstr(strTokenArray[0], "debug.ethernet")) {
             MDIOInfo.regAddress = atoi(strTokenArray[2]);
             MDIOInfo.regValue = atoi(strTokenArray[3]);
             paramvalue = (void*) &MDIOInfo;
@@ -378,14 +376,12 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
                 strTokenArray[0], strTokenArray[2],
                 strTokenArray[1], strTokenArray[3]);
         }
-    } else if((strncmp("debug", strTokenArray[0],
-        strlen("debug")) == 0) &&
+    } else if((strstr(strTokenArray[0], "debug")) &&
         (strncmp(strTokenArray[1], "get", strlen("get"))
                                     == 0)) {
         /* Registers debug option */
-        if((strncmp("debug.I2C", strTokenArray[0],
-                strlen("debug.I2C")) == 0) &&
-           (strncmp(strTokenArray[1], "get", strlen("get"))
+        if((strstr(strTokenArray[0], "I2C")) &&
+            (strncmp(strTokenArray[1], "get", strlen("get"))
                                     == 0)) {
             I2CInfo.slaveAddress = atoi(strTokenArray[2]);
             I2CInfo.numOfBytes = atoi(strTokenArray[3]);
@@ -395,8 +391,7 @@ static int32_t ocmw_handle_debug_command_function(char* strTokenArray[],
                 " Register Address :%s) %s", strTokenArray[0],
                 strTokenArray[2], strTokenArray[3],
                 strTokenArray[4], strTokenArray[1]);
-         } else if ((strncmp("debug.ethernet", strTokenArray[0],
-            strlen("debug.ethernet")) == 0)) {
+         } else if (strstr(strTokenArray[0], "debug.ethernet")) {
             MDIOInfo.regAddress = atoi(strTokenArray[2]);
             paramvalue = (void*) &MDIOInfo;
             sprintf(displayStr, "%s (Register Address :%s) %s",
@@ -816,7 +811,7 @@ static int32_t ocmw_handle_post_command(char* strTokenArray[], char *response)
  * Input(s)         : strTokenArray
  * Output(s)        : strTokenArray
  ***************************************************************************/
-static void ocmw_free_pointer(char **strTokenArray) {
+inline void ocmw_free_pointer(char **strTokenArray) {
     if (strTokenArray) {
         free(strTokenArray);
     }
@@ -926,8 +921,8 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                             }
                             break;
                         case DEBUG_STR:
-                            if (strncmp("debug.I2C", strTokenArray[0],
-                                    strlen("debug.I2C")) == 0) {
+                        case POWER_DEBUG_STR:
+                            if (strstr(strTokenArray[0], "I2C")) {
                                 if (strTokenCount == 6) {
                                     ret = ocmw_handle_debug_command_function(
                                             strTokenArray, response);
@@ -1021,8 +1016,8 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                             }
                             break;
                         case DEBUG_STR:
-                            if (strncmp("debug.I2C", strTokenArray[0],
-                                    strlen("debug.I2C")) == 0) {
+                        case POWER_DEBUG_STR:
+                            if (strstr(strTokenArray[0], "I2C")) {
                                 if (strTokenCount == 5) {
                                     ret = ocmw_handle_debug_command_function(
                                             strTokenArray, response);

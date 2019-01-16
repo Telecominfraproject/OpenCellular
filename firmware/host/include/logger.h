@@ -49,11 +49,11 @@
  * @param ident an input value (by pointer)
  *
  */
-extern void initlog(const char* ident);
+void initlog(const char* ident);
 /*
  * deinitialize the logging routine
  *
  */
-extern void deinitlog(void);
+void deinitlog(void);
 
 #endif /* __LOGGER_H__ */
