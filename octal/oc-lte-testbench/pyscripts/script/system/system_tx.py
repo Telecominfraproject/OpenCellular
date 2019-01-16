@@ -93,7 +93,7 @@ class SystemCalib10MHz():
         bw= 10
         lte_calib.generate_postprocess_tables(context, bw)
         #FIXME for now ignore these steps below, scp the tgz doesn't work and eeprom validation not working
-        lte_calib.create_cal_tgz_to_remote(context, '/tmp/')
+        lte_calib.create_cal_tgz_to_remote(context, '/mnt/app/')
 		#FIXME splitting to validate one ant at a time and commenting out ant2
         #lte_calib.validate_eeprom_calibration_both_tx_at_BMT_2_rand(context, bw, cal_tgz_path='/tmp/')
         #lte_calib.validate_eeprom_calibration_single_tx_at_BMT_2_rand(context, bw, cal_tgz_path='/tmp/', tx=0)
