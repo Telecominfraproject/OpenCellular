@@ -31,25 +31,25 @@ if __name__ == '__main__':
     context = config_loader.get_conf()
 
     context.path_loss = raw_input("What is the path loss?")
-    print("\nUsing a path loss of " + context.path_loss + "db")
+    print("Using a path loss of " + context.path_loss + "db")
 
     context.analyzer_name = "TCPIP0::K-N9030B-80108.local::hislip0::INSTR"
     se = 'n'
     while (se != 'y'):
-        print("\nUsing analyzer " + context.analyzer_name)
+        print("\nSelected analyzer " + context.analyzer_name)
         se = raw_input("Is this the correct analyzer?(y/n):")
         if (se == 'y') or (se == 'Y'):
             se = 'y'
-            print("\nUsing analyzer " + context.analyzer_name)
+            print("Using analyzer " + context.analyzer_name)
             break
         else:
             context.analyzer_name = raw_input("Please enter the correct analyzer name:")
 
     context.user_band = "0"
     while (context.user_band != "3") or (context.user_band != "5") or (context.user_band != "28"):
-        context.user_band = raw_input("Which band are you running?(3/5/28):")
+        context.user_band = raw_input("\nWhich band are you running?(3/5/28):")
         if (context.user_band == "3") or (context.user_band == "5") or (context.user_band == "28"):
-            print ("\nUsing Band " + context.user_band)
+            print ("Using Band " + context.user_band)
             break
         else:
             print context.user_band + " is not a supported band."
