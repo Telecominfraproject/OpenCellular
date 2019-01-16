@@ -104,9 +104,9 @@ def generate_postprocess_tables(context, bw):
         except:
             pass
         with utils.stack_chdir(post_path):
-            bb_table.save(bw, tx)
-            tx_table.save(bw, tx)
-            fb_table.save(bw, tx)
+            bb_table.save(context.RF_BAND, bw, tx)
+            tx_table.save(context.RF_BAND, bw, tx)
+            fb_table.save(context.RF_BAND, bw, tx)
 
 
 def generate_postprocess_tables_OLD(context, pre_folder, post_folder, bw):

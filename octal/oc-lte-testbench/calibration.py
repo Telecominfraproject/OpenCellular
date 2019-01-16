@@ -24,7 +24,6 @@ def create_logger():
 
 if __name__ == '__main__':
     config_loader = ConfigurationLoader(ROOT_FOLDER)
-    config_loader.load_config('PRE-TEST', '$DEFAULT')
 
     # config_script_loader = ConfigurationLoader(SCRIPT_FOLDER)
     # config_script_loader.load_config('CALIBRATION', '$DEFAULT')
@@ -41,11 +40,21 @@ if __name__ == '__main__':
         se = raw_input("Is this the correct analyzer?(y/n):")
         if (se == 'y') or (se == 'Y'):
             se = 'y'
-            print("\nWill use analyzer " + context.analyzer_name)
+            print("\nUsing analyzer " + context.analyzer_name)
             break
         else:
             context.analyzer_name = raw_input("Please enter the correct analyzer name:")
 
+    context.user_band = "0"
+    while (context.user_band != "3") or (context.user_band != "5") or (context.user_band != "28"):
+        context.user_band = raw_input("Which band are you running?(3/5/28):")
+        if (context.user_band == "3") or (context.user_band == "5") or (context.user_band == "28"):
+            print ("\nUsing Band " + context.user_band)
+            break
+        else:
+            print context.user_band + " is not a supported band."
+
+    config_loader.load_config('PRE-TEST', '$DEFAULT', context.user_band)
 
     # context = config_script_loader.get_conf()
     context.logger = create_logger()
@@ -61,11 +70,6 @@ if __name__ == '__main__':
 
     # This clears /mnt/app if True
     context.FLASH_CLEAR_APP = False
-
-
-
-
-
 
     # COM PORT
     from tools.lte.lte_comport import LTECOMServiceClient
