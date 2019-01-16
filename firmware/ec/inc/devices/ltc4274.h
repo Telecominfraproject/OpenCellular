@@ -170,5 +170,9 @@ void ltc4274_init(LTC4274_Dev *dev);
 void ltc4274_initPSEStateInfo(void);
 void ltc4274_update_stateInfo(const I2C_Dev *i2c_dev);
 ReturnStatus ltc4274_reset(LTC4274_Dev *dev);
+ReturnStatus ltc4274_read(const I2C_Dev *i2c_dev, uint8_t regAddress,
+                          uint8_t *regValue);
+ReturnStatus ltc4274_write(const I2C_Dev *i2c_dev, uint8_t regAddress,
+                           uint8_t regValue);
 
 #endif /* LTC4274_H_ */

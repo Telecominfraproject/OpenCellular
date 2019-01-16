@@ -847,12 +847,12 @@ ePostCode ltc4274_probe(const LTC4274_Dev *dev, POSTData *postData)
     if (status != RETURN_OK) {
         postcode = POST_DEV_MISSING;
     } else if (devId == LTC4274_DEV_ID) {
+        post_update_POSTData(postData, dev->cfg.i2c_dev.bus,
+                             dev->cfg.i2c_dev.slave_addr, 0xFF, devId);
         postcode = POST_DEV_FOUND;
     } else {
         postcode = POST_DEV_ID_MISMATCH;
     }
-    post_update_POSTData(postData, dev->cfg.i2c_dev.bus,
-                         dev->cfg.i2c_dev.slave_addr, 0xFF, devId);
     return postcode;
 }
 
