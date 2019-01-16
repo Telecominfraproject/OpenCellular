@@ -39,8 +39,7 @@ os.chdir(cwd)
 
 tEnd = time.time()
 
-print 'Time elapsed %f sec' % (tEnd - tStart)
-print 'Unplug BDI'
-print 'Cycle power on BBU'
-print 'Run teraterm.py'
-
+print 'Time elapsed %f sec\n' % (tEnd - tStart)
+print 'Unplug BDI\n'
+print 'Cycle power on BBU\n'
+print 'Run teraterm.py\n'
