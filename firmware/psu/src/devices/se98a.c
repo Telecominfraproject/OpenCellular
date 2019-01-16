@@ -317,10 +317,15 @@ static void se98a_handle_irq(void *context) {
 
 /*****************************************************************************
  *****************************************************************************/
-ReturnStatus se98a_init(SE98A_Dev *dev)
+ReturnStatus se98a_init(SE98A_Dev *dev, void *alert_token)
 {
     dev->obj = (SE98A_Obj){};
+    pinConfig *se98a_pinConfig = malloc(sizeof(pinConfig));
 
+    if (!se98a_pinConfig) {
+        LOGGER("SE98A:ERROR:: Failed to get memory.\n");
+        return RETURN_NOTOK;
+    }
     dev->obj.mutex = GateMutex_create(NULL, NULL);
     if (!dev->obj.mutex) {
         return RETURN_NOTOK;
@@ -342,13 +347,17 @@ ReturnStatus se98a_init(SE98A_Dev *dev)
 
     if (dev->cfg.pin_evt) {
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING;
+        AlertData *alert_data_cp = alert_token;
+
+        se98a_pinConfig->subSystem = alert_data_cp->subsystem;
+        se98a_pinConfig->alertPin = dev->cfg.pin_evt;
         /*TODO:Temp*/
         if (OcGpio_configure(dev->cfg.pin_evt, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
 
         /* Use a threaded interrupt to handle IRQ */
-     //   ThreadedInt_Init(dev->cfg.pin_evt, se98a_handle_irq, (void *)dev);
+        ThreadedInt_Init(se98a_pinConfig, se98a_handle_irq, (void *)dev);
     }
     return RETURN_OK;
 }

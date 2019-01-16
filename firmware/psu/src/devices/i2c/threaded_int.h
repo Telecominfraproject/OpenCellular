@@ -22,6 +22,13 @@ typedef struct pinConfig {
     OcGpio_Pin *alertPin;
 } pinConfig;
 
+typedef struct AlertConfig {
+    OCMPSubsystem subSystem;
+    OcGpio_Pin *irqPin;
+    ThreadedInt_Callback cb;
+    void *context;
+} AlertConfig;
+
 void ThreadedInt_Init(pinConfig *pinCfg, ThreadedInt_Callback cb,
                       void *context);
 

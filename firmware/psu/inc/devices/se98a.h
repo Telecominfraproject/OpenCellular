@@ -61,7 +61,7 @@ typedef struct SE98A_Dev {
  * @param dev Pointer to the device struct containing hw config and object data
  * @return RETURN_OK on success, error code on failure
  */
-ReturnStatus se98a_init(SE98A_Dev *dev);
+ReturnStatus se98a_init(SE98A_Dev *dev, void *alert_token);
 
 /*! Registers a callback function to process alerts from the sensor
  * @param dev Device struct pointer

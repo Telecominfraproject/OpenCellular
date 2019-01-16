@@ -175,7 +175,9 @@ static void _alert_handler(SE98A_Event evt, int8_t temperature,
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
-    if (se98a_init(driver) != RETURN_OK) {
+    AlertData *alert_data_cp = alert_token;
+
+    if (se98a_init(driver, alert_token) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
     if (!config) {

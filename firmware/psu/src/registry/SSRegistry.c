@@ -8,11 +8,13 @@
 */
 
 #include "common/inc/global/Framework.h"
+#include "devices/i2c/threaded_int.h"
 #include "helpers/array.h"
 #include "inc/common/bigbrother.h" /* For sending msg back via BB */
 #include "inc/common/post.h"
 #include "inc/common/post_util.h" /* For sending POST response */
 #include "inc/common/global_header.h"
+#include "inc/devices/eeprom.h"
 #include "inc/utils/ocmp_util.h"
 #include "inc/utils/util.h"
 #include "platform/oc-sdr/schema/schema.h"
@@ -34,6 +36,7 @@
 static char OC_task_stack[SUBSYSTEM_COUNT][OC_TASK_STACK_SIZE];
 
 extern const Component sys_schema[SUBSYSTEM_COUNT];
+extern Eeprom_Cfg *alert_eeprom;
 
 OCSubsystem *ss_reg[SUBSYSTEM_COUNT] = {};
 
@@ -174,6 +177,8 @@ void OCMP_GenerateAlert(const AlertData *alert_data,
     } else {
         LOGGER_ERROR("ERROR::Unable to allocate alert packet\n");
     }
+    OCMP_alertLog(pMsg, alert_eeprom);
+
 }
 
 /*****************************************************************************
@@ -436,6 +441,19 @@ static bool _handleMsgTypePOST(OCMPMessageFrame *pMsg, const Component *comp, un
     return dev_handled;
 }
 
+static bool _handleMsgTypeAlert(OCMPMessageFrame *pMsg)
+{
+    if (!pMsg) {
+        return false;
+    }
+    AlertConfig *alertConfig = (AlertConfig *)(pMsg->message.ocmp_data);
+
+    if(alertConfig->cb) {
+        alertConfig->cb(alertConfig->context);
+    }
+    return true;
+}
+
 /*****************************************************************************
  **    FUNCTION NAME   : _handleMsgTypeStatCfg
  **
@@ -502,6 +520,9 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
             //pMsg->message.action = OCMP_ACTION_TYPE_REPLY;
             //Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t*) pMsg);
             break;
+        case OCMP_MSG_TYPE_ALERT:
+            dev_handled = _handleMsgTypeAlert(pMsg);
+            break;
         default:
             break;
     }
@@ -517,6 +538,8 @@ static bool ocmp_route(OCMPMessageFrame *pMsg, unsigned int subsystem_id)
     } else if ((pMsg->message.msgtype == OCMP_MSG_TYPE_POST) &&
             (pMsg->message.action == OCMP_ACTION_TYPE_UPDATE)) {
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg, (uint8_t *)pMsg);
+    } else if (pMsg->message.msgtype == OCMP_MSG_TYPE_ALERT) {
+        /* Do Nothing */
     } else {
         /* Send reply to the middleware */
         pMsg->message.action = OCMP_ACTION_TYPE_REPLY;

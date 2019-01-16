@@ -36,13 +36,6 @@ typedef struct InterruptConfig {
     void *context;              //!< Pointer to pass to cb function
 } InterruptConfig;
 
-typedef struct AlertConfig {
-    OCMPSubsystem subSystem;
-    OcGpio_Pin *irqPin;
-    ThreadedInt_Callback cb;
-    void *context;
-} AlertConfig;
-
 static AlertConfig s_intConfigs[MAX_DEVICES] = {};
 static int s_numDevices = 0;
 Event_Handle alertEvent;
@@ -64,13 +57,15 @@ void ThreadedInt_send_alert_message(int32_t result)
     uint8_t count = 0;
     uint8_t size = sizeof(AlertConfig);
     uint8_t *alertPtr = (uint8_t *)(&s_intConfigs[result]);
-    OCMPMessageFrame *sendMsg = create_ocmp_msg_frame(s_intConfigs[count].subSystem,
+    OCMPMessageFrame *pMsg = create_ocmp_msg_frame(s_intConfigs[count].subSystem,
                                                       OCMP_MSG_TYPE_ALERT,
                                                        0x00, 0x00, 0x00, size);
-    for(count = 0; count < size; count++) {
-        sendMsg->message.ocmp_data[count] = alertPtr[count];
-    }
+    memcpy(pMsg->message.ocmp_data, (uint8_t *)(&s_intConfigs[result]), size);
 
+    for(count = 0; count < size; count++) {
+        pMsg->message.ocmp_data[count] = alertPtr[count];
+    }
+    SSRegistry_sendMessage(s_intConfigs[count].subSystem, pMsg);
 }
 
 static void gpioIntFxn(const OcGpio_Pin *pin, void *context) {
@@ -100,8 +95,8 @@ static void ThreadedInt_Task(UArg arg0, UArg arg1)
         OcGpio_setCallback(s_intConfigs[count].irqPin, gpioIntFxn, NULL);
         OcGpio_enableInt(s_intConfigs[count].irqPin);
     }
+    DEBUG("Threaded INT thread ready %d\n", count);
 
-    DEBUG("Threaded INT thread ready\n");
     while (true) {
         result = Event_pend(alertEvent, Event_Id_NONE, EVENT_ALL, BIOS_WAIT_FOREVER);
         for(count = 0; count <= s_numDevices; count++) {

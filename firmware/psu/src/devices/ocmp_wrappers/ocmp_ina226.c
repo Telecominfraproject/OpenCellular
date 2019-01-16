@@ -156,7 +156,7 @@ static void _alert_handler(INA226_Event evt, uint16_t value, void *alert_data)
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
-    if (ina226_init(driver) != RETURN_OK) {
+    if (ina226_init(driver, alert_token) != RETURN_OK) {
         return POST_DEV_CFG_FAIL;
     }
 

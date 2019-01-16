@@ -20,7 +20,7 @@
  *                             MACRO DEFINITIONS
  *****************************************************************************/
 #define BIGBROTHER_TASK_PRIORITY            5
-#define BIGBROTHER_TASK_STACK_SIZE          2048
+#define BIGBROTHER_TASK_STACK_SIZE          1024
 
 /* Semaphore and Queue Handles for Big Brother */
 extern Semaphore_Handle semBigBrotherMsg;

@@ -147,5 +147,6 @@ typedef struct AlertData {
 void OCMP_GenerateAlert(const AlertData *alert_data,
                         unsigned int alert_id,
                         const void *data);
+void OCMP_alertLog(OCMPMessageFrame *pMsg, void *eeprom);
 
 #endif /* _SYS_CFG_FRAMEWORK_H */

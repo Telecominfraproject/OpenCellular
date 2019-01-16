@@ -82,7 +82,7 @@ extern void usb_rx_createtask(void);
 extern void usb_tx_createtask(void);
 extern void uartdma_rx_createtask(void);
 extern void uartdma_tx_createtask(void);
-//extern void watchdog_create_task(void);;
+extern void watchdog_create_task(void);;
 
 /*****************************************************************************
  **    FUNCTION NAME   : bb_init_powerLines
@@ -262,7 +262,7 @@ static void bigborther_spwan_task(void)
 //    usb_tx_createtask();                // P - 04
     gossiper_createtask();              // P - 06
 //    ebmp_create_task();
-//    watchdog_create_task();
+    watchdog_create_task();
 
     /* Initialize subsystem interface to set up interfaces and launch
      * subsystem tasks */

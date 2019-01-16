@@ -57,6 +57,7 @@ Eeprom_Cfg eeprom_psu_inv = {
     .type = CAT24C256,
 //    .ss = OC_SS_SYS,
 };
+Eeprom_Cfg *alert_eeprom = &eeprom_psu_inv;
 
 /*****************************************************************************
  *                               SYSTEM CONFIG

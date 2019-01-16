@@ -11,7 +11,13 @@
 #include "inc/common/global_header.h"
 #include "inc/devices/eeprom.h"
 
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Semaphore.h>
+
 #include <string.h>
+
+static uint16_t s_alertPointer = 0;
+Semaphore_Handle sem;
 
 static ePostCode _init_eeprom(void *driver, const void **config,
                               const void *alert_token)
@@ -28,11 +34,29 @@ static ePostCode _init_eeprom(void *driver, const void **config,
     eeprom_read(eeprom, OC_TEST_ADDRESS, &read, 1);
 
     if (write == read) {
+        Semaphore_Handle sem = Semaphore_create(1, NULL, NULL);
         return POST_DEV_CFG_DONE;
     }
     return POST_DEV_CFG_FAIL;
 }
 
+void OCMP_alertLog(OCMPMessageFrame *pMsg, void *driver)
+{
+
+    Semaphore_pend(sem, BIOS_WAIT_FOREVER);
+
+    Eeprom_Cfg *eeprom = (Eeprom_Cfg *)driver;
+    if (s_alertPointer < 64) {
+        s_alertPointer++;
+    } else {
+        return;
+    }
+
+    eeprom_enable_write(eeprom);
+    eeprom_write(eeprom, s_alertPointer*64, pMsg, 64);
+    Semaphore_post(sem);
+    return;
+}
 #if 0
 /*
  * The SKU method of turning on powere lines is currently not needed , we will keep it in codebase

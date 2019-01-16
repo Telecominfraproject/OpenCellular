@@ -61,6 +61,8 @@ static ePostCode _probe(void *driver)
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)
 {
+    AlertData *alert_data_cp = alert_token;
+
     pwr_source_init(driver, alert_token);
     return POST_DEV_NO_CFG_REQ;
 }

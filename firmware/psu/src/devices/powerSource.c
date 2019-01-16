@@ -188,10 +188,16 @@ void pwr_source_init(PWRSRC_Dev *dev, void *alert_token)
 {
     ePowerSource itr = PWR_SRC_EXT ;
     const uint32_t pin_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_BOTH_EDGES;
-    pinConfig *dc_presence;
-    pinConfig *poe_presence;
-    pinConfig *battery_presence;
+    AlertData *alert_data_cp = alert_token;
 
+    pinConfig *dc_presence = malloc(sizeof(pinConfig));
+    pinConfig *poe_presence = malloc(sizeof(pinConfig));
+    pinConfig *battery_presence = malloc(sizeof(pinConfig));
+
+    if (!(dc_presence && poe_presence && battery_presence)) {
+        LOGGER("POWER:ERROR:: Failed to get memory.\n");
+        return;
+    }
     for (; itr < PWR_SRC_MAX; itr++) {
         Power_SourceInfo[itr].powerSource = itr;
         Power_SourceInfo[itr].state = PWR_SRC_NON_AVAILABLE;
@@ -201,7 +207,7 @@ void pwr_source_init(PWRSRC_Dev *dev, void *alert_token)
         if (OcGpio_configure(&dev->cfg.pin_dc_present, pin_cfg) < OCGPIO_SUCCESS) {
             return ;
         }
-        dc_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        dc_presence->subSystem = alert_data_cp->subsystem;
         dc_presence->alertPin = &dev->cfg.pin_dc_present;
         ThreadedInt_Init(dc_presence, NULL, (void *)dev);
     }
@@ -209,7 +215,7 @@ void pwr_source_init(PWRSRC_Dev *dev, void *alert_token)
         if (OcGpio_configure(&dev->cfg.pin_poe_prsnt_n, pin_cfg) < OCGPIO_SUCCESS) {
             return ;
         }
-        poe_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        poe_presence->subSystem = alert_data_cp->subsystem;
         poe_presence->alertPin = &dev->cfg.pin_poe_prsnt_n;
         ThreadedInt_Init(poe_presence, NULL, (void *)dev);
     }
@@ -217,7 +223,7 @@ void pwr_source_init(PWRSRC_Dev *dev, void *alert_token)
         if (OcGpio_configure(&dev->cfg.pin_int_bat_prsnt, pin_cfg) < OCGPIO_SUCCESS) {
             return ;
         }
-        battery_presence->subSystem = ((AlertData *)alert_token)->subsystem;
+        battery_presence->subSystem = alert_data_cp->subsystem;
         battery_presence->alertPin = &dev->cfg.pin_int_bat_prsnt;
         ThreadedInt_Init(battery_presence, NULL, (void *)dev);
     }

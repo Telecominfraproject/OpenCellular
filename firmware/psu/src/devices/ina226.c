@@ -492,11 +492,17 @@ static void _ina226_isr(void *context) {
 
 /*****************************************************************************
  *****************************************************************************/
-ReturnStatus ina226_init(INA226_Dev *dev)
+ReturnStatus ina226_init(INA226_Dev *dev, void *alert_token)
 {
     ReturnStatus status;
+
+    pinConfig *ina226_pinConfig = malloc(sizeof(pinConfig));
     dev->obj = (INA226_Obj){};
 
+    if (!ina226_pinConfig) {
+        LOGGER("SE98A:ERROR:: Failed to get memory.\n");
+        return RETURN_NOTOK;
+    }
     /* Perform a device reset to be safe */
     status = _set_cfg_reg(dev, INA_CFG_RESET);
     if (status != RETURN_OK) {
@@ -523,13 +529,18 @@ ReturnStatus ina226_init(INA226_Dev *dev)
 //    }
 
     if (dev->cfg.pin_alert) {
+        AlertData *alert_data_cp = alert_token;
+
+        ina226_pinConfig->subSystem = alert_data_cp->subsystem;
+        ina226_pinConfig->alertPin = dev->cfg.pin_alert;
+
         const uint32_t pin_evt_cfg = OCGPIO_CFG_INPUT | OCGPIO_CFG_INT_FALLING;
         if (OcGpio_configure(dev->cfg.pin_alert, pin_evt_cfg) < OCGPIO_SUCCESS) {
             return RETURN_NOTOK;
         }
 
         /* Use a threaded interrupt to handle IRQ */
-      //  ThreadedInt_Init(dev->cfg.pin_alert, _ina226_isr, (void *)dev);
+        ThreadedInt_Init(ina226_pinConfig, _ina226_isr, (void *)dev);
     }
     return RETURN_OK;
 }

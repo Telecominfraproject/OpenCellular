@@ -12,6 +12,7 @@
 /*****************************************************************************
  *                               HEADER FILES
  *****************************************************************************/
+#include "common/inc/global/Framework.h"
 #include "common/inc/global/post_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
@@ -85,7 +86,7 @@ ReturnStatus ina226_readShuntVoltage(INA226_Dev *dev,
                                      uint16_t* shuntVoltValue);
 ReturnStatus ina226_readCurrent(INA226_Dev *dev, uint16_t* currValue);
 ReturnStatus ina226_readPower(INA226_Dev *dev, uint16_t* powValue);
-ReturnStatus ina226_init(INA226_Dev *dev);
+ReturnStatus ina226_init(INA226_Dev *dev, void *alert_token);
 void ina226_setAlertHandler(INA226_Dev *dev, INA226_CallbackFn alert_cb,
                             void *cb_context);
 ReturnStatus ina226_enableAlert(INA226_Dev *dev, INA226_Event evt);
