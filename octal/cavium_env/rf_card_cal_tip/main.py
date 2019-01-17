@@ -428,6 +428,26 @@ class rfCardCal():
         """
         pass
         
+
+    def set_test_equipment(self):
+        correct_ipaddr = 'n'
+        while (correct_ipaddr != 'y'):
+            print("\nSelected exg ipaddr = " + self.cfg.exg_ipaddr)
+            correct_ipaddr = raw_input("Is this the correct exg ipaddr?(y/n):")
+            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
+                break
+            else:
+                self.cfg.exg_ipaddr = raw_input("Please enter the correct exg ipaddr:")
+
+        correct_ipaddr = 'n'
+        while (correct_ipaddr != 'y'):
+            print("\nSelected mxa ipaddr = " + self.cfg.mxa_ipaddr)
+            correct_ipaddr = raw_input("Is this the correct mxa ipaddr?(y/n):")
+            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
+                break
+            else:
+                self.cfg.mxa_ipaddr = raw_input("Please enter the correct mxa ipaddr:")
+
     def set_initial_frequency(self):
 
         if (self.cfg.cal_freq_arr[0][0] == 0) and (self.cfg.cal_freq_arr[0][1] == 0):
@@ -438,11 +458,31 @@ class rfCardCal():
             test_config.dl_freq = self.cfg.cal_freq_arr[0][0]
             test_config.ul_freq = self.cfg.cal_freq_arr[0][1]
 
+        correct_freq = 'n'
+        while (correct_freq != 'y'):
+            print("\nSelected DL freq = " + str(test_config.dl_freq))
+            correct_freq = raw_input("Is this the correct DL freq?(y/n):")
+            if (correct_freq == 'y') or (correct_freq == 'Y'):
+                break
+            else:
+                test_config.dl_freq = float(raw_input("Please enter the correct DL freq:"))
+
+        correct_freq = 'n'
+        while (correct_freq != 'y'):
+            print("\nSelected UL freq = " + str(test_config.ul_freq))
+            correct_freq = raw_input("Is this the correct UL freq?(y/n):")
+            if (correct_freq == 'y') or (correct_freq == 'Y'):
+                break
+            else:
+                test_config.ul_freq = float(raw_input("Please enter the correct UL freq:"))
+
+        print "\nUsing the following configuration:"
         print "Band " + str(test_config.band)
+        print "EXG ip addr " + self.cfg.exg_ipaddr
+        print "MXA ip addr " + self.cfg.mxa_ipaddr
         print "DL freq. " + str(test_config.dl_freq) + " MHz"
         print "UL freq. " + str(test_config.ul_freq) + " MHz"
-        print ""
-        
+
     def is_empty_eeprom(self):
         
         res = False
@@ -551,7 +591,8 @@ class rfCardCal():
         self.enb.enb_login()
         
     def run(self):
-        
+        self.set_test_equipment()
+        self.set_initial_frequency()  # for non-testall items
         self.enb.start_telnet_session()
         self.enb.enb_login()
         
@@ -592,8 +633,7 @@ class rfCardCal():
         
         self.open_test_report(self.dir_report)
         self.enb.end_telnet_session()
-        self.set_initial_frequency()    # for non-testall items
-            
+
         # connect instruments
         ic = im_calibration.Calibration(self.report_hndl, self.curr_rec_num)
         try:
