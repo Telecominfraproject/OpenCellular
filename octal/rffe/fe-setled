@@ -68,6 +68,18 @@ redLed()
         fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
+    elif [ "$1" == "port1" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port1 red LEDs on
+            i2cset -y 0 0x3E 0x10 0x55 > /dev/null
+            i2cset -y 0 0x3E 0x11 0x55 > /dev/null
+        fi
+    elif [ "$1" == "port2" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port2 red LEDs on
+            i2cset -y 0 0x3F 0x10 0x55 > /dev/null
+            i2cset -y 0 0x3F 0x11 0x55 > /dev/null
+        fi
     else
         >&2 usage
         exit 1
@@ -102,6 +114,18 @@ greenLed()
         fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
+    elif [ "$1" == "port1" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port1 green LEDs on
+            i2cset -y 0 0x3E 0x10 0xAA > /dev/null
+            i2cset -y 0 0x3E 0x11 0xAA > /dev/null
+        fi
+    elif [ "$1" == "port2" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port2 red LEDs on
+            i2cset -y 0 0x3F 0x10 0xAA > /dev/null
+            i2cset -y 0 0x3F 0x11 0xAA > /dev/null
+        fi
     else
         >&2 usage
         exit 1
@@ -135,6 +159,18 @@ orangeLed()
         fi
     elif [ "$1" == "off" ]; then
         turnOffAllLeds
+    elif [ "$1" == "port1" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port1 orange LEDs on
+            i2cset -y 0 0x3E 0x10 0xFF > /dev/null
+            i2cset -y 0 0x3E 0x11 0xFF > /dev/null
+        fi
+    elif [ "$1" == "port2" ]; then
+        if [ "$HW_REVISION" == "X" ]; then
+            # set port2 orange LEDs on
+            i2cset -y 0 0x3F 0x10 0xFF > /dev/null
+            i2cset -y 0 0x3F 0x11 0xFF > /dev/null
+        fi
     else
         >&2 usage
         exit 1
