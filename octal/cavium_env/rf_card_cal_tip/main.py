@@ -427,26 +427,6 @@ class rfCardCal():
                 return self.enb.enb_eeprom_get_earfcn_dl()
         """
         pass
-        
-
-    def set_test_equipment(self):
-        correct_ipaddr = 'n'
-        while (correct_ipaddr != 'y'):
-            print("\nSelected exg ipaddr = " + self.cfg.exg_ipaddr)
-            correct_ipaddr = raw_input("Is this the correct exg ipaddr?(y/n):")
-            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
-                break
-            else:
-                self.cfg.exg_ipaddr = raw_input("Please enter the correct exg ipaddr:")
-
-        correct_ipaddr = 'n'
-        while (correct_ipaddr != 'y'):
-            print("\nSelected mxa ipaddr = " + self.cfg.mxa_ipaddr)
-            correct_ipaddr = raw_input("Is this the correct mxa ipaddr?(y/n):")
-            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
-                break
-            else:
-                self.cfg.mxa_ipaddr = raw_input("Please enter the correct mxa ipaddr:")
 
     def set_initial_frequency(self):
 
@@ -478,8 +458,6 @@ class rfCardCal():
 
         print "\nUsing the following configuration:"
         print "Band " + str(test_config.band)
-        print "EXG ip addr " + self.cfg.exg_ipaddr
-        print "MXA ip addr " + self.cfg.mxa_ipaddr
         print "DL freq. " + str(test_config.dl_freq) + " MHz"
         print "UL freq. " + str(test_config.ul_freq) + " MHz"
 
@@ -591,7 +569,6 @@ class rfCardCal():
         self.enb.enb_login()
         
     def run(self):
-        self.set_test_equipment()
         self.set_initial_frequency()  # for non-testall items
         self.enb.start_telnet_session()
         self.enb.enb_login()

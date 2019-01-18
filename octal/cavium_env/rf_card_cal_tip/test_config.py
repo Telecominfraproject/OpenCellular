@@ -73,7 +73,7 @@ class EnbConfig():
         self.cr_txevm_max = 3.5     # maximum TX EVM limit
         
         # system variables
-        self.en_eeprom_write = True # disable when refkit1
+        self.en_eeprom_write = False # disable when refkit1
         self.eeprom_record_ver = 1  # EEPROM record version
         self.test_report = True     # T: enable test report; F: disable
         self.instr_disp = True      # T: enable instrument screen display
@@ -106,7 +106,26 @@ class EnbConfig():
         self.select_rf_drv_init()
         self.select_dl_etm_test_vector()
         self.select_ul_exg_waveform()
-        
+
+    def set_test_equipment(self):
+        correct_ipaddr = 'n'
+        while (correct_ipaddr != 'y'):
+            print("\nSelected exg ipaddr = " + self.exg_ipaddr)
+            correct_ipaddr = raw_input("Is this the correct exg ipaddr?(y/n):")
+            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
+                break
+            else:
+                self.exg_ipaddr = raw_input("Please enter the correct exg ipaddr:")
+
+        correct_ipaddr = 'n'
+        while (correct_ipaddr != 'y'):
+            print("\nSelected mxa ipaddr = " + self.mxa_ipaddr)
+            correct_ipaddr = raw_input("Is this the correct mxa ipaddr?(y/n):")
+            if (correct_ipaddr == 'y') or (correct_ipaddr == 'Y'):
+                break
+            else:
+                self.mxa_ipaddr = raw_input("Please enter the correct mxa ipaddr:")
+
     def check_cfg_file(self):
         
         cfgfile = open(self.cfg_file, "r")
