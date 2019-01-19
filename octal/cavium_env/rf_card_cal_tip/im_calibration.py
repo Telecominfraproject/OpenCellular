@@ -13,6 +13,7 @@ pp_base = '>'   # prompt base for tn_write
 class Calibration(object):
     
     cfg = test_config.EnbConfig()
+    cfg.set_test_equipment()
     enb = enodeb_ctrl.enodeB_Ctrl()
     
     if (cfg.test_set == 'agilent'):

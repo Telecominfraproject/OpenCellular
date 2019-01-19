@@ -38,7 +38,7 @@ manual_switch_instr=False        # T: pause for manual switching; F: continuous
 test_set='agilent'   # test set type [agilent, anritsu, rs]
 
 # agilent test set
-exg_ipaddr='10.115.115.38'     # EXG IP address
+exg_ipaddr='10.102.81.38'     # EXG IP address
 exg_tcp_port=5025                # EXG TCP port
 mxa_ipaddr='10.102.81.200'     # MXA IP address
 mxa_tcp_port=5025                # MXA TCP port
@@ -63,7 +63,7 @@ cr_txpwr_max=22      # maximum TX output power limit
 cr_txevm_max=5.0     # maximum TX EVM limit
 
 # system variables
-en_eeprom_write=True # T: write EEPROM
+en_eeprom_write=False # T: write EEPROM
 eeprom_record_ver=1  # EEPROM record version
 test_report=True     # T: enable test report; F: disable
 instr_disp=True      # T: enable instrument screen display
