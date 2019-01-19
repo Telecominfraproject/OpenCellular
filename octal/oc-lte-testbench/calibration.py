@@ -33,7 +33,7 @@ if __name__ == '__main__':
     context.path_loss = raw_input("What is the path loss?")
     print("Using a path loss of " + context.path_loss + "db")
 
-    context.analyzer_name = "TCPIP0::K-N9030B-80108.local::hislip0::INSTR"
+    context.analyzer_name = "TCPIP0::10.102.81.200::INSTR"
     se = 'n'
     while (se != 'y'):
         print("\nSelected analyzer " + context.analyzer_name)
@@ -141,11 +141,16 @@ if __name__ == '__main__':
 
         from pyscripts.script.system.system_tx import SystemCalib10MHz
         system_calibration_10MHz = SystemCalib10MHz()
-        #system_calibration_10MHz.SY_TSC110(context)
+        if (context.user_band == '3'):
+            system_calibration_10MHz.SY_TSC110(context)
+        else:
+            system_calibration_10MHz.SY_TSC128(context)
+        #113 is for b3
+        #system_calibration_10MHz.SY_TSC113(context)
         #115 is for b5
         #system_calibration_10MHz.SY_TSC115(context)
         # 128 is for b28
-        system_calibration_10MHz.SY_TSC128(context)
+        #system_calibration_10MHz.SY_TSC128(context)
         # system_calibration_10MHz.SY_TSC210(context)
         system_calibration_10MHz.SY_TSCX11(context)
 

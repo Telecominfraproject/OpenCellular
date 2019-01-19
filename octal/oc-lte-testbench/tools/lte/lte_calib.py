@@ -1219,6 +1219,8 @@ class TXAttenuatorCalibrator(BBGeneratedSignalCalibrator):
 
     def read_power(self):
         acquire_acp(self.context)
+        float_path_loss = float(self.context.path_loss)
+        self.context.server.spectrum.set_loss(float_path_loss)
         return read_output_power(self.context, self.context.server.spectrum)
 
     def standard_wait(self):

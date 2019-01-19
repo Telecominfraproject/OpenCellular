@@ -63,6 +63,14 @@ class SystemCalib10MHz():
     def SY_TSC110(self, context):
         #lte_calib.inspect_rolloff(context, 0, 10, context.CALIBRATION_BW10_ALL_FREQS)
         lte_calib.calibrate_tx(context, 0, 10)
+        se = 'n'
+        while (se != 'y'):
+            se = raw_input("Are you ready to switch to ant2?(y):")
+            if (se == 'y') or (se == 'Y'):
+                se = 'y'
+                print("\nNow testing ant2")
+                break
+        lte_calib.calibrate_tx(context, 1, 10)
 
     def SY_TSC115(self, context):
         #lte_calib.inspect_rolloff(context, 0, 10, context.CALIBRATION_BW10_ALL_FREQS)

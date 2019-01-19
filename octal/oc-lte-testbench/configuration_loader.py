@@ -34,12 +34,12 @@ class ConfigurationLoader():
             self.load_config_file(os.path.join(base_path, additionnal_path))
         self.load_config_file(os.path.join(self.root_folder, 'testbench', platform.node() + '.ini'), must_exist=False)
         self.load_config_file(os.path.join(base_path, product_folder, '.test.ini'), must_exist=False)
-        # DSTest manually adding the below for calibration
-        self.load_config_file(os.path.join(base_path, '.calib_const.ini'))
 
+        calib_const_ini = '.calib_const' + band + '.ini'
         rf_band_ini = '.rf_band' + band + '.ini'
         test_ini = '.test' + band + '.ini'
 
+        self.load_config_file(os.path.join(base_path, calib_const_ini))
         self.load_config_file(os.path.join(base_path, rf_band_ini))
         self.load_config_file(os.path.join(base_path, 'system', test_ini))
 
