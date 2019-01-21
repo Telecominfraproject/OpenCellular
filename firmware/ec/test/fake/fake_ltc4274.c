@@ -29,8 +29,8 @@ LTC4274_Dev l_invalid_dev = {
         {
             .i2c_dev =
                 {
-                    .bus = 7,
-                    .slave_addr = 0x52,
+                    .bus = OC_CONNECT1_I2C8,
+                    .slave_addr = LTC4274_INVALID_DEV_SLAVE_ADDR,
                 },
         },
 };
@@ -40,8 +40,8 @@ LTC4274_Dev l_invalid_bus = {
         {
             .i2c_dev =
                 {
-                    .bus = 3,
-                    .slave_addr = 0x2F,
+                    .bus = OC_CONNECT1_I2C3,
+                    .slave_addr = LTC4274_SLAVE_ADDR,
                 },
         },
 };
