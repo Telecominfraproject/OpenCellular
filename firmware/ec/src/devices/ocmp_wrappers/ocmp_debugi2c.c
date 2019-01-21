@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_debugi2c.h"
 
 #include "common/inc/global/ocmp_frame.h"
 #include "common/inc/global/Framework.h"
+#include "common/inc/ocmp_wrappers/ocmp_debugi2c.h"
 #include "inc/common/global_header.h"
 #include "inc/common/i2cbus.h"
 #include "inc/devices/debug_oci2c.h"
