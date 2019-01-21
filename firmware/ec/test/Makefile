@@ -178,6 +178,10 @@ $(PATHB)Test_ocmp_cat24c04$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_CAT24C04
 TEST_OCMP_LTC4275_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_ltc4275.c $(OCWARE_ROOT)/src/devices/ltc4275.c $(OCWARE_ROOT)/src/devices/i2cbus.c $(OCWARE_ROOT)/src/post/post_util.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_ltc4275.c stub/stub_GateMutex.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
 $(PATHB)Test_ocmp_ltc4275$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_LTC4275_SRC) $(INC_M)
 
+
+TEST_LTC4274_SRC=$(OCWARE_ROOT)/src/devices/ltc4274.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_ltc4274.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/post/post_util.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
+$(PATHB)Test_ltc4274$(TARGET_EXTENSION): $(STD_FILES) $(TEST_LTC4274_SRC) $(INC_M)
+
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 	$(COV_CMDS)
