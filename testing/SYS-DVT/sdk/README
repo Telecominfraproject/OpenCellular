@@ -1,0 +1,3 @@
+tip.dts: tip-sdk/bootloader/u-boot/board/octeon/tip
+dvt.c: tip-sdk/linux/kernel/linux/drivers/misc
+ina2xx.c: tip-sdk/linux/kernel/linux/drivers/hwmon
