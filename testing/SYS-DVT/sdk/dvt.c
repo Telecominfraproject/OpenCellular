@@ -124,15 +124,15 @@ static int dvt_probe(struct platform_device *pdev)
 			return ret;
 		}
 	}
-    
+    #if 01
     //priv->bb_curr_temp_irq_line = gpio_to_irq(priv->bb_current_temp_sensor_alert_gpio);
-    priv->bb_curr_temp_irq_line = 17;
+    priv->bb_curr_temp_irq_line = 25;
     printk("bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
 
-    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt irq", priv )) {
+    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt_irq", priv )) {
          printk("dvt irq failed\n");
     }
-
+   #endif 
 	ret = sysfs_create_group(&priv->dev->kobj, &dvt_attr_group);
 	if (ret) {
 		dev_err(priv->dev, "unable to create sysfs files\n");
