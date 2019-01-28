@@ -22,12 +22,26 @@
  #include <linux/interrupt.h>
  #include <linux/err.h>
  #include <linux/module.h>
+ #include <linux/kernel.h>
  #include <linux/types.h>
  #include <linux/platform_device.h>
  #include <linux/io.h>
  #include <linux/of_gpio.h>
  #include <linux/of.h>
  #include <linux/sysfs.h>
+ #include <linux/spinlock.h>
+ #include <linux/poll.h>
+ #include <linux/wait.h>
+ #include <linux/sched.h>
+
+unsigned int octeon_gpio_irq(int);
+static DECLARE_WAIT_QUEUE_HEAD(irq_wait);
+static struct dvt_priv *gpriv;
+
+#define DISABLE 0
+#define ENABLE 1
+#define BB_CURR_TEMP_ALERT (1 << 0)
+#define DVT_MAJOR_NUM 112
  
 struct dvt_priv
 {
@@ -39,7 +53,12 @@ struct dvt_priv
 	u32 bb_current_temp_sensor_alert_default;
 
     unsigned int bb_curr_temp_irq_line;
+
+    unsigned int intr_flag;
+    unsigned int irq_status;
+    spinlock_t lock;    
 };
+
 
 //////////////////// FE Current Sensor Alert ////////////////////
 static ssize_t show_bb_current_temp_sensor_alert(struct device *dev,
@@ -49,12 +68,90 @@ static ssize_t show_bb_current_temp_sensor_alert(struct device *dev,
 	return sprintf(buf, "%d\n", priv->bb_current_temp_sensor_alert_val);
 }
 
+static ssize_t show_bb_current_temp_alert_enable(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct dvt_priv *priv = dev_get_drvdata(dev);
+    int count = 0;
+    spin_lock_irq(&priv->lock);
+	count = sprintf(buf, "%d\n", priv->intr_flag);
+    spin_unlock_irq(&priv->lock);
+    return count;
+}
+
+static ssize_t show_bb_current_temp_alert_status(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct dvt_priv *priv = dev_get_drvdata(dev);
+    int count = 0;
+    spin_lock_irq(&priv->lock);
+	count = sprintf(buf, "%u\n", priv->irq_status);
+    spin_unlock_irq(&priv->lock);
+    return count;
+} 
+
+static ssize_t set_bb_current_temp_alert_status(struct device *dev,
+        struct device_attribute *attr,
+        const char *buf, size_t count)
+{
+    struct dvt_priv *priv = dev_get_drvdata(dev);
+    u32 ctrl;
+    int ret;
+
+    ret = kstrtouint(buf, 0, &ctrl);
+    if(ret)
+        return ret;
+
+    spin_lock_irq(&priv->lock);
+    priv->irq_status = ctrl;
+    spin_unlock_irq(&priv->lock);
+
+    return count;
+}
+
+static ssize_t set_bb_current_temp_alert_enable(struct device *dev,
+        struct device_attribute *attr,
+        const char *buf, size_t count)
+{
+	struct dvt_priv *priv = dev_get_drvdata(dev);
+    u32 ctrl;
+    int ret;
+
+    ret = kstrtouint(buf, 0, &ctrl);
+    if(ret)
+        return ret;
+    
+    spin_lock_irq(&priv->lock);
+    if((ctrl == ENABLE)&& (priv->intr_flag == DISABLE)) {
+
+        // Enable IRQ
+        priv->intr_flag = ENABLE;
+        spin_unlock_irq(&priv->lock);
+        enable_irq(priv->bb_curr_temp_irq_line);
+
+    }else if((ctrl == DISABLE) && (priv->intr_flag == ENABLE)){ 
+        spin_unlock_irq(&priv->lock);
+
+         // DISABLE IRQ
+         disable_irq(priv->bb_curr_temp_irq_line);
+         priv->intr_flag = DISABLE;
+    }else{
+
+        spin_unlock_irq(&priv->lock);
+       //Do nothing
+    }
+    return count;
+}
 ///////////////////// BB Current temp Sensor Alert ///////////////////
 static DEVICE_ATTR(bb_current_temp_sensor_alert, S_IRUGO, show_bb_current_temp_sensor_alert, NULL);
+static DEVICE_ATTR(bb_current_temp_alert_enable, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_enable, set_bb_current_temp_alert_enable);
+static DEVICE_ATTR(bb_current_temp_alert_status, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_status, set_bb_current_temp_alert_status);
 ///////////////////// END FE Current Sensor Alert  //////////////
 
 static struct attribute *dvt_attrs[] = {
     &dev_attr_bb_current_temp_sensor_alert.attr,
+    &dev_attr_bb_current_temp_alert_enable.attr,
+    &dev_attr_bb_current_temp_alert_status.attr,
 	NULL,
 };
 
@@ -65,6 +162,8 @@ static const struct attribute_group dvt_attr_group = {
 static irqreturn_t bb_curr_temp_handler(int irq, void *dev_id)
 {
     printk("Receieving CURENT_TEMP IRQ\n");
+    gpriv->irq_status |= BB_CURR_TEMP_ALERT;
+    wake_up_interruptible(&irq_wait);
     return IRQ_HANDLED;
 }
 
@@ -95,6 +194,9 @@ static int dvt_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 
+    gpriv = priv;
+    priv->intr_flag = DISABLE;
+    priv->irq_status = 0;
 	priv->dev = &pdev->dev;
 	platform_set_drvdata(pdev, priv);
 
@@ -103,6 +205,7 @@ static int dvt_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+    spin_lock_init(&priv->lock);
     printk("bb_current_temp_sensor_alert_gpio number %d\n",  priv->bb_current_temp_sensor_alert_gpio);	
         // BB current temperature sensor alert
         if(priv->bb_current_temp_sensor_alert_gpio > 0)
@@ -124,15 +227,20 @@ static int dvt_probe(struct platform_device *pdev)
 			return ret;
 		}
 	}
-    #if 01
-    //priv->bb_curr_temp_irq_line = gpio_to_irq(priv->bb_current_temp_sensor_alert_gpio);
-    priv->bb_curr_temp_irq_line = 25;
+    #if 1
+    priv->bb_curr_temp_irq_line = octeon_gpio_irq(priv->bb_current_temp_sensor_alert_gpio);
     printk("bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
 
-    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt_irq", priv )) {
+    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQ_TYPE_EDGE_FALLING, "dvt_irq", priv )) {
          printk("dvt irq failed\n");
+         // Add code to release all resources
+         return -1;
     }
    #endif 
+    spin_lock_irq(&priv->lock);
+    priv->intr_flag = ENABLE; 
+    spin_unlock_irq(&priv->lock);
+
 	ret = sysfs_create_group(&priv->dev->kobj, &dvt_attr_group);
 	if (ret) {
 		dev_err(priv->dev, "unable to create sysfs files\n");
@@ -148,6 +256,42 @@ static int dvt_remove(struct platform_device *pdev)
 	sysfs_remove_group(&priv->dev->kobj, &dvt_attr_group);
 	return 0;
 }
+
+
+static unsigned int dvt_poll(struct file *fp, poll_table *w)
+{
+    unsigned int d;
+
+    poll_wait(fp, &irq_wait, w);
+
+    spin_lock_irq(&gpriv->lock);
+    d = gpriv->irq_status;
+    spin_unlock_irq(&gpriv->lock);
+
+    if(d)
+        return POLLIN | POLLRDNORM;
+   
+    return 0;
+}
+
+static int dvt_open(struct inode *inode, struct file *fp)
+{
+    //do nothing
+    return 0;
+}
+
+static int dvt_release(struct inode *inode, struct file *fp)
+{
+    // do nothing
+    return 0;
+}
+
+struct file_operations dvt_fops = {
+
+    .open = dvt_open,
+    .release = dvt_release,
+    .poll = dvt_poll,
+};
 
 static const struct of_device_id dvt_of_match[] = {
 	{ .compatible = "dvt", },
@@ -165,7 +309,24 @@ static struct platform_driver dvt_driver = {
 	.remove = dvt_remove,
 };
 
-module_platform_driver(dvt_driver);
+static int __init dvt_init(void)
+{
+    if(register_chrdev(DVT_MAJOR_NUM, "dvt", &dvt_fops)) {
+       printk("DVT driver registeration failed\n");
+    }
+    platform_driver_register(&dvt_driver);
+    return 0;
+}
+
+static void __exit dvt_exit(void)
+{
+    platform_driver_unregister(&dvt_driver);
+    unregister_chrdev(DVT_MAJOR_NUM, "dvt");
+}
+//module_platform_driver(dvt_driver);
+
+module_init(dvt_init);
+module_exit(dvt_exit);
 
 MODULE_DESCRIPTION("DVT Driver");
 MODULE_AUTHOR("<>");
