@@ -1,0 +1,756 @@
+/dts-v1/;
+/*
+ * Cavium Inc. CNF71XX_REF board
+ */
+/ {
+	model = "cavium,CNF71XX_REF";
+	compatible = "cavium,CNF71XX_REF";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&ciu>;
+
+	soc@0 {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges; /* Direct mapping */
+
+		ciu: interrupt-controller@1070000000000 {
+			compatible = "cavium,octeon-3860-ciu";
+			interrupt-controller;
+			/* Interrupts are specified by two parts:
+			 * 1) Controller register (0 or 1)
+			 * 2) Bit within the register (0..63)
+			 */
+			#interrupt-cells = <2>;
+			reg = <0x10700 0x00000000 0x0 0x7000>;
+		};
+
+		gpio: gpio-controller@1070000000800 {
+			#gpio-cells = <2>;
+			compatible = "cavium,octeon-3860-gpio";
+			reg = <0x10700 0x00000800 0x0 0x100>;
+			gpio-controller;
+			/* Interrupts are specified by two parts:
+			 * 1) GPIO pin number (0..15)
+			 * 2) Triggering (1 - edge rising
+			 *		  2 - edge falling
+			 *		  4 - level active high
+			 *		  8 - level active low)
+			 */
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			/* The GPIO pins connect to 16 consecutive CUI bits */
+			interrupts = <0 16>, <0 17>, <0 18>, <0 19>,
+				     <0 20>, <0 21>, <0 22>, <0 23>,
+				     <0 24>, <0 25>, <0 26>, <0 27>,
+				     <0 28>, <0 29>, <0 30>, <0 31>;
+		};
+
+		smi0: mdio@1180000001800 {
+			compatible = "cavium,octeon-3860-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x11800 0x00001800 0x0 0x40>;
+
+			phy0: ethernet-phy@1 {
+                                reg = <0x0>;
+                                compatible = "marvell,88e1512";
+                                                  /*pg reg msk value*/
+                                marvell,reg-init = <18 20 0      0x8001>,
+                                                   < 2 16 0xfff0 0xf>,
+                                                   < 3 16 0xff00 0xff>,
+                                                   < 3 17 0xffc0 0x05>;
+                                interrupt-parent = <0x2>;
+                                cavium,qlm-trim = "0,sgmii";
+                                linux,phandle = <0x3>;
+                                phandle = <0x3>;
+			};
+
+
+		};
+
+		smi1: mdio@1180000001900 {
+			compatible = "cavium,octeon-3860-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x11800 0x00001900 0x0 0x40>;
+		};
+
+		pip: pip@11800a0000000 {
+			compatible = "cavium,octeon-3860-pip";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x11800 0xa0000000 0x0 0x2000>;
+
+			interface@0 {
+				compatible = "cavium,octeon-3860-pip-interface";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0>; /* interface */
+
+				ethernet@0 {
+					compatible = "cavium,octeon-3860-pip-port";
+					reg = <0x0>; /* Port */
+					local-mac-address = [ 00 00 00 00 00 00 ];
+					phy-handle = <&phy0>;
+				};
+			};
+		};
+
+		twsi0: i2c@1180000001000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-3860-twsi";
+			reg = <0x11800 0x00001000 0x0 0x200>;
+			interrupts = <0 45>;
+			clock-frequency = <100000>;
+			
+			gpiocommon: pca9535common@24 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x24>;
+				gpio-controller;
+			};
+
+			gpiotx1att: pca9535tx1att@25 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x25>;
+				gpio-controller;
+			};
+
+			gpiopa1en: pca9535pa1en@26 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x26>;
+				gpio-controller;
+			};
+
+			gpiorx1: pca9535rx1@27 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x27>;
+				gpio-controller;
+			};
+
+
+			lm75tx1@48 {
+				compatible = "ti,lm75";
+				reg = <0x48>;
+			};
+
+
+			ina226tx1@44 {
+				compatible = "ti,ina226";
+				reg = <0x44>;
+			};
+
+			ad7995tx1@28 {
+				compatible = "ti,ad7995";
+				reg = <0x28>;
+				vcc-supply=<&pa_stepup>;
+			};
+			
+			eeprom@50 {
+				compatible = "at,24c64";
+				reg = <0x50>;
+			};
+
+			eeprom@52 {
+				compatible = "at,24c64";
+				reg = <0x52>;
+			};
+		};
+
+		twsi1: i2c@1180000001200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "cavium,octeon-3860-twsi";
+			reg = <0x11800 0x00001200 0x0 0x200>;
+			interrupts = <0 59>;
+			clock-frequency = <100000>;
+
+			gpioexp7130: exp7130@21 {
+				#gpio-cells = <2>;
+				compatible = "ti,tca6416";
+				reg = <0x21>;
+				gpio-controller;
+			};
+			
+			gpiotx0att: pca9535tx0att@25 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x25>;
+				gpio-controller;
+			};
+
+			gpiopa0en: pca9535pa0en@26 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x26>;
+				gpio-controller;
+			};
+
+			gpiorx0: pca9535rx0@27 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x27>;
+				gpio-controller;
+			};
+
+			gpiotiva: pca9535tiva@20 {
+				#gpio-cells = <2>;
+				compatible = "nxp,pca9535";
+				reg = <0x20>;
+				gpio-controller;
+				reset-device= <7>;
+			};
+
+			lm75tx0@4A {
+				compatible = "ti,lm75";
+				reg = <0x4A>;
+			};
+
+			lm75tiva@49 {
+				compatible = "ti,lm75";
+				reg = <0x49>;
+			};
+
+			ina226tx0@40 {
+				compatible = "ti,ina226";
+				reg = <0x40>;
+			};
+
+			ad7995tx0@28 {
+				compatible = "ti,ad7995";
+				reg = <0x28>;
+				vcc-supply=<&pa_stepup>;
+			};
+
+			eeprom@50 {
+				compatible = "at,24c256";
+				reg = <0x50>;
+			};
+
+			gpioledboardleft: ledboardleft@3e {
+				#gpio-cells = <2>;
+				compatible = "semtech,sx1509q";
+				reg = <0x3E>;
+				gpio-controller;
+			};
+
+			gpioledboardright: ledboardright@3f {
+				#gpio-cells = <2>;
+				compatible = "semtech,sx1509q";
+				reg = <0x3F>;
+				gpio-controller;
+			};
+
+			lm75led@4F {
+				compatible = "ti,lm75";
+				reg = <0x4F>;
+			};
+		};
+
+		uart0: serial@1180000000800 {
+			compatible = "cavium,octeon-3860-uart","ns16550";
+			reg = <0x11800 0x00000800 0x0 0x400>;
+			clock-frequency = <0>;
+			current-speed = <115200>;
+			reg-shift = <3>;
+			interrupts = <0 34>;
+		};
+
+		uart1: serial@1180000000c00 {
+			compatible = "cavium,octeon-3860-uart","ns16550";
+			reg = <0x11800 0x00000c00 0x0 0x400>;
+			clock-frequency = <0>;
+			current-speed = <115200>;
+			reg-shift = <3>;
+			interrupts = <0 35>;
+		};
+
+		spi@1070000001000 {
+			compatible = "cavium,octeon-3010-spi";
+			reg = <0x10700 0x00001000 0x0 0x100>;
+			interrupts = <0 58>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			
+			spidev@0 {
+				reg = <0>;
+				compatible = "linux,spidev";
+				spi-max-frequency = <1000000>;
+			};
+		};
+
+		mmc: mmc@1180000002000 {
+			compatible = "cavium,octeon-6130-mmc";
+			reg = <0x11800 0x00002000 0x0 0x100>,
+			      <0x11800 0x00000168 0x0 0x20>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			/* EMM irq, DMA irq */
+			interrupts = <1 19>, <0 63>;
+
+			/* The board only has a single MMC slot */
+			mmc-slot@0 {
+				compatible = "cavium,octeon-6130-mmc-slot",
+					     "mmc-spi-slot";
+				reg = <0>;
+				voltage-ranges = <3300 3300>;
+				spi-max-frequency = <520000000>;
+				/* bus width can be 1, 4 or 8 */
+				cavium,bus-max-width = <8>;
+				power-gpios = <&gpio 8 0>;
+			};
+		};
+
+		bootbus: bootbus@1180000000000 {
+			compatible = "cavium,octeon-3860-bootbus";
+			reg = <0x11800 0x00000000 0x0 0x200>;
+			/* The chip select number and offset */
+			#address-cells = <2>;
+			/* The size of the chip select region */
+			#size-cells = <1>;
+			ranges = <0 0  0       0x17c00000  0x8400000>,
+				 <1 0  0x10000 0x30000000  0>,
+				 <2 0  0       0x1d040000  0x10000>,
+				 <3 0  0       0x1d050000  0x10000>,
+				 <4 0  0       0x1d020000  0x10000>,
+				 <5 0  0x10000 0x40000000  0>,
+				 <6 0  0x10000 0x50000000  0>,
+				 <7 0  0x10000 0x90000000  0>;
+
+			cavium,cs-config@0 {
+				compatible = "cavium,octeon-3860-bootbus-config";
+                                cavium,cs-index = <0x0>;
+                                cavium,t-adr = <0xa>;
+                                cavium,t-ale = <0x22>;
+                                cavium,t-ce = <0x32>;
+                                cavium,t-oe = <0x32>;
+                                cavium,t-we = <0x23>;
+                                cavium,t-rd-hld = <0x19>;
+                                cavium,t-wr-hld = <0x23>;
+                                cavium,t-pause = <0x0>;
+                                cavium,t-wait = <0x12c>;
+                                cavium,t-page = <0x19>;
+                                cavium,t-rd-dly = <0x0>;
+                                cavium,pages = <0x0>;
+                                cavium,bus-width = <0x10>;
+                                cavium,ale-mode = <0x1>;
+			};
+			cavium,cs-config@3 {
+				compatible = "cavium,octeon-3860-bootbus-config";
+                                cavium,cs-index = <0x3>;
+                                cavium,t-adr = <0x0>;
+                                cavium,t-ce = <0x1e>;
+                                cavium,t-oe = <0x7d>;
+                                cavium,t-we = <0x96>;
+                                cavium,t-rd-hld = <0x64>;
+                                cavium,t-wr-hld = <0x1e>;
+                                cavium,t-pause = <0x0>;
+                                cavium,t-wait = <0x1e>;
+                                cavium,t-page = <0x12c>;
+                                cavium,t-rd-dly = <0x0>;
+                                cavium,pages = <0x0>;
+                                cavium,wait-mode;
+                                cavium,bus-width = <0x10>;
+			};
+
+			flash0: nor@0,0 {
+				compatible = "cfi-flash";
+				reg = <0 0 0x8000000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+			};
+
+
+		};
+
+		dma0: dma-engine@1180000000100 {
+			compatible = "cavium,octeon-5750-bootbus-dma";
+			reg = <0x11800 0x00000100 0x0 0x8>;
+			interrupts = <0 63>;
+		};
+		dma1: dma-engine@1180000000108 {
+			compatible = "cavium,octeon-5750-bootbus-dma";
+			reg = <0x11800 0x00000108 0x0 0x8>;
+			interrupts = <0 63>;
+		};
+
+		fe5_4v_stepup: reg-fe5_4v_stepup {
+			reg = <0 0 0 0>;
+			compatible = "regulator-fixed";
+			regulator-name = "fe5_4v_stepup";
+			regulator-min-microvolt = <5400000>;
+			regulator-max-microvolt = <5400000>;
+			gpio = <&gpioexp7130 13 0>;
+			enable-active-high;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
+		fe5_4v-supply {
+			reg = <0 0 0 0>;
+			compatible = "reg-userspace-consumer";
+			regulator-name = "fe5_4v-supply";
+			regulator-supplies = "fe5_4v_stepup";
+			fe_vdd-supply = <&fe5_4v_stepup>;
+		};
+
+		fe2_2v_stepup: reg-fe2_2v_stepup {
+			reg = <0 0 0 0>;
+			compatible = "regulator-fixed";
+			regulator-name = "fe2_2v_stepup";
+			regulator-min-microvolt = <2200000>;
+			regulator-max-microvolt = <2200000>;
+			gpio = <&gpioexp7130 14 0>;
+			enable-active-high;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
+		fe2_2v-supply {
+			reg = <0 0 0 0>;
+			compatible = "reg-userspace-consumer";
+			regulator-name = "fe2_2v-supply";
+			regulator-supplies = "fe2_2v_stepup";
+			fe_vdd-supply = <&fe2_2v_stepup>;
+		};
+
+		pa_stepup: reg-pa_stepup {
+			reg = <0 0 0 0>;
+			compatible = "regulator-fixed";
+			regulator-name = "pa_stepup";
+			regulator-min-microvolt = <28000000>;
+			regulator-max-microvolt = <28000000>;
+			gpio = <&gpioexp7130 12 0>;
+			enable-active-high;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
+		pa-supply {
+			reg = <0 0 0 0>;
+			compatible = "reg-userspace-consumer";
+			regulator-name = "pa-supply";
+			regulator-supplies = "pa_stepup";
+			fe_vdd-supply = <&pa_stepup>;
+		};
+
+		pa0_vdd: reg-pa0_vdd {
+			reg = <0 0 0 0>;
+			compatible = "regulator-fixed";
+			regulator-name = "pa0_vdd";
+			regulator-min-microvolt = <28000000>;
+			regulator-max-microvolt = <28000000>;
+			gpio = <&gpiopa0en 2 0>;
+			enable-active-high;
+		};
+
+		pa0 {
+			reg = <0 0 0 0>;
+			compatible = "reg-userspace-consumer";
+			regulator-name = "pa0-supply";
+			regulator-supplies = "pa0_vdd";
+			fe_vdd-supply = <&pa0_vdd>;
+		};
+
+		pa1_vdd: reg-pa1_vdd {
+			reg = <0 0 0 0>;
+			compatible = "regulator-fixed";
+			regulator-name = "pa1_vdd";
+			regulator-min-microvolt = <28000000>;
+			regulator-max-microvolt = <28000000>;
+			gpio = <&gpiopa1en 2 0>;
+			enable-active-high;
+		};
+
+		pa1 {
+			reg = <0 0 0 0>;
+			compatible = "reg-userspace-consumer";
+			regulator-name = "pa1-supply";
+			regulator-supplies = "pa1_vdd";
+			fe_vdd-supply = <&pa1_vdd>;
+		};
+	
+        dvt {
+             reg = <0 0 0 0>;
+             compatible = "dvt";
+             bb-current-temp-sensor-alert-gpio = <&gpio 1 0>;
+             interrupt-parent = <&gpio>;
+             interrupts = <1 8>;
+        };
+	
+		tip {
+			reg = <0 0 0 0>;
+			compatible = "tip";
+			
+			// TX0 PreDriver 1 Disable
+			tx0-predriver1-en-gpio = <&gpiopa0en 0 0>;
+			tx0-predriver1-en-default  = <0>;
+			// TX0 PreDriver 2 Disable
+			tx0-predriver2-en-gpio = <&gpiopa0en 1 0>;
+			tx0-predriver2-en-default  = <0>;
+			// TX0 PA Attenuation
+			tx0-pa-att-gpios =	<&gpiotx0att 6 0>,
+							<&gpiotx0att 5 0>,
+							<&gpiotx0att 4 0>,
+							<&gpiotx0att 3 0>,
+							<&gpiotx0att 2 0>,
+							<&gpiotx0att 1 0>,
+							<&gpiotx0att 0 0>;
+			tx0-pa-att-default = <127>;
+			tx0-pa-att-le-gpio = <&gpiotx0att 7 0>;
+			tx0-pa-att-le-default = <0>;
+			// TX0 RF-PAL FB Attenuation
+			tx0-rfpal-att-gpios = <&gpiotx0att 14 0>,
+							<&gpiotx0att 13 0>,
+							<&gpiotx0att 12 0>,
+							<&gpiotx0att 11 0>,
+							<&gpiotx0att 10 0>,
+							<&gpiotx0att 9 0>,
+							<&gpiotx0att 8 0>;
+			tx0-rfpal-att-default = <127>;
+			tx0-rfpal-att-le-gpio = <&gpiotx0att 15 0>;
+			tx0-rfpal-att-le-default = <0>;
+			// RX0 LNA turn off
+			rx0-lna-en-gpio = <&gpiorx0 8 1>;   //polarity invert, Active Low
+			rx0-lna-en-default = <0>;
+			// RX0 Attenuation
+			rx0-att-gpios =	<&gpiorx0 6 0>,
+							<&gpiorx0 5 0>,
+							<&gpiorx0 4 0>,
+							<&gpiorx0 3 0>,
+							<&gpiorx0 2 0>,
+							<&gpiorx0 1 0>,
+							<&gpiorx0 0 0>;
+			rx0-att-default = <127>;
+			rx0-att-le-gpio = <&gpiorx0 7 0>;
+			rx0-att-le-default = <0>;
+			// TX1 PreDriver 1 Disable
+			tx1-predriver1-en-gpio = <&gpiopa1en 0 0>;
+			tx1-predriver1-en-default  = <0>;
+			// TX1 PreDriver 2 Disable
+			tx1-predriver2-en-gpio = <&gpiopa1en 1 0>;
+			tx1-predriver2-en-default  = <0>;
+			// TX1 PA Attenuation
+			tx1-pa-att-gpios =	<&gpiotx1att 6 0>,
+							<&gpiotx1att 5 0>,
+							<&gpiotx1att 4 0>,
+							<&gpiotx1att 3 0>,
+							<&gpiotx1att 2 0>,
+							<&gpiotx1att 1 0>,
+							<&gpiotx1att 0 0>;
+			tx1-pa-att-default = <127>;
+			tx1-pa-att-le-gpio = <&gpiotx1att 7 0>;
+			tx1-pa-att-le-default = <0>;
+			// TX1 RF-PAL FB Attenuation
+			tx1-rfpal-att-gpios = <&gpiotx1att 14 0>,
+							<&gpiotx1att 13 0>,
+							<&gpiotx1att 12 0>,
+							<&gpiotx1att 11 0>,
+							<&gpiotx1att 10 0>,
+							<&gpiotx1att 9 0>,
+							<&gpiotx1att 8 0>;
+			tx1-rfpal-att-default = <127>;
+			tx1-rfpal-att-le-gpio = <&gpiotx1att 15 0>;
+			tx1-rfpal-att-le-default = <0>;
+			// RX1 LNA turn off
+			rx1-lna-en-gpio = <&gpiorx1 8 1>;   //polarity invert, Active Low
+			rx1-lna-en-default = <0>;
+			// RX1 Attenuation
+			rx1-att-gpios =	<&gpiorx1 6 0>,
+							<&gpiorx1 5 0>,
+							<&gpiorx1 4 0>,
+							<&gpiorx1 3 0>,
+							<&gpiorx1 2 0>,
+							<&gpiorx1 1 0>,
+							<&gpiorx1 0 0>;
+			rx1-att-default = <127>;
+			rx1-att-le-gpio = <&gpiorx1 7 0>;
+			rx1-att-le-default = <0>;
+			// Sniffer LNA disable
+			sniffer-lna-en-gpio = <&gpiocommon 3 0>;
+			sniffer-lna-en-default = <0>;
+			// Sniffer Attenuation
+			sniffer-att-gpios =	<&gpiocommon 14 0>,
+							<&gpiocommon 13 0>,
+							<&gpiocommon 12 0>,
+							<&gpiocommon 11 0>,
+							<&gpiocommon 10 0>,
+							<&gpiocommon 9 0>,
+							<&gpiocommon 8 0>;
+			sniffer-att-default = <127>;
+			sniffer-att-le-gpio = <&gpiocommon 15 0>;
+			sniffer-att-le-default = <0>;
+			// Switches
+			ant1-or-sniffant-to-sniffer-switch-gpio = <&gpiocommon 0 0>;
+			ant1-or-sniffant-to-sniffer-switch-default = <0>;
+			ant1-to-dup-or-sniffer-switch-gpio = <&gpiocommon 1 0>;
+			ant1-to-dup-or-sniffer-switch-default = <1>;
+			ant1-or-sniffer-to-rx1-switch-gpios = <&gpiocommon 4 0>,
+										<&gpiocommon 5 0>;
+			ant1-or-sniffer-to-rx1-switch-default = <2>;
+			
+			// RFPAL reset
+			rfpal-reset-gpio = <&gpiocommon 7 0>;
+			rfpal-reset-default = <1>;
+			
+			// eeprom clib
+			eeprom-calib-wp-gpio = <&gpiocommon 6 0>;
+			eeprom-calib-wp-default = <1>;
+			//eeprom tiva
+			eeprom-tiva-wp-gpio = <&gpiotiva 0 0>;
+			eeprom-tiva-wp-default = <1>;
+
+			//led board
+			led-board-reset-gpio = <&gpiotiva 7 0>;
+			led-board-reset-default = <1>;
+
+			//fe version code
+			fe-version-code-gpios =	<&gpiotiva 8 0>,
+							<&gpiotiva 9 0>,
+							<&gpiotiva 10 0>,
+							<&gpiotiva 11 0>;
+
+			//FE current sensor alert
+                        fe-current-sensor-alert-gpio = <&gpio 10 0>;
+
+			//FE temp sensor alert
+                        fe-temp-sensor-alert-gpio = <&gpio 13 0>;
+		};
+
+		//led board v2
+		leds {
+			reg = <0 0 0 0>;
+			compatible = "gpio-leds";
+			//Order DS11, DS9, DS1, DS2, DS3, DS4
+			red_1 {
+				gpios = <&gpioledboardleft 2 1>;
+				default-state = "on";
+			};
+			red_2 {
+				gpios = <&gpioledboardleft 12 1>;
+				default-state = "on";
+			};
+			red_3 {
+				gpios = <&gpioledboardleft 0 1>;
+				default-state = "on";
+			};
+			red_4 {
+				gpios = <&gpioledboardleft 6 1>;
+				default-state = "on";
+			};
+			red_5 {
+				gpios = <&gpioledboardleft 8 1>;
+				default-state = "on";
+			};
+			red_6 {
+				gpios = <&gpioledboardleft 10 1>;
+				default-state = "on";
+			};
+			//order DS5, DS6, DS7, DS8, DS10, DS12
+			red_7 {
+				gpios = <&gpioledboardright 3 1>;
+				default-state = "on";
+			};
+			red_8 {
+				gpios = <&gpioledboardright 2 1>;
+				default-state = "on";
+			};
+			red_9 {
+				gpios = <&gpioledboardright 0 1>;
+				default-state = "on";
+			};
+			red_10 {
+				gpios = <&gpioledboardright 6 1>;
+				default-state = "on";
+			};
+			red_11 {
+				gpios = <&gpioledboardright 8 1>;
+				default-state = "on";
+			};
+			red_12 {
+				gpios = <&gpioledboardright 10 1>;
+				default-state = "on";
+			};
+
+
+			//Order DS11, DS9, DS1, DS2, DS3, DS4
+			green_1 {
+				gpios = <&gpioledboardleft 3 1>;
+				//linux,default-trigger = "timer";
+				//delay-on = <1000>;
+				//delay-off = <1000>;
+				default-state = "off";
+			};
+			green_2 {
+				gpios = <&gpioledboardleft 13 1>;
+				//linux,default-trigger = "heartbeat";
+				default-state = "off";
+			};
+			green_3 {
+				gpios = <&gpioledboardleft 1 1>;
+				//linux,default-trigger = "ide-disk";
+				default-state = "off";
+			};
+			green_4 {
+				gpios = <&gpioledboardleft 15 1>;
+				//linux,default-trigger = "backlight";
+				default-state = "off";
+			};
+			green_5 {
+				gpios = <&gpioledboardleft 9 1>;
+				default-state = "off";
+			};
+			green_6 {
+				gpios = <&gpioledboardleft 11 1>;
+				default-state = "off";
+			};
+			//order DS5, DS6, DS7, DS8, DS10, DS12
+			green_7 {
+				gpios = <&gpioledboardright 1 1>;
+				default-state = "off";
+			};
+			green_8 {
+				gpios = <&gpioledboardright 4 1>;
+				default-state = "off";
+			};
+			green_9 {
+				gpios = <&gpioledboardright 5 1>;
+				default-state = "off";
+			};
+			green_10 {
+				gpios = <&gpioledboardright 7 1>;
+				default-state = "off";
+			};
+			green_11 {
+				gpios = <&gpioledboardright 9 1>;
+				default-state = "off";
+			};
+			green_12 {
+				gpios = <&gpioledboardright 11 1>;
+				default-state = "off";
+			};
+		};
+	};
+	
+	gpio-leds {
+		compatible = "gpio-leds";
+	};
+
+	aliases {
+		pip = &pip;
+		smi0 = &smi0;
+		smi1 = &smi1;
+		twsi0 = &twsi0;
+		twsi1 = &twsi1;
+		uart0 = &uart0;
+		uart1 = &uart1;
+		flash0 = &flash0;
+	};
+ };

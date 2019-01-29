@@ -46,10 +46,8 @@ static struct dvt_priv *gpriv;
 struct dvt_priv
 {
 	struct device *dev;
-
     int bb_current_temp_sensor_alert_gpio;
 	char bb_current_temp_sensor_alert_szGpio[32];
-	u8 bb_current_temp_sensor_alert_val;
 	u32 bb_current_temp_sensor_alert_default;
 
     unsigned int bb_curr_temp_irq_line;
@@ -61,13 +59,6 @@ struct dvt_priv
 
 
 //////////////////// FE Current Sensor Alert ////////////////////
-static ssize_t show_bb_current_temp_sensor_alert(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct dvt_priv *priv = dev_get_drvdata(dev);
-	return sprintf(buf, "%d\n", priv->bb_current_temp_sensor_alert_val);
-}
-
 static ssize_t show_bb_current_temp_alert_enable(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -143,13 +134,11 @@ static ssize_t set_bb_current_temp_alert_enable(struct device *dev,
     return count;
 }
 ///////////////////// BB Current temp Sensor Alert ///////////////////
-static DEVICE_ATTR(bb_current_temp_sensor_alert, S_IRUGO, show_bb_current_temp_sensor_alert, NULL);
 static DEVICE_ATTR(bb_current_temp_alert_enable, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_enable, set_bb_current_temp_alert_enable);
 static DEVICE_ATTR(bb_current_temp_alert_status, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_status, set_bb_current_temp_alert_status);
 ///////////////////// END FE Current Sensor Alert  //////////////
 
 static struct attribute *dvt_attrs[] = {
-    &dev_attr_bb_current_temp_sensor_alert.attr,
     &dev_attr_bb_current_temp_alert_enable.attr,
     &dev_attr_bb_current_temp_alert_status.attr,
 	NULL,
@@ -164,6 +153,8 @@ static irqreturn_t bb_curr_temp_handler(int irq, void *dev_id)
     printk("Receieving CURENT_TEMP IRQ\n");
     gpriv->irq_status |= BB_CURR_TEMP_ALERT;
     wake_up_interruptible(&irq_wait);
+    disable_irq_nosync(gpriv->bb_curr_temp_irq_line);
+    gpriv->intr_flag = DISABLE;
     return IRQ_HANDLED;
 }
 
@@ -231,7 +222,8 @@ static int dvt_probe(struct platform_device *pdev)
     priv->bb_curr_temp_irq_line = octeon_gpio_irq(priv->bb_current_temp_sensor_alert_gpio);
     printk("bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
 
-    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQ_TYPE_EDGE_FALLING, "dvt_irq", priv )) {
+    //if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQ_TYPE_EDGE_FALLING, "dvt_irq", priv )) {
+    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt_irq", priv )) {
          printk("dvt irq failed\n");
          // Add code to release all resources
          return -1;
@@ -257,7 +249,6 @@ static int dvt_remove(struct platform_device *pdev)
 	return 0;
 }
 
-
 static unsigned int dvt_poll(struct file *fp, poll_table *w)
 {
     unsigned int d;
@@ -268,8 +259,12 @@ static unsigned int dvt_poll(struct file *fp, poll_table *w)
     d = gpriv->irq_status;
     spin_unlock_irq(&gpriv->lock);
 
-    if(d)
+    if(d) {
+        // IRQ will be disabled once the first int is received;
+        // Since irq clearing will happen in the application we clear the irq_status
+        gpriv->irq_status = 0;
         return POLLIN | POLLRDNORM;
+    }
    
     return 0;
 }

@@ -55,6 +55,14 @@
 /* worst case is 68.10 ms (~14.6Hz, ina219) */
 #define INA2XX_CONVERSION_RATE		15
 
+/* Mask/Enable Register Bits */
+#define INA_ALERT_EN_MASK 0xF800 /* Upper 5 bits are the enable bits */
+#define INA_MSK_SOL (1 << 15)    /* Shunt over-voltage */
+#define INA_MSK_SUL (1 << 14)    /* Shunt under-voltage */
+#define INA_MSK_BOL (1 << 13)    /* Bus over-voltage */
+#define INA_MSK_BUL (1 << 12)    /* Bus under-voltage */
+#define INA_MSK_POL (1 << 11)    /* Power over limit */
+
 enum ina2xx_ids { ina219, ina226 };
 
 struct ina2xx_data {
@@ -152,15 +160,19 @@ static int ina226_get_value(struct ina2xx_data *data, u8 reg)
 	 * calibration value is INA226_CALIBRATION_VALUE
 	 */
 	int val = data->regs[reg];
-
+    printk("value before switch is=%d\n",val);
 	switch (reg) {
 	case INA2XX_SHUNT_VOLTAGE:
 		/* LSB=2.5uV. Convert to mV. */
+        printk("shunt volatge value is=%d\n",val);
 		val = DIV_ROUND_CLOSEST(val, 400);
+        printk("after conversion the value is=%d\n",val);
 		break;
 	case INA2XX_BUS_VOLTAGE:
+        printk("bus voltage value is=%d\n",val);
 		/* LSB=1.25mV. Convert to mV. */
 		val = val + DIV_ROUND_CLOSEST(val, 4);
+        printk("after conversion the value is=%d\n",val);
 		break;
 	case INA2XX_POWER:
 		/* LSB=25mW. Convert to uW */
@@ -224,9 +236,22 @@ static ssize_t ina2xx_set_value(struct device *dev,
 	{
 		case INA226_MASK_ENABLE:
 		{
-           i2c_smbus_write_word_swapped(client, INA226_MASK_ENABLE,
-                         temp_short);
-		    break;
+            uint16_t alert_mask = i2c_smbus_read_word_swapped(client, INA226_MASK_ENABLE);// read the data from the enable register.
+            printk("alert_mask value is=%u\n",alert_mask);
+            if (alert_mask < 0) 
+            {
+	            printk("Alert mask value is error\n");
+	            //ret = ERR_PTR(alert_mask);
+                //goto abort;
+            }
+            alert_mask &= (~INA_ALERT_EN_MASK);// what ever the vale u are getting disable all the alerts bits.
+            printk("after masking the higher 5 bits=%u\n",alert_mask);
+            alert_mask |=INA_MSK_SOL;//enable only the shunt  over voltage bit . 
+            printk("after setting the shunt over bit =%u\n",alert_mask);
+            i2c_smbus_write_word_swapped(client, INA226_MASK_ENABLE,
+                         alert_mask); // write the new value into the register.uint16_t alert_mask = i2c_smbus_read_word_swapped(client, INA226_MASK_ENABLE);// read the data from the enable register.
+            printk("alert_mask value is=%u\n",alert_mask);
+            break;
 		}
 		case INA226_ALERT_LIMIT:
 		{
