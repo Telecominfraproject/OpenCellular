@@ -20,7 +20,8 @@ void _rffe_watchdog_handler(void *context)
         OCMP_GenerateAlert(context, 1, NULL);
     }
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _rffe_watchdog_init(void *driver, const void *config,
                                      const void *alert_token)
 {
@@ -39,7 +40,7 @@ static ePostCode _rffe_watchdog_init(void *driver, const void *config,
     ThreadedInt_Init(cfg->pin_interrupt, _rffe_watchdog_handler, cfg);
     return POST_DEV_CFG_DONE;
 }
-
+#pragma GCC diagnostic pop
 const Driver_fxnTable RFFEWatchdogP_fxnTable = {
     .cb_init = _rffe_watchdog_init,
 };

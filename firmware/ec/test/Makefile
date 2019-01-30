@@ -184,6 +184,9 @@ $(PATHB)Test_ltc4274$(TARGET_EXTENSION): $(STD_FILES) $(TEST_LTC4274_SRC) $(INC_
 TEST_OCMP_DEBUGI2C_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_debugi2c.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_debugI2C.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c
 $(PATHB)Test_ocmp_debugi2c$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_DEBUGI2C_SRC)
 
+TEST_OCMP_RFWATCHDOG_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_rfwatchdog.c $(OCWARE_ROOT)/src/devices/i2cbus.c $(OCWARE_ROOT)/src/helpers/memory.c  fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_PCA9557.c fake/fake_rfwatchdog.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/drivers/GpioPCA9557.c $(OCWARE_ROOT)/src/devices/pca9557.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_FE.c
+$(PATHB)Test_ocmp_rfwatchdog$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_RFWATCHDOG_SRC)
+
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 	$(COV_CMDS)

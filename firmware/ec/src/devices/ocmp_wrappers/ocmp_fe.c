@@ -11,10 +11,6 @@
 #include "inc/subsystem/rffe/rffe_ctrl.h"
 
 static FE_Band_Cfg FE_BandCfg[RFFE_MAX_CHANNEL];
-typedef enum FE_ParamCfg {
-    FE_CFG_BAND = 0,
-} FE_ParamCfg;
-
 /*****************************************************************************
  **    FUNCTION NAME   : rffe_ctrl_set_band
  **
