@@ -23,6 +23,15 @@ LICENSE-SOFTWARE | License file for firmware and software
 LICENSE-HARDWARE | License file for hardware and docs
 README.md	| This file
 
+## Quick link to latest hardware revision:
+
+Board Name | Project | Revision | Link
+---------- | ------- | -------- | -----
+SDR | OC-SDR | Rev-C | https://goo.gl/jCk5Uq  
+LED | OC-SDR | Rev-C | https://goo.gl/yjLqvJ 
+GBC_x86 | OC-SDR | Rev-C | https://goo.gl/e6qZzE 
+Connect-1 (Mechanical)| OC-SDR | Rev-D | https://goo.gl/7xHS5j
+
 ## Questions:
 
 OpenCellular@fb.com
