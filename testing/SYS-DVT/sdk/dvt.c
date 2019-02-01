@@ -150,7 +150,7 @@ static const struct attribute_group dvt_attr_group = {
 
 static irqreturn_t bb_curr_temp_handler(int irq, void *dev_id)
 {
-    printk("Receieving CURENT_TEMP IRQ\n");
+    printk(KERN_DEBUG "Receieving CURENT_TEMP IRQ\n");
     gpriv->irq_status |= BB_CURR_TEMP_ALERT;
     wake_up_interruptible(&irq_wait);
     disable_irq_nosync(gpriv->bb_curr_temp_irq_line);
@@ -197,7 +197,7 @@ static int dvt_probe(struct platform_device *pdev)
 	}
 
     spin_lock_init(&priv->lock);
-    printk("bb_current_temp_sensor_alert_gpio number %d\n",  priv->bb_current_temp_sensor_alert_gpio);	
+    printk(KERN_DEBUG "bb_current_temp_sensor_alert_gpio number %d\n",  priv->bb_current_temp_sensor_alert_gpio);	
         // BB current temperature sensor alert
         if(priv->bb_current_temp_sensor_alert_gpio > 0)
 	{
@@ -218,17 +218,18 @@ static int dvt_probe(struct platform_device *pdev)
 			return ret;
 		}
 	}
-    #if 1
+
     priv->bb_curr_temp_irq_line = octeon_gpio_irq(priv->bb_current_temp_sensor_alert_gpio);
-    printk("bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
+    printk(KERN_DEBUG "bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
 
     //if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQ_TYPE_EDGE_FALLING, "dvt_irq", priv )) {
     if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt_irq", priv )) {
-         printk("dvt irq failed\n");
-         // Add code to release all resources
+         printk(KERN_DEBUG "dvt irq failed\n");
+         gpio_free(priv->bb_current_temp_sensor_alert_gpio);
+         devm_kfree(&pdev->dev, priv);
          return -1;
     }
-   #endif 
+
     spin_lock_irq(&priv->lock);
     priv->intr_flag = ENABLE; 
     spin_unlock_irq(&priv->lock);
@@ -307,7 +308,7 @@ static struct platform_driver dvt_driver = {
 static int __init dvt_init(void)
 {
     if(register_chrdev(DVT_MAJOR_NUM, "dvt", &dvt_fops)) {
-       printk("DVT driver registeration failed\n");
+       printk(KERN_DEBUG "DVT driver registeration failed\n");
     }
     platform_driver_register(&dvt_driver);
     return 0;

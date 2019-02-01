@@ -144,7 +144,6 @@
 			ina226tx1@44 {
 				compatible = "ti,ina226";
 				reg = <0x44>;
-                shunt_uohms=<2000>;
 			};
 
 			ad7995tx1@28 {
@@ -152,13 +151,13 @@
 				reg = <0x28>;
 				vcc-supply=<&pa_stepup>;
 			};
+			
+			eeprom@50 {
+				compatible = "at,24c64";
+				reg = <0x50>;
+			};
 
-            eeprom@50 {
-                compatible = "at,24c256";
-                reg = <0x50>;
-            };
-
-			eeprom@52{
+			eeprom@52 {
 				compatible = "at,24c64";
 				reg = <0x52>;
 			};
@@ -477,14 +476,13 @@
 			regulator-supplies = "pa1_vdd";
 			fe_vdd-supply = <&pa1_vdd>;
 		};
-
+	
         dvt {
-			reg = <0 0 0 0>;
-			compatible = "dvt";
-            bb-current-temp-sensor-alert-gpio = <&gpio 1 0>;
-            interrupt-parent = <&gpio>;
-            interrupts = <1 8>;
-
+             reg = <0 0 0 0>;
+             compatible = "dvt";
+             bb-current-temp-sensor-alert-gpio = <&gpio 1 0>;
+             interrupt-parent = <&gpio>;
+             interrupts = <1 8>;
         };
 	
 		tip {
@@ -620,10 +618,10 @@
 							<&gpiotiva 11 0>;
 
 			//FE current sensor alert
-             fe-current-sensor-alert-gpio = <&gpio 10 0>;
+                        fe-current-sensor-alert-gpio = <&gpio 10 0>;
 
 			//FE temp sensor alert
-             fe-temp-sensor-alert-gpio = <&gpio 13 0>;
+                        fe-temp-sensor-alert-gpio = <&gpio 13 0>;
 		};
 
 		//led board v2
@@ -657,7 +655,7 @@
 			};
 			//order DS5, DS6, DS7, DS8, DS10, DS12
 			red_7 {
-				gpios = <&gpioledboardright 4 1>;
+				gpios = <&gpioledboardright 3 1>;
 				default-state = "on";
 			};
 			red_8 {
