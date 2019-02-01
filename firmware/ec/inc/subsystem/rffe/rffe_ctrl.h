@@ -68,6 +68,10 @@ typedef struct Fe_Ch_Pwr_Cfg {
     rffeChannel channel;
     Fe_Cfg *fe_Rffecfg;
 } Fe_Ch_Pwr_Cfg;
+
+typedef enum FE_ParamCfg {
+    FE_CFG_BAND = 0,
+} FE_ParamCfg;
 /*****************************************************************************
  *                           FUNCTION DECLARATIONS
  *****************************************************************************/

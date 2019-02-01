@@ -19,11 +19,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-typedef enum FE_ParamCfg {
-    FE_CFG_BAND = 0,
-} FE_ParamCfg;
-
 /*****************************************************************************
  **    FUNCTION NAME   : rffe_ctrl_configure_power_amplifier
  **

@@ -13,4 +13,5 @@ uint8_t PCA9557_regs[] = {
     [PCA9557_REGS_OUTPUT_VALUE] = 0x00, /* Output values */
     [PCA9557_REGS_POLARITY] = 0x00,     /* Polarity */
     [PCA9557_REGS_DIR_CONFIG] = 0x00,   /* Dir Config */
+    [PCA9557_REGS_END] = 0x00,
 };
