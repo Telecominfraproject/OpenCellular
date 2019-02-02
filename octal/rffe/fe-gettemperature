@@ -33,7 +33,7 @@ else
 			echo 25000
 		else
 			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input ]; then		
-				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input);
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-004a/temp1_input);
 			else
 				echo "$0 - ERROR PA1 temperature sensor is not detected"
 				exit 1
@@ -44,8 +44,8 @@ else
         	if [ "$HW_REVISION" == "X" ]; then
 			echo 25000
 		else
-			if [ -r /sys/devices/soc.0/1180000001000.i2c/i2c-1/1-004a/temp1_input ]; then		
-				echo$(cat /sys/devices/soc.0/1180000001000.i2c/i2c-1/1-004a/temp1_input);
+			if [ -r /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input ]; then		
+				echo $(cat /sys/devices/soc.0/1180000001000.i2c/i2c-0/0-004a/temp1_input);
 			else
 				echo "$0 - ERROR PA2 temperature sensor is not detected"
 				exit 1
@@ -57,7 +57,7 @@ else
 			echo 25000
 		else
 			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then		
-				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
 			else
 				echo "$0 - ERROR Front-End temperature sensor is not detected"
 				exit 1
@@ -69,7 +69,7 @@ else
 			echo 25000
 		else
 			if [ -r /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input ]; then		
-				echo$(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
+				echo $(cat /sys/devices/soc.0/1180000001200.i2c/i2c-1/1-0049/temp1_input);
 			else
 				echo "$0 - ERROR LED board temperature sensor is not detected"
 				exit 1
