@@ -51,7 +51,7 @@ bool rffe_ctrl_get_band(rffeChannel channel, rffeBand *band)
     return true;
 }
 
-bool static _get_config(void *driver, unsigned int param_id, void *return_buf)
+static bool _get_config(void *driver, unsigned int param_id, void *return_buf)
 {
     bool ret = false;
     FE_Ch_Band_cfg *driverCfg = driver;
@@ -68,7 +68,7 @@ bool static _get_config(void *driver, unsigned int param_id, void *return_buf)
     return ret;
 }
 
-bool static _set_config(void *driver, unsigned int param_id,
+static bool _set_config(void *driver, unsigned int param_id,
                         const void *return_buf)
 {
     bool ret = false;
@@ -87,6 +87,8 @@ bool static _set_config(void *driver, unsigned int param_id,
     return ret;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _probe(void *driver, POSTData *postData)
 {
     return POST_DEV_FOUND;
@@ -100,6 +102,7 @@ static ePostCode _init(void *driver, const void *config,
     rffe_ctrl_set_band(driverCfg->channel, cfg->band);
     return POST_DEV_FOUND;
 }
+#pragma GCC diagnostic pop
 
 const Driver_fxnTable FE_PARAM_fxnTable = {
     /* Message handlers */
