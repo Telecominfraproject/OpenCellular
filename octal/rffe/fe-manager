@@ -24,8 +24,8 @@ tempFeMin=1000		# mC
 tempLedMax=85000	# mC
 tempLedMin=1000	# mC
 
-currentPa1Max=400	#mA
-currentPa2Max=400	#mA
+currentPa1Max=500	#mA
+currentPa2Max=500	#mA
 
 txPowerActiveLevelAdcValueMin=500	# 20dBm
 
@@ -592,7 +592,6 @@ elif [ ${OP_MODE} == "pltd" ] ; then
 		log $LOG_LEVEL_ERROR "Could not start pltd-enablefe. Please set TX Frequency"
 		exit 1
 	fi
-
 	pltd-enablefe -t ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR
 	if [ $? -ne 0 ] ; then
 		echo "$0 - Error start pltd-enablefe"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HW_REVISION=""
+HW_REVISION="X"
 
 usage()
 {
@@ -16,20 +16,20 @@ turnOffAllLeds()
 {
     if [ "$HW_REVISION" == "X" ]; then
         # init i2c expanders to drive LEDs
-        i2cset -y 0 0x3E 0x0A 0xFF > /dev/null
-        i2cset -y 0 0x3E 0x0B 0xFF > /dev/null
-        i2cset -y 0 0x3E 0x0C 0xFF > /dev/null
-        i2cset -y 0 0x3E 0x0D 0xFF > /dev/null
-        i2cset -y 0 0x3F 0x0A 0xFF > /dev/null
-        i2cset -y 0 0x3F 0x0B 0xFF > /dev/null
-        i2cset -y 0 0x3F 0x0C 0xFF > /dev/null
-        i2cset -y 0 0x3F 0x0D 0xFF > /dev/null
+        i2cset -f -y 1 0x3E 0x0A 0xFF > /dev/null
+        i2cset -f -y 1 0x3E 0x0B 0xFF > /dev/null
+        i2cset -f -y 1 0x3E 0x0C 0xFF > /dev/null
+        i2cset -f -y 1 0x3E 0x0D 0xFF > /dev/null
+        i2cset -f -y 1 0x3F 0x0A 0xFF > /dev/null
+        i2cset -f -y 1 0x3F 0x0B 0xFF > /dev/null
+        i2cset -f -y 1 0x3F 0x0C 0xFF > /dev/null
+        i2cset -f -y 1 0x3F 0x0D 0xFF > /dev/null
     
         # set LEDs off
-        i2cset -y 0 0x3E 0x10 0x00 > /dev/null
-        i2cset -y 0 0x3E 0x11 0x00 > /dev/null
-        i2cset -y 0 0x3F 0x10 0x00 > /dev/null
-        i2cset -y 0 0x3F 0x11 0x00 > /dev/null
+        i2cset -f -y 1 0x3E 0x10 0x00 > /dev/null
+        i2cset -f -y 1 0x3E 0x11 0x00 > /dev/null
+        i2cset -f -y 1 0x3F 0x10 0x00 > /dev/null
+        i2cset -f -y 1 0x3F 0x11 0x00 > /dev/null
     else
         for i in /sys/devices/soc.0/0.leds/leds/* ;do
             echo 0 > $i/brightness
@@ -46,10 +46,10 @@ redLed()
     if [ "$1" == "on" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set red LEDs on
-            i2cset -y 0 0x3E 0x10 0x55 > /dev/null
-            i2cset -y 0 0x3E 0x11 0x55 > /dev/null
-            i2cset -y 0 0x3F 0x10 0x55 > /dev/null
-            i2cset -y 0 0x3F 0x11 0x55 > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0x55 > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0x55 > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0x55 > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0x55 > /dev/null
         else
             for i in /sys/devices/soc.0/0.leds/leds/red* ;do
                 echo 255 > $i/brightness
@@ -71,14 +71,14 @@ redLed()
     elif [ "$1" == "port1" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port1 red LEDs on
-            i2cset -y 0 0x3E 0x10 0x55 > /dev/null
-            i2cset -y 0 0x3E 0x11 0x55 > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0x55 > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0x55 > /dev/null
         fi
     elif [ "$1" == "port2" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port2 red LEDs on
-            i2cset -y 0 0x3F 0x10 0x55 > /dev/null
-            i2cset -y 0 0x3F 0x11 0x55 > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0x55 > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0x55 > /dev/null
         fi
     else
         >&2 usage
@@ -92,10 +92,10 @@ greenLed()
     if [ "$1" == "on" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set red LEDs on
-            i2cset -y 0 0x3E 0x10 0xAA > /dev/null
-            i2cset -y 0 0x3E 0x11 0xAA > /dev/null
-            i2cset -y 0 0x3F 0x10 0xAA > /dev/null
-            i2cset -y 0 0x3F 0x11 0xAA > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0xAA > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0xAA > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0xAA > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0xAA > /dev/null
         else
             for i in /sys/devices/soc.0/0.leds/leds/red* ;do
                 echo 0 > $i/brightness
@@ -117,14 +117,14 @@ greenLed()
     elif [ "$1" == "port1" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port1 green LEDs on
-            i2cset -y 0 0x3E 0x10 0xAA > /dev/null
-            i2cset -y 0 0x3E 0x11 0xAA > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0xAA > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0xAA > /dev/null
         fi
     elif [ "$1" == "port2" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port2 red LEDs on
-            i2cset -y 0 0x3F 0x10 0xAA > /dev/null
-            i2cset -y 0 0x3F 0x11 0xAA > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0xAA > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0xAA > /dev/null
         fi
     else
         >&2 usage
@@ -137,10 +137,10 @@ orangeLed()
     if [ "$1" == "on" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set red LEDs on
-            i2cset -y 0 0x3E 0x10 0xFF > /dev/null
-            i2cset -y 0 0x3E 0x11 0xFF > /dev/null
-            i2cset -y 0 0x3F 0x10 0xFF > /dev/null
-            i2cset -y 0 0x3F 0x11 0xFF > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0xFF > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0xFF > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0xFF > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0xFF > /dev/null
         else
             for i in /sys/devices/soc.0/0.leds/leds/red* ;do
                 echo 255 > $i/brightness
@@ -162,14 +162,14 @@ orangeLed()
     elif [ "$1" == "port1" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port1 orange LEDs on
-            i2cset -y 0 0x3E 0x10 0xFF > /dev/null
-            i2cset -y 0 0x3E 0x11 0xFF > /dev/null
+            i2cset -f -y 1 0x3E 0x10 0xFF > /dev/null
+            i2cset -f -y 1 0x3E 0x11 0xFF > /dev/null
         fi
     elif [ "$1" == "port2" ]; then
         if [ "$HW_REVISION" == "X" ]; then
             # set port2 orange LEDs on
-            i2cset -y 0 0x3F 0x10 0xFF > /dev/null
-            i2cset -y 0 0x3F 0x11 0xFF > /dev/null
+            i2cset -f -y 1 0x3F 0x10 0xFF > /dev/null
+            i2cset -f -y 1 0x3F 0x11 0xFF > /dev/null
         fi
     else
         >&2 usage

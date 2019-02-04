@@ -11,7 +11,7 @@ usage()
     echo "    BW            BandWidth"
     echo "    ANT           Antenna selection [1,2]"
     echo "    FREQ          Frequency of BB TX"
-    echo "    CAL_FOLDER    Calibration folder(optional), default folder: /tmp"
+    echo "    CAL_FOLDER    Calibration folder(optional), default folder: /mnt/app/cal"
     exit 1
 }
 

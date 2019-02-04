@@ -156,7 +156,7 @@ fi
 
 CAL_BB_ATT_TX2=$(cal-getbbtxatt ${TX_BW} 2 ${TX_FREQ} $CALFILES_DIR 2> /dev/null)
 if [ $? -ne 0 ] ; then
-    echo "$0 - Error Get BB Attenuation TX2: $CAL_BB_ATT_TX1"
+    echo "$0 - Error Get BB Attenuation TX2: $CAL_BB_ATT_TX2"
     exit 1
 fi
 
@@ -212,13 +212,13 @@ fi
 #################  Set FE TX Attenuation  #######################
 CAL_FE_TX_ATT_TX1=$(cal-getfetxatt -b ${TX_BW} -a 1 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
 if [ $? -ne 0 ] ; then
-    echo "$0 - Error Set FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
+    echo "$0 - Error Get FE TX Attenuation TX1: $CAL_BB_ATT_TX1"
     exit 1
 fi
 
-CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null)
+CAL_FE_TX_ATT_TX2=$(cal-getfetxatt -b ${TX_BW} -a 2 -f ${TX_FREQ} -p ${TX_POWER} -c $CALFILES_DIR -t 2> /dev/null) 
 if [ $? -ne 0 ] ; then
-    echo "$0 - Error Set FE TX Attenuation TX2: $CAL_BB_ATT_TX1"
+    echo "$0 - Error Get FE TX Attenuation TX2: $CAL_BB_ATT_TX2"
     exit 1
 fi
 

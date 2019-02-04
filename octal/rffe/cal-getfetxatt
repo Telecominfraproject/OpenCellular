@@ -4,7 +4,7 @@ FREQ_LINE=1
 OUTPUT_POWER_LINE=2
 TEMP_LINE=3
 CAL_OFFSET_LINE=4
-CALIBRATION_FOLDER_DEFAULT="/tmp"
+CALIBRATION_FOLDER_DEFAULT="/mnt/app/cal"
 TEMP_CORRECT_DEFAULT=0            #by default, disable temperature correction
 
 source /tmp/system.conf
@@ -33,7 +33,7 @@ DESCRIPTION
                 TX Power (dBm)
 
         -c FILE, --cal FILE
-                (optional) Calibration folder, default folder: /tmp
+                (optional) Calibration folder, default folder: /mnt/app/cal
 
         -t, --tc
                 (optional) Correct attenuation according to the temperature of PA.

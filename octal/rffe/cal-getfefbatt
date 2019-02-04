@@ -3,7 +3,7 @@
 FREQ_LINE=1
 OUTPUT_POWER_LINE=2
 CAL_OFFSET_LINE=3
-CALIBRATION_FOLDER_DEFAULT="/tmp"
+CALIBRATION_FOLDER_DEFAULT="/mnt/app/cal"
 
 source /tmp/system.conf
 
@@ -17,7 +17,7 @@ usage()
     echo "    ANT           Antenna selection [1,2]"
     echo "    FREQ          Frequency of BB TX"
     echo "    POWER         TX Power (dBm)"
-    echo "    CAL_FOLDER    (optional)Calibration folder, default folder: /tmp"
+    echo "    CAL_FOLDER    (optional)Calibration folder, default folder: /mnt/app/cal"
     exit 1
 }
 
