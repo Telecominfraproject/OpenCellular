@@ -41,7 +41,7 @@ CFLAGS += -Dxdc_target_types__="xdc_target_posix.h"
 # Short enums are assumed throughout the code, need the -fshort-enums flag
 CFLAGS += -fshort-enums
 
-INC_DIRS=-I. -Isrc -I$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -I$(DIR_SYSBIOS) -I$(DIR_TIDRIVERS) -I$(DIR_XDC)
+INC_DIRS=-I. -Isrc -isystem$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -isystem$(DIR_SYSBIOS) -isystem$(DIR_TIDRIVERS) -isystem$(DIR_XDC)
 
 BUILD_PATHS = $(RUNNER_PATH) $(PATHB) $(PATHR)
 
