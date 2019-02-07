@@ -149,7 +149,7 @@ ReturnStatus _execPost(OCMPMessageFrame *pMsg,
         if(!comp->components) {
            if (comp->postDisabled == POST_DISABLED ) {
                continue ;
-        }
+           }
            devSno++;
            post_init_POSTData(&postData,subsystem_id,devSno);
            //TODO: If postcode is configuration failure what should beth recovery action.

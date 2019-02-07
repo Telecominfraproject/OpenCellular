@@ -34,7 +34,7 @@ static ePostCode _init_eeprom(void *driver, const void **config,
     eeprom_read(eeprom, OC_TEST_ADDRESS, &read, 1);
 
     if (write == read) {
-        Semaphore_Handle sem = Semaphore_create(1, NULL, NULL);
+        sem = Semaphore_create(1, NULL, NULL);
         return POST_DEV_CFG_DONE;
     }
     return POST_DEV_CFG_FAIL;
@@ -42,7 +42,6 @@ static ePostCode _init_eeprom(void *driver, const void **config,
 
 void OCMP_alertLog(OCMPMessageFrame *pMsg, void *driver)
 {
-
     Semaphore_pend(sem, BIOS_WAIT_FOREVER);
 
     Eeprom_Cfg *eeprom = (Eeprom_Cfg *)driver;
@@ -53,8 +52,21 @@ void OCMP_alertLog(OCMPMessageFrame *pMsg, void *driver)
     }
 
     eeprom_enable_write(eeprom);
-    eeprom_write(eeprom, s_alertPointer*64, pMsg, 64);
+    for(int i = 0; i <64; i++) {
+        eeprom_write(eeprom, (s_alertPointer*64)+i, (uint8_t *)pMsg+i, 1);
+    }
     Semaphore_post(sem);
+
+    /* For debugging Purposes */
+#if 0
+    uint8_t byte[64];
+    for(int i = 0; i <64; i++) {
+        eeprom_read(eeprom, (s_alertPointer*64)+i, byte+i, 1);
+    }
+    for(int i = 0; i <64; i++) {
+    LOGGER_DEBUG("0x%x  ",byte[i]);
+    }
+#endif
     return;
 }
 #if 0
