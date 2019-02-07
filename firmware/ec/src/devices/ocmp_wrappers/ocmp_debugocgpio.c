@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#include "inc/ocmp_wrappers/ocmp_debugocgpio.h"
+#include "common/inc/ocmp_wrappers/ocmp_debugocgpio.h"
 
 #include "common/inc/global/Framework.h"
 #include "common/inc/global/ocmp_frame.h"
@@ -51,12 +51,11 @@ bool ocgpio_get(void *gpio_cfg, void *oc_gpio)
                                OCGPIO_CFG_IN_PU) };
     ret = OcGpio_configure(&ocgpio, OCGPIO_CFG_INPUT);
     s_oc_gpio->value = OcGpio_read(&ocgpio);
-    if (s_oc_gpio->value < 0) {
-        ret = -1;
-    }
     return (ret == 0);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 static ePostCode _probe(void *driver, POSTData *postData)
 {
     S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)driver;
@@ -73,6 +72,7 @@ static ePostCode _init(void *driver, const void *config,
     // Dummy functions.
     return POST_DEV_CFG_DONE;
 }
+#pragma GCC diagnostic pop
 
 const Driver_fxnTable DEBUG_OCGPIO_fxnTable = {
     /* Message handlers */

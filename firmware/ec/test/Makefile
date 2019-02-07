@@ -41,7 +41,7 @@ CFLAGS += -Dxdc_target_types__="xdc_target_posix.h"
 # Short enums are assumed throughout the code, need the -fshort-enums flag
 CFLAGS += -fshort-enums
 
-INC_DIRS=-I. -Isrc -I$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -I$(DIR_SYSBIOS) -I$(DIR_TIDRIVERS) -I$(DIR_XDC)
+INC_DIRS=-I. -Isrc -isystem$(UNITY_ROOT)/src -I$(OCWARE_ROOT) -I$(OCWARE_ROOT)/src -Ixdc_stubs -isystem$(DIR_SYSBIOS) -isystem$(DIR_TIDRIVERS) -isystem$(DIR_XDC)
 
 BUILD_PATHS = $(RUNNER_PATH) $(PATHB) $(PATHR)
 
@@ -189,6 +189,9 @@ $(PATHB)Test_ocmp_rfwatchdog$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_RFWATC
 
 TEST_OCMP_FE_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_fe.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_FE.c
 $(PATHB)Test_ocmp_fe$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_FE_SRC)
+
+TEST_OCMP_DEBUGOCGPIO_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_debugocgpio.c $(OCWARE_ROOT)/src/drivers/OcGpio.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_debugocgpio.c fake/fake_SX1509_register.c fake/fake_PCA9557.c stub/stub_GateMutex.c $(OCWARE_ROOT)/src/drivers/GpioPCA9557.c $(OCWARE_ROOT)/src/devices/pca9557.c $(OCWARE_ROOT)/src/drivers/GpioSX1509.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/devices/i2cbus.c $(OCWARE_ROOT)/src/helpers/memory.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_GBC.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_SDR.c
+$(PATHB)Test_ocmp_debugocgpio$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_DEBUGOCGPIO_SRC)
 
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
