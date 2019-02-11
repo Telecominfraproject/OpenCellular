@@ -1,8 +1,5 @@
 /*
- * dvt.c - TIP GPIO access module
- *
- *  Copyright (C) 2015 Nuranwireless Inc.
- *  <support@nuranwireless.com>
+ * dvt.c - System DVT
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +38,7 @@ static struct dvt_priv *gpriv;
 #define DISABLE 0
 #define ENABLE 1
 #define BB_CURR_TEMP_ALERT (1 << 0)
+#define FE_TEMP_ALERT (1 << 1)
 #define DVT_MAJOR_NUM 112
  
 struct dvt_priv
@@ -48,15 +46,18 @@ struct dvt_priv
 	struct device *dev;
     int bb_current_temp_sensor_alert_gpio;
 	char bb_current_temp_sensor_alert_szGpio[32];
-	u32 bb_current_temp_sensor_alert_default;
-
     unsigned int bb_curr_temp_irq_line;
+    unsigned int bb_current_temp_intr_ctrl;
 
-    unsigned int intr_flag;
+    int fe_temp_sensor_alert_gpio;
+	char fe_temp_sensor_alert_szGpio[32];
+    unsigned int fe_temp_irq_line;
+    unsigned int fe_temp_intr_ctrl;
+
     unsigned int irq_status;
+
     spinlock_t lock;    
 };
-
 
 //////////////////// FE Current Sensor Alert ////////////////////
 static ssize_t show_bb_current_temp_alert_enable(struct device *dev,
@@ -65,12 +66,23 @@ static ssize_t show_bb_current_temp_alert_enable(struct device *dev,
 	struct dvt_priv *priv = dev_get_drvdata(dev);
     int count = 0;
     spin_lock_irq(&priv->lock);
-	count = sprintf(buf, "%d\n", priv->intr_flag);
+	count = sprintf(buf, "%d\n", priv->bb_current_temp_intr_ctrl);
     spin_unlock_irq(&priv->lock);
     return count;
 }
 
-static ssize_t show_bb_current_temp_alert_status(struct device *dev,
+static ssize_t show_fe_temp_alert_enable(struct device *dev,
+        struct device_attribute *attr, char *buf)
+{
+    struct dvt_priv *priv = dev_get_drvdata(dev);
+    int count = 0;
+    spin_lock_irq(&priv->lock);
+    count = sprintf(buf, "%d\n", priv->fe_temp_intr_ctrl);
+    spin_unlock_irq(&priv->lock);
+    return count;
+}
+
+static ssize_t show_dvt_alert_status(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct dvt_priv *priv = dev_get_drvdata(dev);
@@ -79,9 +91,10 @@ static ssize_t show_bb_current_temp_alert_status(struct device *dev,
 	count = sprintf(buf, "%u\n", priv->irq_status);
     spin_unlock_irq(&priv->lock);
     return count;
-} 
-
-static ssize_t set_bb_current_temp_alert_status(struct device *dev,
+}
+ 
+/* Application is supposed to clear the irq status */
+static ssize_t set_dvt_alert_status(struct device *dev,
         struct device_attribute *attr,
         const char *buf, size_t count)
 {
@@ -113,19 +126,19 @@ static ssize_t set_bb_current_temp_alert_enable(struct device *dev,
         return ret;
     
     spin_lock_irq(&priv->lock);
-    if((ctrl == ENABLE)&& (priv->intr_flag == DISABLE)) {
+    if((ctrl == ENABLE)&& (priv->bb_current_temp_intr_ctrl == DISABLE)) {
 
         // Enable IRQ
-        priv->intr_flag = ENABLE;
+        priv->bb_current_temp_intr_ctrl = ENABLE;
         spin_unlock_irq(&priv->lock);
         enable_irq(priv->bb_curr_temp_irq_line);
 
-    }else if((ctrl == DISABLE) && (priv->intr_flag == ENABLE)){ 
+    }else if((ctrl == DISABLE) && (priv->bb_current_temp_intr_ctrl == ENABLE)){ 
         spin_unlock_irq(&priv->lock);
 
          // DISABLE IRQ
          disable_irq(priv->bb_curr_temp_irq_line);
-         priv->intr_flag = DISABLE;
+         priv->bb_current_temp_intr_ctrl = DISABLE;
     }else{
 
         spin_unlock_irq(&priv->lock);
@@ -133,14 +146,50 @@ static ssize_t set_bb_current_temp_alert_enable(struct device *dev,
     }
     return count;
 }
+
+static ssize_t set_fe_temp_alert_enable(struct device *dev,
+        struct device_attribute *attr,
+        const char *buf, size_t count)
+{
+    struct dvt_priv *priv = dev_get_drvdata(dev);
+    u32 ctrl;
+    int ret;
+
+    ret = kstrtouint(buf, 0, &ctrl);
+    if(ret)
+        return ret;
+
+    spin_lock_irq(&priv->lock);
+    if((ctrl == ENABLE)&& (priv->fe_temp_intr_ctrl == DISABLE)) {
+        // Enable IRQ
+        priv->fe_temp_intr_ctrl = ENABLE;
+        spin_unlock_irq(&priv->lock);
+        enable_irq(priv->fe_temp_irq_line);
+
+    }else if((ctrl == DISABLE) && (priv->fe_temp_intr_ctrl == ENABLE)){
+         spin_unlock_irq(&priv->lock);
+         // DISABLE IRQ
+         disable_irq(priv->fe_temp_irq_line);
+         priv->fe_temp_intr_ctrl = DISABLE;
+    }else{
+
+        spin_unlock_irq(&priv->lock);
+       //Do nothing
+    }
+    return count;
+}
+
+
 ///////////////////// BB Current temp Sensor Alert ///////////////////
 static DEVICE_ATTR(bb_current_temp_alert_enable, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_enable, set_bb_current_temp_alert_enable);
-static DEVICE_ATTR(bb_current_temp_alert_status, S_IWUSR|S_IRUGO, show_bb_current_temp_alert_status, set_bb_current_temp_alert_status);
+static DEVICE_ATTR(fe_temp_alert_enable, S_IWUSR|S_IRUGO, show_fe_temp_alert_enable, set_fe_temp_alert_enable);
+static DEVICE_ATTR(dvt_alert_status, S_IWUSR|S_IRUGO, show_dvt_alert_status, set_dvt_alert_status);
 ///////////////////// END FE Current Sensor Alert  //////////////
 
 static struct attribute *dvt_attrs[] = {
     &dev_attr_bb_current_temp_alert_enable.attr,
-    &dev_attr_bb_current_temp_alert_status.attr,
+    &dev_attr_fe_temp_alert_enable.attr,
+    &dev_attr_dvt_alert_status.attr,
 	NULL,
 };
 
@@ -150,11 +199,21 @@ static const struct attribute_group dvt_attr_group = {
 
 static irqreturn_t bb_curr_temp_handler(int irq, void *dev_id)
 {
-    printk(KERN_DEBUG "Receieving CURENT_TEMP IRQ\n");
+    printk(KERN_DEBUG "DVT: Receiving BB_CURRENT_TEMP IRQ_\n");
     gpriv->irq_status |= BB_CURR_TEMP_ALERT;
     wake_up_interruptible(&irq_wait);
     disable_irq_nosync(gpriv->bb_curr_temp_irq_line);
-    gpriv->intr_flag = DISABLE;
+    gpriv->bb_current_temp_intr_ctrl = DISABLE;
+    return IRQ_HANDLED;
+}
+
+static irqreturn_t fe_temp_handler(int irq, void *dev_id)
+{
+    printk(KERN_DEBUG "DVT: Receiving FE_TEMP IRQ\n");
+    gpriv->irq_status |= FE_TEMP_ALERT;
+    wake_up_interruptible(&irq_wait);
+    disable_irq_nosync(gpriv->fe_temp_irq_line);
+    gpriv->fe_temp_intr_ctrl = DISABLE;
     return IRQ_HANDLED;
 }
 
@@ -170,10 +229,40 @@ int dvt_parse_dt(struct platform_device *pdev)
     // bb_current_temp_sensor_alert value
 	priv->bb_current_temp_sensor_alert_gpio = of_get_named_gpio(np, "bb-current-temp-sensor-alert-gpio", 0);
 	if (priv->bb_current_temp_sensor_alert_gpio < 0) {
-		dev_warn(&pdev->dev, "Can't read bb current sensor alert gpio from DT.\n");
+		dev_warn(&pdev->dev, "DVT: Can't read bb current sensor alert gpio from DVT.\n");
+	}
+
+	priv->fe_temp_sensor_alert_gpio = of_get_named_gpio(np, "fe-temp-sensor-alert-gpio", 0);
+	if (priv->fe_temp_sensor_alert_gpio < 0) {
+		dev_warn(&pdev->dev, "DVT: Can't read fe_temp_sensor_alert_gpio alert gpio from DVT.\n");
 	}
 
 	return 0;
+}
+
+static unsigned int dvt_setup_gpio_irq(char *name, struct platform_device *pdev, int gpio, char *szGpio)
+{
+    int ret;
+
+    printk(KERN_DEBUG "DVT: gpio number %d\n", gpio);
+    if(gpio > 0)
+    {
+       sprintf(szGpio, name);
+       ret = gpio_request(gpio, szGpio);
+       if ( ret )
+       {
+           dev_err(&pdev->dev, "DVT: Could not obtain GPIO %d: %s\n", gpio, szGpio);
+           return ret;
+       }
+       ret = gpio_direction_input(gpio);
+       if ( ret )
+       {
+           dev_err(&pdev->dev, "DVT: Could not configure GPIO %d direction: %d\n", gpio, ret);
+           return ret;
+       }
+   }
+
+   return octeon_gpio_irq(gpio);
 }
 
 static int dvt_probe(struct platform_device *pdev)
@@ -186,7 +275,8 @@ static int dvt_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
     gpriv = priv;
-    priv->intr_flag = DISABLE;
+    priv->bb_current_temp_intr_ctrl = DISABLE;
+    priv->fe_temp_intr_ctrl = DISABLE;
     priv->irq_status = 0;
 	priv->dev = &pdev->dev;
 	platform_set_drvdata(pdev, priv);
@@ -197,42 +287,37 @@ static int dvt_probe(struct platform_device *pdev)
 	}
 
     spin_lock_init(&priv->lock);
-    printk(KERN_DEBUG "bb_current_temp_sensor_alert_gpio number %d\n",  priv->bb_current_temp_sensor_alert_gpio);	
-        // BB current temperature sensor alert
-        if(priv->bb_current_temp_sensor_alert_gpio > 0)
-	{
-		sprintf(priv->bb_current_temp_sensor_alert_szGpio, "bb_curr_temp_sensor_alert");
-		ret = gpio_request(priv->bb_current_temp_sensor_alert_gpio,
-			priv->bb_current_temp_sensor_alert_szGpio);
-		if ( ret )
-		{
-			dev_err(&pdev->dev, "Could not obtain GPIO %d: %s\n",
-				priv->bb_current_temp_sensor_alert_gpio, priv->bb_current_temp_sensor_alert_szGpio);
-			return ret;
-		}
-		ret = gpio_direction_input(priv->bb_current_temp_sensor_alert_gpio);
-		if ( ret )
-		{
-			dev_err(&pdev->dev, "Could not configure GPIO %d direction: %d\n",
-				priv->bb_current_temp_sensor_alert_gpio, ret);
-			return ret;
-		}
-	}
 
-    priv->bb_curr_temp_irq_line = octeon_gpio_irq(priv->bb_current_temp_sensor_alert_gpio);
-    printk(KERN_DEBUG "bb_curr_temp_irq_line %d\n", priv->bb_curr_temp_irq_line);
+    // BB intr
+    priv->bb_curr_temp_irq_line = dvt_setup_gpio_irq("bb_curr_temp_alert", pdev,
+        priv->bb_current_temp_sensor_alert_gpio, priv->bb_current_temp_sensor_alert_szGpio);
 
-    //if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQ_TYPE_EDGE_FALLING, "dvt_irq", priv )) {
-    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "dvt_irq", priv )) {
-         printk(KERN_DEBUG "dvt irq failed\n");
-         gpio_free(priv->bb_current_temp_sensor_alert_gpio);
-         devm_kfree(&pdev->dev, priv);
+
+    if(request_irq(priv->bb_curr_temp_irq_line, bb_curr_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "bb_curr_temp_irq", priv )) {
+         printk(KERN_DEBUG "bb_curr_temp_irq\n");
          return -1;
     }
 
+    /* Since the default of current alert setting starts at zero; 
+       there is an inter imediately after request_irq which creates
+       race condition hence need to check the below.
+    */
     spin_lock_irq(&priv->lock);
-    priv->intr_flag = ENABLE; 
+    if(priv->bb_current_temp_intr_ctrl == ENABLE)
+    {
+        disable_irq(priv->bb_curr_temp_irq_line);
+        priv->bb_current_temp_intr_ctrl = DISABLE; 
+    }
     spin_unlock_irq(&priv->lock);
+
+    // FE intr
+     priv->fe_temp_irq_line = dvt_setup_gpio_irq("fe_temp_alert", pdev, 
+           priv->fe_temp_sensor_alert_gpio, priv->fe_temp_sensor_alert_szGpio);
+
+     if(request_irq(priv->fe_temp_irq_line, fe_temp_handler, IRQF_SHARED|IRQ_TYPE_LEVEL_LOW, "fe_temp_irq", priv )) {
+         printk(KERN_DEBUG "fe_temp_irq\n");
+         return -1;
+    }
 
 	ret = sysfs_create_group(&priv->dev->kobj, &dvt_attr_group);
 	if (ret) {

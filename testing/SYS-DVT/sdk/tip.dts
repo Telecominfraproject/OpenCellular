@@ -481,8 +481,9 @@
              reg = <0 0 0 0>;
              compatible = "dvt";
              bb-current-temp-sensor-alert-gpio = <&gpio 1 0>;
+             fe-temp-sensor-alert-gpio = <&gpio 13 0>;
              interrupt-parent = <&gpio>;
-             interrupts = <1 8>;
+             interrupts = <1 8>, <13 8>;
         };
 	
 		tip {
