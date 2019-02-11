@@ -23,6 +23,8 @@
  *                             MACRO DEFINITIONS
  *****************************************************************************/
 #define LED_OFF 0xFF
+#define LED_RED 0xAA
+#define LED_GREEN 0x55
 
 /* ClkX = fOSC/(2^(RegMisc[6:4]-1); 0x50-125kHz, 0x40-250KHz, 0x30-500KHz,
  * 0x20-1MHz, 0x10-2MHz; Fading - Linear */
@@ -84,5 +86,8 @@ ReturnStatus hci_led_system_boot(const HciLedCfg *driver);
 ReturnStatus led_init(const HciLedCfg *driver);
 ePostCode led_probe(const HciLedCfg *driver, POSTData *postData);
 void led_configure(HciLedCfg *driver);
-
+ReturnStatus hci_led_backhaul_failure(const HciLedCfg *driver);
+ReturnStatus hci_led_radio_failure(const HciLedCfg *driver);
+ReturnStatus hci_led_system_failure(const HciLedCfg *driver);
+ReturnStatus hci_led_system_running(const HciLedCfg *driver);
 #endif /* INA226_H_ */
