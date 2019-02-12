@@ -240,7 +240,7 @@ static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
     OCMPMessageFrame *buffer = NULL;
     const Post *postCmd = &comp->driver->post[(pMsg->message.action) - 1];
     if (postCmd && postCmd->cb_postCmd) {
-        ret = postCmd->cb_postCmd((void **)buffer);
+        ret = postCmd->cb_postCmd(&buffer);
         if (ret) {
             Util_enqueueMsg(postRxMsgQueue, semPOSTMsg, (uint8_t *)buffer);
         }
