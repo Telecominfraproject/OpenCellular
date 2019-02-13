@@ -200,6 +200,9 @@ $(PATHB)Test_ocmp_dat-xxr5a$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_DATXXR5
 TEST_LED_SRC=$(OCWARE_ROOT)/src/devices/led.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_SX1509_register.c fake/fake_led.c stub/stub_GateMutex.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_LED.c
 $(PATHB)Test_led$(TARGET_EXTENSION): $(STD_FILES) $(TEST_LED_SRC)
 
+TEST_OCMP_LED_SRC=$(OCWARE_ROOT)/src/devices/ocmp_wrappers/ocmp_led.c $(OCWARE_ROOT)/src/devices/led.c $(OCWARE_ROOT)/src/devices/sx1509.c $(OCWARE_ROOT)/src/devices/i2cbus.c fake/fake_GPIO.c fake/fake_I2C.c fake/fake_ThreadedISR.c fake/fake_SX1509_register.c fake/fake_led.c stub/stub_GateMutex.c $(OCWARE_ROOT)/platform/oc-sdr/cfg/OC_CONNECT_LED.c
+$(PATHB)Test_ocmp_led$(TARGET_EXTENSION): $(STD_FILES) $(TEST_OCMP_LED_SRC)
+
 $(PATHB)%$(TARGET_EXTENSION):
 	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $^ -o $@    
 	$(COV_CMDS)
