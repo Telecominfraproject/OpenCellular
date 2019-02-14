@@ -1,0 +1,162 @@
+diff -Naur tip-sdk/linux/kernel/linux/drivers/hwmon/ina2xx.c tip-sdk_new/linux/kernel/linux/drivers/hwmon/ina2xx.c
+--- tip-sdk/linux/kernel/linux/drivers/hwmon/ina2xx.c	2018-08-09 22:34:53.000000000 +0530
++++ tip-sdk_new/linux/kernel/linux/drivers/hwmon/ina2xx.c	2019-02-11 17:48:59.448558120 +0530
+@@ -55,6 +55,14 @@
+ /* worst case is 68.10 ms (~14.6Hz, ina219) */
+ #define INA2XX_CONVERSION_RATE		15
+ 
++/* Mask/Enable Register Bits */
++#define INA_ALERT_EN_MASK 0xF800 /* Upper 5 bits are the enable bits */
++#define INA_MSK_SOL (1 << 15)    /* Shunt over-voltage */
++#define INA_MSK_SUL (1 << 14)    /* Shunt under-voltage */
++#define INA_MSK_BOL (1 << 13)    /* Bus over-voltage */
++#define INA_MSK_BUL (1 << 12)    /* Bus under-voltage */
++#define INA_MSK_POL (1 << 11)    /* Power over limit */
++
+ enum ina2xx_ids { ina219, ina226 };
+ 
+ struct ina2xx_data {
+@@ -152,7 +160,6 @@
+ 	 * calibration value is INA226_CALIBRATION_VALUE
+ 	 */
+ 	int val = data->regs[reg];
+-
+ 	switch (reg) {
+ 	case INA2XX_SHUNT_VOLTAGE:
+ 		/* LSB=2.5uV. Convert to mV. */
+@@ -169,7 +176,11 @@
+ 	case INA2XX_CURRENT:
+ 		/* LSB=1mA (selected). Is in mA */
+ 		break;
+-	default:
++    case INA226_MASK_ENABLE:
++        break;
++    case INA226_ALERT_LIMIT:
++        break;
++    default:
+ 		/* programmer goofed */
+ 		WARN_ON_ONCE(1);
+ 		val = 0;
+@@ -202,7 +213,50 @@
+ 	}
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+ }
+-
++static ssize_t ina2xx_set_value(struct device *dev,
++                 struct device_attribute *da, char *buf,size_t count)
++{
++    struct sensor_device_attribute *attr = to_sensor_dev_attr(da); 
++	struct i2c_client *client = to_i2c_client(dev);
++    struct ina2xx_data *data = i2c_get_clientdata(client);
++    long temp;
++    u16 temp_short; 
++    int error;   
++    error = kstrtol(buf, 10, &temp);
++    if (error)	
++        return error;
++	int reg = attr->index;
++    temp_short=(u16)temp;
++	switch(reg)    
++	{
++		case INA226_MASK_ENABLE:
++		{
++            /* Now not required to export to set Mask / Enable register values everytime */
++            /* Because we are setting already in the probe routine for the current Alert */
++            #if 0
++            uint16_t alert_mask = i2c_smbus_read_word_swapped(client, INA226_MASK_ENABLE);
++            if (alert_mask < 0) 
++            {
++                return -1;
++            }
++            alert_mask &= (~INA_ALERT_EN_MASK);
++            alert_mask |=INA_MSK_SOL;
++            i2c_smbus_write_word_swapped(client, INA226_MASK_ENABLE,
++                 
++            alert_mask);
++            #endif  
++            break;
++		}
++		case INA226_ALERT_LIMIT:
++		{
++           i2c_smbus_write_word_swapped(client, INA226_ALERT_LIMIT,
++                         temp_short);
++		    break;
++		}
++		
++	}
++	return count;
++}
+ /* shunt voltage */
+ static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, \
+ 	ina2xx_show_value, NULL, INA2XX_SHUNT_VOLTAGE);
+@@ -218,6 +272,13 @@
+ /* calculated power */
+ static SENSOR_DEVICE_ATTR(power1_input, S_IRUGO, \
+ 	ina2xx_show_value, NULL, INA2XX_POWER);
++/* calculated enable register value */
++static SENSOR_DEVICE_ATTR(enable_register, S_IRUGO | S_IWUSR , \
++    ina2xx_show_value,ina2xx_set_value,INA226_MASK_ENABLE);
++/* calculated alert limit register  */
++static SENSOR_DEVICE_ATTR(alert_limit_register, S_IRUGO | S_IWUSR , \
++    ina2xx_show_value,ina2xx_set_value,INA226_ALERT_LIMIT);
++
+ 
+ /* pointers to created device attributes */
+ static struct attribute *ina2xx_attributes[] = {
+@@ -225,6 +286,8 @@
+ 	&sensor_dev_attr_in1_input.dev_attr.attr,
+ 	&sensor_dev_attr_curr1_input.dev_attr.attr,
+ 	&sensor_dev_attr_power1_input.dev_attr.attr,
++    &sensor_dev_attr_enable_register.dev_attr.attr,
++    &sensor_dev_attr_alert_limit_register.dev_attr.attr,
+ 	NULL,
+ };
+ 
+@@ -239,7 +302,8 @@
+ 	struct ina2xx_data *data;
+ 	struct ina2xx_platform_data *pdata;
+ 	int ret = 0;
+-	long shunt = 10000; /* default shunt value 10mOhms */
++	//long shunt = 10000; /* default shunt value 10mOhms */
++	long shunt = 2000; /* default shunt value 10mOhms */
+ 
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA))
+ 		return -ENODEV;
+@@ -252,8 +316,8 @@
+ 		pdata =
+ 		  (struct ina2xx_platform_data *)client->dev.platform_data;
+ 		shunt = pdata->shunt_uohms;
++        
+ 	}
+-
+ 	if (shunt <= 0)
+ 		return -ENODEV;
+ 
+@@ -282,10 +346,26 @@
+ 		/* set current LSB to 1mA, shunt is in uOhms */
+ 		/* (equation 1 in datasheet)*/
+ 		i2c_smbus_write_word_swapped(client, INA2XX_CALIBRATION,
+-					     5120000 / shunt);
++					     5120000/shunt); // 0.002
+ 		dev_info(&client->dev,
+ 			 "power monitor INA226 (Rshunt = %li uOhm)\n", shunt);
+ 		data->registers = INA226_REGISTERS;
++        
++        /* Setting the Mask / Enable register for the Current Alert */  
++        /* Read the data from the Mask / Enable register */
++        uint16_t alert_mask = i2c_smbus_read_word_swapped(client, INA226_MASK_ENABLE);
++        if (alert_mask < 0)
++        {
++            return -1;
++        }
++        /* clear the alert bits of Mask / Enable Register */
++        alert_mask &= (~INA_ALERT_EN_MASK);
++        /* Enable over current Alert only */
++        alert_mask |=INA_MSK_SOL;
++        /* write the data into the Mask / Enable Register */
++        i2c_smbus_write_word_swapped(client, INA226_MASK_ENABLE,
++                         alert_mask);
++
+ 		break;
+ 	default:
+ 		/* unknown device id */

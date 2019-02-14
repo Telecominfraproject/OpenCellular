@@ -1,0 +1,47 @@
+diff -Naur tip-sdk/bootloader/u-boot/board/octeon/tip/tip.dts tip-sdk_new/bootloader/u-boot/board/octeon/tip/tip.dts
+--- tip-sdk/bootloader/u-boot/board/octeon/tip/tip.dts	2018-08-09 22:34:13.000000000 +0530
++++ tip-sdk_new/bootloader/u-boot/board/octeon/tip/tip.dts	2019-02-11 17:56:29.530789957 +0530
+@@ -135,15 +135,15 @@
+ 			};
+ 
+ 
+-			lm75tx1@4A {
++			lm75tx1@48 {
+ 				compatible = "ti,lm75";
+-				reg = <0x4A>;
++				reg = <0x48>;
+ 			};
+ 
+ 
+-			ina226tx1@40 {
++			ina226tx1@44 {
+ 				compatible = "ti,ina226";
+-				reg = <0x40>;
++				reg = <0x44>;
+ 			};
+ 
+ 			ad7995tx1@28 {
+@@ -152,9 +152,14 @@
+ 				vcc-supply=<&pa_stepup>;
+ 			};
+ 			
+-			eeprom@51 {
++			eeprom@50 {
+ 				compatible = "at,24c64";
+-				reg = <0x51>;
++				reg = <0x50>;
++			};
++
++			eeprom@52 {
++				compatible = "at,24c64";
++				reg = <0x52>;
+ 			};
+ 		};
+ 
+@@ -740,4 +754,4 @@
+ 		uart1 = &uart1;
+ 		flash0 = &flash0;
+ 	};
+- };
+\ No newline at end of file
++ };

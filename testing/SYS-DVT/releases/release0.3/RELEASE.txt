@@ -1,0 +1,44 @@
+0.3 changes:
+-----------
+
+0.2 changes:
+-----------
+Linux:
+
+Added DVT driver default Kconfig selection as 'yes'
+Fixed a interrupt enable/disable race condition in the DVT driver.
+
+Rootfs:
+
+minor cleanup in the dvt/
+
+Limitations:
+
+The dvt release currently only supports TFTP boot due to increase in size of rootfs
+
+0.1 changes
+-----------
+U-boot:
+
+Initrd load memory has been increased form 40MB to 80 MB to accomadate DVT packages added.
+IMPORTANT: The above patch will modify the namedalloc alloc variable for initrd in u-boot
+but the env of the board may have the old one. Please manually add the namedalloc variable change.
+
+Device-tree:
+Added suupport for BB Current/temperature interrupt
+
+Linux:
+
+New DVT driver added in drivers/misc/dvt.c also upated Kconfig and Makefile.
+Added support for gpio to irq conversion in arch/mips/cavium-octeon/octeon-irq.c
+exported new sys variables in drivers/hwmon/ina2xx.c
+
+Rootfs:
+
+Added python2.7 in /usr/bin
+Added dvt folder in / which has all the svt python scripts
+Added new device node in /dev to access dvt driver from userspace
+
+Limitations:
+
+The dvt release currently only supports TFTP boot due to increase in size of rootfs
