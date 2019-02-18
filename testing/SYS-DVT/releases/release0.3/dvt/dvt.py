@@ -28,6 +28,12 @@ class dvt():
         for x in d:
             #print x
             if((x == self.arglist[PARAM]) or (self.arglist[PARAM] == 'all') ):
+                try:
+                    if(d[x]['pre']):
+                        #run pre command
+                        buf = self.run_command(d[x]['pre'])
+                except:
+                    pass
                 buf = self.run_command(d[x]['cmd']+ ' ' + d[x]['path'] + d[x]['file'])
                 print x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit'] 
                 if(self.arglist[PARAM] != 'all'):

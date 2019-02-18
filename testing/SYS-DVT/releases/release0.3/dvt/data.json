@@ -48,15 +48,15 @@
                                    "unit": "mA"
                 },
                "bb_alert_gpio":{
-                                  "path":"/sys/devices/soc.0/0.dvt/",
-                                  "file":"bb_current_temp_alert_enable",
+                                  "path":"/sys/class/gpio/",
+                                  "file":"gpio1/value",
                                   "pre": "echo 1 > /sys/class/gpio/export",
                                   "cmd":"cat",
                                   "unit":" interrupt_flag"
                },
                "fe_alert_gpio":{
-                                "path":"/sys/devices/soc.0/0.dvt/",
-                                "file":"dvt_alert_status",
+                                "path":"/sys/class/gpio/",
+                                "file":"gpio13/value",
                                 "pre":"echo 13 > /sys/class/gpio/export",
                                 "cmd":"cat",
                                 "unit":"interrupt_flag"
