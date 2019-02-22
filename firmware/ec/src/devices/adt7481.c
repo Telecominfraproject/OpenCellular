@@ -245,11 +245,11 @@ ePostCode adt7481_probe(const I2C_Dev *i2c_dev, POSTData *postData)
     } else if ((devId == TEMP_ADT7481_DEV_ID) &&
                (manfId == TEMP_ADT7481_MANF_ID)) {
         postcode = POST_DEV_FOUND;
+        post_update_POSTData(postData, i2c_dev->bus, i2c_dev->slave_addr,
+                             manfId, devId);
     } else {
         postcode = POST_DEV_ID_MISMATCH;
     }
-    post_update_POSTData(postData, i2c_dev->bus, i2c_dev->slave_addr, manfId,
-                         devId);
     return postcode;
 }
 
@@ -1122,7 +1122,7 @@ ReturnStatus adt7481_set_remote1_temp_offset(const I2C_Dev *i2c_dev,
                                              int16_t tempOffsetValue)
 {
     ReturnStatus status = RETURN_NOTOK;
-    uint8_t regValue = 0x0000;
+    uint16_t regValue = 0x0000;
 
     /* Converting Temp limit into the register value */
     regValue = TEMP_TO_REG_U16(tempOffsetValue);
@@ -1132,7 +1132,7 @@ ReturnStatus adt7481_set_remote1_temp_offset(const I2C_Dev *i2c_dev,
                                (uint8_t)regValue);
     if (status == RETURN_OK) {
         /* Write MSB data */
-        status = adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE1_OFFSET_L,
+        status = adt7481_raw_write(i2c_dev, ADT7481_REG_W_REMOTE1_OFFSET_H,
                                    (uint8_t)(regValue >> 8));
     }
     return status;
@@ -1162,7 +1162,7 @@ ReturnStatus adt7481_get_remote2_temp_offset(const I2C_Dev *i2c_dev,
         tempOffsetValue = NULL;
     } else {
         /* Read MSB data */
-        status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_OFFSET_L,
+        status = adt7481_raw_read(i2c_dev, ADT7481_REG_R_REMOTE2_OFFSET_H,
                                   &hRegValue);
         if (status != RETURN_OK) {
             tempOffsetValue = NULL;
@@ -1188,7 +1188,7 @@ ReturnStatus adt7481_set_remote2_temp_offset(const I2C_Dev *i2c_dev,
                                              int8_t tempOffsetValue)
 {
     ReturnStatus status = RETURN_NOTOK;
-    uint8_t regValue = 0x0000;
+    uint16_t regValue = 0x0000;
 
     /* Converting Temp limit into the register value */
     regValue = TEMP_TO_REG_U16(tempOffsetValue);

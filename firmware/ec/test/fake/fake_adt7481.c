@@ -1,0 +1,66 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+#include "include/test_adt7481.h"
+
+OcGpio_Port s_fake_io_port = {
+    .fn_table = &FakeGpio_fnTable,
+    .object_data = &(FakeGpio_Obj){},
+};
+
+const I2C_Dev adt_invalid_dev = {
+    .bus = 7,
+    .slave_addr = 0x52,
+};
+
+const I2C_Dev adt_invalid_bus = {
+    .bus = 3,
+    .slave_addr = 0x2F,
+};
+
+uint8_t ADT7481_regs[] = {
+    [ADT7481_REG_LOCAL_TEMP_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_HIGH_BYTE_R] = 0x00,
+    [ADT7481_REG_STATUS_1_R] = 0x00,
+    [ADT7481_REG_CONFIGURATION_1_R] = 0x00,
+    [ADT7481_REG_COVERSION_RATE_CHANNEL_SEL_R] = 0x00,
+    [ADT7481_REG_LOCAL_TEMP_HIGH_LIMIT_R] = 0x00,
+    [ADT7481_REG_LOCAL_TEMP_LOW_LIMIT_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_HIGH_LIMIT_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_LOW_LIMIT_R] = 0x00,
+    [ADT7481_REG_CONFIGURATION_1_W] = 0x00,
+    [ADT7481_REG_COVERSION_RATE_CHANNEL_SEL_W] = 0x00,
+    [ADT7481_REG_LOCAL_TEMP_HIGH_LIMIT_W] = 0x00,
+    [ADT7481_REG_LOCAL_TEMP_LOW_LIMIT_W] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_HIGH_LIMIT_W] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_LOW_LIMIT_W] = 0x00,
+    [ADT7481_REG_ONE_SHOT_W] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_OFFSET_HIGH_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_OFFSET_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_HIGH_LIMIT_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_TEMP_LOW_LIMIT_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_1_THERM_LIMIT_R] = 0x00,
+    [ADT7481_REG_LOCAL_THERM_LIMIT_R] = 0x00,
+    [ADT7481_REG_THERM_HYSTERESIS_R] = 0x00,
+    [ADT7481_REG_CONSECUTIVE_ALERT_R] = 0x00,
+    [ADT7481_REG_STATUS_2_R] = 0x00,
+    [ADT7481_REG_CONFIGURATION_2_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_HIGH_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_HIGH_LIMIT_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_LOW_LIMIT_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_OFFSET_HIGH_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_OFFSET_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_HIGH_LIMIT_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_TEMP_LOW_LIMIT_LOW_BYTE_R] = 0x00,
+    [ADT7481_REG_REMOTE_2_THERM_LIMIT_R] = 0x00,
+    [ADT7481_REG_DEVICE_ID_R] = 0x00,
+    [ADT7481_REG_MAN_ID_R] = 0x00,
+    [ADT7481_REG_END] = 0x00,
+};

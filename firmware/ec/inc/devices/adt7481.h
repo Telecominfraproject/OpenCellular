@@ -167,5 +167,17 @@ ReturnStatus adt7481_get_therm_hysteresis(const I2C_Dev *i2c_dev,
                                           int8_t *tempHysteresisValue);
 ReturnStatus adt7481_set_therm_hysteresis(const I2C_Dev *i2c_dev,
                                           int8_t tempHysteresisValue);
+ReturnStatus adt7481_set_remote1_temp_therm_limit(const I2C_Dev *i2c_dev,
+                                                  int8_t tempLimitValue);
+ReturnStatus adt7481_set_remote1_temp_high_limit(const I2C_Dev *i2c_dev,
+                                                 int8_t tempLimitValue);
+ReturnStatus adt7481_set_remote1_temp_low_limit(const I2C_Dev *i2c_dev,
+                                                int8_t tempLimitValue);
+ReturnStatus adt7481_get_remote1_temp_therm_limit(const I2C_Dev *i2c_dev,
+                                                  int8_t *tempLimitValue);
+ReturnStatus adt7481_get_remote1_temp_high_limit(const I2C_Dev *i2c_dev,
+                                                 int8_t *tempLimitValue);
+ReturnStatus adt7481_get_remote1_temp_low_limit(const I2C_Dev *i2c_dev,
+                                                int8_t *tempLimitValue);
 
 #endif /* ADT7481_H_ */
