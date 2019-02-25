@@ -8,7 +8,7 @@
 						            "cmd":"cat",
 					                "unit": "mCelcius"
 				},
-				"temperature_alert": {
+				"temperature_alert_limit": {
 				                    "path":"/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0048/",
 						            "file":"temp1_max",
 						            "cmd":"cat",
@@ -41,7 +41,7 @@
                                    "cmd":"cat",
                                    "unit": "mA"
                 },
-                "current_alert": {
+                "current_alert_limit": {
                                    "path":"/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0044/",
                                    "file":"alert_limit_register",
                                    "cmd":"cat",
@@ -51,20 +51,22 @@
                                   "path":"/sys/class/gpio/",
                                   "file":"gpio1/value",
                                   "pre": "echo 1 > /sys/class/gpio/export",
+                                  "post": "echo 1 > /sys/class/gpio/unexport",
                                   "cmd":"cat",
-                                  "unit":" interrupt_flag"
+                                  "unit":"0=ON, 1=OFF"
                },
-               "fe_alert_gpio":{
+               "fe_temp_alert":{
                                 "path":"/sys/class/gpio/",
                                 "file":"gpio13/value",
                                 "pre":"echo 13 > /sys/class/gpio/export",
+                                "post": "echo 13 > /sys/class/gpio/unexport",
                                 "cmd":"cat",
-                                "unit":"interrupt_flag"
+                                "unit":"0=ON, 1=OFF"
                             
                              }
                },
 			"set": {
-				"temperature_alert": {
+				"temperature_alert_limit": {
 				                    "path":"/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0048/",
 						            "file":"temp1_max",
 						            "cmd":"echo",
@@ -82,7 +84,7 @@
                                     "init":0,
 					                "unit": "mCelcius"
 				},
-				"current_alert": {
+				"current_alert_limit": {
 				                   "path":"/sys/devices/soc.0/1180000001000.i2c/i2c-0/0-0044/",
                                    "file":"alert_limit_register",
 						           "cmd":"echo",
@@ -116,6 +118,8 @@
 		},
 		"help": "./occmd.py <module_name> <get/set> <param/all> <value>",
 		"version": "0.2",
-		"reliability": null
+		"monitor": {
+                           "delay":3
+                       }
 }
 }

@@ -6,7 +6,7 @@ import time
 from dvt import *
 from reliability import *
 
-DB_FILE = "data.json"
+DB_FILE = "band28.json"
 
 def main():
     a = dvt(DB_FILE)

@@ -35,7 +35,14 @@ class dvt():
                 except:
                     pass
                 buf = self.run_command(d[x]['cmd']+ ' ' + d[x]['path'] + d[x]['file'])
-                print x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit'] 
+                print self._ts() + ' ' + x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit'] 
+                try:
+                    if(d[x]['post']):
+                        #run pre command
+                        buf = self.run_command(d[x]['post'])
+                except:
+                    pass
+
                 if(self.arglist[PARAM] != 'all'):
                     break
             
@@ -49,27 +56,24 @@ class dvt():
         if(self.arglist[VALUE] == ''):
             return -1
         for x in d:
-            #print x
             if( x == self.arglist[PARAM]):
-                #print x
                 max_val = int(d[x]['max'])
                 min_val = int(d[x]['min'])
-                #print max_val
-                #print min_val
-                #print self.arglist[VALUE]
                 if(int(self.arglist[VALUE]) <= max_val and int(self.arglist[VALUE] >= min_val)):
                     # Value good; Now continue
                     buf = (d[x]['cmd'] + " " + self.arglist[VALUE] + " > "+ d[x]['path'] + d[x]['file'])
                     print buf
                     self.run_command(buf)
                     break
-                    #print x + ' : ' + buf.rstrip('\n') + ' ' + d[x]['unit']
                 else:
                     print("error: Value out of range\n")
 
         return 0
 
-
+    def _ts(self):
+        buf = self.run_command("echo $(date +%x_%r)")
+        return buf.rstrip('\n')
+        
     def _command(self, command):
         buf = ""
         #process = Popen(shlex.split(command), stdout=PIPE)
@@ -80,7 +84,6 @@ class dvt():
                 break
             if output:
                 buf  = buf + output
-                #print buf
         rc = process.poll()
         return buf
      
@@ -126,7 +129,7 @@ class dvt():
                     if((x == 'help') or (x == 'version')):
                         print(d[x])
                         return 0
-                    if(x == 'reliability'):
+                    if(x == 'monitor'):
                         try:
                             run_reliability(self)
                         except:

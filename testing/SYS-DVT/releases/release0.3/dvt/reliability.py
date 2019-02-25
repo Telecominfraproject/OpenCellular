@@ -5,74 +5,58 @@ import subprocess
 import time
 from dvt import *
 
-def run_reliability(a):
+def parse_data(buff):
+    current = -1
+    current_alert = -1
+    temperature = -1
+    temperature_alert = -1;
+    fe_temp_alert = -1
+ 
+    print buff
+    lines = buff.split('\n')
+    for each_line in lines:
+        clean_line = each_line.strip()
+        if 'current' in clean_line:
+            field = clean_line.split(' ')
+            if field[2] == 'current':
+                current = int(field[4])
+            if field[2] == 'current_alert_limit':
+                   current_alert = int(field[4])
 
-    monitor_bb_current_temp(a)
-    return
+        if 'temperature' in clean_line:
+            field = clean_line.split(' ')
+            if field[2] == 'temperature':
+                temperature = int(field[4])
+            if field[2] == 'temperature_alert_limit':
+                   temperature_alert = int(field[4])
+
+        if 'fe_temp_alert' in clean_line:
+            field = clean_line.split(' ')
+            if field[2] == 'fe_temp_alert':
+                fe_temp_alert = int(field[4])
+
+   
+     # Check for any Alert trigger
+    if((current > current_alert) and (current != -1) and (current_alert != -1)):
+        print("***** BB CURRENT ALERT: Limit %d Actual board current  %d\n" %(current, current_alert))
+
+    if((temperature > temperature_alert) and (temperature != -1) and (temperature_alert != -1)):
+        print("***** BB TEMPERATURE ALERT: Limit %d Actual board temp %d\n" %(temperature, temperature_alert))
+       
+    if(fe_temp_alert != -1 and fe_temp_alert == 0):
+       print("***** FE TEMPERATURE ALERT  > 80 degrees \n")
     
-def monitor_bb_current_temp(a):
-
-    print("\nMonitoring BB Current/Temperature interrupt\n")
-    getdb = a.db['module']['bb']['get']
-    setdb = a.db['module']['bb']['set']
-
-    # setting the Alert limit Register for the Current sensor  
-    set_current_limit = setdb['current_alert']['cmd']+' ' + \
-                  str(setdb['current_alert']['init']) \
-                  +' > ' + setdb['current_alert']['path'] \
-                  + setdb['current_alert']['file']
-    a.run_command(set_current_limit)
-
-    # Get the current from the current Register
-    input_current = getdb['current']['cmd'] + \
-                   ' ' + getdb['current']['path'] \
-                   + getdb['current']['file']
-
-    # Get the value from the Alert limit Register 
-    get_current_limit = getdb['current_alert']['cmd'] + ' ' + \
-                        getdb['current_alert']['path'] + \
-                        getdb['current_alert']['file']
-    # Setting the Temperature Limit for the Temperature sensor     
-    set_temp_limit = setdb['temperature_alert']['cmd']+' ' + \
-               str(setdb['temperature_alert']['init']) + \
-                ' > '+ setdb['temperature_alert']['path'] + \
-               setdb['temperature_alert']['file']
-    a.run_command(set_temp_limit)
-
-    # Get the current temperature  
-    get_board_temp = getdb['temperature']['cmd'] + ' ' + \
-                       getdb['temperature']['path'] + getdb['temperature']['file']
-    # Get the limit of the Temperature
-    get_temp_limit = getdb['temperature_alert']['cmd'] + ' ' + \
-                     getdb['temperature_alert']['path'] + \
-                     getdb['temperature_alert']['file']
-
-    #Get the GPIO1 value for the BB Alert. 
-    bb_alert_gpio = getdb['bb_alert_gpio']['cmd']+' ' + \
-                   getdb['bb_alert_gpio']['path']+getdb['bb_alert_gpio']['file']
-
-    #Get the GPIO13 value for the FE Alert.
-    fe_alert_gpio = getdb['fe_alert_gpio']['cmd']+' ' + \
-                   getdb['fe_alert_gpio']['path']+getdb['fe_alert_gpio']['file']
-    print("Running reliabilty ..\n")
-
-
-    #checking for the Interrupt occurence 
-    while 1:
-        bb = int(a.run_command(bb_alert_gpio))
-        fe =int(a.run_command(fe_alert_gpio))
-        if(bb == 0):
-            c = int(a.run_command(input_current))
-            l = int(a.run_command(get_current_limit))
-            i = int(a.run_command(get_board_temp))
-            m = int(a.run_command(get_temp_limit))
-            if(c > l):
-                print("BB CURRENT ALERT: Limit %d Actual board current  %d\n" %(c, l))
-            if(i > m):
-                print("BB TEMPERATURE ALERT: Limit %d Actual board temp %d\n" %(m, i))
-        if(fe == 0):
-                print("FE TEMPERATURE  Alert tenp is > 80 degrees \n")
-        time.sleep(3)   
-
-
-
+def run_reliability(a):
+    t = a.db['module']['monitor']['delay']
+    print ("Monitoring system every %d seconds ..." %(t+3))
+    
+    try:
+        while True:
+            buff =  a._command("python occmd.py bb get all")
+            parse_data(buff)
+            time.sleep(t)
+    except Exception as e:
+        pass
+        #print(e)
+    return 0
+         
