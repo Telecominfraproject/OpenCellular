@@ -13,9 +13,11 @@
 
 #define PARAMSTR_NUMBER_LEN         12
 #define TESTMOD_MAX_LEN             16
-#define RES_STR_BUFF_SIZE           10000
+#define RES_STR_BUFF_SIZE           100000
+#define RES_ALERT_STR_BUFF_SIZE     1000
 #define TEMP_STR_BUFF_SIZE          100
-#define ALERT_STR_BUFF_SIZE         128
+#define FINAL_STR_BUFF_SIZE 	    100
+#define ALERT_STR_BUFF_SIZE         200
 #define CMD_STR_BUFF_SIZE           100
 #define OCMW_MAX_IMEI_SIZE          15
 #define OCMW_MAX_MSG_SIZE           20
@@ -62,6 +64,7 @@ typedef enum {
     EPKTGEN_STR,
     DPKTGEN_STR,
     ECLIENT_STR,
+    ALERTLOG_STR,
     MAX_STR
 } ocmw_token_t;
 

@@ -1,5 +1,6 @@
 /* OC Includes */
 #include <occli_common.h>
+#include <ocmw_core.h>
 
 #ifndef _OCMW_SCHEMA_H_
 #define _OCMW_SCHEMA_H_

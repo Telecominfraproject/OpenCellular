@@ -141,6 +141,7 @@ SCHEMA_IMPORT const DriverStruct fact_sdr_fpga_adt7481_cfg;
 SCHEMA_IMPORT const DriverStruct fact_sdr_fpga_ps_cfg;
 SCHEMA_IMPORT const DriverStruct fact_sync_ts_cfg;
 
+SCHEMA_IMPORT bool alert_log(void *, void *);
 SCHEMA_IMPORT bool GPP_ap_Reset(void *, void *);
 SCHEMA_IMPORT bool gpp_post_init(void *, void *);
 SCHEMA_IMPORT bool gpp_pre_init(void *, void *);
@@ -167,7 +168,6 @@ const Component sys_schema[] = {
         .name = "system",
         .driver_cfg = &gbc_spi_flash_memory,
         .ssHookSet = &(SSHookSet) {
-            .preInitFxn = NULL,
             .postInitFxn = (ssHook_Cb)sys_post_init,
         },
         .components = (Component[]) {
@@ -206,6 +206,10 @@ const Component sys_schema[] = {
                         .name = "echo",
                         .cb_cmd = SYS_cmdEcho,
                     },
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
+                    },
                     {}
                 },
             },
@@ -223,6 +227,13 @@ const Component sys_schema[] = {
                         .driver = &PWRSRC,
                         .driver_cfg = &gbc_pwr_powerSource,
                         .postDisabled = POST_DISABLED,
+                    },
+                    {}
+                },
+                .commands = (Command[]) {
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
                     },
                     {}
                 },
@@ -283,6 +294,13 @@ const Component sys_schema[] = {
             {
                 .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .commands = (Command[]) {
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
+                    },
+                    {}
+                },
             },
             {
                 .name = "ec",
@@ -321,6 +339,13 @@ const Component sys_schema[] = {
             {
                 .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .commands = (Command[]) {
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
+                    },
+                    {}
+                },
             },
             {
                 .name = "led",
@@ -354,6 +379,13 @@ const Component sys_schema[] = {
             {
                 .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .commands = (Command[]) {
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
+                    },
+                    {}
+                },
             },
             {
                 .name = "port0",
@@ -409,6 +441,13 @@ const Component sys_schema[] = {
             {
                 .name = "comp_all",
                 .postDisabled = POST_DISABLED,
+                .commands = (Command[]) {
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
+                    },
+                    {}
+                },
             },
             {
                 .name = "ap",
@@ -444,6 +483,10 @@ const Component sys_schema[] = {
                     {
                         .name = "reset",
                         .cb_cmd = GPP_ap_Reset,
+                    },
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
                     },
                     {}
                 },
@@ -492,6 +535,10 @@ const Component sys_schema[] = {
                     {
                         .name = "reset",
                         .cb_cmd = SDR_reset,
+                    },
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
                     },
                     {}
                 },
@@ -553,6 +600,10 @@ const Component sys_schema[] = {
                     {
                         .name = "reset",
                         .cb_cmd = RFFE_reset,
+                    },
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
                     },
                     {}
                 },
@@ -707,6 +758,10 @@ const Component sys_schema[] = {
                     {
                         .name = "reset",
                         .cb_cmd = SYNC_reset,
+                    },
+                    {
+                        .name = "getAlertLogs",
+                        .cb_cmd = alert_log,
                     },
                     {}
                 },

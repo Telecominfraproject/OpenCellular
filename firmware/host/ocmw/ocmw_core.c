@@ -32,6 +32,8 @@ subSystemInfo systemInfo;
 
 extern ocwarePostResultData ocwarePostArray[TEMP_STR_BUFF_SIZE];
 extern uint8_t  ocwarePostArrayIndex;
+int8_t alertRecord = 1;
+extern int8_t alertFlag;
 ocwarePostReplyCode ocmwReplyCode[] = {
     /* Message Type, reply code, Description */
     {OCMP_MSG_TYPE_POST, POST_DEV_NOSTATUS , "POST DEV NOSTATUS"},
@@ -362,7 +364,7 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
 
     paramValLen = strlen((char *)paramVal);
     if (!((msgType == OCMP_MSG_TYPE_COMMAND) &&
-            ((strncmp(strTokenArray[1], "get", strlen("get")) == 0) ||
+            ((strcmp(strTokenArray[1], "get")) ||
             (strncmp(strTokenArray[1], "set", strlen("get")) == 0)))) {
         if (paramValLen == 1 || paramValLen <= 5) {
             logdebug ("Paramvalue is of integer type : %d\n", atoi( paramVal));
@@ -578,7 +580,6 @@ int32_t ocmw_msg_packetize_and_send(char * strTokenArray[], uint8_t action,
  ******************************************************************************/
 void * ocmw_thread_uartmsgparser(void *pthreadData)
 {
-    logdebug("Uart task created \n");
     while (1) {
         /* Waiting on the  semecMsgParser to be released by uart */
         sem_wait(&semecMsgParser);
@@ -624,6 +625,7 @@ void ocmw_ec_msgparser(void)
     int32_t sendPktNonpayloadSize = 0;
     sMsgParam dmsgFrameParam;
     OCMPMessageFrame ecReceivedMsg;
+    alertRecord = 1;
 
     sendPktNonpayloadSize = (sizeof(OCMPMessage) - sizeof(void *)
             + sizeof(OCMPHeader));
@@ -646,20 +648,20 @@ void ocmw_ec_msgparser(void)
     actionType = ecReceivedMsg.message.action;
     paramInfo = ecReceivedMsg.message.parameters;
 
-    /*
-     * TODO:Temporary fix for handling alerts
-     */
-    if (msgType == OCMP_MSG_TYPE_ALERT) {
-        free(ecReceivedMsg.message.info);
-        return;
-    }
-
     printf("Received from ec :\n");
     for (indexCount = 0; indexCount < OCMP_MSG_SIZE; indexCount++) {
         printf("0x%x  ", mcuMsgBuf[indexCount]);
     }
     printf("\n");
-
+    /*
+     * Alerts handling
+     */
+    if ((msgType == OCMP_MSG_TYPE_ALERT) || (alertFlag > 0)) {
+            ocmw_handle_alert_msg(sys_schema, &ecReceivedMsg, &alertRecord);
+            responseCount++;
+        ocmw_free_global_pointer((void**)&ecSendBufBkp);
+        return;
+    }
     /* In case of timeout, return from the thread
      * without processing the data to avoid sync issue.
      */
@@ -765,9 +767,20 @@ int32_t ocmw_send_msg(OCMPMessageFrame ecMsgFrame, uint8_t interface)
             ret = ocmw_send_eth_msgto_ec((int8_t *) &ecMsgFrame,
                                       OCMP_MSG_SIZE, sentDev);
 #ifdef INTERFACE_STUB_EC
-            memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
-            ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf), OCMW_EC_STUB_DEV);
-            ocmw_ec_msgparser();
+            if (alertFlag > 0) {
+                while (1) {
+                    memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
+                    ocmw_recv_eth_msgfrom_ec(ethRecvBuf,
+                                sizeof(ethRecvBuf), OCMW_EC_STUB_DEV);
+                    ocmw_ec_msgparser();
+                    if (alertRecord == 0)
+                        break;
+                }
+            } else {
+                memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
+                ocmw_recv_eth_msgfrom_ec(ethRecvBuf, sizeof(ethRecvBuf), OCMW_EC_STUB_DEV);
+                ocmw_ec_msgparser();
+            }
 #endif
             break;
 

@@ -116,6 +116,15 @@ typedef enum ocware_ret{
 	STUB_SUCCESS = 0
 } ocware_stub_ret;
 
+typedef struct {
+    uint8_t subsystemId;
+    uint8_t componentId;
+    uint8_t msgtype;
+    uint16_t paramId;
+    uint8_t paramSize;
+    uint8_t datatype;
+    void *data;
+} OCWareStubAlertData;
 
 extern int8_t debugGetCommand;
 extern int8_t debugSetCommand;
@@ -142,7 +151,8 @@ extern ocware_stub_ret ocware_stub_parse_post_get_message(char *buffer);
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer);
+extern ocware_stub_ret ocware_stub_parse_command_message(char *buffer,
+                                                         uint8_t *alertFlag);
 
 /******************************************************************************
  * Function Name    : ocware_stub_get_set_params
@@ -262,5 +272,53 @@ extern ocware_stub_ret ocware_stub_parse_debug_actiontype(OCMPMessage *msgFrameD
  ******************************************************************************/
 extern ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
                                                      char *payload);
+/******************************************************************************
+ * Function Name    : ocware_stub_parse_alert_get_message
+ * Description      : Parse alert messages from MW
+ *
+ * @param   buffer - output pointer to the message from MW
+ *          index  - index for record
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_parse_alert_get_message(char *buffer,
+                                                           int8_t index);
+/******************************************************************************
+ * Function Name    :  ocware_stub_get_alert_database
+ * Description      :  extract alert data from lookup table
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_get_alert_database(OCMPMessage *msgFrameData,
+                                                      char *payload,
+                                                      int8_t index);
+/******************************************************************************
+ * Function Name    :  ocware_stub_parse_command_from_schema
+ * Description      :  parse command from schema
+ *
+ * @param msgFrameData  - pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ *
+ * @return tempAlertFlag
+ ******************************************************************************/
+extern uint8_t ocware_stub_parse_command_from_schema(OCMPMessage *msgFrameData);
+/******************************************************************************
+ * Function Name    :  ocware_stub_frame_alert_msgframe
+ * Description      :  extract alert data from based on subsystem
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+extern ocware_stub_ret ocware_stub_frame_alert_msgframe(char *buffer);
 
 #endif /* __OCMW_STUB_H__ */

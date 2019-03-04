@@ -11,6 +11,9 @@ static char *s_paramEnumValue[OCMW_VALUE_TYPE_MFG] = {0};
 ocmwSchemaSendBuf *ecSendBufBkp;
 ocwarePostResultData ocwarePostArray[TEMP_STR_BUFF_SIZE] = {{0}};
 uint8_t  ocwarePostArrayIndex;
+extern alertlist alerts;
+static uint8_t s_alertIndex = 0;
+extern int8_t alertFlag;
 /******************************************************************************
  * Function Name    : ocmw_parse_eepromdata_from_ec
  * Description      : parse the eeprom data coming from EC to AP
@@ -293,7 +296,236 @@ void ocmw_get_noOfElements(const Parameter *param_list, int32_t *noOfElement,
     *noOfElement = elementCount;
     *size = pSize;
 }
+/******************************************************************************
+ * Function Name    : ocmw_get_alert_value
+ * Description      : get the alert value from message
+ * Input(s)         : paramtype, ecReceivedMsg
+ * Output(s)        : recvdAlertVal
+ ******************************************************************************/
+void ocmw_get_alert_value(const Parameter *param, const char* paramtype,
+            char *alertVal, char *alertVal1, OCMPMessageFrame *ecReceivedMsg)
+{
+    int8_t paramPos = 7;
+    int32_t recvdAlertVal = 0;
+    int32_t recvdAlertVal1 = 0;
+    char *alertEnumValue[2] = {0};
+    char regStr[BUF_SIZE] = {0};
+    char regStr1[BUF_SIZE] = {0};
+    int8_t enumCount = 0;
+    int8_t strCount = 0;
+    int8_t index = 0;
 
+    if ((param == NULL) || (paramtype == NULL)) {
+        logdebug("Invalid paramtype\n");
+        return ;
+    }
+
+    if (strcmp("uint16",paramtype) == 0) {
+        recvdAlertVal = *((uint16_t *)
+                            &(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 = *((uint16_t *)
+                            &(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("int16",paramtype) == 0) {
+        recvdAlertVal = *((int16_t *)
+                            &(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 = *((int16_t *)
+                            &(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("uint8",paramtype) == 0) {
+        recvdAlertVal = *((uint8_t *)
+                            &(ecReceivedMsg->message.info[paramPos]));
+        recvdAlertVal1 = *((uint8_t *)
+                            &(ecReceivedMsg->message.info[paramPos + 2]));
+    } else if (strcmp("string",paramtype) == 0) {
+        memcpy(regStr, &ecReceivedMsg->message.info[paramPos], param->size);
+        memcpy(regStr1, &ecReceivedMsg->message.info[paramPos + 2],
+            param->size);
+        strCount++;
+    }
+
+    if (enumCount) {
+        sprintf(alertVal, "%u(%s)", recvdAlertVal, regStr);
+        sprintf(alertVal1, "%u(%s)", recvdAlertVal1, regStr1);
+    } else if (strCount) {
+        sprintf(alertVal, "%s", regStr);
+        sprintf(alertVal1, "%s", regStr1);
+    } else {
+        sprintf(alertVal, "%u", recvdAlertVal);
+        sprintf(alertVal1, "%u", recvdAlertVal1);
+    }
+    for (index = 0; index < enumCount; index++) {
+        ocmw_free_global_pointer((void**)&alertEnumValue[index]);
+    }
+    return;
+}
+
+/******************************************************************************
+ * Function Name    : ocmw_extract_dateTime_from_msgFrame
+ * Description      : extract date time for alerts
+ * Input(s)         : ecReceivedMsg
+ * Output(s)        :
+ ******************************************************************************/
+void ocmw_extract_dateTime_from_msgFrame(OCMPMessageFrame *ecReceivedMsg)
+{
+    uint8_t hour = 0;
+    uint8_t minuts = 0;
+    uint8_t second = 0;
+    uint8_t day = 0;
+    uint8_t month = 0;
+    uint8_t year = 0;
+    int8_t paramPos = 1;
+
+    hour = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos]));
+    minuts = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos + 1]));
+    second = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos + 2]));
+    day = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos + 3]));
+    month = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos + 4]));
+    year = *((uint8_t *)
+            &(ecReceivedMsg->message.info[paramPos + 5]));
+    sprintf(alerts.list[s_alertIndex].datetime, "%d:%d:%d %d/%d/20%d",
+               hour, minuts, second, day, month, year);
+    return;
+}
+
+/******************************************************************************
+ * Function Name    : ocmw_handle_alert_msg
+ * Description      : parse schema for alert message
+ * Input(s)         : compBase, ecReceivedMsg
+ * Output(s)        :
+ ******************************************************************************/
+void ocmw_handle_alert_msg(const Component *compBase,
+                        OCMPMessageFrame *ecReceivedMsg, int8_t *alertRecord)
+{
+    const Component *component = NULL;
+    const Component *subComponent = NULL;
+    const Component *subSystem = compBase;
+    const Driver *devDriver = NULL;
+    const Parameter *param = NULL;
+    char response[RES_STR_BUFF_SIZE] = {0};
+    int8_t count = 0;
+    int8_t countParamId = 0;
+    static int8_t alertCount = 0;
+    int8_t ret = 0;
+    int32_t alertElements = 0;
+    int32_t alertElementsTemp = 0;
+    int32_t size = 0;
+    sMsgParam *sMsgFrameParam = (sMsgParam *) malloc(sizeof(sMsgParam));
+
+    if ((subSystem == NULL) || (sMsgFrameParam == NULL)) {
+        logdebug("Invalid Memory\n");
+        return;
+    }
+    if ((alertFlag == 0) && (alerts.nalerts == 0)) {
+        alerts.list = (struct allAlertEvent *) calloc(ALERT_MAX_BUFF_SIZE,
+                                                sizeof(struct allAlertEvent));
+    }
+    memset(sMsgFrameParam, 0, sizeof(sMsgParam));
+    sMsgFrameParam->component = 1;
+    while (subSystem && subSystem->name) {
+        if (sMsgFrameParam->subsystem == ecReceivedMsg->message.subsystem) {
+            component = subSystem->components;
+            while (component && component->name) {
+                if (ecReceivedMsg->message.componentID ==
+                                        sMsgFrameParam->component) {
+                    devDriver = component->driver;
+                    if (devDriver != NULL) {
+                        param = devDriver->alerts;
+                        while (param && param->name) {
+                            if(ecReceivedMsg->message.parameters ==
+                                    pow(2, countParamId)) {
+                                sprintf(alerts.list[s_alertIndex].string,
+                                        "%s.%s.alerts.%s",
+                                        subSystem->name, component->name,
+                                        param->name);
+                                ocmw_get_alert_value(param,
+                                        DATA_TYPE_MAP[param->type],
+                                        alerts.list[s_alertIndex].value,
+                                        alerts.list[s_alertIndex].actualValue,
+                                        ecReceivedMsg);
+				                alertCount++;
+                                break;
+                            }
+                            countParamId = countParamId + 1;
+                            param += 1;
+                        }
+                    }
+                    subComponent = component->components;
+                    while (subComponent && subComponent->name) {
+                        countParamId = 0;
+                        devDriver = subComponent->driver;
+                        if (devDriver != NULL) {
+                            param = devDriver->alerts;
+                            ocmw_get_noOfElements(param,&alertElements, &size);
+                            while (param && param->name) {
+                                if(ecReceivedMsg->message.parameters ==
+                                    pow(2, countParamId + alertElementsTemp)){
+                                    sprintf(alerts.list[s_alertIndex].string,
+                                        "%s.%s.alerts.%s.%s", subSystem->name,
+                                        component->name, subComponent->name,
+                                        param->name);
+                                    ocmw_get_alert_value(param,
+                                        DATA_TYPE_MAP[param->type],
+                                        alerts.list[s_alertIndex].value,
+                                        alerts.list[s_alertIndex].actualValue,
+                                        ecReceivedMsg);
+                                    count++;
+				                    alertCount++;
+                                    break;
+                                }
+                                countParamId = countParamId + 1;
+                                param += 1;
+                            }
+                        }
+                        if (count > 0)
+                            break;
+                        alertElementsTemp = alertElementsTemp + alertElements;
+                        subComponent += 1;
+                    }
+                    break;
+                }
+                sMsgFrameParam->component += 1;
+                component += 1;
+            }
+            break;
+        }
+        sMsgFrameParam->subsystem += 1;
+        subSystem += 1;
+    }
+    if (ecReceivedMsg->message.action == OCMP_AXN_TYPE_ACTIVE) {
+        strcpy(alerts.list[s_alertIndex].action,"ACTIVE");
+    } else if (ecReceivedMsg->message.action == OCMP_AXN_TYPE_CLEAR) {
+        strcpy(alerts.list[s_alertIndex].action,"CLEAR");
+    }
+    ocmw_extract_dateTime_from_msgFrame(ecReceivedMsg);
+    logdebug("Alert : %25s%10s%5s\n", alerts.list[s_alertIndex].string,
+        alerts.list[s_alertIndex].action, alerts.list[s_alertIndex].value);
+    alerts.nalerts = s_alertIndex;
+    if ((alertFlag > 0) &&
+        (ecReceivedMsg->message.action == OCMP_AXN_TYPE_REPLY)) {
+        *alertRecord = 0;
+	    if (alertCount > 0) {
+            alerts.nalerts = s_alertIndex - 1;
+	    } else {
+		    alerts.nalerts = 0;
+	    }
+        sem_post(&semCliReturn);
+        s_alertIndex = 0;
+	    alertFlag = 0;
+    } else if (alertFlag == 0) {
+        *alertRecord = 0;
+        ret = ocmw_handle_show_alerts(response);
+        if (ret == FAILED)
+            logdebug("Alert send error\n");
+        s_alertIndex = 0;
+    }
+    free(sMsgFrameParam);
+    s_alertIndex++;
+    return;
+}
 /******************************************************************************
  * Function Name    : ocmw_parse_command_msgframe
  * Description      : parse the command
@@ -1048,7 +1280,7 @@ void ocmw_deserialization_msgframe(const Component *subSystem,
     int32_t ret = 0;
     int8_t index = 0;
 
-    if (subSystem == NULL) {
+    if ((subSystem == NULL) || (ecSendBufBkp == NULL)) {
         return;
     }
 
