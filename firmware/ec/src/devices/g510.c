@@ -93,12 +93,14 @@ static void call_state_cb(const GsmClccInfo *info, void *context)
     switch (info->call_state) {
         case GSM_CALL_STATE_INCOMING: {
             eTEST_MODE_CallEvent callState = TWOG_CALL_EVT_RING;
-            OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState);
+            OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState,
+                               NULL, OCMP_AXN_TYPE_ACTIVE);
             break;
         }
         case GSM_CALL_STATE_RELEASED: {
             eTEST_MODE_CallEvent callState = TWOG_CALL_EVT_CALL_END;
-            OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState);
+            OCMP_GenerateAlert(context, TWOG_SIM_CALLSTATE_CHANGE, &callState,
+                               NULL, OCMP_AXN_TYPE_ACTIVE);
             break;
         }
         default:
@@ -269,7 +271,8 @@ static void testModule_task(UArg a0, UArg a1)
             if (GSM_cmgr(s_hGsm, sms_idx, sms, NULL)) {
                 LOGGER("SMS: %.*s\n", 50,
                        sms); // System_printf has a limited buffer
-                OCMP_GenerateAlert(alert_token, TWOG_SIM_INCOMING_MSG, sms);
+                OCMP_GenerateAlert(alert_token, TWOG_SIM_INCOMING_MSG, sms,
+                                   NULL, OCMP_AXN_TYPE_ACTIVE);
             } else {
                 LOGGER_ERROR("TESTMOD:Failed to read SMS\n");
             }

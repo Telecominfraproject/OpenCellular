@@ -204,7 +204,7 @@ static void _alert_handler(LTC4015_Event evt, int16_t value, void *alert_data)
             return;
     }
 
-    OCMP_GenerateAlert(alert_data, alert, &value);
+    OCMP_GenerateAlert(alert_data, alert, &value, NULL, OCMP_AXN_TYPE_ACTIVE);
     LOGGER_DEBUG("LTC4015 Event: %d Value: %d\n", evt, value);
 }
 

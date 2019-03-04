@@ -19,7 +19,7 @@
  *                              MACRO DEFINITIONS
  *****************************************************************************/
 #define GOSSIPER_TASK_PRIORITY 6
-#define GOSSIPER_TASK_STACK_SIZE 2048
+#define GOSSIPER_TASK_STACK_SIZE 4096
 
 #define SET_DEBEUG_MODE(debugMode) ((debugMode | 0x00))
 #define UNSET_DEBUG_MODE(debugMode) ((debugMode & 0x0f))

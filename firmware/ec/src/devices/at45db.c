@@ -17,6 +17,8 @@
 #include "inc/common/spibus.h"
 #include "inc/common/global_header.h"
 #include "inc/global/OC_CONNECT1.h"
+#include <ti/sysbios/BIOS.h>
+#include "src/filesystem/fs_wrapper.h"
 
 #define AT45DB_DATA_WR_OPCODE_WR_COUNT 4
 #define AT45DB_DATA_RD_OPCODE_WR_COUNT 8
@@ -94,6 +96,7 @@ static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
             "AT45DBFLASHMEMORY:ERROR:: Failed to get SPI Bus for at45db flash memory "
             "0x%x on bus 0x%x.\n",
             dev->cfg.dev.chip_select, dev->cfg.dev.bus);
+        Semaphore_pend(semFilesysMsg, BIOS_WAIT_FOREVER);
     } else {
         status =
             spi_reg_write(at45dbHandle, dev->cfg.dev.chip_select, cmdbuffer,
@@ -246,7 +249,7 @@ ReturnStatus at45db_data_write(AT45DB_Dev *dev, const uint8_t *data,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint8_t *devID)
+static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
 {
     uint8_t txBuffer = AT45DB_DEVID_RD_OPCODE; /* opcode to get device id */
 
@@ -266,7 +269,7 @@ static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint8_t *devID)
  *****************************************************************************/
 ePostCode at45db_probe(AT45DB_Dev *dev, POSTData *postData)
 {
-    uint8_t value = 0;
+    uint32_t value = 0;
     uint16_t devId = 0;
     uint8_t manfId = 0;
 

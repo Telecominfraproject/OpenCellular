@@ -8,18 +8,57 @@
  *
  */
 
-#ifndef SRC_FILESYSTEM_FS_H_
-#define SRC_FILESYSTEM_FS_H_
+#ifndef SRC_FILESYSTEM_FS_WRAPPER_H_
+#define SRC_FILESYSTEM_FS_WRAPPER_H_
 
 #include "common/inc/global/post_frame.h"
+#include "common/inc/global/ocmp_frame.h"
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Queue.h>
+#include <ti/sysbios/knl/Semaphore.h>
+#include <ti/sysbios/knl/Task.h>
 
-extern Queue_Handle fsRxMsgQueue;
-extern Queue_Handle fsTxMsgQueue;
-extern Semaphore_Handle semFilesysMsg;
+#define FRAME_SIZE 64
+#define FS_OCMP_MSGTYPE_POS 13
+#define FS_OCMP_SUBSYSTEM_POS 11
+#define FS_STR_SIZE 50
+#define LAST_MSG 1
+#define LAST_MSG_FLAG 0
+#define MAX_ALERT_FILE_SIZE 512
+#define NEXT_MSG_FLAG_POS 17
+#define NO_OF_ALERT_FILES 8
+#define READ_FLAG 0
+#define WRITE_FLAG 1
 
-int fileSize(const char *path);
-void fs_init(UArg arg0, UArg arg1);
-bool fileRead(const char *path, UChar *buf, uint32_t size);
-bool fileWrite(const char *path, uint8_t *pMsg, uint32_t size);
+Semaphore_Handle semFilesysMsg;
+Semaphore_Struct semFSstruct;
 
-#endif /* SRC_FILESYSTEM_FS_H_ */
+Semaphore_Handle semFSreadMsg;
+Semaphore_Struct semFSreadStruct;
+
+Semaphore_Handle semFSwriteMsg;
+Semaphore_Struct semFSwriteStruct;
+
+static Queue_Struct fsRxMsg;
+static Queue_Struct fsTxMsg;
+
+Queue_Handle fsRxMsgQueue;
+Queue_Handle fsTxMsgQueue;
+
+typedef struct FILESystemStruct {
+    Char *fileName;
+    uint8_t frameSize;
+    uint8_t noOfFiles;
+    void *pMsg;
+    uint16_t maxFileSize;
+    uint8_t operation;
+} FILESystemStruct;
+
+int fs_wrapper_get_fileSize(const char *path);
+bool fs_wrapper_data_read(FILESystemStruct *fileSysStruct);
+void fs_wrapper_flashMemory_read(OCMPSubsystem subsystem, const char *path,
+                                 uint32_t file_size, uint8_t fileIndex);
+void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1);
+bool fs_wrapper_file_read(const char *fileName, uint8_t *buf, uint32_t size);
+
+#endif /* SRC_FILESYSTEM_FS_WRAPPER_H_ */

@@ -96,6 +96,7 @@ typedef ePostCode (*CB_Init)(void *driver, const void *config,
                              const void *alert_token);
 
 typedef bool (*ssHook_Cb)(void *driver, void *return_buf);
+typedef bool (*FlashRW_Cb)(void *driver, void *return_buf);
 
 typedef struct Driver_fxnTable {
     // TODO: These callbacks are a bit rough. They'll get the job done, but we
@@ -103,6 +104,7 @@ typedef struct Driver_fxnTable {
     StatusGet_Cb cb_get_status;
     ConfigGet_Cb cb_get_config;
     ConfigSet_Cb cb_set_config;
+    FlashRW_Cb cb_flash_rw;
     CB_Probe cb_probe;
     CB_Init cb_init;
 } Driver_fxnTable;
@@ -150,6 +152,7 @@ typedef struct AlertData {
 } AlertData;
 
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data);
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType);
 
 #endif /* _SYS_CFG_FRAMEWORK_H */

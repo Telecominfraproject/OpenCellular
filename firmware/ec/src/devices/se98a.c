@@ -56,6 +56,8 @@
 /* Default CFG plus interrupt mode (we don't support comparator mode) */
 #define SE98A_CONFIG_DEFAULT (0x0000 | SE98A_CFG_EMD | SE98A_CFG_HYS_1P5)
 
+static uint8_t alertStatus = 0x00;
+
 /*****************************************************************************
  * Helper to read from a SE98A register
  *****************************************************************************/
@@ -306,14 +308,41 @@ static void se98a_handle_irq(void *context)
         return;
     }
 
+    if (trip_stat) {
+        alertStatus = trip_stat;
+    }
+
     /* Since > CRIT implies above window, we only handle the highest priority
      * event to avoid duplicate events being sent */
-    if (trip_stat & SE98A_EVT_ACT) {
-        dev->obj.alert_cb(SE98A_EVT_ACT, temperature, dev->obj.cb_context);
-    } else if (trip_stat & SE98A_EVT_AAW) {
-        dev->obj.alert_cb(SE98A_EVT_AAW, temperature, dev->obj.cb_context);
-    } else if (trip_stat & SE98A_EVT_BAW) {
-        dev->obj.alert_cb(SE98A_EVT_BAW, temperature, dev->obj.cb_context);
+    OCMPActionType alertAction = OCMP_AXN_TYPE_ACTIVE;
+    int8_t regLim;
+    if (alertStatus & SE98A_EVT_ACT) {
+        if (se98a_get_limit(dev, CONF_TEMP_SE98A_CRITICAL_LIMIT_REG, &regLim) ==
+            RETURN_OK) {
+            if (regLim > temperature) {
+                alertAction = OCMP_AXN_TYPE_CLEAR;
+            }
+        }
+        dev->obj.alert_cb(SE98A_EVT_ACT, alertAction, temperature, regLim,
+                          dev->obj.cb_context);
+    } else if (alertStatus & SE98A_EVT_AAW) {
+        if (se98a_get_limit(dev, CONF_TEMP_SE98A_HIGH_LIMIT_REG, &regLim) ==
+            RETURN_OK) {
+            if (regLim > temperature) {
+                alertAction = OCMP_AXN_TYPE_CLEAR;
+            }
+        }
+        dev->obj.alert_cb(SE98A_EVT_AAW, alertAction, temperature, regLim,
+                          dev->obj.cb_context);
+    } else if (alertStatus & SE98A_EVT_BAW) {
+        if (se98a_get_limit(dev, CONF_TEMP_SE98A_LOW_LIMIT_REG, &regLim) ==
+            RETURN_OK) {
+            if (regLim < temperature) {
+                alertAction = OCMP_AXN_TYPE_CLEAR;
+            }
+        }
+        dev->obj.alert_cb(SE98A_EVT_BAW, alertAction, temperature, regLim,
+                          dev->obj.cb_context);
     }
 }
 
