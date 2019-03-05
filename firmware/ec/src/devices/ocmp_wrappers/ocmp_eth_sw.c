@@ -186,7 +186,8 @@ static ePostCode _probe(void *driver, POSTData *postData)
     eth_sw_configure(driver);
     return eth_sw_probe(postData);
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 static void _alert_handler(Eth_Sw_Events evt, int16_t value, void *alert_data)
 {
     unsigned int alert;
@@ -221,6 +222,7 @@ static void _alert_handler(Eth_Sw_Events evt, int16_t value, void *alert_data)
     OCMP_GenerateAlert(alert_data, alert, &value, NULL, OCMP_AXN_TYPE_ACTIVE);
     LOGGER_DEBUG("ETH_SW:: Event: %d Value: %d\n", evt, value);
 }
+#pragma GCC diagnostic pop
 
 static ePostCode _init(void *driver, const void *config,
                        const void *alert_token)

@@ -62,56 +62,63 @@ void suite_tearDown(void)
 /* ================================ Tests =================================== */
 void test_ocgpio_get(void)
 {
+    OCMPMessageFrame Msg;
+    OCMPMessageFrame *pMsg = &Msg;
     S_OCGPIO *s_oc_gpio = (S_OCGPIO *)&s_fake_pin;
     s_oc_gpio->pin = DEBUG_GPIO_PIN_VALUE;
     s_oc_gpio->value = DEBUG_GPIO_DEFAULT_VALUE;
 
+    memcpy(pMsg->message.ocmp_data, &s_fake_pin, sizeof(S_OCGPIO));
     PCA9557_regs[PCA9557_REGS_INPUT_VALUE] = DEBUG_GPIO_PIN_2;
     SX1509_regs[SX1509_REG_DATA_B] = DEBUG_GPIO_SX1509_DATA_B_VALUE;
     SX1509_regs[SX1509_REG_DATA_A] = DEBUG_GPIO_SX1509_DATA_A_VALUE;
     DEBUG_GpioPins[DEBUG_GPIO_PIN_2] = OCGPIO_CFG_OUTPUT;
     /* Native Pin */
-    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_ec_gpio_pa, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_ec_gpio_pa, pMsg));
+    memcpy(&s_fake_pin, pMsg->message.ocmp_data, sizeof(S_OCGPIO));
     TEST_ASSERT_EQUAL(DEBUG_GPIO_PIN_VALUE, s_oc_gpio->value);
 
     /* connected via SX1509 */
-    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_gbc_ioexpanderx70, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_gbc_ioexpanderx70, pMsg));
     TEST_ASSERT_EQUAL(DEBUG_GPIO_PIN_VALUE, s_oc_gpio->value);
 
     /* connected via PCA9557 */
-    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_sdr_ioexpanderx1E, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_get(&debug_sdr_ioexpanderx1E, pMsg));
     TEST_ASSERT_EQUAL(DEBUG_GPIO_PIN_VALUE, s_oc_gpio->value);
 
     /* Invlaid Slave address */
-    TEST_ASSERT_EQUAL(
-        false, ocgpio_get(&debug_sdr_ioexpanderx1E_invalid, &s_fake_pin));
+    TEST_ASSERT_EQUAL(false,
+                      ocgpio_get(&debug_sdr_ioexpanderx1E_invalid, pMsg));
 }
 void test_ocgpio_set(void)
 {
+    OCMPMessageFrame Msg;
+    OCMPMessageFrame *pMsg = &Msg;
     S_OCGPIO *s_oc_gpio = (S_OCGPIO *)&s_fake_pin;
     s_oc_gpio->pin = DEBUG_GPIO_PIN_2;
     s_oc_gpio->value = DEBUG_GPIO_DEFAULT_VALUE;
+    memcpy(pMsg->message.ocmp_data, &s_fake_pin, sizeof(S_OCGPIO));
 
     PCA9557_regs[PCA9557_REGS_OUTPUT_VALUE] = DEBUG_GPIO_DEFAULT_VALUE;
     SX1509_regs[SX1509_REG_DATA_B] = DEBUG_GPIO_DEFAULT_VALUE;
     SX1509_regs[SX1509_REG_DATA_A] = DEBUG_GPIO_DEFAULT_VALUE;
     DEBUG_GpioPins[DEBUG_GPIO_PIN_2] = OCGPIO_CFG_INPUT;
     /* Native Pin */
-    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_ec_gpio_pa, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_ec_gpio_pa, pMsg));
     TEST_ASSERT_EQUAL(OCGPIO_CFG_OUTPUT, DEBUG_GpioPins[DEBUG_GPIO_PIN_2]);
 
     /* connected via SX1509 */
-    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_gbc_ioexpanderx70, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_gbc_ioexpanderx70, pMsg));
     TEST_ASSERT_EQUAL(DEBUG_GPIO_DEFAULT_VALUE, SX1509_regs[SX1509_REG_DATA_A]);
 
     /* connected via PCA9557 */
-    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_sdr_ioexpanderx1E, &s_fake_pin));
+    TEST_ASSERT_EQUAL(true, ocgpio_set(&debug_sdr_ioexpanderx1E, pMsg));
     TEST_ASSERT_EQUAL(DEBUG_GPIO_DEFAULT_VALUE,
                       PCA9557_regs[PCA9557_REGS_OUTPUT_VALUE]);
 
     /* Invlaid Slave address */
-    TEST_ASSERT_EQUAL(
-        false, ocgpio_set(&debug_sdr_ioexpanderx1E_invalid, &s_fake_pin));
+    TEST_ASSERT_EQUAL(false,
+                      ocgpio_set(&debug_sdr_ioexpanderx1E_invalid, pMsg));
 }
 void test_ocgpio_probe(void)
 {

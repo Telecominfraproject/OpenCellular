@@ -47,8 +47,11 @@
 #define WRITE_SIZE 256
 
 extern OCSubsystem *ss_reg[SUBSYSTEM_COUNT];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 static Queue_Struct fsRxMsg;
 static Queue_Struct fsTxMsg;
+#pragma GCC diagnostic pop
 
 lfs_t lfs;
 lfs_file_t file;
@@ -267,11 +270,8 @@ bool fs_wrapper_data_read(FILESystemStruct *fileSysStruct)
 bool fs_wrapper_data_write(FILESystemStruct *fileSysStruct)
 {
     int8_t index = fileSysStruct->noOfFiles - 2;
-    int8_t index2 = 0;
-    char tempOrigFileName[50] = { 0 };
     char oldfilename[50] = { 0 };
     char newfilename[50] = { 0 };
-    bool lastfileFound = false;
 
     if (fs_wrapper_get_fileSize(fileSysStruct->fileName) >
         fileSysStruct->maxFileSize) {
@@ -294,7 +294,6 @@ bool fs_wrapper_data_write(FILESystemStruct *fileSysStruct)
             if (lfs_file_open(&lfs, &file, newfilename,
                               LFS_O_RDWR | LFS_O_APPEND) == LFS_ERR_OK) {
                 if (lfs_file_close(&lfs, &file) == LFS_ERR_OK) {
-                    lastfileFound = true;
                     break;
                 }
             }
@@ -384,7 +383,6 @@ static bool fs_wrapper_msgHandler(FILESystemStruct *fileSysStruct)
             break;
         case READ_FLAG:
             fs_wrapper_data_read(fileSysStruct);
-            // Semaphore_post(semFSreadMsg);
             break;
         default:
             break;
@@ -410,6 +408,8 @@ void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
     memset(&lfs, 0, sizeof(lfs));
     memset(&file, 0, sizeof(file));
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
     /*configuration of the filesystem is provided by this struct */
     const struct lfs_config cfg = {
         .context = (void *)arg0,
@@ -423,7 +423,7 @@ void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
         .block_count = BLOCK_COUNT,
         .lookahead = LOOK_AHEAD,
     };
-
+#pragma GCC diagnostic pop
     int err = lfs_mount(&lfs, &cfg);
 
     if (err) {

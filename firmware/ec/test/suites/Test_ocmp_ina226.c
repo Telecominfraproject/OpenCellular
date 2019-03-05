@@ -47,7 +47,8 @@ void suite_tearDown(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data)
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType)
 {
 }
 #pragma GCC diagnostic pop
@@ -307,14 +308,14 @@ void test_ocmp_ina226_alert_handler(void)
                       INA226_fxnTable.cb_init(&sdr_fpga_ps, &fact_sdr_3v_ps_cfg,
                                               alert_data_cp));
 
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SOL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SUL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BOL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BUL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_POL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_CUL, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SOL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SUL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BOL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BUL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_POL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_CUL, 4, 600, value, alert_data_cp);
 
     /* Test for memory check */
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, value, NULL);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, 4, 600, value, NULL);
 }

@@ -1,0 +1,2 @@
+48a5a13e037c028be02c3512e2a4920e  /home/oc/ocware_fw_alert/OpenCellular/firmware/ec/bld/OpenCellular.bin
+9aa22f7f39cdf446aa2fceb7e703f90f  /home/oc/ocware_fw_alert/OpenCellular/firmware/ec/bld/OpenCellular.out

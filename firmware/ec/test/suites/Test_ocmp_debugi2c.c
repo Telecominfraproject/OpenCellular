@@ -46,24 +46,33 @@ void suite_tearDown(void)
 /* ================================ Tests =================================== */
 void test_i2c_read(void)
 {
+    OCMPMessageFrame Msg;
+    OCMPMessageFrame *pMsg = &Msg;
+    memcpy(pMsg->message.ocmp_data, &s_oci2c, sizeof(S_OCI2C));
     DEBUG_I2C_regs[DEBUG_I2C_INTERRUPT_MASK] = DEBUG_I2C_READ_WRITE_VALUE;
-    TEST_ASSERT_EQUAL(true, i2c_read(&debug_I2C1, &s_oci2c));
+    TEST_ASSERT_EQUAL(true, i2c_read(&debug_I2C1, pMsg));
+    memcpy(&s_oci2c, pMsg->message.ocmp_data, sizeof(S_OCI2C));
     TEST_ASSERT_EQUAL_HEX8(DEBUG_I2C_READ_WRITE_VALUE, s_oci2c.reg_value);
 
     /* Invalid bus */
-    TEST_ASSERT_EQUAL(false, i2c_read(&I2C_INVALID_DEV, &s_oci2c));
-    TEST_ASSERT_EQUAL(false, i2c_read(&debug_I2C1, &s_oci2c_invalid));
+    TEST_ASSERT_EQUAL(false, i2c_read(&I2C_INVALID_DEV, pMsg));
+    memcpy(pMsg->message.ocmp_data, &s_oci2c_invalid, sizeof(S_OCI2C));
+    TEST_ASSERT_EQUAL(false, i2c_read(&debug_I2C1, pMsg));
 }
 
 void test_i2c_write(void)
 {
+    OCMPMessageFrame Msg;
+    OCMPMessageFrame *pMsg = &Msg;
     DEBUG_I2C_regs[DEBUG_I2C_INTERRUPT_MASK] = DEBUG_I2C_DEFAULT_VALUE;
     s_oci2c.reg_value = DEBUG_I2C_READ_WRITE_VALUE;
-    TEST_ASSERT_EQUAL(true, i2c_write(&debug_I2C1, &s_oci2c));
+    memcpy(pMsg->message.ocmp_data, &s_oci2c, sizeof(S_OCI2C));
+    TEST_ASSERT_EQUAL(true, i2c_write(&debug_I2C1, pMsg));
     TEST_ASSERT_EQUAL_HEX8(DEBUG_I2C_READ_WRITE_VALUE,
                            DEBUG_I2C_regs[DEBUG_I2C_INTERRUPT_MASK]);
 
     /* Invalid bus */
-    TEST_ASSERT_EQUAL(false, i2c_write(&I2C_INVALID_DEV, &s_oci2c));
-    TEST_ASSERT_EQUAL(false, i2c_write(&debug_I2C1, &s_oci2c_invalid));
+    TEST_ASSERT_EQUAL(false, i2c_write(&I2C_INVALID_DEV, pMsg));
+    memcpy(pMsg->message.ocmp_data, &s_oci2c_invalid, sizeof(S_OCI2C));
+    TEST_ASSERT_EQUAL(false, i2c_write(&debug_I2C1, pMsg));
 }

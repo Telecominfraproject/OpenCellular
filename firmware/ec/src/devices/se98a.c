@@ -315,7 +315,7 @@ static void se98a_handle_irq(void *context)
     /* Since > CRIT implies above window, we only handle the highest priority
      * event to avoid duplicate events being sent */
     OCMPActionType alertAction = OCMP_AXN_TYPE_ACTIVE;
-    int8_t regLim;
+    int8_t regLim = 0;
     if (alertStatus & SE98A_EVT_ACT) {
         if (se98a_get_limit(dev, CONF_TEMP_SE98A_CRITICAL_LIMIT_REG, &regLim) ==
             RETURN_OK) {

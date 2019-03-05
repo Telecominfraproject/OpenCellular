@@ -19,7 +19,6 @@ SCHEMA_IMPORT const Driver_fxnTable CAT24C04_gbc_inv_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable CAT24C04_sdr_inv_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable CAT24C04_fe_inv_fxnTable;
 SCHEMA_IMPORT const Driver_fxnTable AT45DB641E_fxnTable;
-SCHEMA_IMPORT read_at45_data(void *driver, void *params);
 
 static const Driver CAT24C04_gbc_sid = {
     .name = "EEPROM",

@@ -245,7 +245,8 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
     }
     return dev_handled;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
 {
     bool ret = false;
@@ -260,7 +261,7 @@ static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
     pMsg->message.ocmp_data[0] = !(ret); // RETURN_OK =0;
     return ret;
 }
-
+#pragma GCC diagnostic pop
 static bool _handle_post_active(OCMPMessageFrame *pMsg,
                                 unsigned int subsystem_id)
 {

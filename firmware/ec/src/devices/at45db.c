@@ -83,6 +83,8 @@ static ReturnStatus AT45DB_read_reg(AT45DB_Dev *dev,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
 static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
                                      void *cmdbuffer, /* cmd or opcode buffer */
                                      const uint8_t *regValue,
@@ -104,7 +106,7 @@ static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
     }
     return status;
 }
-
+#pragma GCC diagnostic pop
 /*****************************************************************************
  **    FUNCTION NAME   : at45db_readStatusRegister
  **
@@ -249,6 +251,8 @@ ReturnStatus at45db_data_write(AT45DB_Dev *dev, const uint8_t *data,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
 {
     uint8_t txBuffer = AT45DB_DEVID_RD_OPCODE; /* opcode to get device id */
@@ -256,7 +260,7 @@ static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
     return AT45DB_read_reg(dev, &txBuffer, devID, NULL, AT45DB_DEVID_RD_BYTES,
                            AT45DB_DEVID_OPCODE_WR_COUNT);
 }
-
+#pragma GCC diagnostic pop
 /*****************************************************************************
  **    FUNCTION NAME   : at45db_probe
  **

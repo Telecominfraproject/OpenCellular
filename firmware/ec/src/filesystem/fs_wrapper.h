@@ -39,14 +39,17 @@ Semaphore_Struct semFSreadStruct;
 Semaphore_Handle semFSwriteMsg;
 Semaphore_Struct semFSwriteStruct;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 static Queue_Struct fsRxMsg;
 static Queue_Struct fsTxMsg;
+#pragma GCC diagnostic pop
 
 Queue_Handle fsRxMsgQueue;
 Queue_Handle fsTxMsgQueue;
 
 typedef struct FILESystemStruct {
-    Char *fileName;
+    char *fileName;
     uint8_t frameSize;
     uint8_t noOfFiles;
     void *pMsg;

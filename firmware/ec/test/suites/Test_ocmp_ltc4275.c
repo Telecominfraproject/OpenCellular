@@ -31,7 +31,8 @@ void test_alert(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data)
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType)
 {
 }
 #pragma GCC diagnostic pop
