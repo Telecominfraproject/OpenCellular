@@ -308,14 +308,22 @@ void test_ocmp_ina226_alert_handler(void)
                       INA226_fxnTable.cb_init(&sdr_fpga_ps, &fact_sdr_3v_ps_cfg,
                                               alert_data_cp));
 
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SOL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SUL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BOL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BUL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_POL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, 4, 600, value, alert_data_cp);
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_CUL, 4, 600, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SOL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_SUL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BOL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_BUL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_POL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_CUL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, alert_data_cp);
 
     /* Test for memory check */
-    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, 4, 600, value, NULL);
+    sdr_fpga_ps.obj.alert_cb(INA226_EVT_COL, INA226_DEFAULT_ACTION,
+                             INA226_DEFAULT_TEMP, value, NULL);
 }

@@ -503,13 +503,18 @@ void test_ocmp_se98a_alert_handler(void)
                                             &fact_ap_se98a_ts1_cfg,
                                             &alert_data));
 
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, 4, 23, value, &alert_data);
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_AAW, 4, 23, value, &alert_data);
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_BAW, 4, 23, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_AAW, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_BAW, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
 
     /* Test for memory check */
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, 4, 23, value, NULL);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, NULL);
 
     /* Default case test */
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_DEFAULT, 4, 23, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_DEFAULT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
 }
