@@ -1,6 +1,0 @@
-bd8d83b75473519480c00496d785a6ec  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/occli
-b649d3c0d905fa2a29e8035a494693cd  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/ocmw_uart
-6e594743ca4e1bc62eb226fdfde34a08  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/ocmw_eth
-78f9bdfc9a48841fc0fa07e9a83f7367  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/ocmw_usb
-73c25f6950f665f5217f8d51ceada477  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/ocware_stub
-6319db78d6f73073e552ea2f509c4761  /home/oc/ocware_alert_host/OpenCellular/firmware/host/bin/ocmw_eth_stub
