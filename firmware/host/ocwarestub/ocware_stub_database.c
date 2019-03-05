@@ -209,8 +209,9 @@ ocware_stub_ret ocware_stub_frame_alert_msgframe(char *buffer)
     if (subSystemNbr != 0) {
         for (subsystemIndex = 0; subsystemIndex < allAlertCount;
             subsystemIndex++) {
-            if (alertGlobalData[subsystemIndex].subsystemId == subSystemNbr)
+            if (alertGlobalData[subsystemIndex].subsystemId == subSystemNbr) {
                 break;
+            }
         }
         alertIndex = subsystemIndex;
         while (alertGlobalData[alertIndex].subsystemId == subSystemNbr)

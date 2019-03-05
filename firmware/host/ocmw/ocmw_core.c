@@ -773,8 +773,9 @@ int32_t ocmw_send_msg(OCMPMessageFrame ecMsgFrame, uint8_t interface)
                     ocmw_recv_eth_msgfrom_ec(ethRecvBuf,
                                 sizeof(ethRecvBuf), OCMW_EC_STUB_DEV);
                     ocmw_ec_msgparser();
-                    if (alertRecord == 0)
+                    if (alertRecord == 0) {
                         break;
+                    }
                 }
             } else {
                 memset(ethRecvBuf, 0, sizeof(ethRecvBuf));
