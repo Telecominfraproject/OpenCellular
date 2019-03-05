@@ -36,6 +36,8 @@ extern uint8_t  ocwarePostArrayIndex;
 debugI2CData I2CInfo;
 debugMDIOData MDIOInfo;
 ethTivaClient clientInfo;
+int8_t alertFlag = 0;
+alertlist alerts;
 
 struct matchString {
     const char *key;
@@ -59,6 +61,7 @@ struct matchString {
         { "en_pktGen", EPKTGEN_STR },
         { "dis_pktGen", DPKTGEN_STR },
         { "en_tivaClient", ECLIENT_STR },
+        { "getAlertLogs", ALERTLOG_STR },
         { NULL, MAX_STR },
 };
 
@@ -199,6 +202,129 @@ int32_t ocmw_check_numeric_number(char *numstring)
     }
     return SUCCESS;
 }
+/**************************************************************************
+ * Function Name    : ocmw_frame_alert_response
+ * Description      : This Function used to frame alert response
+ * Input(s)         : alerts
+ * Output(s)        : response
+ ***************************************************************************/
+int32_t ocmw_frame_alert_response(char *response)
+{
+    int32_t index = 0;
+    char alertstr[ALERT_MAX_BUFF_SIZE] = {0};
+
+    if (response == NULL) {
+        logerr("%s(): NULL pointer error", __func__);
+        return FAILED;
+    }
+    strncpy(response,
+            "-------------------------------------------------------"
+            "------------------------------------------------\n",
+            ALERT_STR_BUFF_SIZE);
+    if (snprintf(alertstr, ALERT_STR_BUFF_SIZE, "%-52s%-19s%-8s%-7s%-5s\n",
+                 "ALERT DESCRIPTION", "TIME", "STATUS", "LIMIT",
+                 "ACTUAL_VALUE") < 0) {
+        return FAILED;
+    }
+    strncat(response, alertstr, ALERT_STR_BUFF_SIZE);
+    if ((snprintf(alertstr, ALERT_STR_BUFF_SIZE,
+                  "-----------------------------------------------------------"
+                  "--------------------------------------------\n")) < 0) {
+        return FAILED;
+    }
+    strncat(response, alertstr, ALERT_STR_BUFF_SIZE);
+    for (index = 0; index < alerts.nalerts + 1; index++) {
+        if (snprintf(alertstr, ALERT_STR_BUFF_SIZE, "%-52s%-19s%-8s%-7s%-5s\n",
+                     alerts.list[index].string, alerts.list[index].datetime,
+                     alerts.list[index].action, alerts.list[index].value,
+                     alerts.list[index].actualValue) < 0) {
+            return FAILED;
+        }
+        strncat(response, alertstr, ALERT_STR_BUFF_SIZE);
+    }
+    if ((snprintf(alertstr, ALERT_STR_BUFF_SIZE,
+                  "------------------------------------------------------------"
+                  "-------------------------------------------\n")) < 0) {
+        return FAILED;
+    }
+    strncat(response, alertstr, ALERT_STR_BUFF_SIZE);
+
+    return SUCCESS;
+}
+/**************************************************************************
+ * Function Name    : ocmw_handle_show_alerts
+ * Description      : This Function used to handle the alerts commands
+ * Input(s)         : alerts
+ * Output(s)        : response
+ ***************************************************************************/
+int32_t ocmw_handle_show_alerts(char *response)
+{
+    int32_t ret = 0;
+
+    if (response == NULL) {
+        logerr("%s(): NULL pointer error", __func__);
+        return FAILED;
+    }
+    strncpy(response, "", RES_ALERT_STR_BUFF_SIZE);
+    ret = ocmw_frame_alert_response(response);
+    if (ret < 0) {
+        free(alerts.list);
+        return ret;
+    }
+    ret = ocmw_send_alert_to_occli(response, RES_ALERT_STR_BUFF_SIZE);
+    free(alerts.list);
+    alerts.nalerts = 0;
+    return ret;
+}
+
+/**************************************************************************
+ * Function Name    : ocmw_handle_show_all_alerts
+ * Description      : This Function used to handle the syncronous alerts
+ * Input(s)         : strTokenArray
+ * Output(s)        : response
+ ***************************************************************************/
+static int32_t ocmw_handle_show_all_alerts(char *strTokenArray[],
+                                           char *response)
+{
+    char paramStr[PARAM_STR_BUFF_SIZE];
+    void *paramVal;
+    char tempParamStr[PARAM_STR_MAX_BUFF_SIZE] = { 0 };
+    int32_t ret = 0;
+
+    if (strTokenArray == NULL || response == NULL) {
+        logerr("%s(): NULL pointer error", __func__);
+        return FAILED;
+    }
+    alerts.nalerts = 0;
+    alerts.list = (struct allAlertEvent *)calloc(ALERT_MAX_BUFF_SIZE,
+                                                 sizeof(struct allAlertEvent));
+    alertFlag++;
+    strcpy(tempParamStr, strTokenArray[0]);
+    strncpy(response, "", RES_STR_BUFF_SIZE);
+
+    if ((snprintf(paramStr, PARAM_STR_BUFF_SIZE, "%s.%s", strTokenArray[1],
+                  strTokenArray[0])) < 0) {
+        return FAILED;
+    }
+
+    ret = ocmw_msgproc_send_msg(&strTokenArray[0], 0, OCMP_MSG_TYPE_COMMAND,
+                                (int8_t *)paramStr, &paramVal);
+
+    if ((snprintf(response, RES_STR_BUFF_SIZE, "%s : %s", tempParamStr,
+                  (ret != 0) ? "Failed" : "Success")) < 0) {
+        return FAILED;
+    }
+
+    if (ret < 0) {
+        logerr("Error in reading alerts");
+    }
+    ret = ocmw_frame_alert_response(response);
+    free(alerts.list);
+    alertFlag = 0;
+    alerts.nalerts = 0;
+    return ret;
+}
+
 /**************************************************************************
  * Function Name    : ocmw_handle_set_config
  * Description      : This Function used to handle the set config commands
@@ -916,8 +1042,8 @@ static ocmw_token_t ocmw_match_set_get_string(char *str)
 static ocmw_token_t ocmw_match_string(char *str)
 {
     struct matchString *index = ocmwTokenTable;
-    for(; index->key != NULL &&
-            strncmp(index->key, str, strlen(index->key)) != 0; ++index);
+    for (; index->key != NULL && strcmp(index->key, str) != 0; ++index)
+        ;
     return index->token;
 }
 /**************************************************************************
@@ -1139,11 +1265,6 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                                         response);
                                     ocmw_free_pointer(strTokenArray);
                                     return (ret != 0) ? FAILED : SUCCESS;
-                                } else if (strcmp("alerts", class) == 0) {
-                                    /*  SCHEMA change :: Alert is not implimented */
-                                    /*   ret = ocmw_handle_show_alerts(&strTokenArray[0], response);
-                                    ocmw_free_pointer(strTokenArray);
-                                    return (ret != 0) ? FAILED : SUCCESS;*/
                                 } else {
                                     if ((snprintf(response,
                                             RES_STR_BUFF_SIZE, "[Error]: "
@@ -1281,6 +1402,22 @@ int32_t ocmw_clicmd_handler(const char *cmdStr, char *response)
                                             INSUFFICIENT_PARAM, response) :
                                             ocmw_frame_errorString(cmdStr,
                                             INVALID_SYNTAX, response));
+                        ocmw_free_pointer(strTokenArray);
+                        return FAILED;
+                    }
+                    break;
+                case ALERTLOG_STR:
+                    if (strTokenCount == 2) {
+                        ret = ocmw_handle_show_all_alerts(&strTokenArray[0],
+                                                          response);
+                        ocmw_free_pointer(strTokenArray);
+                        return (ret != 0) ? FAILED : SUCCESS;
+                    } else {
+                        ret = (strTokenCount < 2 ?
+                                   ocmw_frame_errorString(
+                                       cmdStr, INSUFFICIENT_PARAM, response) :
+                                   ocmw_frame_errorString(
+                                       cmdStr, INVALID_SYNTAX, response));
                         ocmw_free_pointer(strTokenArray);
                         return FAILED;
                     }

@@ -13,6 +13,7 @@
 static OCWareStubsizeflag s_typeFlag;
 static OCWareStubDatabase s_ocwareGlobalData[MAX_NUMBER_PARAM];
 static OCWareStubPostData s_postGlobalArray[MAX_POST_DEVICE];
+static OCWareStubAlertData alertGlobalData[MAX_NUMBER_PARAM];
 
 static int16_t s_defInt16Val = DEFAULT_INT16;
 static int64_t s_defInt64Val = DEFAULT_INT64;
@@ -25,6 +26,7 @@ int8_t debugGetCommand = STUB_FAILED;
 int8_t debugSetCommand = STUB_FAILED;
 int8_t PostResult = STUB_FAILED;
 int8_t PostEnable = STUB_FAILED;
+int16_t allAlertCount = 0;
 extern const Component sys_schema[];
 /******************************************************************************
  * Function Name    : ocware_stub_set_gpioinfo
@@ -179,6 +181,105 @@ ocware_stub_ret ocware_stub_get_post_database(OCMPMessage *msgFrameData,
     msgFrameData->parameters = pos/3;
     return STUB_SUCCESS;
 }
+
+/******************************************************************************
+ * Function Name    :  ocware_stub_frame_alert_msgframe
+ * Description      :  extract alert data from based on subsystem
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+ocware_stub_ret ocware_stub_frame_alert_msgframe(char *buffer)
+{
+    uint32_t ret = 0;
+    uint32_t subSystemNbr = 0;
+    uint32_t index = 0;
+    uint32_t alertIndex = 0;
+    uint32_t subsystemIndex = 0;
+    uint8_t printIndex = 0;
+    uint8_t tempAlertCount = allAlertCount;
+
+    OCMPMessageFrame *msgFrame = (OCMPMessageFrame *)buffer;
+    OCMPMessage *msgFrameData = (OCMPMessage*)&msgFrame->message;
+    subSystemNbr = msgFrameData->subsystem;
+    if (subSystemNbr != 0) {
+        for (subsystemIndex = 0; subsystemIndex < allAlertCount;
+            subsystemIndex++) {
+            if (alertGlobalData[subsystemIndex].subsystemId == subSystemNbr) {
+                break;
+            }
+        }
+        alertIndex = subsystemIndex;
+        while (alertGlobalData[alertIndex].subsystemId == subSystemNbr)
+            alertIndex++;
+        allAlertCount = alertIndex;
+    }
+    for (index = subsystemIndex; index < allAlertCount; index++) {
+        /*create the msgframe*/
+        ret = ocware_stub_parse_alert_get_message(buffer, index);
+        printf(" \n Sending Data :\n");
+        for (printIndex = 0; printIndex < OC_EC_MSG_SIZE; printIndex++) {
+            printf("0x%x  ", buffer[printIndex] & 0xff);
+        }
+        ret = ocware_stub_send_msgframe_middleware(&buffer,
+                             sizeof(OCMPMessageFrame));
+        if (ret != STUB_SUCCESS) {
+            printf("ocware_stub_send_msgframe_middleware failed: error value :"
+                            "%d\n", ret);
+            return STUB_FAILED;
+        }
+    }
+    allAlertCount = tempAlertCount;
+    return STUB_SUCCESS;
+}
+/******************************************************************************
+ * Function Name    :  ocware_stub_get_alert_database
+ * Description      :  extract alert data from lookup table
+ *
+ * @param msgFrameData  - output pointer to the OCMPheader field of the message
+ *                     from MW (by reference)
+ * @param   payload - output pointer to the payload field of the message from MW
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+ocware_stub_ret ocware_stub_get_alert_database(OCMPMessage *msgFrameData,
+                                              char *payload, int8_t index)
+{
+    uint8_t pos = 0;
+    uint8_t defHour = 10;
+    uint8_t defMinut = 22;
+    uint8_t defSecond = 15;
+    uint8_t defDay = 2;
+    uint8_t defMonth = 7;
+    uint8_t defYear = 18;
+    if (index == (allAlertCount - 1)) {
+        msgFrameData->action = OCMP_AXN_TYPE_REPLY;
+    } else {
+        msgFrameData->action = OCMP_AXN_TYPE_ACTIVE;
+    }
+    payload[pos + 1] = 2;
+    strcpy(&payload[pos + 1], (char*)&defHour);
+    strcpy(&payload[pos + 2], (char*)&defMinut);
+    strcpy(&payload[pos + 3], (char*)&defSecond);
+    strcpy(&payload[pos + 4], (char*)&defDay);
+    strcpy(&payload[pos + 5], (char*)&defMonth);
+    strcpy(&payload[pos + 6], (char*)&defYear);
+    strncpy(&payload[pos + 7], (char*)alertGlobalData[index].data,
+                  alertGlobalData[index].paramSize);
+    strncpy(&payload[pos + 9], (char*)alertGlobalData[index].data,
+                  alertGlobalData[index].paramSize);
+    msgFrameData->subsystem = alertGlobalData[index].subsystemId;
+    msgFrameData->componentID = alertGlobalData[index].componentId;
+    msgFrameData->parameters = alertGlobalData[index].paramId;
+
+    return STUB_SUCCESS;
+}
+
 /******************************************************************************
  * Function Name    : ocware_stub_get_gpioinfo
  * Description      : retrieve the GPIO information in the DB for debug
@@ -749,6 +850,152 @@ ocware_stub_ret ocware_create_command_debug_database(int8_t subsystemNbr,
     }
     return ret;
 }
+
+/******************************************************************************
+ * Function Name    : ocware_stub_fill_alert_value
+ * Description      : Function to fill default alert value in the DB
+ *
+ * @param   param - pointer to the parameter field in a particular subsytem and
+ *                  component (by value)
+ *          gStructIndex - index to the DB (by value)
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ *****************************************************************************/
+ocware_stub_ret ocware_stub_fill_alert_value(const Parameter *param,
+                                            uint16_t gStructIndex)
+{
+    const char *paramtype;
+    if(param == NULL) {
+        return STUB_FAILED;
+    }
+
+    paramtype = DATA_TYPE_MAP[param->type];
+
+    if (!strcmp("uint16",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, (char *)&s_defInt16Val);
+    } else if (!strcmp("int16",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, (char*)&s_defInt16Val);
+    } else if (!strcmp("uint8",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
+    } else if (!strcmp("int8",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
+    } else if (!strcmp("string",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, DEFAULT_STRING);
+    } else if (!strcmp("enum",paramtype)) {
+        strcpy(alertGlobalData[gStructIndex].data, (char*)&s_defEnumVal);
+    } else {
+        strcpy(alertGlobalData[gStructIndex].data, (char*)&s_defInt8Val);
+    }
+    return STUB_SUCCESS;
+}
+/******************************************************************************
+ * Function Name    : ocware_stub_create_alert_database
+ * Description      : Parse the schema and add alert entries in the DB
+ *
+ * @return STUB_SUCCESS - for success
+ *         STUB_FAILED  - for failure
+ ******************************************************************************/
+ocware_stub_ret ocware_stub_create_alert_database()
+{
+    ocware_stub_ret ret = STUB_FAILED;
+    int8_t subsystemNbr = 0;
+    int8_t componentNbr = 0;
+    const Component *component = NULL;
+    const Component *subComponent = NULL;
+    const Component  *subSystem = NULL;
+    const Driver *devDriver = NULL;
+    const Parameter *param = NULL;
+    int8_t count = 0;
+    int8_t alertCount = 0;
+    int16_t gStructIndex = 0;
+    int16_t paramPos = 0;
+
+    for (subSystem = sys_schema; subSystem && subSystem->name; subSystem++) {
+        /* Subsystem loop */
+        componentNbr = 1;
+        for(component = subSystem->components; component && component->name;
+                                                                component++) {
+            /* component loop */
+            devDriver = component->driver;
+            if (devDriver != NULL) {
+                /* This is for componenets w/o any sub component */
+                count = 0;
+                paramPos = 0;
+                param = devDriver->alerts;
+                /* Alert related parameters */
+                while (param && param->name) { /*Parameter loop */
+                    alertGlobalData[gStructIndex].subsystemId = subsystemNbr;
+                    alertGlobalData[gStructIndex].componentId = componentNbr;
+                    alertGlobalData[gStructIndex].paramId
+                                       = pow(2, count);
+                    alertGlobalData[gStructIndex].paramSize =
+                                        ocware_stub_get_paramSize (
+                                        DATA_TYPE_MAP[param->type],
+                                        OCMP_MSG_TYPE_CONFIG, param->name);
+                    alertGlobalData[gStructIndex].msgtype =
+                        OCMP_MSG_TYPE_CONFIG;
+                    alertGlobalData[gStructIndex].data = malloc(sizeof(char)*
+                                    alertGlobalData[gStructIndex].paramSize);
+                    if (alertGlobalData[gStructIndex].data == NULL) {
+                        printf("Malloc failed\n");
+                        return STUB_FAILED;
+                    } else {
+                        memset(alertGlobalData[gStructIndex].data, 0,
+                                alertGlobalData[gStructIndex].paramSize);
+                    }
+                    ocware_stub_fill_alert_value(param, gStructIndex);
+                    paramPos += alertGlobalData[gStructIndex].paramSize;
+                    gStructIndex++;
+                    param += 1;
+                    count = count + 1;
+                    allAlertCount++;
+                }
+            }
+            alertCount = 0;
+            subComponent = component->components;
+            while (subComponent && subComponent->name) {
+                devDriver = subComponent->driver;
+                if(devDriver == NULL) {
+                    subComponent += 1;
+                    continue;
+                }
+                param = devDriver->alerts;
+                /* Config related parameters */
+                while (param && param->name) { /*Parameter loop */
+                    alertGlobalData[gStructIndex].subsystemId = subsystemNbr;
+                    alertGlobalData[gStructIndex].componentId = componentNbr;
+                    alertGlobalData[gStructIndex].paramId
+                                = pow(2, alertCount);
+                    alertGlobalData[gStructIndex].paramSize
+                                = ocware_stub_get_paramSize (
+                                               DATA_TYPE_MAP[param->type],
+                                               OCMP_MSG_TYPE_CONFIG, param->name);
+                    alertGlobalData[gStructIndex].msgtype = OCMP_MSG_TYPE_CONFIG;
+                    alertGlobalData[gStructIndex].data
+                                = malloc(alertGlobalData[gStructIndex].paramSize);
+                    if (alertGlobalData[gStructIndex].data == NULL) {
+                        printf("Malloc failed\n");
+                        return STUB_FAILED;
+                    } else {
+                        memset(alertGlobalData[gStructIndex].data, 0,
+                                alertGlobalData[gStructIndex].paramSize);
+                    }
+                    ocware_stub_fill_alert_value(param, gStructIndex);
+                    gStructIndex++;
+                    param += 1;
+                    alertCount += 1;
+                    allAlertCount++;
+                }
+                subComponent += 1;
+            }
+            componentNbr++;
+        }
+        subsystemNbr++;
+    }
+    return ret;
+}
+
 /******************************************************************************
  * Function Name    : ocware_stub_create_post_database
  * Description      : Parse the schema and add post entries
@@ -1080,6 +1327,7 @@ ocware_stub_ret ocware_stub_init_database()
     subsystemNbr++;
     }
     ret = ocware_stub_create_post_database();
+    ret = ocware_stub_create_alert_database();
     return ret;
 }
 
@@ -1092,7 +1340,8 @@ ocware_stub_ret ocware_stub_init_database()
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_parse_command_message(char *buffer)
+ocware_stub_ret ocware_stub_parse_command_message(char *buffer,
+                                                        uint8_t *alertFlag)
 {
     OCMPMessageFrame *msgFrame = (OCMPMessageFrame *)buffer;
     OCMPMessage *msgFrameData = (OCMPMessage*)&msgFrame->message;
@@ -1112,6 +1361,7 @@ ocware_stub_ret ocware_stub_parse_command_message(char *buffer)
         ocware_stub_parse_debug_actiontype(msgFrameData);
         ret = ocware_stub_get_set_params(msgFrameData);
     }
+    *alertFlag = ocware_stub_parse_command_from_schema(msgFrameData);
     msgFrameData->action = OCMP_AXN_TYPE_REPLY;
     return ret;
 }

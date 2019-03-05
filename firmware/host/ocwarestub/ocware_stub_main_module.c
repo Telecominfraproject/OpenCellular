@@ -8,6 +8,7 @@
  */
 #include <ocware_stub_main_module.h>
 
+extern int16_t allAlertCount;
 /******************************************************************************
  * Function Name    : ocware_stub_frame_newmsgframe
  * Description      : Frame the response packet from stub function
@@ -18,7 +19,8 @@
  * @return STUB_SUCCESS - for success
  *         STUB_FAILED  - for failure
  ******************************************************************************/
-ocware_stub_ret ocware_stub_frame_newmsgframe(char *buffer, int32_t option)
+ocware_stub_ret ocware_stub_frame_newmsgframe(char *buffer, int32_t option,
+                                                uint8_t *alertFlag)
 {
     int32_t ret = 0, index = 0;
     OCMPMessageFrame *msgFrame = (OCMPMessageFrame *)buffer;
@@ -34,7 +36,7 @@ ocware_stub_ret ocware_stub_frame_newmsgframe(char *buffer, int32_t option)
     switch(msgFrameData->msgtype) {
 
         case OCMP_MSG_TYPE_COMMAND:
-            ret = ocware_stub_parse_command_message(buffer);
+            ret = ocware_stub_parse_command_message(buffer, alertFlag);
             break;
 
         case OCMP_MSG_TYPE_POST:
@@ -45,7 +47,7 @@ ocware_stub_ret ocware_stub_frame_newmsgframe(char *buffer, int32_t option)
             ret = ocware_stub_get_set_params(msgFrameData);
     }
 
-    if (ret == STUB_SUCCESS) {
+    if (ret == STUB_SUCCESS && (msgFrameData->msgtype != OCMP_MSG_TYPE_ALERT)) {
         /* Setting the action type as REPLY */
         msgFrame->message.action = OCMP_AXN_TYPE_REPLY;
         printf(" \n Sending Data :\n");
@@ -97,14 +99,14 @@ ocware_stub_ret ocware_stub_validate_msgframe_header(char *buf,
  ******************************************************************************/
 int32_t host_ocstubmain_func(int32_t argc, char *argv[])
 {
-    int32_t rc = 0;
+    int32_t ret = 0;
     char *buffer = NULL;
     int32_t loopCount = 0;
     char *rootpath = NULL;
-
+    uint8_t alertFlag = 0;
     OCMPMessageFrame *msgFrame = NULL;
-    rc = ocware_stub_init_ethernet_comm();
-    if ( rc != STUB_SUCCESS) {
+    ret = ocware_stub_init_ethernet_comm();
+    if ( ret != STUB_SUCCESS) {
         printf("\n ERROR: Init Failed - %d", __LINE__);
         ocware_stub_deinit_ethernet_comm();
         return STUB_FAILED;
@@ -138,11 +140,11 @@ int32_t host_ocstubmain_func(int32_t argc, char *argv[])
     while (1) {
 
         memset(buffer, 0, sizeof(OCMPMessageFrame));
-        rc = ocware_stub_recv_msgfrom_middleware(&buffer,
+        ret = ocware_stub_recv_msgfrom_middleware(&buffer,
                             sizeof(OCMPMessageFrame));
-        if (rc != STUB_SUCCESS) {
+        if (ret != STUB_SUCCESS) {
             printf("ocware_stub_recv_msgfrom_middleware failed: error value :"
-                            " %d\n", rc);
+                            " %d\n", ret);
             return STUB_FAILED;
         }
 
@@ -151,26 +153,30 @@ int32_t host_ocstubmain_func(int32_t argc, char *argv[])
         for (loopCount = 0; loopCount < OC_EC_MSG_SIZE; loopCount++) {
             printf("0x%x  ", buffer[loopCount] & 0xff);
         }
+        printf("\n");
 //#endif
-        rc = ocware_stub_validate_msgframe_header(buffer, &msgFrame->message);
-        if (rc != STUB_SUCCESS) {
+        ret = ocware_stub_validate_msgframe_header(buffer, &msgFrame->message);
+        if (ret != STUB_SUCCESS) {
             printf("ocware_stub_validate_msgframe_header failed: error value :"
-                             "%d\n", rc);
+                             "%d\n", ret);
             return STUB_FAILED;
         }
-        rc = ocware_stub_frame_newmsgframe(buffer, rc);
-        if (rc != STUB_SUCCESS) {
+        ret = ocware_stub_frame_newmsgframe(buffer, ret, &alertFlag);
+        if (ret != STUB_SUCCESS) {
             printf("ocware_stub_frame_newmsgframe failed: error value :"
-                            "%d\n", rc);
+                            "%d\n", ret);
             return STUB_FAILED;
         }
-
-        rc = ocware_stub_send_msgframe_middleware(&buffer,
+        if (alertFlag > 0) {
+            ret = ocware_stub_frame_alert_msgframe(buffer);
+        } else {
+            ret = ocware_stub_send_msgframe_middleware(&buffer,
                              sizeof(OCMPMessageFrame));
-        if (rc != STUB_SUCCESS) {
-            printf("ocware_stub_send_msgframe_middleware failed: error value :"
-                            "%d\n", rc);
-            return STUB_FAILED;
+            if (ret != STUB_SUCCESS) {
+                printf("ocware_stub_send_msgframe_middleware failed: error value :"
+                            "%d\n", ret);
+                return STUB_FAILED;
+            }
         }
     }
     free(msgFrame);

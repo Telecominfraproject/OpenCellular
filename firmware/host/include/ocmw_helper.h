@@ -39,6 +39,9 @@
 #define PARAM_STR_BUFF_SIZE         100
 #define PARAM_TYPE_BUFF_SIZE        32
 
+#define OCMW_ALERT_ACTION_SIZE 12
+#define OCMW_ALERT_DATE_SIZE 24
+#define OCMW_ALERT_STRING_SIZE 64
 #define OCMW_MAX_SUBSYSTEM_SIZE     16
 #define OCMW_MAX_ACTION_SIZE        16
 #define OCMW_MAX_MSGTYPE_SIZE       16
@@ -117,6 +120,24 @@ typedef struct {
     char desc[OCMW_POST_DESC_SIZE];     /* Device description */
 } ocwarePostReplyCode;
 
+typedef struct alertevent {
+    char string[OCMW_ALERT_STRING_SIZE]; /* alert string */
+    char action[OCMW_ALERT_ACTION_SIZE]; /* ACTIVE / CLEAR */
+    char value[OCMW_ALERT_STRING_SIZE];
+} alertevent;
+
+typedef struct allAlertEvent {
+    char string[OCMW_ALERT_STRING_SIZE]; /* alert string */
+    char action[OCMW_ALERT_ACTION_SIZE]; /* ACTIVE / CLEAR */
+    char datetime[OCMW_ALERT_DATE_SIZE]; /* YYYY-MM-DD hh:mm:ss */
+    char value[OCMW_ALERT_STRING_SIZE];
+    char actualValue[OCMW_ALERT_STRING_SIZE];
+} allAlertEvent;
+
+typedef struct alertlist {
+    uint16_t nalerts;           /* Number of alerts */
+    struct allAlertEvent *list; /* Alert list */
+} alertlist;
 /*
  * @param sem an input value (by pointer)
  *
@@ -170,4 +191,12 @@ extern int32_t ocmw_parse_obc_from_ec(ocmwSendRecvBuf ecInputData);
  * @return true if function succeeds, false otherwise
  */
 extern int32_t ocmw_parse_testingmodule_from_ec(ocmwSendRecvBuf ecInputData);
+/*
+ * @param msgaction an input value (by value)
+ * @param msgtype an input value (by value)
+ * @param paramstr an input string (by pointer)
+ * @param paramvalue an input value (by pointer)
+ *
+ */
+extern int32_t ocmw_handle_show_alerts(char *response);
 #endif /* _OCMW_HELPER_H_ */

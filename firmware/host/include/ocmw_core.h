@@ -21,7 +21,7 @@ sem_t semCommandPost;
 #define OCMW_BUSY_WAIT_INDEX        0
 #define OCMW_TIMED_WAIT_INDEX       1
 #define PARAM_STR_MAX_BUFF_SIZE     100
-
+#define ALERT_MAX_BUFF_SIZE 	    400
 extern int32_t ocmw_init();
 /*
  * @param actionType an input enum value (by value)

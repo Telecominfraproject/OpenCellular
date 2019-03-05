@@ -328,8 +328,6 @@ static int8_t occli_strjoin(char **deststrPtr, const char *srcstr,
     /* strcat the new string */
     strcat(*deststrPtr, srcstr);
 
-    logdebug("*deststrPtr='%s'", *deststrPtr);
-
     return SUCCESS;
 }
 
@@ -371,6 +369,9 @@ int8_t occli_parse_cliString(char *cliString)
     char tempStr[OCCLI_STRING_MAX_LEN] = {0};
     char *token = NULL;
 
+    if (cliString == NULL) {
+        return ret;
+    }
     strcpy(tempStr, cliString);
     token = strtok(tempStr, " ");
 
@@ -735,6 +736,11 @@ int32_t main(int32_t argc, char *argv[])
         return FAILED;
     }
 
+    ret = pthread_create(&alertThreadId, NULL,
+            occli_alertthread_messenger_to_ocmw, NULL);
+    if (ret != 0) {
+        return ret;
+    }
     /* Execute the OC command (argv[1:]) and exit */
     if (strcmp("occmd", basename(argv[0])) == 0) {
         for (index= 1; index < argc; index++) {
@@ -752,7 +758,6 @@ int32_t main(int32_t argc, char *argv[])
         }
 
         if (cmdstr != NULL) {
-            logdebug("cmdstr='%s'", cmdstr);
             occli_send_cmd_to_ocmw(cmdstr, strlen(cmdstr));
             memset(response, 0, sizeof(response));
             occli_recv_cmd_resp_from_ocmw(response, sizeof(response));
@@ -765,12 +770,6 @@ int32_t main(int32_t argc, char *argv[])
     }
     /* Entering interactive CLI */
     else if (strcmp("occli", basename(argv[0])) == 0) {
-        ret = pthread_create(&alertThreadId, NULL,
-                occli_alertthread_messenger_to_ocmw, NULL);
-
-        if (ret != 0) {
-            return ret;
-        }
 
         /* Initialize readline */
         using_history();
