@@ -469,7 +469,17 @@ static void _ina226_isr(void *context)
             _enable_alert(dev, new_mask);
         }
 
-        dev->obj.alert_cb(evt, value, dev->obj.cb_context);
+        OCMPActionType alertAction = OCMP_AXN_TYPE_ACTIVE;
+        if (evt != INA226_EVT_COL) {
+            if ((alert_mask & INA_MSK_AFF)) {
+                alertAction = OCMP_AXN_TYPE_CLEAR;
+            } else {
+                LOGGER_WARNING("IN226::Unsupported INA event 0x%x\n", evt);
+                return;
+            }
+        }
+        dev->obj.alert_cb(evt, alertAction, value, alert_lim,
+                          dev->obj.cb_context);
     }
     /* TODO: Conversion ready not handled */
 }

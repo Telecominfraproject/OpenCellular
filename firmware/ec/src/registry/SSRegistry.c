@@ -16,18 +16,21 @@
 #include "inc/common/global_header.h"
 #include "inc/utils/ocmp_util.h"
 #include "inc/utils/util.h"
+#include "src/filesystem/fs_wrapper.h"
 
-#define OCMP_ACTION_TYPE_GET 1
-#define OCMP_ACTION_TYPE_SET 2
-#define OCMP_ACTION_TYPE_REPLY 3
+#define AVAL_POS 9
+#define LVAL_POS 7
 #define OCMP_ACTION_TYPE_ACTIVE 4
+#define OCMP_ACTION_TYPE_GET 1
+#define OCMP_ACTION_TYPE_REPLY 3
+#define OCMP_ACTION_TYPE_SET 2
 
 /* TODO: configurable directory (allow us to target different platforms) */
 #include "platform/oc-sdr/schema/schema.h"
 
 #include <ti/sysbios/BIOS.h>
 
-#define OC_TASK_STACK_SIZE 2048
+#define OC_TASK_STACK_SIZE 4096
 #define OC_TASK_PRIORITY 2
 
 static char OC_task_stack[SUBSYSTEM_COUNT][OC_TASK_STACK_SIZE];
@@ -86,7 +89,8 @@ static bool _paramIsValid(const Parameter *param)
 }
 
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data)
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType)
 {
     if (!alert_data) {
         return;
@@ -113,16 +117,24 @@ void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
     size_t param_size = (_paramSize(param) + 3) & ~0x03;
 
     OCMPMessageFrame *pMsg = create_ocmp_msg_frame(
-        alert_data->subsystem, OCMP_MSG_TYPE_ALERT, OCMP_AXN_TYPE_ACTIVE,
+        alert_data->subsystem, OCMP_MSG_TYPE_ALERT, actionType,
         alert_data->componentId + 1, /* TODO: inconsistency indexing in host */
         parameters, param_size);
     if (pMsg) {
-        memcpy(pMsg->message.ocmp_data, data, _paramSize(param));
+        memcpy(pMsg->message.ocmp_data + LVAL_POS, lValue, _paramSize(param));
+        memcpy(pMsg->message.ocmp_data + AVAL_POS, data, _paramSize(param));
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
                         (uint8_t *)pMsg);
     } else {
         LOGGER_ERROR("ERROR::Unable to allocate alert packet\n");
     }
+    FILESystemStruct fileSysStruct = {
+        "alertLog",          FRAME_SIZE,
+        NO_OF_ALERT_FILES,   (OCMPMessageFrame *)pMsg,
+        MAX_ALERT_FILE_SIZE, WRITE_FLAG
+    };
+    Util_enqueueMsg(fsRxMsgQueue, semFilesysMsg, (uint8_t *)&fileSysStruct);
+    Semaphore_pend(semFSwriteMsg, BIOS_WAIT_FOREVER);
 }
 
 static bool _handleMsgTypeCmd(OCMPMessageFrame *pMsg, const Component *comp)
@@ -141,7 +153,7 @@ static bool _handleMsgTypeCmd(OCMPMessageFrame *pMsg, const Component *comp)
             cmd = &dev->commands[pMsg->message.action];
         }
         if (cmd && cmd->cb_cmd) {
-            cmd->cb_cmd(dev->driver_cfg, pMsg->message.ocmp_data);
+            cmd->cb_cmd(dev->driver_cfg, pMsg);
             return true;
         }
     }
@@ -233,7 +245,8 @@ static bool _handleDevStatCfg(OCMPMessageFrame *pMsg, const Component *dev,
     }
     return dev_handled;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
 {
     bool ret = false;
@@ -248,7 +261,7 @@ static bool _handle_post_enable(const Component *comp, OCMPMessageFrame *pMsg)
     pMsg->message.ocmp_data[0] = !(ret); // RETURN_OK =0;
     return ret;
 }
-
+#pragma GCC diagnostic pop
 static bool _handle_post_active(OCMPMessageFrame *pMsg,
                                 unsigned int subsystem_id)
 {
@@ -415,9 +428,17 @@ static void subsystem_init(OCMPSubsystem ss_id)
                      ss_id);
     }
 
-    /* Create Message Queue for RX Messages */
+    /* Create Message Queue for TX Messages */
     ss->msgQueue = Util_constructQueue(&ss->queueStruct);
     if (!ss->msgQueue) {
+        LOGGER_ERROR("SS REG:ERROR:: Failed in Constructing Message Queue for "
+                     "TX Message for subsystem %d\n",
+                     ss_id);
+    }
+
+    /* Create Message Queue for RX Messages */
+    ss->msgRxQueue = Util_constructQueue(&ss->queueRxStruct);
+    if (!ss->msgRxQueue) {
         LOGGER_ERROR("SS REG:ERROR:: Failed in Constructing Message Queue for "
                      "RX Message for subsystem %d\n",
                      ss_id);
@@ -459,4 +480,39 @@ bool SSRegistry_sendMessage(OCMPSubsystem ss_id, void *pMsg)
     }
 
     return Util_enqueueMsg(ss->msgQueue, ss->sem, (uint8_t *)pMsg);
+}
+
+bool alert_log(void *driver, void *mSgPtr)
+{
+    // OCSubsystem *ss = (OCSubsystem*)malloc(sizeof(OCSubsystem));
+    OCMPMessageFrame *pMsg = mSgPtr;
+    OC_SS subSysId = pMsg->message.subsystem;
+    OCSubsystem *ss = ss_reg[subSysId];
+    bool count = false;
+    FILESystemStruct fileSysStruct = { "alertLog",          FRAME_SIZE,
+                                       NO_OF_ALERT_FILES,   pMsg,
+                                       MAX_ALERT_FILE_SIZE, READ_FLAG };
+    Util_enqueueMsg(fsRxMsgQueue, semFilesysMsg, (uint8_t *)&fileSysStruct);
+    while (1) {
+        if (Semaphore_pend(ss->sem, BIOS_WAIT_FOREVER)) {
+            while (!Queue_empty(ss->msgRxQueue)) {
+                pMsg = (OCMPMessageFrame *)Util_dequeueMsg(ss->msgRxQueue);
+                if (pMsg->message.ocmp_data[0] == LAST_MSG_FLAG) {
+                    count = true;
+                    break;
+                }
+
+                if (pMsg) {
+                    Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
+                                    (uint8_t *)pMsg);
+                }
+            }
+            if (count == true) {
+                LOGGER_DEBUG("FS:: LAST msg \n");
+                break;
+            }
+        }
+    }
+
+    return true;
 }

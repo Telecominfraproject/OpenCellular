@@ -133,8 +133,10 @@ static struct Test_AlertData {
     int8_t temp;
     void *ctx;
 } s_alert_data;
-
-static void alert_handler(SE98A_Event evt, int8_t temperature, void *context)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+static void alert_handler(SE98A_Event evt, OCMPActionType alertAction,
+                          int8_t temperature, int8_t lValue, void *context)
 {
     s_alert_data = (struct Test_AlertData){
         .triggered = true,
@@ -143,7 +145,7 @@ static void alert_handler(SE98A_Event evt, int8_t temperature, void *context)
         .ctx = context,
     };
 }
-
+#pragma GCC diagnostic pop
 /* Helper for testing the various alerts this device can create */
 static void _test_alert(SE98A_Dev *dev, uint16_t temp_reg, SE98A_Event exp_evt,
                         int8_t exp_temp)

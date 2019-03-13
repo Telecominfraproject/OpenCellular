@@ -62,7 +62,8 @@ void suite_tearDown(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data)
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType)
 {
 }
 #pragma GCC diagnostic pop
@@ -502,13 +503,18 @@ void test_ocmp_se98a_alert_handler(void)
                                             &fact_ap_se98a_ts1_cfg,
                                             &alert_data));
 
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, value, &alert_data);
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_AAW, value, &alert_data);
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_BAW, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_AAW, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_BAW, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
 
     /* Test for memory check */
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, value, NULL);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_ACT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, NULL);
 
     /* Default case test */
-    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_DEFAULT, value, &alert_data);
+    gbc_gpp_ap_ts1.obj.alert_cb(SE98A_EVT_DEFAULT, SE98A_DEFAULT_ACTION,
+                                SE98A_DEFAULT_TEMP, value, &alert_data);
 }

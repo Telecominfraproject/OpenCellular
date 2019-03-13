@@ -68,9 +68,9 @@ int main(void)
     openCellular_init();
     /* Call board init functions */
     Board_initGeneral();
+    Board_initSPI();
     Board_initGPIO();
     Board_initI2C();
-    Board_initSPI();
     Board_initUSB(Board_USBDEVICE);
     Board_initUART();
     ethernet_start();

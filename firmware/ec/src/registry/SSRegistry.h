@@ -26,10 +26,12 @@ typedef void (*SS_ProcessMsg_Cb)(OCMPMessageFrame *pBmsMsg);
 typedef struct OCSubsystem {
     /* Message queue handles */
     Queue_Handle msgQueue;
+    Queue_Handle msgRxQueue;
     Semaphore_Handle sem;
 
     /* Private variables (reduce dynamic allocation needs) */
     Queue_Struct queueStruct;
+    Queue_Struct queueRxStruct;
     Semaphore_Struct semStruct;
     Task_Struct taskStruct;
     eSubSystemStates state;

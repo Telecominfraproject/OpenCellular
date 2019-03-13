@@ -20,6 +20,8 @@
 /* ======================== Constants & variables =========================== */
 #define INA226_ALERT_MASK 0x8000
 #define INA226_CAL_VALUE 0
+#define INA226_DEFAULT_ACTION 4
+#define INA226_DEFAULT_TEMP 600
 #define INA226_DEVICE_ID 0x2260
 #define INA226_INVALID_CONFIG_PARAMID 1
 #define INA226_INVALID_DEVICE_ID 0xC802

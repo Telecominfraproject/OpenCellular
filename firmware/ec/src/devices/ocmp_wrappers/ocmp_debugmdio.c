@@ -36,10 +36,11 @@ bool check_clause_22(uint8_t port)
     return status;
 }
 
-bool mdio_read(void *mdio_cfg, void *ocmdio)
+bool mdio_read(void *mdio_cfg, void *pMsgFrame)
 {
+    OCMPMessageFrame *pMsg = (OCMPMessageFrame *)pMsgFrame;
     S_MDIO_Cfg *s_oc_mdio_cfg = (S_MDIO_Cfg *)mdio_cfg;
-    S_OCMDIO *s_ocmdio = (S_OCMDIO *)ocmdio;
+    S_OCMDIO *s_ocmdio = (S_OCMDIO *)pMsg->message.ocmp_data;
     s_ocmdio->reg_value = 0xf00f;
 
     if (CLAUSE_45_REQUEST(reg_address))
@@ -59,10 +60,11 @@ bool mdio_read(void *mdio_cfg, void *ocmdio)
     return 0;
 }
 
-bool mdio_write(void *mdio_cfg, void *ocmdio)
+bool mdio_write(void *mdio_cfg, void *pMsgFrame)
 {
+    OCMPMessageFrame *pMsg = (OCMPMessageFrame *)pMsgFrame;
     S_MDIO_Cfg *s_oc_mdio_cfg = (S_MDIO_Cfg *)mdio_cfg;
-    S_OCMDIO *s_ocmdio = (S_OCMDIO *)ocmdio;
+    S_OCMDIO *s_ocmdio = (S_OCMDIO *)pMsg->message.ocmp_data;
 
     if (CLAUSE_45_REQUEST(reg_address)) {
         /*PHY registers use Reg 13 and Reg 14 as paging mechanism to access

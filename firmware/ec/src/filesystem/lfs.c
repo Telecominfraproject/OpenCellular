@@ -5,17 +5,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include "lfs.h"
 #include "lfs_util.h"
-
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 /* Caching block device operations */
 static int lfs_cache_read(lfs_t *lfs, lfs_cache_t *rcache,
                           const lfs_cache_t *pcache, lfs_block_t block,
-                          lfs_off_t off, void *buffer, lfs_size_t size)
+                          lfs_offset_t off, void *buffer, lfs_size_t size)
 {
     uint8_t *data = buffer;
     assert(block < lfs->cfg->block_count);
@@ -75,11 +74,11 @@ static int lfs_cache_read(lfs_t *lfs, lfs_cache_t *rcache,
 
 static int lfs_cache_cmp(lfs_t *lfs, lfs_cache_t *rcache,
                          const lfs_cache_t *pcache, lfs_block_t block,
-                         lfs_off_t off, const void *buffer, lfs_size_t size)
+                         lfs_offset_t off, const void *buffer, lfs_size_t size)
 {
     const uint8_t *data = buffer;
 
-    for (lfs_off_t i = 0; i < size; i++) {
+    for (lfs_offset_t i = 0; i < size; i++) {
         uint8_t c;
         int err = lfs_cache_read(lfs, rcache, pcache, block, off + i, &c, 1);
         if (err) {
@@ -95,9 +94,9 @@ static int lfs_cache_cmp(lfs_t *lfs, lfs_cache_t *rcache,
 
 static int lfs_cache_crc(lfs_t *lfs, lfs_cache_t *rcache,
                          const lfs_cache_t *pcache, lfs_block_t block,
-                         lfs_off_t off, lfs_size_t size, uint32_t *crc)
+                         lfs_offset_t off, lfs_size_t size, uint32_t *crc)
 {
-    for (lfs_off_t i = 0; i < size; i++) {
+    for (lfs_offset_t i = 0; i < size; i++) {
         uint8_t c;
         int err = lfs_cache_read(lfs, rcache, pcache, block, off + i, &c, 1);
         if (err) {
@@ -137,8 +136,8 @@ static int lfs_cache_flush(lfs_t *lfs, lfs_cache_t *pcache, lfs_cache_t *rcache)
 }
 
 static int lfs_cache_prog(lfs_t *lfs, lfs_cache_t *pcache, lfs_cache_t *rcache,
-                          lfs_block_t block, lfs_off_t off, const void *buffer,
-                          lfs_size_t size)
+                          lfs_block_t block, lfs_offset_t off,
+                          const void *buffer, lfs_size_t size)
 {
     const uint8_t *data = buffer;
     assert(block < lfs->cfg->block_count);
@@ -205,7 +204,7 @@ static int lfs_cache_prog(lfs_t *lfs, lfs_cache_t *pcache, lfs_cache_t *rcache,
 }
 
 /* General lfs block device operations */
-static int lfs_bd_read(lfs_t *lfs, lfs_block_t block, lfs_off_t off,
+static int lfs_bd_read(lfs_t *lfs, lfs_block_t block, lfs_offset_t off,
                        void *buffer, lfs_size_t size)
 {
     /* if we ever do more than writes to alternating pairs,
@@ -214,19 +213,19 @@ static int lfs_bd_read(lfs_t *lfs, lfs_block_t block, lfs_off_t off,
     return lfs_cache_read(lfs, &lfs->rcache, NULL, block, off, buffer, size);
 }
 
-static int lfs_bd_prog(lfs_t *lfs, lfs_block_t block, lfs_off_t off,
+static int lfs_bd_prog(lfs_t *lfs, lfs_block_t block, lfs_offset_t off,
                        const void *buffer, lfs_size_t size)
 {
     return lfs_cache_prog(lfs, &lfs->pcache, NULL, block, off, buffer, size);
 }
 
-static int lfs_bd_cmp(lfs_t *lfs, lfs_block_t block, lfs_off_t off,
+static int lfs_bd_cmp(lfs_t *lfs, lfs_block_t block, lfs_offset_t off,
                       const void *buffer, lfs_size_t size)
 {
     return lfs_cache_cmp(lfs, &lfs->rcache, NULL, block, off, buffer, size);
 }
 
-static int lfs_bd_crc(lfs_t *lfs, lfs_block_t block, lfs_off_t off,
+static int lfs_bd_crc(lfs_t *lfs, lfs_block_t block, lfs_offset_t off,
                       lfs_size_t size, uint32_t *crc)
 {
     return lfs_cache_crc(lfs, &lfs->rcache, NULL, block, off, size, crc);
@@ -430,7 +429,7 @@ static int lfs_dir_fetch(lfs_t *lfs, lfs_dir_t *dir, const lfs_block_t pair[2])
 }
 
 struct lfs_region {
-    lfs_off_t oldoff;
+    lfs_offset_t oldoff;
     lfs_size_t oldlen;
     const void *newdata;
     lfs_size_t newlen;
@@ -472,8 +471,8 @@ static int lfs_dir_commit(lfs_t *lfs, lfs_dir_t *dir,
             }
 
             int i = 0;
-            lfs_off_t oldoff = sizeof(dir->d);
-            lfs_off_t newoff = sizeof(dir->d);
+            lfs_offset_t oldoff = sizeof(dir->d);
+            lfs_offset_t newoff = sizeof(dir->d);
             while (newoff < (0x7fffffff & dir->d.size) - 4) {
                 if (i < count && regions[i].oldoff == oldoff) {
                     lfs_crc(&crc, regions[i].newdata, regions[i].newlen);
@@ -1002,7 +1001,7 @@ int lfs_dir_read(lfs_t *lfs, lfs_dir_t *dir, struct lfs_info *info)
     return 1;
 }
 
-int lfs_dir_seek(lfs_t *lfs, lfs_dir_t *dir, lfs_off_t off)
+int lfs_dir_seek(lfs_t *lfs, lfs_dir_t *dir, lfs_offset_t off)
 {
     /* simply walk from head dir */
     int err = lfs_dir_rewind(lfs, dir);
@@ -1048,11 +1047,11 @@ int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir)
 }
 
 /* File index list operations */
-static int lfs_ctz_index(lfs_t *lfs, lfs_off_t *off)
+static int lfs_ctz_index(lfs_t *lfs, lfs_offset_t *off)
 {
-    lfs_off_t size = *off;
-    lfs_off_t b = lfs->cfg->block_size - 2 * 4;
-    lfs_off_t i = size / b;
+    lfs_offset_t size = *off;
+    lfs_offset_t b = lfs->cfg->block_size - 2 * 4;
+    lfs_offset_t i = size / b;
     if (i == 0) {
         return 0;
     }
@@ -1065,7 +1064,7 @@ static int lfs_ctz_index(lfs_t *lfs, lfs_off_t *off)
 static int lfs_ctz_find(lfs_t *lfs, lfs_cache_t *rcache,
                         const lfs_cache_t *pcache, lfs_block_t head,
                         lfs_size_t size, lfs_size_t pos, lfs_block_t *block,
-                        lfs_off_t *off)
+                        lfs_offset_t *off)
 {
     if (size == 0) {
         *block = 0xffffffff;
@@ -1073,8 +1072,8 @@ static int lfs_ctz_find(lfs_t *lfs, lfs_cache_t *rcache,
         return 0;
     }
 
-    lfs_off_t current = lfs_ctz_index(lfs, &(lfs_off_t){ size - 1 });
-    lfs_off_t target = lfs_ctz_index(lfs, &pos);
+    lfs_offset_t current = lfs_ctz_index(lfs, &(lfs_offset_t){ size - 1 });
+    lfs_offset_t target = lfs_ctz_index(lfs, &pos);
 
     while (current > target) {
         lfs_size_t skip =
@@ -1096,7 +1095,7 @@ static int lfs_ctz_find(lfs_t *lfs, lfs_cache_t *rcache,
 
 static int lfs_ctz_extend(lfs_t *lfs, lfs_cache_t *rcache, lfs_cache_t *pcache,
                           lfs_block_t head, lfs_size_t size, lfs_block_t *block,
-                          lfs_off_t *off)
+                          lfs_offset_t *off)
 {
     while (true) {
         /* go ahead and grab a block */
@@ -1123,12 +1122,12 @@ static int lfs_ctz_extend(lfs_t *lfs, lfs_cache_t *rcache, lfs_cache_t *pcache,
             }
 
             size -= 1;
-            lfs_off_t index = lfs_ctz_index(lfs, &size);
+            lfs_offset_t index = lfs_ctz_index(lfs, &size);
             size += 1;
 
             /* just copy out the last block if it is incomplete */
             if (size != lfs->cfg->block_size) {
-                for (lfs_off_t i = 0; i < size; i++) {
+                for (lfs_offset_t i = 0; i < size; i++) {
                     uint8_t data;
                     int err =
                         lfs_cache_read(lfs, rcache, NULL, head, i, &data, 1);
@@ -1155,7 +1154,7 @@ static int lfs_ctz_extend(lfs_t *lfs, lfs_cache_t *rcache, lfs_cache_t *pcache,
             index += 1;
             lfs_size_t skips = lfs_ctz(index) + 1;
 
-            for (lfs_off_t i = 0; i < skips; i++) {
+            for (lfs_offset_t i = 0; i < skips; i++) {
                 int err = lfs_cache_prog(lfs, pcache, rcache, nblock, 4 * i,
                                          &head, 4);
                 if (err) {
@@ -1198,7 +1197,7 @@ static int lfs_ctz_traverse(lfs_t *lfs, lfs_cache_t *rcache,
         return 0;
     }
 
-    lfs_off_t index = lfs_ctz_index(lfs, &(lfs_off_t){ size - 1 });
+    lfs_offset_t index = lfs_ctz_index(lfs, &(lfs_offset_t){ size - 1 });
 
     while (true) {
         int err = cb(data, head);
@@ -1306,7 +1305,7 @@ int lfs_file_close(lfs_t *lfs, lfs_file_t *file)
 {
     int err = lfs_file_sync(lfs, file);
 
-    /* remove from list of files */
+    // remove from list of files
     for (lfs_file_t **p = &lfs->files; *p; p = &(*p)->next) {
         if (*p == file) {
             *p = file->next;
@@ -1342,7 +1341,7 @@ relocate:
     }
 
     /* either read from dirty cache or disk */
-    for (lfs_off_t i = 0; i < file->off; i++) {
+    for (lfs_offset_t i = 0; i < file->off; i++) {
         uint8_t data;
         err = lfs_cache_read(lfs, &lfs->rcache, &file->cache, file->block, i,
                              &data, 1);
@@ -1379,7 +1378,7 @@ static int lfs_file_flush(lfs_t *lfs, lfs_file_t *file)
     }
 
     if (file->flags & LFS_F_WRITING) {
-        lfs_off_t pos = file->pos;
+        lfs_offset_t pos = file->pos;
 
         /* copy over anything after current branch */
         lfs_file_t orig = {
@@ -1565,7 +1564,7 @@ lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file, const void *buffer,
 
     if (!(file->flags & LFS_F_WRITING) && file->pos > file->size) {
         /* fill with zeros */
-        lfs_off_t pos = file->pos;
+        lfs_offset_t pos = file->pos;
         file->pos = file->size;
 
         while (file->pos < pos) {
@@ -1654,19 +1653,71 @@ lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file, lfs_soff_t off,
     if (whence == LFS_SEEK_SET) {
         file->pos = off;
     } else if (whence == LFS_SEEK_CUR) {
-        if ((lfs_off_t)-off > file->pos) {
+        if ((lfs_offset_t)-off > file->pos) {
             return LFS_ERR_INVAL;
         }
 
         file->pos = file->pos + off;
     } else if (whence == LFS_SEEK_END) {
-        if ((lfs_off_t)-off > file->size) {
+        if ((lfs_offset_t)-off > file->size) {
             return LFS_ERR_INVAL;
         }
 
         file->pos = file->size + off;
     }
     return file->pos;
+}
+
+int lfs_file_truncate(lfs_t *lfs, lfs_file_t *file, lfs_offset_t size)
+{
+    if ((file->flags & 3) == LFS_O_RDONLY) {
+        return LFS_ERR_INVAL;
+    }
+
+    lfs_offset_t oldsize = lfs_file_size(lfs, file);
+    if (size < oldsize) {
+        /* need to flush since directly changing metadata */
+        int err = lfs_file_flush(lfs, file);
+        if (err) {
+            return err;
+        }
+
+        /* lookup new head in ctz skip list */
+        err = lfs_ctz_find(lfs, &file->cache, NULL, file->head, file->size,
+                           size, &file->head, &(lfs_offset_t){ 0 });
+        if (err) {
+            return err;
+        }
+
+        file->size = size;
+        file->flags |= LFS_F_DIRTY;
+    } else if (size > oldsize) {
+        lfs_offset_t pos = file->pos;
+
+        /* flush+seek if not already at end */
+        if (file->pos != oldsize) {
+            int err = lfs_file_seek(lfs, file, 0, LFS_SEEK_END);
+            if (err < 0) {
+                return err;
+            }
+        }
+
+        /* fill with zeros */
+        while (file->pos < size) {
+            lfs_ssize_t res = lfs_file_write(lfs, file, &(uint8_t){ 0 }, 1);
+            if (res < 0) {
+                return res;
+            }
+        }
+
+        /* restore pos */
+        int err = lfs_file_seek(lfs, file, pos, LFS_SEEK_SET);
+        if (err < 0) {
+            return err;
+        }
+    }
+
+    return 0;
 }
 
 lfs_soff_t lfs_file_tell(lfs_t *lfs, lfs_file_t *file)

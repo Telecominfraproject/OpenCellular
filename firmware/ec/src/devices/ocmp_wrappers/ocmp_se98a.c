@@ -72,7 +72,8 @@ static ePostCode _probe(void *driver, POSTData *postData)
     return se98a_probe(driver, postData);
 }
 
-static void _alert_handler(SE98A_Event evt, int8_t temperature, void *context)
+static void _alert_handler(SE98A_Event evt, OCMPActionType alertAction,
+                           int8_t temperature, int8_t lValue, void *context)
 {
     unsigned int alert;
     switch (evt) {
@@ -91,7 +92,7 @@ static void _alert_handler(SE98A_Event evt, int8_t temperature, void *context)
     }
 
     uint8_t alert_data = (uint8_t)MAX((int8_t)0, temperature);
-    OCMP_GenerateAlert(context, alert, &alert_data);
+    OCMP_GenerateAlert(context, alert, &alert_data, &lValue, alertAction);
     LOGGER_DEBUG("SE98A Event: %d Temperature: %d\n", evt, temperature);
 }
 

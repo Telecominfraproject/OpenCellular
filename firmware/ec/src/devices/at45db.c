@@ -17,6 +17,8 @@
 #include "inc/common/spibus.h"
 #include "inc/common/global_header.h"
 #include "inc/global/OC_CONNECT1.h"
+#include <ti/sysbios/BIOS.h>
+#include "src/filesystem/fs_wrapper.h"
 
 #define AT45DB_DATA_WR_OPCODE_WR_COUNT 4
 #define AT45DB_DATA_RD_OPCODE_WR_COUNT 8
@@ -81,6 +83,8 @@ static ReturnStatus AT45DB_read_reg(AT45DB_Dev *dev,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
 static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
                                      void *cmdbuffer, /* cmd or opcode buffer */
                                      const uint8_t *regValue,
@@ -94,6 +98,7 @@ static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
             "AT45DBFLASHMEMORY:ERROR:: Failed to get SPI Bus for at45db flash memory "
             "0x%x on bus 0x%x.\n",
             dev->cfg.dev.chip_select, dev->cfg.dev.bus);
+        Semaphore_pend(semFilesysMsg, BIOS_WAIT_FOREVER);
     } else {
         status =
             spi_reg_write(at45dbHandle, dev->cfg.dev.chip_select, cmdbuffer,
@@ -101,7 +106,7 @@ static ReturnStatus AT45DB_write_reg(AT45DB_Dev *dev,
     }
     return status;
 }
-
+#pragma GCC diagnostic pop
 /*****************************************************************************
  **    FUNCTION NAME   : at45db_readStatusRegister
  **
@@ -246,14 +251,16 @@ ReturnStatus at45db_data_write(AT45DB_Dev *dev, const uint8_t *data,
  **    RETURN TYPE     : Success or failure
  **
  *****************************************************************************/
-static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint8_t *devID)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint32_t *devID)
 {
     uint8_t txBuffer = AT45DB_DEVID_RD_OPCODE; /* opcode to get device id */
 
     return AT45DB_read_reg(dev, &txBuffer, devID, NULL, AT45DB_DEVID_RD_BYTES,
                            AT45DB_DEVID_OPCODE_WR_COUNT);
 }
-
+#pragma GCC diagnostic pop
 /*****************************************************************************
  **    FUNCTION NAME   : at45db_probe
  **
@@ -266,7 +273,7 @@ static ReturnStatus at45db_getDevID(AT45DB_Dev *dev, uint8_t *devID)
  *****************************************************************************/
 ePostCode at45db_probe(AT45DB_Dev *dev, POSTData *postData)
 {
-    uint8_t value = 0;
+    uint32_t value = 0;
     uint16_t devId = 0;
     uint8_t manfId = 0;
 

@@ -126,8 +126,10 @@ static struct Test_AlertData {
     uint16_t val;
     void *ctx;
 } s_alert_data;
-
-static void _ina226_alert_handler(INA226_Event evt, uint16_t value,
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+static void _ina226_alert_handler(INA226_Event evt, OCMPActionType alertAction,
+                                  uint16_t value, uint16_t lValue,
                                   void *context)
 {
     s_alert_data = (struct Test_AlertData){
@@ -137,7 +139,7 @@ static void _ina226_alert_handler(INA226_Event evt, uint16_t value,
         .ctx = context,
     };
 }
-
+#pragma GCC diagnostic pop
 static void _test_alert(INA226_Dev *dev, INA226_Event evt, uint16_t alert_mask,
                         uint16_t val, uint16_t new_mask)
 {
