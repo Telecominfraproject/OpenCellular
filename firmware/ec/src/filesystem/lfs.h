@@ -13,7 +13,7 @@
 
 /* Type definitions */
 typedef uint32_t lfs_size_t;
-typedef uint32_t lfs_off_t;
+typedef uint32_t lfs_offset_t;
 
 typedef int32_t lfs_ssize_t;
 typedef int32_t lfs_soff_t;
@@ -78,13 +78,13 @@ struct lfs_config {
     void *context;
 
     /* Read a region in a block */
-    int (*read)(const struct lfs_config *c, lfs_block_t block, lfs_off_t off,
+    int (*read)(const struct lfs_config *c, lfs_block_t block, lfs_offset_t off,
                 void *buffer, lfs_size_t size);
 
     /* Program a region in a block, function must return LFS_ERR_CORRUPT
      * if the block should be considered bad
      */
-    int (*prog)(const struct lfs_config *c, lfs_block_t block, lfs_off_t off,
+    int (*prog)(const struct lfs_config *c, lfs_block_t block, lfs_offset_t off,
                 const void *buffer, lfs_size_t size);
 
     /* Erase a block, A block must be erased before being programmed */
@@ -152,7 +152,7 @@ struct lfs_info {
 
 /* filesystem data structures */
 typedef struct lfs_entry {
-    lfs_off_t off;
+    lfs_offset_t off;
 
     struct lfs_disk_entry {
         uint8_t type;
@@ -171,32 +171,35 @@ typedef struct lfs_entry {
 
 typedef struct lfs_cache {
     lfs_block_t block;
-    lfs_off_t off;
+    lfs_offset_t off;
     uint8_t *buffer;
 } lfs_cache_t;
 
 typedef struct lfs_file {
     struct lfs_file *next;
     lfs_block_t pair[2];
-    lfs_off_t poff;
+    lfs_offset_t poff;
 
     lfs_block_t head;
     lfs_size_t size;
 
+    const struct lfs_file_config *cfg;
+
     uint32_t flags;
-    lfs_off_t pos;
+    lfs_offset_t pos;
     lfs_block_t block;
-    lfs_off_t off;
+    lfs_offset_t off;
     lfs_cache_t cache;
 } lfs_file_t;
 
 typedef struct lfs_dir {
     struct lfs_dir *next;
+
     lfs_block_t pair[2];
-    lfs_off_t off;
+    lfs_offset_t off;
 
     lfs_block_t head[2];
-    lfs_off_t pos;
+    lfs_offset_t pos;
 
     struct lfs_disk_dir {
         uint32_t rev;
@@ -206,7 +209,7 @@ typedef struct lfs_dir {
 } lfs_dir_t;
 
 typedef struct lfs_superblock {
-    lfs_off_t off;
+    lfs_offset_t off;
 
     struct lfs_disk_superblock {
         uint8_t type;
@@ -305,7 +308,7 @@ int lfs_dir_close(lfs_t *lfs, lfs_dir_t *dir);
 int lfs_dir_read(lfs_t *lfs, lfs_dir_t *dir, struct lfs_info *info);
 
 /* Change the position of the directory */
-int lfs_dir_seek(lfs_t *lfs, lfs_dir_t *dir, lfs_off_t off);
+int lfs_dir_seek(lfs_t *lfs, lfs_dir_t *dir, lfs_offset_t off);
 
 /* Return the position of the directory */
 lfs_soff_t lfs_dir_tell(lfs_t *lfs, lfs_dir_t *dir);
@@ -315,6 +318,9 @@ int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir);
 
 /* Traverse through all blocks in use by the filesystem */
 int lfs_traverse(lfs_t *lfs, int (*cb)(void *, lfs_block_t), void *data);
+
+/* Truncates the size of the file to the specified size */
+int lfs_file_truncate(lfs_t *lfs, lfs_file_t *file, lfs_offset_t size);
 
 /* Prunes any recoverable errors that may have occured in the filesystem
  * Not needed to be called by user unless an operation is interrupted

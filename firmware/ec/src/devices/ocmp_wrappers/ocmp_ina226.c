@@ -67,14 +67,18 @@ static ePostCode _probe(void *driver, POSTData *postData)
     return ina226_probe(driver, postData);
 }
 
-static void _alert_handler(INA226_Event evt, uint16_t value, void *alert_data)
+static void _alert_handler(INA226_Event evt, OCMPActionType alertAction,
+                           uint16_t value, uint16_t lValue, void *alert_data)
 {
     if (evt != INA226_EVT_COL) {
-        LOGGER_WARNING("IN226::Unsupported INA event 0x%x\n", evt);
-        return;
+        if (evt != INA226_EVT_CUL) {
+            LOGGER_WARNING("IN226::Unsupported INA event 0x%x\n", evt);
+            return;
+        }
     }
 
-    OCMP_GenerateAlert(alert_data, INA226_ALERT_OVERCURRENT, &value);
+    OCMP_GenerateAlert(alert_data, INA226_ALERT_OVERCURRENT, &value, &lValue,
+                       alertAction);
     LOGGER_DEBUG("INA226 Event: 0x%x Current: %u\n", evt, value);
 }
 

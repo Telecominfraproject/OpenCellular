@@ -150,6 +150,7 @@ typedef struct AlertData {
 } AlertData;
 
 void OCMP_GenerateAlert(const AlertData *alert_data, unsigned int alert_id,
-                        const void *data);
+                        const void *data, const void *lValue,
+                        OCMPActionType actionType);
 
 #endif /* _SYS_CFG_FRAMEWORK_H */

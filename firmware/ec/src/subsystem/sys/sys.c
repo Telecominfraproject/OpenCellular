@@ -8,6 +8,7 @@
  */
 
 #include "common/inc/global/Framework.h"
+#include <driverlib/sysctl.h>
 #include "helpers/memory.h"
 #include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
@@ -26,22 +27,13 @@
 #include <xdc/std.h>
 #include <xdc/cfg/global.h>
 #include <xdc/runtime/System.h>
+#include <xdc/std.h>
 
-#define FRAME_SIZE 64
-#define OCFS_TASK_PRIORITY 5
+#define OCFS_TASK_PRIORITY 1
 #define OCFS_TASK_STACK_SIZE 4096
 
 Task_Struct ocFSTask;
 Char ocFSTaskStack[OCFS_TASK_STACK_SIZE];
-
-Semaphore_Handle semFilesysMsg;
-
-Semaphore_Struct semFSstruct;
-
-static Queue_Struct fsTxMsg;
-
-Queue_Handle fsRxMsgQueue;
-Queue_Handle fsTxMsgQueue;
 
 extern POSTData PostResult[POST_RECORDS];
 
@@ -156,6 +148,16 @@ bool SYS_post_get_results(void **getpostResult)
     return status;
 }
 
+/*****************************************************************************
+ **    FUNCTION NAME   : sys_post_init
+ **
+ **    DESCRIPTION     : Create the task for file system
+ **
+ **    ARGUMENTS       : SPI driver configuration, return value
+ **
+ **    RETURN TYPE     : bool
+ **
+ *****************************************************************************/
 bool sys_post_init(void *driver, void *returnValue)
 {
     Semaphore_construct(&semFSstruct, 0, NULL);
@@ -164,12 +166,32 @@ bool sys_post_init(void *driver, void *returnValue)
         LOGGER_DEBUG("FS:ERROR:: Failed in Creating Semaphore");
         return false;
     }
+    Semaphore_construct(&semFSreadStruct, 0, NULL);
+    semFSreadMsg = Semaphore_handle(&semFSreadStruct);
+    if (!semFSreadMsg) {
+        LOGGER_DEBUG("FS:ERROR:: Failed in Creating Semaphore");
+        return false;
+    }
+
+    Semaphore_construct(&semFSwriteStruct, 0, NULL);
+    semFSwriteMsg = Semaphore_handle(&semFSwriteStruct);
+    if (!semFSwriteMsg) {
+        LOGGER_DEBUG("FS:ERROR:: Failed in Creating Semaphore");
+        return false;
+    }
+
     /* Create Message Queue for RX Messages */
     fsTxMsgQueue = Util_constructQueue(&fsTxMsg);
     if (!fsTxMsgQueue) {
         LOGGER_ERROR("FS:ERROR:: Failed in Constructing Message Queue for");
         return false;
     }
+    fsRxMsgQueue = Util_constructQueue(&fsRxMsg);
+    if (!fsRxMsgQueue) {
+        LOGGER_ERROR("FS:ERROR:: Failed in Constructing Message Queue for");
+        return false;
+    }
+
     Task_Params taskParams;
     Task_Params_init(&taskParams);
     taskParams.stackSize = OCFS_TASK_STACK_SIZE;
@@ -178,7 +200,7 @@ bool sys_post_init(void *driver, void *returnValue)
     taskParams.priority = OCFS_TASK_PRIORITY;
     taskParams.arg0 = (UArg)driver;
     taskParams.arg1 = (UArg)returnValue;
-    Task_construct(&ocFSTask, fs_init, &taskParams, NULL);
+    Task_construct(&ocFSTask, fs_wrapper_fileSystem_init, &taskParams, NULL);
     LOGGER_DEBUG("FS:INFO:: Creating filesystem task function.\n");
     return true;
 }

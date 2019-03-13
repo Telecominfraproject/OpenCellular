@@ -34,8 +34,7 @@ ReturnStatus spi_reg_read(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
                           uint32_t byte, uint8_t numofBytes);
 
 ReturnStatus spi_reg_write(SPI_Handle spiHandle, OcGpio_Pin *chip_select,
-                           void *regAddress, const uint8_t *data,
-                           uint32_t data_size, uint32_t byte,
-                           uint8_t numofBytes);
+                           void *regAddress, uint8_t *data, uint32_t data_size,
+                           uint32_t byte, uint8_t numofBytes);
 
 #endif /* INC_COMMON_SPIBUS_H_ */

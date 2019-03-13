@@ -18,10 +18,11 @@
 #define NO_GPIO_PINS_IN_GROUP 8
 extern GPIO_PinConfig gpioPinConfigs[];
 
-bool ocgpio_set(void *gpio_cfg, void *oc_gpio)
+bool ocgpio_set(void *gpio_cfg, void *pMsgFrame)
 {
+    OCMPMessageFrame *pMsg = (OCMPMessageFrame *)pMsgFrame;
     S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)gpio_cfg;
-    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)oc_gpio;
+    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)pMsg->message.ocmp_data;
     int ret = 0;
     uint8_t idx = ((oc_gpio_cfg->group != 0) ?
                        (((oc_gpio_cfg->group - 1) * NO_GPIO_PINS_IN_GROUP) +
@@ -36,10 +37,11 @@ bool ocgpio_set(void *gpio_cfg, void *oc_gpio)
     return (ret == 0);
 }
 
-bool ocgpio_get(void *gpio_cfg, void *oc_gpio)
+bool ocgpio_get(void *gpio_cfg, void *pMsgFrame)
 {
+    OCMPMessageFrame *pMsg = (OCMPMessageFrame *)pMsgFrame;
     S_OCGPIO_Cfg *oc_gpio_cfg = (S_OCGPIO_Cfg *)gpio_cfg;
-    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)oc_gpio;
+    S_OCGPIO *s_oc_gpio = (S_OCGPIO *)pMsg->message.ocmp_data;
     int ret = 0;
     uint8_t idx = ((oc_gpio_cfg->group != 0) ?
                        (((oc_gpio_cfg->group - 1) * NO_GPIO_PINS_IN_GROUP) +

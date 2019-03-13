@@ -64,7 +64,7 @@ static void _alert_handler(LTC4275_Event evt, void *context)
             LOGGER_ERROR("Unknown LTC4275evt: %d\n", evt);
             return;
     }
-    OCMP_GenerateAlert(context, alert, &evt);
+    OCMP_GenerateAlert(context, alert, &evt, NULL, OCMP_AXN_TYPE_ACTIVE);
     LOGGER_DEBUG("LTC4275A alert: %d generated.\n", alert);
 }
 

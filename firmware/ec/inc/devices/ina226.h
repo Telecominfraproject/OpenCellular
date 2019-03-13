@@ -13,6 +13,7 @@
  *                               HEADER FILES
  *****************************************************************************/
 #include "common/inc/global/post_frame.h"
+#include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/i2cbus.h"
 
@@ -76,7 +77,8 @@ typedef enum INA226_Event {
     INA226_EVT_CUL, /* Current under limit - based on SUL */
 } INA226_Event;
 
-typedef void (*INA226_CallbackFn)(INA226_Event evt, uint16_t value,
+typedef void (*INA226_CallbackFn)(INA226_Event evt, OCMPActionType alertAction,
+                                  uint16_t value, uint16_t lValue,
                                   void *context);
 
 typedef struct INA226_Cfg {

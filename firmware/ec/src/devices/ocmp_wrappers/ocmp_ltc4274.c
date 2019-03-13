@@ -226,7 +226,7 @@ static void _alert_handler(LTC4274_Event evt, void *context)
         }
     }
     uint8_t alert_data = 0x00;
-    OCMP_GenerateAlert(context, alert, &alert_data);
+    OCMP_GenerateAlert(context, alert, &alert_data, NULL, OCMP_AXN_TYPE_ACTIVE);
     LOGGER_DEBUG("LTC7274 Event: %d \n", evt);
 }
 
