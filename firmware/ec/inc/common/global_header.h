@@ -20,6 +20,12 @@
 /* XDCtools Header files */
 #include <xdc/runtime/System.h> /* For System_printf */
 
+/*Maximum monitored task limit.*/
+#define MAX_TASK_LIMIT 32
+
+/* Time Period for semaphore wait in task. After this 40 sec watchdog is kicked */
+#define OC_TASK_WAIT_TIME   (40000)
+#define OC_SYS_TICK   (1000)
 #if 1
 #    define DEBUG(...)                  \
         {                               \

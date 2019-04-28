@@ -404,6 +404,7 @@ static bool fs_wrapper_msgHandler(FILESystemStruct *fileSysStruct)
 void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
 {
     uint8_t index = 0;
+
     FILESystemStruct *fileSysStruct;
     memset(&lfs, 0, sizeof(lfs));
     memset(&file, 0, sizeof(file));
@@ -449,9 +450,9 @@ void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
             }
             index++;
         }
-
+        Task_Handle task_handle = Task_self();
         while (true) {
-            if (Semaphore_pend(semFilesysMsg, BIOS_WAIT_FOREVER)) {
+            if (Semaphore_pend(semFilesysMsg, OC_TASK_WAIT_TIME)) {
                 while (!Queue_empty(fsRxMsgQueue)) {
                     fileSysStruct =
                         (FILESystemStruct *)Util_dequeueMsg(fsRxMsgQueue);
@@ -463,6 +464,7 @@ void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
                     }
                 }
             }
+            wd_kick(task_handle);
         }
     }
 }

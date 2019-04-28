@@ -62,7 +62,7 @@ static OcGpio_Pin *pin_ap_boot_alert2;
 //*****************************************************************************
 //                                EXTERN FUNCTIONS
 //*****************************************************************************
-extern void watchdog_reset_ap(void);
+extern void keepAlive_reset_ap(void);
 
 /******************************************************************************
  **    FUNCTION NAME   : ebmp_restart_timer
@@ -111,7 +111,7 @@ void ebmp_boot_monitor_timeout(void)
                  *********************************************/
                 // send_msg_big_brother();
                 Clock_stop(bootProgressClk);
-                // watchdog_reset_ap();
+                // keepAlive_reset_ap();
             }
         } else {
             /*****************************************************
@@ -400,8 +400,10 @@ void ebmp_create_task(void)
     Task_Params taskParams;
 
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "GPPEBMP_t";
     taskParams.stack = ebmpTaskStack;
     taskParams.stackSize = EBMP_TASK_STACK_SIZE;
     taskParams.priority = EBMP_TASK_PRIORITY;
-    Task_construct(&ebmpTask, ebmp_task_fxn, &taskParams, NULL);
+    Util_create_task(&taskParams, &ebmp_task_fxn, false) ;
+    //Task_construct(&ebmpTask, ebmp_task_fxn, &taskParams, NULL);
 }

@@ -90,12 +90,13 @@ void ThreadedInt_Init(OcGpio_Pin *irqPin, ThreadedInt_Callback cb,
     // TODO: look into error block and see if I should use it
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "ThreadedInterrupt_t";
     taskParams.stackSize = TI_TASKSTACKSIZE;
     taskParams.priority = TI_TASKPRIORITY;
     taskParams.arg0 = (uintptr_t)&s_intConfigs[devNum];
-    Task_Handle task = Task_create(ThreadedInt_Task, &taskParams, NULL);
+    bool task = Util_create_task(&taskParams, &ThreadedInt_Task, false);
     if (!task) {
-        DEBUG("ThrdInt::FATAL: Unable to start interrupt task\n");
+        LOGGER_ERROR("ThrdInt::FATAL: Unable to start interrupt task\n");
         Semaphore_delete(&sem);
         s_numDevices--;
         return;

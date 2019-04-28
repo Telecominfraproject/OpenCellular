@@ -42,6 +42,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.GCC.404367859" name="Enable support for GCC extensions (DEPRECATED) (--gcc)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.GCC" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.DEFINE.1230311860" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ccs"/>
+									<listOptionValue builtIn="false" value="OC_Watchdog"/>
 									<listOptionValue builtIn="false" value="DEBUG_LOGS"/>
 									<listOptionValue builtIn="false" value="TIVAWARE"/>
 									<listOptionValue builtIn="false" value="PART_TM4C1294NCPDT"/>
@@ -113,7 +114,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="OC_CONNECT1.lds|test" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="test|OC_CONNECT1.lds" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -230,7 +231,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="OC_CONNECT1.lds|test|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/cfg/uartecho_pem4f.cfg|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/uartecho.cfg|alertManager.c|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/build.cfg|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/uartecho.cfg|tm4c1294ncpdt.cmd|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/src|tm4c129encpdt.cmd|subsystem/alertManager/alertReceiver.c|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/cfg/uartecho_pem4f.cfg|tm4c1294ncpdt_startup_ccs.c|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/build.cfg|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/src|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/cfg/uartecho_pem4f.cfg|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/build.cfg|alertManager.c|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/uartecho.cfg|utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/uartecho.cfg|subsystem/alertManager/alertReceiver.c|tm4c1294ncpdt_startup_ccs.c|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/build.cfg|test|tm4c129encpdt.cmd|OC_CONNECT1.lds|tm4c1294ncpdt.cmd|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/Debug/configPkg/package/cfg/uartecho_pem4f.cfg|Utils/uartechodma_EK_TM4C1294XL_TI_TivaTM4C1294NCPDT/src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -260,4 +261,5 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

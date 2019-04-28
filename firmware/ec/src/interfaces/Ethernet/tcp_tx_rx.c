@@ -61,17 +61,18 @@ Void tcp_Tx_Worker(UArg arg0, UArg arg1)
     int clientfd = (int)arg0;
     int bytesSent;
     uint8_t *buffer;
-
+    Task_Handle task_handle = Task_self();
     LOGGER_DEBUG("tcpWorker: start clientfd = 0x%x\n", clientfd);
-
     while (clientfd) {
-        Semaphore_pend(ethTxsem, BIOS_WAIT_FOREVER);
+        Semaphore_pend(ethTxsem, OC_TASK_WAIT_TIME);
         {
-            buffer = Util_dequeueMsg(ethTxMsgQueue);
-            bytesSent = send(clientfd, buffer, TCPPACKETSIZE, 0);
-            if (bytesSent < 0) {
-                LOGGER_DEBUG("Error: send failed.\n");
-                break;
+            while (!Queue_empty(ethTxMsgQueue)) {
+                buffer = Util_dequeueMsg(ethTxMsgQueue);
+                bytesSent = send(clientfd, buffer, TCPPACKETSIZE, 0);
+                if (bytesSent < 0) {
+                    LOGGER_DEBUG("Error: send failed.\n");
+                    break;
+                }
             }
         }
     }
@@ -87,7 +88,7 @@ Void tcp_Rx_Worker(UArg arg0, UArg arg1)
 {
     int clientfd = (int)arg0;
     char buffer[TCPPACKETSIZE];
-
+    Task_Handle task_handle = Task_self();
     LOGGER_DEBUG("tcpWorker: start clientfd = 0x%x\n", clientfd);
     while ((bytesRcvd = recv(clientfd, buffer, TCPPACKETSIZE, 0)) > 0) {
         Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, (uint8_t *)buffer);
@@ -181,18 +182,19 @@ Void tcpHandler_client(UArg arg0, UArg arg1)
 Void tcpHandler(UArg arg0, UArg arg1)
 {
     int status;
-    int clientfd;
     int server;
+    int clientfd;
+    fd_set active_fd_set, read_fd_set;
+    struct timeval      timeout;
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
     int optval;
     int optlen = sizeof(optval);
     socklen_t addrlen = sizeof(clientAddr);
-    Task_Handle task_Tx_Handle;
     Task_Params task_Tx_Params;
-    Task_Handle task_Rx_Handle;
     Task_Params task_Rx_Params;
     Error_Block eb;
+    Task_Handle task_handle = Task_self();
 
     server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server == -1) {
@@ -223,6 +225,76 @@ Void tcpHandler(UArg arg0, UArg arg1)
         goto shutdown;
     }
 
+    /* Initialize the set of active sockets. */
+    FD_ZERO (&active_fd_set);
+    FD_SET (server, &active_fd_set);
+
+    /* Timeout */
+    timeout.tv_sec  = OC_TASK_WAIT_TIME/OC_SYS_TICK;
+    timeout.tv_usec = 0;
+
+    while (1)
+    {
+        /* Block until input arrives on one or more active sockets. */
+        read_fd_set = active_fd_set;
+        System_printf("Select wait...\n");
+        System_flush();
+        status = select (server + 1, &read_fd_set, NULL, NULL, &timeout);
+        if ( status < 0 )
+        {
+            System_printf("Error: Failed to create new Task\n");
+            goto shutdown;
+        }
+
+        if ( status == 0 ) {
+            /* Kick to watchdog */
+            wd_kick(task_handle);
+        } else {
+            /* Service all the sockets with input pending. */
+            if (FD_ISSET (server, &read_fd_set))
+            {
+                /* Connection request on original socket. */
+                if (((clientfd = accept(server, (struct sockaddr *)&clientAddr, &addrlen)) != -1))
+                {
+                    LOGGER_DEBUG("tcpHandler: Creating thread clientfd = %d\n", clientfd);
+
+                    /* Init the Error_Block */
+                    Error_init(&eb);
+
+                    /* Initialize the defaults and set the parameters. */
+                    Task_Params_init(&task_Tx_Params);
+                    task_Tx_Params.instance->name = "TcpTxWorker_t";
+                    task_Tx_Params.arg0 = (UArg)clientfd;
+                    task_Tx_Params.stackSize = 1280;
+                    bool task_Tx_Handle =  Util_create_task(&task_Tx_Params, &tcp_Tx_Worker, false) ;
+                    //Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
+                    if (task_Tx_Handle == NULL) {
+                        LOGGER_DEBUG("Error: Failed to create new Task\n");
+                        close(clientfd);
+                    }
+
+                    /* Initialize the defaults and set the parameters. */
+                    Task_Params_init(&task_Rx_Params);
+                    task_Rx_Params.instance->name="TcpRxWorker_t";
+                    task_Rx_Params.arg0 = (UArg)clientfd;
+                    task_Rx_Params.stackSize = 1280;
+                    bool task_Rx_Handle =  Util_create_task(&task_Rx_Params, &tcp_Rx_Worker, false) ;
+                    //Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
+                    if (task_Rx_Handle == NULL) {
+                        LOGGER_DEBUG("Error: Failed to create new Task\n");
+                        close(clientfd);
+                    }
+
+                    /* addrlen is a value-result param, must reset for next accept call */
+                    addrlen = sizeof(clientAddr);
+                }
+            }
+            /* In case if too busy serving request. Its good to kick watchdog */
+            wd_kick(task_handle);
+        }
+    }
+
+#if 0
     while ((clientfd = accept(server, (struct sockaddr *)&clientAddr,
                               &addrlen)) != -1) {
         LOGGER_DEBUG("tcpHandler: Creating thread clientfd = %d\n", clientfd);
@@ -232,10 +304,11 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&task_Tx_Params);
+        task_Tx_Params.instance->name = "TcpTxWorker_t";
         task_Tx_Params.arg0 = (UArg)clientfd;
         task_Tx_Params.stackSize = 1280;
-        task_Tx_Handle =
-            Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
+        bool task_Tx_Handle =  Util_create_task(&task_Tx_Params, &tcp_Tx_Worker, false) ;
+        //Task_create((Task_FuncPtr)tcp_Tx_Worker, &task_Tx_Params, &eb);
         if (task_Tx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
@@ -243,10 +316,11 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&task_Rx_Params);
+        task_Rx_Params.instance->name="TcpRxWorker_t";
         task_Rx_Params.arg0 = (UArg)clientfd;
         task_Rx_Params.stackSize = 1280;
-        task_Rx_Handle =
-            Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
+        bool task_Rx_Handle =  Util_create_task(&task_Rx_Params, &tcp_Rx_Worker, false) ;
+        //Task_create((Task_FuncPtr)tcp_Rx_Worker, &task_Rx_Params, &eb);
         if (task_Rx_Handle == NULL) {
             LOGGER_DEBUG("Error: Failed to create new Task\n");
             close(clientfd);
@@ -257,8 +331,8 @@ Void tcpHandler(UArg arg0, UArg arg1)
     }
 
     LOGGER_DEBUG("Error: accept failed.\n");
-
-shutdown:
+#endif
+    shutdown:
     if (server > 0) {
         close(server);
     }
@@ -309,7 +383,7 @@ int ethernet_start(void)
  */
 void netOpenHook()
 {
-    Task_Handle taskHandle;
+
     Task_Params taskParams;
     Error_Block eb;
 
@@ -321,10 +395,11 @@ void netOpenHook()
      *  arg0 will be the port that this task listens to.
      */
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "TCPHandler_t";
     taskParams.stackSize = TCPHANDLERSTACK;
     taskParams.priority = 1;
     taskParams.arg0 = TCPPORT;
-    taskHandle = Task_create((Task_FuncPtr)tcpHandler, &taskParams, &eb);
+    bool taskHandle = Util_create_task(&taskParams, &tcpHandler, true);
     if (taskHandle == NULL) {
         LOGGER_DEBUG("netOpenHook: Failed to create tcpHandler Task\n");
     }

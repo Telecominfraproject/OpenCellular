@@ -62,8 +62,8 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
          * Embedded Controller(EC) by toggling two GPIO's.ebmp_init is a
          * function where we register the required GPIO's for interrupts if AP
          * move from one boot process state to other.*/
-        ebmp_init(driver);
-        SysCtlDelay(100);
+        //ebmp_init(driver);
+        //SysCtlDelay(100);
         OcGpio_write(&driver->pin_ap_12v_onoff, true);
         SysCtlDelay(100);
 

@@ -138,13 +138,21 @@ void usb_rx_taskinit(void)
  *****************************************************************************/
 void usb_tx_taskfxn(UArg arg0, UArg arg1)
 {
+    Task_Handle task_handle = Task_self();
     /* USB TX Task init*/
     usb_tx_taskinit();
 
     while (true) {
         /* Block while the device is NOT connected to the USB */
-        USBCDCD_waitForConnect(BIOS_WAIT_FOREVER);
-        if (Semaphore_pend(semUSBTX, BIOS_WAIT_FOREVER)) {
+
+        while (true) {
+            if(USBCDCD_waitForConnect(OC_TASK_WAIT_TIME))
+            {
+                break;
+            }
+            wd_kick(task_handle);
+        };
+        if (Semaphore_pend(semUSBTX, OC_TASK_WAIT_TIME)) {
             /* OCMP UART TX Messgaes */
             while (!Queue_empty(usbTxMsgQueue)) {
                 uint8_t *pWrite = (uint8_t *)Util_dequeueMsg(usbTxMsgQueue);
@@ -165,7 +173,9 @@ void usb_tx_taskfxn(UArg arg0, UArg arg1)
                 }
                 free(pWrite);
             }
+
         }
+        wd_kick(task_handle);
     }
 }
 
@@ -191,12 +201,20 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
     /* USB RX Task init*/
     usb_rx_taskinit();
 
+    Task_Handle task_handle = Task_self();
+
     while (true) {
         /* Block while the device is NOT connected to the USB */
-        USBCDCD_waitForConnect(BIOS_WAIT_FOREVER);
+        while (true) {
+            if(USBCDCD_waitForConnect(OC_TASK_WAIT_TIME))
+            {
+                break;
+            }
+            wd_kick(task_handle);
+        };
 
         received =
-            USBCDCD_receiveData(ui8RxBuf, USB_FRAME_LENGTH, BIOS_WAIT_FOREVER);
+            USBCDCD_receiveData(ui8RxBuf, USB_FRAME_LENGTH, OC_TASK_WAIT_TIME );
         ui8RxBuf[received] = '\0';
         if (received && (ui8RxBuf[0] == 0x55)) {
             /* OCMP USB RX Messgaes */
@@ -222,6 +240,8 @@ void usb_rx_taskfxn(UArg arg0, UArg arg1)
                     USB_FRAME_LENGTH);
             }
         }
+
+        wd_kick(task_handle);
     }
 }
 
@@ -239,12 +259,13 @@ void usb_tx_createtask(void)
 {
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "IFUSBTX_t";
     taskParams.stackSize = OCUSB_TX_TASK_STACK_SIZE;
     taskParams.stack = &ocUSBTxTaskStack;
-    taskParams.instance->name = "USB_TX_TASK";
     taskParams.priority = OCUSB_TX_TASK_PRIORITY;
-    Task_construct(&ocUSBTxTask, (Task_FuncPtr)usb_tx_taskfxn, &taskParams,
-                   NULL);
+    Util_create_task(&taskParams, &usb_tx_taskfxn, true);
+    //Task_construct(&ocUSBTxTask, (Task_FuncPtr)usb_tx_taskfxn, &taskParams,
+    //               NULL);
     LOGGER_DEBUG("USBTX:INFO:: Creating USB TX task function.\n");
 }
 
@@ -262,11 +283,12 @@ void usb_rx_createtask(void)
 {
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "IFUSBRX_t";
     taskParams.stackSize = OCUSB_RX_TASK_STACK_SIZE;
     taskParams.stack = &ocUSBRxTaskStack;
-    taskParams.instance->name = "USB_RX_TASK";
     taskParams.priority = OCUSB_RX_TASK_PRIORITY;
-    Task_construct(&ocUSBRxTask, (Task_FuncPtr)usb_rx_taskfxn, &taskParams,
-                   NULL);
+    Util_create_task(&taskParams, &usb_rx_taskfxn, true);
+    //Task_construct(&ocUSBRxTask, (Task_FuncPtr)usb_rx_taskfxn, &taskParams,
+    //               NULL);
     LOGGER_DEBUG("USBRX:INFO:: Creating USB RX task function.\n");
 }

@@ -108,10 +108,11 @@ static void SYNC_GpsTaskInit(void)
     /* Create a task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name="SYNCGPS_t";
     taskParams.stack = syncGpsTaskStack;
     taskParams.stackSize = SYNC_GPS_TASK_STACK_SIZE;
     taskParams.priority = SYNC_GPS_TASK_PRIORITY;
-    Task_Handle task = Task_create(SYNC_GpsTaskFxn, &taskParams, NULL);
+    bool task = Util_create_task(&taskParams, &SYNC_GpsTaskFxn, false);
     if (!task) {
         DEBUG("SYNC::FATAL: Unable to start Gps Polling task\n");
         Semaphore_delete(&gpsSem);

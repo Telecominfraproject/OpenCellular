@@ -10,13 +10,12 @@
 //*****************************************************************************
 //                                HEADER FILES
 //*****************************************************************************
-#include "inc/subsystem/watchdog/watchdog.h"
-
 #include "common/inc/global/ocmp_frame.h"
 #include "drivers/OcGpio.h"
 #include "inc/common/bigbrother.h"
 #include "inc/common/global_header.h"
 #include "inc/subsystem/gpp/gpp.h"
+#include "inc/subsystem/health/keepalive.h"
 #include "inc/utils/util.h"
 
 #include <ti/sysbios/BIOS.h>
@@ -28,12 +27,12 @@
 //                             HANDLES DEFINITION
 //*****************************************************************************
 /* Global Task Configuration Variables */
-static Task_Struct WatchdogTask;
-static Char WatchdogTaskStack[WATCHDOG_TASK_STACK_SIZE];
+static Task_Struct keepAliveTask;
+static Char keepAliveTaskStack[KEEPALIVE_TASK_STACK_SIZE];
 
 /* Queue Handles */
-Semaphore_Handle watchdogSem;
-Queue_Handle watchdogMsgQueue;
+Semaphore_Handle keepAliveSem;
+Queue_Handle keepAliveMsgQueue;
 
 /* Clock Handle */
 Clock_Handle watchdog;
@@ -68,9 +67,9 @@ uint32_t timeup = 60;
 extern const void *sys_config[];
 
 /*******************************************************************************
- * watchdog_reset_ap  : Command the GPP task to reset AP
+ * keepAlive_reset_ap  : Command the GPP task to reset AP
  ******************************************************************************/
-void watchdog_reset_ap(void)
+void keepAlive_reset_ap(void)
 {
     uint32_t delay = 0;
     const Gpp_gpioCfg *cfg = sys_config[OC_SS_GPP];
@@ -82,45 +81,45 @@ void watchdog_reset_ap(void)
 
     OcGpio_write(&cfg->pin_ec_reset_to_proc, true);
 
-    //  OCMPMessageFrame * pWatchdogMsg = (OCMPMessageFrame *)
+    //  OCMPMessageFrame * pKeepAliveMsg = (OCMPMessageFrame *)
     //  malloc(sizeof(32));
     /* For now only AP reset is being applied directly to see the effect*/
     return;
 }
 
 /*******************************************************************************
- * watchdog_send_messages  : Processes the watchdog TX Messages
+ * keepAlive_send_messages  : Processes the watchdog TX Messages
  ******************************************************************************/
-void watchdog_send_messages(OCMPMessageFrame *pWatchdogMsg)
+void keepAlive_send_messages(OCMPMessageFrame *pKeepAliveMsg)
 {
-    if (pWatchdogMsg != NULL) {
+    if (pKeepAliveMsg != NULL) {
         Util_enqueueMsg(bigBrotherTxMsgQueue, semBigBrotherMsg,
-                        (uint8_t *)pWatchdogMsg);
+                        (uint8_t *)pKeepAliveMsg);
     } else {
         LOGGER_DEBUG("WATCHDOG:ERROR:: pointer NULL!!??");
     }
 }
 
 /*****************************************************************************
- * watchdog_send_cmd_message: fill the msg structure and send it over UART
+ * keepalive_send_cmd_message: fill the msg structure and send it over UART
  ****************************************************************************/
-void watchdog_send_cmd_message(void)
+void keepalive_send_cmd_message(void)
 {
-    OCMPMessageFrame *pWatchdogMsg = (OCMPMessageFrame *)malloc(32);
-    pWatchdogMsg->header.ocmpInterface = OCMP_COMM_IFACE_UART;
-    pWatchdogMsg->header.ocmpSof = OCMP_MSG_SOF;
-    pWatchdogMsg->message.subsystem = OC_SS_WD;
-    pWatchdogMsg->message.msgtype = OCMP_MSG_TYPE_STATUS;
-    pWatchdogMsg->message.action = OCMP_AXN_TYPE_SET;
-    watchdog_send_messages(pWatchdogMsg);
+    OCMPMessageFrame *pKeepAliveMsg = (OCMPMessageFrame *)malloc(32);
+    pKeepAliveMsg->header.ocmpInterface = OCMP_COMM_IFACE_UART;
+    pKeepAliveMsg->header.ocmpSof = OCMP_MSG_SOF;
+    pKeepAliveMsg->message.subsystem = OC_SS_WD;
+    pKeepAliveMsg->message.msgtype = OCMP_MSG_TYPE_STATUS;
+    pKeepAliveMsg->message.action = OCMP_AXN_TYPE_SET;
+    keepAlive_send_messages(pKeepAliveMsg);
 }
 
 /*****************************************************************************
- * watchdog_call : This clock function will be called every 1 sec. It checks
+ * keepalive_call : This clock function will be called every 1 sec. It checks
  *                 if watchdog command is received or not? If not then it resets
  *                 the AP or send command to BMS to reset the AP
  *****************************************************************************/
-Void watchdog_call(UArg arg0)
+Void keepalive_call(UArg arg0)
 {
     if (apUp && (localCounter < timeup)) {
         /* Watchdog command is recieved properly */
@@ -130,7 +129,7 @@ Void watchdog_call(UArg arg0)
         } else {
             localCounter += 1;
             if ((localCounter % reinterationTime) == 0)
-                Semaphore_post(watchdogSem);
+                Semaphore_post(keepAliveSem);
             //              send_wdt_cmd();
         }
     } else {
@@ -141,78 +140,81 @@ Void watchdog_call(UArg arg0)
 }
 
 /*****************************************************************************
- * watchdog_process_msg : Sets the watchdog_cmd_received variable. So next clock
+ * keepalive_process_msg : Sets the keepalive_cmd_received variable. So next clock
  *                        tick at 10msec will be able to reset the local_counter
  *                        and respond back with "reply".
  *****************************************************************************/
-void watchdog_process_msg(OCMPMessageFrame *pWatchdogMsg)
+void keepalive_process_msg(OCMPMessageFrame *pKeepAliveMsg)
 {
-    if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_CONFIG) {
-        // set_config_watchdog(pWatchdogMsg);
-        pWatchdogMsg->message.action = OCMP_AXN_TYPE_REPLY;
-        watchdog_send_messages(pWatchdogMsg);
-    } else if (pWatchdogMsg->message.msgtype == OCMP_MSG_TYPE_STATUS) {
+    if (pKeepAliveMsg->message.msgtype == OCMP_MSG_TYPE_CONFIG) {
+        // set_config_watchdog(pKeepAliveMsg);
+        pKeepAliveMsg->message.action = OCMP_AXN_TYPE_REPLY;
+        keepAlive_send_messages(pKeepAliveMsg);
+    } else if (pKeepAliveMsg->message.msgtype == OCMP_MSG_TYPE_STATUS) {
         watchdogCmdReceived = 1;
-        free((uint8_t *)pWatchdogMsg);
+        free((uint8_t *)pKeepAliveMsg);
     }
 }
 
 /*****************************************************************************
- * watchdog_task_init : Function initializes the IPC objects for Watchdog task
+ * keepalive_task_init : Function initializes the IPC objects for Watchdog task
  *****************************************************************************/
-void watchdog_task_init(void)
+void keepalive_task_init(void)
 {
     /* Create Semaphore for RX Watchdog Message Queue */
-    watchdogSem = Semaphore_create(0, NULL, NULL);
-    if (watchdogSem == NULL)
+    keepAliveSem = Semaphore_create(0, NULL, NULL);
+    if (keepAliveSem == NULL)
         LOGGER_DEBUG(
             "WATCHDOG:ERROR:: Failed in Creating Watchdog Semaphore.\n");
 
     /* Create Wathcdog control Queue used by Big brother */
-    watchdogMsgQueue = Queue_create(NULL, NULL);
-    if (watchdogMsgQueue == NULL)
+    keepAliveMsgQueue = Queue_create(NULL, NULL);
+    if (keepAliveMsgQueue == NULL)
         LOGGER_DEBUG(
             "WATCHDOG:ERROR:: Failed in Constructing Watchdog Message Queue.\n");
 }
 
 /*****************************************************************************
- * watchdog_task_fxn : Handles Watchdog Module
+ * keepalive_task_fxn : Handles Watchdog Module
  *****************************************************************************/
-void watchdog_task_fxn(UArg a0, UArg a1)
+void keepalive_task_fxn(UArg a0, UArg a1)
 {
-    watchdog_task_init();
 
+    keepalive_task_init();
+    Task_Handle task_handle = Task_self();
     //  Clock_start(watchdog);
 
     while (1) {
-        if (Semaphore_pend(watchdogSem, BIOS_WAIT_FOREVER)) {
-            if (!Queue_empty(watchdogMsgQueue)) {
-                OCMPMessageFrame *pWatchdogMsg =
-                    (OCMPMessageFrame *)Util_dequeueMsg(watchdogMsgQueue);
+        if (Semaphore_pend(keepAliveSem, OC_TASK_WAIT_TIME)) {
+            if (!Queue_empty(keepAliveMsgQueue)) {
+                OCMPMessageFrame *pKeepAliveMsg =
+                    (OCMPMessageFrame *)Util_dequeueMsg(keepAliveMsgQueue);
 
-                if (pWatchdogMsg) {
-                    watchdog_process_msg(pWatchdogMsg);
+                if (pKeepAliveMsg) {
+                    keepalive_process_msg(pKeepAliveMsg);
                 }
             } else {
-                watchdog_send_cmd_message();
+                keepalive_send_cmd_message();
             }
         }
+        wd_kick(task_handle);
     }
 }
 
 /*****************************************************************************
- * watchdog_create_task : Creates task for Watchdog
+ * keep_alive_create_task : Creates task for Watchdog
  *****************************************************************************/
-void watchdog_create_task(void)
+void keep_alive_create_task(void)
 {
     Task_Params taskParams;
 
     Task_Params_init(&taskParams);
-    taskParams.stack = WatchdogTaskStack;
-    taskParams.stackSize = WATCHDOG_TASK_STACK_SIZE;
-    taskParams.priority = WATCHDOG_TASK_PRIORITY;
+    taskParams.instance->name = "KeepAlive_t";
+    taskParams.stack = keepAliveTaskStack;
+    taskParams.stackSize = KEEPALIVE_TASK_STACK_SIZE;
+    taskParams.priority = KEEPALIVE_TASK_PRIORITY;
+    Util_create_task(&taskParams, &keepalive_task_fxn, true);
+    //Task_construct(&keepAliveTask, watchdog_task_fxn, &taskParams, NULL);
 
-    Task_construct(&WatchdogTask, watchdog_task_fxn, &taskParams, NULL);
-
-    LOGGER_DEBUG("WATCHDOG:INFO:: Creating Watchdog Task.\n");
+    LOGGER_DEBUG("HEALTH:INFO:: Creating Watchdog Task.\n");
 }

@@ -75,6 +75,9 @@ int main(void)
     Board_initUART();
     ethernet_start();
     bigbrother_createtask();
+#ifdef OC_Watchdog
+    wd_createtask();
+#endif
     /* Start BIOS */
     BIOS_start();
     return (0);

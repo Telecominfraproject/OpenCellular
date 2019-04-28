@@ -48,6 +48,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "inc/common/global_header.h"
+
 /*********************************************************************
  * TYPEDEFS
  */
@@ -66,10 +68,13 @@ typedef struct _queueRec_ {
  * EXTERNAL VARIABLES
  */
 
+ocTask_t ocTask[MAX_TASK_LIMIT];
+extern uint32_t g_reqEvents;
 /*********************************************************************
  * LOCAL VARIABLES
  */
-
+static wdTaskCount = 0;
+static ocTaskCount = 0;
 /*********************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -314,3 +319,76 @@ uint8_t *Util_dequeueMsg(Queue_Handle msgQueue)
 
     return NULL;
 }
+
+bool Util_create_task(Task_Params* taskParams, Task_FuncPtr taskFxn, bool monitoring)
+{
+    bool rc = false;
+    Error_Block eb;
+    Error_init(&eb);
+    Task_Handle task_handle;
+    taskParams->env = &ocTask[ocTaskCount];//taskParams->instance->name;
+    task_handle = Task_create(taskFxn, taskParams, &eb);
+    if (task_handle == NULL) {
+        LOGGER_ERROR("TASK:ERROR::Failed creating task %s.\n",taskParams->instance->name);
+    } else {
+        LOGGER_DEBUG("TASK:INFO::Task %s is created.\n",taskParams->instance->name);
+        ocTask[ocTaskCount].sno = ocTaskCount;
+        ocTask[ocTaskCount].task_name = taskParams->instance->name;
+        ocTask[ocTaskCount].task_handle = task_handle;
+        ocTask[ocTaskCount].wdMonitoring = monitoring;
+        if(monitoring) {
+            /* Set WD Event for Task */
+            ocTask[ocTaskCount].wdEventId = (1<<wdTaskCount);
+            /* Add Task to required event */
+            g_reqEvents |= ocTask[ocTaskCount].wdEventId;
+            /* Increment WD Count*/
+            wdTaskCount++;
+        } else {
+            /*Event for non monitored task is 0x00*/
+            ocTask[ocTaskCount].wdEventId = 0x00;
+        }
+        LOGGER_DEBUG("TASK:INFO::Task[%d]::%s is %s to watchdog feed at %d.\n",ocTaskCount,
+                     taskParams->instance->name,(monitoring==true?"added": "not added"),(wdTaskCount-1));
+        ocTaskCount++;
+        rc = true;
+    }
+    return rc;
+}
+
+int  Util_get_task_serial(char* name)
+{
+    uint8_t iter = 0;
+    int serialNu = -1;
+    for(;iter<ocTaskCount;iter++) {
+        if (strcmp(name,ocTask[iter].task_name)==0) {
+            serialNu = ocTask[iter].sno;
+            break;
+        }
+    }
+    return serialNu;
+}
+
+uint32_t  Util_get_task_wd_event_id(char* name)
+{
+    uint8_t iter = 0;
+    int event = -1;
+    for(;iter<ocTaskCount;iter++) {
+        if (strcmp(name,ocTask[iter].task_name)==0) {
+            event = ocTask[iter].wdEventId;
+            break;
+        }
+    }
+    return event;
+}
+
+uint32_t Util_get_wd_req_evets()
+{
+    uint8_t iter = 0;
+    uint32_t reqEvt = 0x0000;
+    for(;iter<ocTaskCount;iter++) {
+        if(ocTask[iter].wdMonitoring)
+            reqEvt |= (ocTask[iter].wdEventId);
+    }
+    return reqEvt;
+}
+

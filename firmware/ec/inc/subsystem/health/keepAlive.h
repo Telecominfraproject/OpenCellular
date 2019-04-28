@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
-#ifndef WATCHDOG_H_
-#define WATCHDOG_H_
+#ifndef KEEPALIVE_H_
+#define KEEPALIVE_H_
 
 /*****************************************************************************
  *                             MACRO DEFINITIONS
  *****************************************************************************/
-#define WATCHDOG_TASK_STACK_SIZE 1024
-#define WATCHDOG_TASK_PRIORITY 2
+#define KEEPALIVE_TASK_STACK_SIZE 1024
+#define KEEPALIVE_TASK_PRIORITY 2
 
-#endif /* WATCHDOG_H_ */
+#endif /* KEEPALIVE_H_ */

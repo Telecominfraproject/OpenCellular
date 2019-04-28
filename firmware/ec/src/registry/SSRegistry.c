@@ -390,9 +390,9 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
     }
 
     // const Component *component = &sys_schema[a1];
-
+    Task_Handle task_handle = Task_self();
     while (1) {
-        if (Semaphore_pend(ss->sem, BIOS_WAIT_FOREVER)) {
+        if (Semaphore_pend(ss->sem, OC_TASK_WAIT_TIME)) {
             while (!Queue_empty(ss->msgQueue)) {
                 OCMPMessageFrame *pMsg =
                     (OCMPMessageFrame *)Util_dequeueMsg(ss->msgQueue);
@@ -407,6 +407,8 @@ static void _subsystem_event_loop(UArg a0, UArg a1)
                 }
             }
         }
+
+        wd_kick(task_handle);
     }
 }
 
@@ -444,17 +446,32 @@ static void subsystem_init(OCMPSubsystem ss_id)
                      ss_id);
     }
 
-    /* Spin up the task */
-    Task_Params taskParams;
-    Task_Params_init(&taskParams);
-    taskParams.stack = OC_task_stack[ss_id];   // ss->taskStack;
-    taskParams.stackSize = OC_TASK_STACK_SIZE; // ss->taskStackSize;
-    taskParams.priority = OC_TASK_PRIORITY;    // ss->taskPriority;
-    taskParams.arg0 = (UArg)ss;
-    taskParams.arg1 = ss_id;
 
-    Task_construct(&ss->taskStruct, _subsystem_event_loop, &taskParams, NULL);
-    LOGGER_DEBUG("SS REG:DEBUG:: Creating Task for Subsystem %d\n", ss_id);
+
+    char* name = malloc(sizeof(char)*15);
+    if(name) {
+        /* Spin up the task */
+        Task_Params taskParams;
+        Task_Params_init(&taskParams);
+        /* Concatenate the SSID to name*/
+        memset(name,'\0',15);
+        strcpy(name,"SubSystem_t-");
+        char postfix[3]={'\0'};
+        sprintf(postfix, "%02d", ss_id);
+        strcat(name,postfix);
+        taskParams.instance->name = name;
+        taskParams.stack = OC_task_stack[ss_id];   // ss->taskStack;
+        taskParams.stackSize = OC_TASK_STACK_SIZE; // ss->taskStackSize;
+        taskParams.priority = OC_TASK_PRIORITY;    // ss->taskPriority;
+        taskParams.arg0 = (UArg)ss;
+        taskParams.arg1 = ss_id;
+        Util_create_task(&taskParams, &_subsystem_event_loop, true);
+        //Task_construct(&ss->taskStruct, _subsystem_event_loop, &taskParams, NULL);
+        LOGGER_DEBUG("SS REG:DEBUG:: Creating Task for Subsystem %d\n", ss_id);
+
+    } else {
+        LOGGER_ERROR("SS REG:DEBUG:: Creating Task for Subsystem %d failed.\n", ss_id);
+    }
 }
 
 void SSRegistry_init(void)

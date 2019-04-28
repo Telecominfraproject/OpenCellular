@@ -89,10 +89,12 @@ void gossiper_createtask(void)
     Task_Params taskParams;
     // Configure task
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "Gossiper_t";
     taskParams.stack = gossiperTaskStack;
     taskParams.stackSize = GOSSIPER_TASK_STACK_SIZE;
     taskParams.priority = GOSSIPER_TASK_PRIORITY;
-    Task_construct(&gossiperTask, gossiper_taskfxn, &taskParams, NULL);
+    //Task_construct(&gossiperTask, gossiper_taskfxn, &taskParams, NULL);
+    Util_create_task(&taskParams, &gossiper_taskfxn, true);
     LOGGER_DEBUG("GOSSIPER:INFO::Creating a Gossiper task.\n");
 }
 
@@ -141,8 +143,9 @@ static void gossiper_init(void)
 static void gossiper_taskfxn(UArg a0, UArg a1)
 {
     gossiper_init();
+    Task_Handle task_handle = Task_self();
     while (true) {
-        if (Semaphore_pend(semGossiperMsg, BIOS_WAIT_FOREVER)) {
+        if (Semaphore_pend(semGossiperMsg, OC_TASK_WAIT_TIME)) {
             /* Gossiper RX Messgaes */
             while (!Queue_empty(gossiperRxMsgQueue)) {
                 uint8_t *pWrite =
@@ -165,6 +168,8 @@ static void gossiper_taskfxn(UArg a0, UArg a1)
                 }
             }
         }
+
+        wd_kick(task_handle);
     }
 }
 

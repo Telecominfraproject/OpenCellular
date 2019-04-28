@@ -35,6 +35,7 @@ typedef struct OCSubsystem {
     Semaphore_Struct semStruct;
     Task_Struct taskStruct;
     eSubSystemStates state;
+    UInt wd_event;
 } OCSubsystem;
 
 /**

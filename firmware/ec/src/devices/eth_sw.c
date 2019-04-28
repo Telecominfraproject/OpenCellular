@@ -538,7 +538,6 @@ ReturnStatus eth_sw_config_tiva_client(void *driver, void *params)
     int count = 0;
     Eth_TcpClient_Params *s_eth_tcpParams = (Eth_TcpClient_Params *)params;
 
-    Task_Handle taskHandle_client;
     Task_Params taskParams;
     Error_Block eb;
 
@@ -562,13 +561,12 @@ ReturnStatus eth_sw_config_tiva_client(void *driver, void *params)
      *  arg0 will be the port that this task sends the test data to.
      */
     Task_Params_init(&taskParams);
+    taskParams.instance->name="TCPHandlerClient_t";
     taskParams.stack = ethTivaClientTaskStack;
     taskParams.stackSize = TCPHANDLERSTACK;
     taskParams.priority = ETHTIVACLEINT_TASK_PRIORITY;
     taskParams.arg0 = s_eth_tcpParams->tcpPort;
-
-    taskHandle_client =
-        Task_create((Task_FuncPtr)tcpHandler_client, &taskParams, &eb);
+    bool taskHandle_client = Util_create_task(&taskParams, &tcpHandler_client, false);
     if (taskHandle_client == NULL) {
         System_printf("Failed to create taskHandle_client Task\n");
     }

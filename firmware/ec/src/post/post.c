@@ -103,6 +103,14 @@ void _post_complete()
         "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     LOGGER_DEBUG(
         "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+
+#ifdef POST_READ_DATA_TEST
+    LOGGER_DEBUG("Starting Post read request test.\n");
+    OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
+            OC_SS_SYS, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_GET, 0x01, 0x01, 0x00);
+    Util_enqueueMsg(bigBrotherRxMsgQueue, semBigBrotherMsg,
+                       (uint8_t *)postExeMsg);
+#endif
 }
 
 /*****************************************************************************
@@ -249,7 +257,7 @@ static ReturnStatus post_process_msg(OCMPSubsystem OC_subSystem)
  *****************************************************************************/
 static OCMPMessageFrame *post_create_execute_msg(OCMPSubsystem OC_subSystem)
 {
-    LOGGER_DEBUG("POST:INFO::Activation POST for SS %d.", OC_subSystem);
+    LOGGER_DEBUG("POST:INFO::Activation POST for SS %d.\n", OC_subSystem);
     OCMPMessageFrame *postExeMsg = create_ocmp_msg_frame(
         OC_subSystem, OCMP_MSG_TYPE_POST, OCMP_AXN_TYPE_ACTIVE, 0x00, 0x00, 1);
     return postExeMsg;
@@ -398,9 +406,11 @@ static void post_task_init(void)
  ******************************************************************************/
 static void post_taskfxn(UArg a0, UArg a1)
 {
+
     post_task_init();
+    Task_Handle task_handle = Task_self();
     while (true) {
-        if (Semaphore_pend(semPOSTMsg, BIOS_WAIT_FOREVER)) {
+        if (Semaphore_pend(semPOSTMsg, OC_TASK_WAIT_TIME)) {
             while (!Queue_empty(postRxMsgQueue)) {
                 OCMPMessageFrame *pWrite =
                     (OCMPMessageFrame *)Util_dequeueMsg(postRxMsgQueue);
@@ -408,7 +418,9 @@ static void post_taskfxn(UArg a0, UArg a1)
                     post_process_rx_msg(pWrite);
                 }
             }
+
         }
+        wd_kick(task_handle);
     }
 }
 
@@ -428,8 +440,10 @@ void post_createtask(void)
 
     // Configure task
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "POST_t";
     taskParams.stack = postTaskStack;
     taskParams.stackSize = POST_TASK_STACK_SIZE;
     taskParams.priority = OC_POST_TASKPRIORITY;
-    Task_construct(&postTask, post_taskfxn, &taskParams, NULL);
+    Util_create_task(&taskParams, &post_taskfxn, true);
+    //Task_construct(&postTask, post_taskfxn, &taskParams, NULL);
 }

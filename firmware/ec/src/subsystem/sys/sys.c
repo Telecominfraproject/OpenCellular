@@ -145,6 +145,11 @@ bool SYS_post_get_results(void **getpostResult)
             "BIGBROTHER:ERROR:: Failed to allocate memory for POST results.\n");
     }
     memcpy(((OCMPMessageFrame *)getpostResult), postResultMsg, 64);
+    SysCtlDelay(100);
+    if(postResultMsg) {
+        /* Free memory which was allocated for post frame.*/
+        free(postResultMsg);
+    }
     return status;
 }
 
@@ -196,11 +201,12 @@ bool sys_post_init(void *driver, void *returnValue)
     Task_Params_init(&taskParams);
     taskParams.stackSize = OCFS_TASK_STACK_SIZE;
     taskParams.stack = &ocFSTaskStack;
-    taskParams.instance->name = "FS_TASK";
+    taskParams.instance->name = "FileSys_t";
     taskParams.priority = OCFS_TASK_PRIORITY;
     taskParams.arg0 = (UArg)driver;
     taskParams.arg1 = (UArg)returnValue;
-    Task_construct(&ocFSTask, fs_wrapper_fileSystem_init, &taskParams, NULL);
+    Util_create_task(&taskParams, &fs_wrapper_fileSystem_init, true);
+    //Task_construct(&ocFSTask, fs_wrapper_fileSystem_init, &taskParams, NULL);
     LOGGER_DEBUG("FS:INFO:: Creating filesystem task function.\n");
     return true;
 }

@@ -435,11 +435,12 @@ AT_Handle AT_cmd_init(UART_Handle hCom, const AT_UnsolicitedRes *resList,
     // Create the input reader task
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "ATCMD_read_t";
     taskParams.stackSize = AT_READ_TASK_STACK_SIZE;
     taskParams.priority = AT_READ_TASK_PRIORITY;
     taskParams.arg0 = (uintptr_t)handle;
-    Task_Handle thread = Task_create(ReadThread, &taskParams, NULL);
-
+    //Task_Handle thread = Task_create(ReadThread, &taskParams, NULL);
+    bool thread = Util_create_task(&taskParams, &ReadThread, false) ;
     if (!thread) {
         LOGGER_ERROR("Fatal - unable to start input thread\n");
         free(handle);

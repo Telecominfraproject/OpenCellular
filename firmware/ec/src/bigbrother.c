@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 
+//Failed to allocate memory for POST results
 /* Global Task Configuration Variables */
 Task_Struct bigBrotherTask;
 Char bigBrotherTaskStack[BIGBROTHER_TASK_STACK_SIZE];
@@ -134,7 +135,7 @@ static ReturnStatus bigbrother_process_rx_msg(uint8_t *pMsg)
     LOGGER_DEBUG("BIGBROTHER:INFO:: Processing Big Brother RX Message.\n");
     OCMPMessageFrame *pOCMPMessageFrame = (OCMPMessageFrame *)pMsg;
     if (pOCMPMessageFrame != NULL) {
-        LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg recieved with Length: 0x%x,"
+        LOGGER_DEBUG("BIGBROTHER:INFO:: RX Msg received with Length: 0x%x,"
                      "Interface: 0x%x, Seq.No: 0x%x, TimeStamp: 0x%x.\n",
                      pOCMPMessageFrame->header.ocmpFrameLen,
                      pOCMPMessageFrame->header.ocmpInterface,
@@ -148,7 +149,7 @@ static ReturnStatus bigbrother_process_rx_msg(uint8_t *pMsg)
             free(pMsg);
         }
     } else {
-        LOGGER_ERROR("BIGBROTHER:ERROR:: No message recieved.\n");
+        LOGGER_ERROR("BIGBROTHER:ERROR:: No message received.\n");
         free(pMsg);
     }
     return status;
@@ -310,9 +311,19 @@ static void bigborther_spwan_task(void)
     /* Launches other tasks */
     usb_rx_createtask();   // P - 05
     usb_tx_createtask();   // P - 04
+
+    /*UART task*/
+    uartdma_rx_createtask();
+    uartdma_tx_createtask();
+
+    /* Gossiper*/
     gossiper_createtask(); // P - 06
+
+    /* EBMP */
     ebmp_create_task();
-    watchdog_create_task();
+
+    /* KEEP ALIVE MC <--> EC */
+    keep_alive_create_task();
 
     /* Initialize subsystem interface to set up interfaces and launch
      * subsystem tasks */
@@ -372,8 +383,9 @@ static void bigbrother_taskfxn(UArg a0, UArg a1)
     bigborther_spwan_task();
     // Perform POST
     bigborther_initiate_post();
+    Task_Handle task_handle = Task_self();
     while (true) {
-        if (Semaphore_pend(semBigBrotherMsg, BIOS_WAIT_FOREVER)) {
+        if (Semaphore_pend(semBigBrotherMsg, OC_TASK_WAIT_TIME)) {
             while (!Queue_empty(bigBrotherRxMsgQueue)) {
                 uint8_t *pWrite =
                     (uint8_t *)Util_dequeueMsg(bigBrotherRxMsgQueue);
@@ -389,6 +401,8 @@ static void bigbrother_taskfxn(UArg a0, UArg a1)
                 }
             }
         }
+
+        wd_kick(task_handle);
     }
 }
 
@@ -407,9 +421,10 @@ void bigbrother_createtask(void)
     Task_Params taskParams;
     // Configure task
     Task_Params_init(&taskParams);
+    taskParams.instance->name= "Bigbrother_t";
     taskParams.stack = bigBrotherTaskStack;
     taskParams.stackSize = BIGBROTHER_TASK_STACK_SIZE;
     taskParams.priority = BIGBROTHER_TASK_PRIORITY;
-    Task_construct(&bigBrotherTask, bigbrother_taskfxn, &taskParams, NULL);
+    Util_create_task(&taskParams, &bigbrother_taskfxn, true);
     LOGGER_DEBUG("BIGBROTHER:INFO::Creating a BigBrother task.\n");
 }

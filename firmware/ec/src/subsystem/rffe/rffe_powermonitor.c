@@ -212,11 +212,13 @@ void rffe_powermonitor_createtask(void)
     Task_Params taskParams;
     /* Configure RF Power Monitor task */
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "RFFEPwrMonitor_t";
     taskParams.stack = rffePowerMonitorTaskStack;
     taskParams.stackSize = RFFEPOWERMONITOR_TASK_STACK_SIZE;
     taskParams.priority = RFFEPOWERMONITOR_TASK_PRIORITY;
-    Task_construct(&rffePowerMonitorTask, rffe_powermonitor_task_fxn,
-                   &taskParams, NULL);
+    Util_create_task(&taskParams, &rffe_powermonitor_task_fxn, true);
+    //Task_construct(&rffePowerMonitorTask, rffe_powermonitor_task_fxn,
+    //               &taskParams, NULL);
 
     DEBUG("RFPOWERMONITOR:INFO:: Creating a RF FE Power Monitoring Task.\n");
 }

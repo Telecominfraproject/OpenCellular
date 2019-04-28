@@ -72,10 +72,11 @@ void HCI_LedTaskInit(void)
     /* Create a task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "HCILed_t";
     taskParams.stack = hciLedTaskStack;
     taskParams.stackSize = HCI_LED_TASK_STACK_SIZE;
     taskParams.priority = HCI_LED_TASK_PRIORITY;
-    Task_Handle task = Task_create(HCI_LedTaskFxn, &taskParams, NULL);
+    bool task = Util_create_task(&taskParams, &HCI_LedTaskFxn, false);
     if (!task) {
         DEBUG("HCI::FATAL: Unable to start Led Polling task\n");
         return;

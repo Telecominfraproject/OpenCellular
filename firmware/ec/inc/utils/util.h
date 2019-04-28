@@ -52,7 +52,9 @@ extern "C" {
 #include <stdbool.h>
 #include <ti/sysbios/knl/Clock.h>
 #include <ti/sysbios/knl/Queue.h>
+#include <ti/sysbios/knl/Task.h>
 #include <ti/sysbios/knl/Semaphore.h>
+#include <xdc/runtime/Error.h>
 
 /*********************************************************************
  *  EXTERNAL VARIABLES
@@ -71,6 +73,14 @@ typedef struct {
     uint8_t state;  // Event state;
 } appEvtHdr_t;
 
+
+typedef struct {
+    uint8_t sno;
+    bool wdMonitoring;
+    uint32_t wdEventId;
+    Task_Handle task_handle;
+    char* task_name;
+} ocTask_t;
 /*********************************************************************
  * MACROS
  */
@@ -195,7 +205,54 @@ uint8_t Util_enqueueMsg(Queue_Handle msgQueue, Semaphore_Handle sem,
 uint8_t *Util_dequeueMsg(Queue_Handle msgQueue);
 
 /*********************************************************************
-*********************************************************************/
+ * @fn      Util_create_task
+ *
+ * @brief   Creates a task.
+ *
+ * @param   taskParams - parameters for task.
+ *          taskfxn - task function.
+ *          monitoring - Enable watchdog monitoring.
+ *
+ *
+ * @return  boolean
+ */
+bool Util_create_task(Task_Params* taskParams, Task_FuncPtr taskFxn, bool monitoring);
+
+/*********************************************************************
+ * @fn      Util_get_task_serial
+ *
+ * @brief   gets the serial id of task.
+ *
+ * @param   name - task name
+ *
+ *
+ * @return  integer -1 on no task found otherwise serial number of task.
+ */
+int  Util_get_task_serial(char* name);
+
+/*********************************************************************
+ * @fn      Util_get_task_wd_event_id
+ *
+ * @brief   gets the serial id of task.
+ *
+ * @param   name - task name
+ *
+ *
+ * @return  uint32_t event id.
+ */
+uint32_t  Util_get_task_wd_event_id(char* name);
+
+/*********************************************************************
+ * @fn      Util_get_wd_req_evets
+ *
+ * @brief   gets the required events for Watchdog.
+ *
+ * @param  None
+ *
+ *
+ * @return  event mask.
+ */
+uint32_t Util_get_wd_req_evets();
 
 #ifdef __cplusplus
 }

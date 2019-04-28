@@ -304,11 +304,13 @@ ePostCode g510_task_init(void *driver, const void *config,
     /* Create a task */
     Task_Params taskParams;
     Task_Params_init(&taskParams);
+    taskParams.instance->name = "TestModule_t";
     taskParams.stack = testmodTaskStack;
     taskParams.stackSize = TESTMOD_TASK_STACK_SIZE;
     taskParams.priority = TESTMOD_TASK_PRIORITY;
     taskParams.arg0 = (intptr_t)alert_token;
-    Task_Handle task = Task_create(testModule_task, &taskParams, NULL);
+    //Task_Handle task = Task_create(testModule_task, &taskParams, NULL);
+    bool task =  Util_create_task(&taskParams, &testModule_task, false);
     if (!task) {
         LOGGER("TESTMOD::FATAL: Unable to start G510 task\n");
         Semaphore_delete(&sem_simReady);

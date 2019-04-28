@@ -18,13 +18,13 @@
  *                             MACROS DEFINITION
  *****************************************************************************/
 #define OCUARTDMA_TASK_PRIORITY 7
-#define OCUARTDMA_TASK_STACK_SIZE 1024
+#define OCUARTDMA_TASK_STACK_SIZE 2048
 
 #define OCUARTDMATX_TASK_PRIORITY 7
-#define OCUARTDMATX_TASK_STACK_SIZE 1024
+#define OCUARTDMATX_TASK_STACK_SIZE 2048
 
-#define UART_TXBUF_SIZE OCMP_FRAME_TOTAL_LENGTH
-#define UART_RXBUF_SIZE OCMP_FRAME_TOTAL_LENGTH
+#define UART_TXBUF_SIZE 128
+#define UART_RXBUF_SIZE 128
 
 /*****************************************************************************
  *                             HANDLE DECLARATIONS

@@ -198,9 +198,10 @@ static void sw_update_worker(UArg arg0, UArg arg1)
     struct sockaddr_in localAddr;
     struct sockaddr_in clientAddr;
     socklen_t addrlen;
-
+    struct timeval      timeout;
     int8_t buffer[MPACKET_LEN];
 
+    Task_Handle task_handle = Task_self();
     server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server == -1) {
         System_printf("Error: socket not created.\n");
@@ -218,6 +219,8 @@ static void sw_update_worker(UArg arg0, UArg arg1)
         goto shutdown;
     }
 
+    timeout.tv_sec  = 20;
+    timeout.tv_usec = 0;
     do {
         /*
          *  readSet and addrlen are value-result arguments, which must be reset
@@ -239,6 +242,7 @@ static void sw_update_worker(UArg arg0, UArg arg1)
                 }
             }
         }
+
     } while (status > 0);
 
 shutdown:
@@ -316,9 +320,10 @@ void SoftwareUpdateInit(tSoftwareUpdateRequested pfnCallback)
     /* Start listening for magic packet */
     Task_Params task_sw_update_Params;
     Task_Params_init(&task_sw_update_Params);
+    task_sw_update_Params.instance->name="SWUpdate_t";
     task_sw_update_Params.arg0 = MPACKET_PORT;
     task_sw_update_Params.stackSize = 1024;
-    if (!Task_create(sw_update_worker, &task_sw_update_Params, NULL)) {
+    if (!Util_create_task(&task_sw_update_Params, &sw_update_worker, false)) {
         System_printf("Error: Failed to create sw update task\n");
     }
 }
