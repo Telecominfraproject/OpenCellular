@@ -1,0 +1,14 @@
+syntax = "proto2";
+import "action_description.proto";
+
+package ocp;
+
+/*<
+	Service used for the manual control of a gRPC server
+	This service differs from ActionManagement since the RPCs defined here
+	should cause an immediate result on the gRPC server
+*/
+service Control {
+	/*< See action_description.proto for ActionDescription and ActionResult */
+	rpc PerformAction (ActionDescription) returns (ActionResult);
+}

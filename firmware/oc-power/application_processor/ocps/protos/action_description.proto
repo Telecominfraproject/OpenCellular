@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package ocp;
+
+message ActionDescription {
+	/*!<
+	Using enum to allow 'custom' actions to be defined
+	without breaking API spec
+
+	Special handling by client may be required
+
+	https://developers.google.com/protocol-buffers/docs/proto3#enum
+	*/
+	enum Action {
+		NONE = 0;
+		DISABLE_ALL_PORTS = 1;
+		DISABLE_PORT = 2;
+		DISABLE_PORT_WITH_TIMER = 3;
+		ENABLE_PORT = 4;
+		ENABLE_PORT_WITH_TIMER = 5;
+		ENABLE_ALL_PORTS = 6;
+		LOG = 7;
+		REBOOT = 8;
+		// TODO: Redo ActionDescription with optional for each action. How to do custom action without API rev?
+	}
+	required Action action = 1;
+	optional sint32 value = 2; /*!< Action specific information, ie. log severity, port selection */
+    optional sint32 time = 3; /* Timer value */
+}
+
+message ActionResult {
+	enum Result {
+		UNKNOWN = 0; /*< An unknown error occured */
+		SUCCESS = 1; /*< Action was successful/successfully started (depends on provided action) */
+		UNKNOWN_ACTION = 2; /*< Action was not recognized */
+		FAILED = 3; /*< Action could not be performed */
+	}
+	required Result result = 1;
+}

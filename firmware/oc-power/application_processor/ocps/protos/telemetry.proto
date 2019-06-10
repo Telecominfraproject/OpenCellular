@@ -1,0 +1,79 @@
+syntax = "proto2";
+import "alert_enum.proto";
+
+package ocp;
+
+service TelemetryService {
+	rpc GetTelemetry (TelemetryRequest) returns (TelemetryResponse);
+}
+
+message TelemetryData {
+	required int32 timestamp = 1;   /*!< unix timestamp */
+	required int32 timeinterval = 2;   /*!< average window (seconds) */
+	/*!<
+		All voltage and current readings are floats, but are transported as
+		integers to avoid fixed size float overhead.
+		Values should be multiplied by 100 by the transmitting server, and
+		divided by the same amount when recieved by the client.
+	*/
+	required PowerPortStatus power = 3;
+	required BatteryTelemetry battery = 4;
+	optional sint32 p1v  = 5;		/*!< solar input */
+	optional sint32 p1c  = 6;		/*!< solar input */
+	optional sint32 adp1v  = 7;		/*!< DC input (ADP) */
+	optional sint32 adp1c  = 8;		/*!< DC input (ADP) */
+	optional sint32 l1v  = 9;		/*!< output */
+	optional sint32 l1c  = 10;		/*!< output */
+	optional sint32 l2v  = 11;		/*!< output */
+	optional sint32 l2c  = 12;		/*!< output */
+	optional sint32 l3v  = 13;		/*!< output */
+	optional sint32 l3c  = 14;		/*!< output */
+	optional sint32 l4v  = 15;		/*!< output */
+	optional sint32 l4c  = 16;		/*!< output */
+	optional sint32 l5v  = 17;		/*!< output */
+	optional sint32 l5c  = 18;		/*!< output */
+    repeated int32 temp = 19;
+	/*!< Repeated can be omitted - see "Specifying Field Rules" - https://developers.google.com/protocol-buffers/docs/proto#optional */
+	repeated Alert alerts = 20 [packed=true]; /*!< IDs of alerts fired in last interval */
+	repeated int32 customActions = 21 [packed=true]; /*!< IDs of custom alerts fired in last interval (previously called automatedAlerts) */
+	/*!< If custom alertID isn't known by client, the client will have to request the alerts to match up the alertID */
+}
+
+message TelemetryResponse {
+	repeated TelemetryData data = 1;
+}
+
+message PowerPortStatus {
+	/*!< Flags set to true if power I/O ports have been enabled over the last telemetry
+	interval. More space efficient to use bitfields in an int32 */
+	optional bool bv = 1;
+	optional bool p1 = 2;
+	optional bool adp1 = 3;
+	optional bool l1 = 4;
+	optional bool l2 = 5;
+	optional bool l3 = 6;
+	optional bool l4 = 7;
+	optional bool l5 = 8;
+}
+
+message BatteryTelemetry {
+	required sint32 bv   = 1;		/*!< battery voltage */
+	required sint32 bc   = 2;		/*!< battery current */
+	/*!<
+	...
+	Include other battery configuration data as optional
+	*/
+}
+
+message TelemetryRequest {
+	/*!<
+	Telemetry request ranges are inclusive of from_ts and to_ts
+	For example, from_ts of 10 and to_ts of 30 would return telemetry data with
+	timestamps of 10, 20 and 30 (assuming the server has the data)
+	*/
+	required int32 from_ts = 1; /*!< Request data for/since the given timestamp */
+	optional int32 to_ts = 2; /*!< Request data until/for the given timestamp. If not included, request all data since from_ts until present */
+}
+
+
+

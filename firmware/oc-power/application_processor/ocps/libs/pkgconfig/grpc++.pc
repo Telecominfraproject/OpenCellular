@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: gRPC++
+Description: C++ wrapper for gRPC
+Version: 1.14.1
+Cflags: -I${includedir} 
+Requires.private: grpc 
+Libs: -L${libdir} -lgrpc++
+Libs.private: 

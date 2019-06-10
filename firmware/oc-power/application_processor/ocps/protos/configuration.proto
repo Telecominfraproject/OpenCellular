@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package ocp;
+
+/*< Service used for the configuration of a gRPC server */
+service Configuration {
+	rpc GetId (IdRequest) returns (IdResponse);
+}
+
+message IdRequest {
+	optional bool extended = 1; /*!< Request extended identification information */
+}
+
+message IdResponse {
+	required string id = 1; /*!< Unique hardware identifier of the server */
+	extensions 10 to 15; /*!< Extended data fields */
+}
