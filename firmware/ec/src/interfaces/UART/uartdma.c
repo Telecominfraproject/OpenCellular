@@ -14,6 +14,7 @@
 #include "common/inc/global/ocmp_frame.h"
 #include "inc/interfaces/uartdma.h"
 #include "inc/common/global_header.h"
+#include "src/filesystem/fs_wrapper.h"
 
 #include <driverlib/gpio.h>
 #include <driverlib/interrupt.h>
@@ -36,6 +37,7 @@
 /* Semaphore */
 Semaphore_Handle semUART;
 Semaphore_Handle semUARTTX;
+Semaphore_Handle semAPConsole;
 
 /* Queue object */
 Queue_Struct uartRxMsg;
@@ -50,6 +52,8 @@ static Char ocUARTDMATaskStack[OCUARTDMA_TASK_STACK_SIZE];
 Task_Struct ocUARTDMATxTask;
 static Char ocUARTDMATxTaskStack[OCUARTDMATX_TASK_STACK_SIZE];
 
+Task_Struct AP_CON_UARTDMATask;
+static Char AP_CON_UARTDMATaskStack[AP_CONUARTDMA_TASK_STACK_SIZE];
 /*****************************************************************************
  * The transmit and receive buffers used for the UART transfers.  There is one
  * transmit buffer and a pair of recieve ping-pong buffers.
@@ -59,6 +63,7 @@ static uint8_t ui8RxBufA[UART_RXBUF_SIZE];
 static uint8_t ui8RxBufB[UART_RXBUF_SIZE];
 static uint8_t ui8uartdmaRxBuf[UART_RXBUF_SIZE];
 
+static uint8_t testBuffer[56000];
 /*****************************************************************************
  * The control table used by the uDMA controller.  This table must be aligned
  * to a 1024 byte boundary.
@@ -116,7 +121,8 @@ void UART3IntHandler(void)
         /*Preparing message to send to UART RX Queue*/
         memset(ui8uartdmaRxBuf, '\0', UART_RXBUF_SIZE);
         memcpy(ui8uartdmaRxBuf, ui8RxBufA, sizeof(ui8RxBufA));
-        Semaphore_post(semUART);
+        Semaphore_post(semAPConsole);
+       //uDMAChannelEnable(UDMA_CHANNEL_ADC2);
     }
 
     /*Alternate Buffer*/
@@ -128,7 +134,8 @@ void UART3IntHandler(void)
         /*Preparing message to send to UART RX Queue*/
         memset(ui8uartdmaRxBuf, '\0', UART_RXBUF_SIZE);
         memcpy(ui8uartdmaRxBuf, ui8RxBufB, sizeof(ui8RxBufB));
-        Semaphore_post(semUART);
+        Semaphore_post(semAPConsole);
+        //uDMAChannelEnable(UDMA_CHANNEL_ADC2);
     }
 }
 
@@ -190,6 +197,27 @@ void resetUARTDMA(void)
  * Configure the UART and its pins.  This must be called before UARTprintf().
  *****************************************************************************/
 void ConfigureUART(void)
+{
+    LOGGER_DEBUG(
+        "UARTDMACTR:INFO::Configuring UART interface for communication.\n");
+
+    /* Enable the GPIO Peripheral used by the UART.*/
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    /* Enable UART3 */
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART3);
+    SysCtlPeripheralSleepEnable(SYSCTL_PERIPH_UART3);
+
+    /* Configure GPIO Pins for UART mode.*/
+    GPIOPinConfigure(GPIO_PA4_U3RX);
+    GPIOPinConfigure(GPIO_PA5_U3TX);
+    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+}
+
+/*****************************************************************************
+ * Configure the UART and its pins.  This must be called before UARTprintf().
+ *****************************************************************************/
+void ap_configure_UART(void)
 {
     LOGGER_DEBUG(
         "UARTDMACTR:INFO::Configuring UART interface for communication.\n");
@@ -376,7 +404,22 @@ void InitUART3Transfer(void)
  * Intialize UART uDMA for the data transfer. This will initialise both Tx and
  * Rx Channel associated with UART Tx and Rx
  ****************************************************************************/
-void uartdma_init(void)
+void uartDMAinterface_init(void)
+{
+    LOGGER_DEBUG("UARTDMACTR:INFO::Starting uDMA initialization.\n");
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UDMA);
+    SysCtlPeripheralSleepEnable(SYSCTL_PERIPH_UDMA);
+    IntEnable(INT_UDMAERR);
+    uDMAEnable();
+    uDMAControlBaseSet(pui8ControlTable);
+    InitUART3Transfer();
+}
+
+/*****************************************************************************
+ * Intialize UART uDMA for the data transfer. This will initialise both Tx and
+ * Rx Channel associated with UART Tx and Rx
+ ****************************************************************************/
+void ap_console_dma_init(void)
 {
     LOGGER_DEBUG("UARTDMACTR:INFO::Starting uDMA intilaization.\n");
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UDMA);
@@ -390,26 +433,20 @@ void uartdma_init(void)
 /*****************************************************************************
  * Initialize the UART with DMA interface.
  ****************************************************************************/
-void uartDMAinterface_init(void)
+void ap_console_if_init(void)
 {
     /*UART RX Semaphore */
-    LOGGER_DEBUG("UARTDMACTR:INFO:: uartDMA interface intialization.\n");
-    semUART = Semaphore_create(0, NULL, NULL);
-    if (semUART == NULL) {
-        LOGGER_ERROR("UARTDMACTR:ERROR::UART RX Semaphore creation failed.\n");
+    LOGGER_DEBUG("UARTDMACTR:INFO:: AP uartDMA interface intialization.\n");
+    semAPConsole = Semaphore_create(0, NULL, NULL);
+    if (semAPConsole == NULL) {
+        LOGGER_ERROR("UARTDMACTR:ERROR::AP UART RX Semaphore creation failed.\n");
     }
 
-    /*UART OCMP RX Message Queue*/
-    uartRxMsgQueue = Util_constructQueue(&uartRxMsg);
-    LOGGER_DEBUG(
-        "UARTDMACTR:INFO::Constructing message Queue 0x%x for UART RX OCMP Messages.\n",
-        uartRxMsgQueue);
-
     /* Configure UART */
-    ConfigureUART();
+    ap_configure_UART();
 
     /* Initialize UART */
-    uartdma_init();
+    ap_console_dma_init();
 
     LOGGER_DEBUG("UARTDMACTR:INFO::Waiting for OCMP UART RX messgaes....!!!\n");
 }
@@ -560,8 +597,6 @@ void uartdma_rx_createtask(void)
     taskParams.stack = &ocUARTDMATaskStack;
     taskParams.priority = OCUARTDMA_TASK_PRIORITY;
     Util_create_task(&taskParams, &uartdma_rx_taskfxn, true);
-    //Task_construct(&ocUARTDMATask, (Task_FuncPtr)uartdma_rx_taskfxn,
-    //               &taskParams, NULL);
     LOGGER_DEBUG("UARTDMACTRl:INFO::Creating UART DMA task function.\n");
 }
 
@@ -584,7 +619,103 @@ void uartdma_tx_createtask(void)
     taskParams.stack = &ocUARTDMATxTaskStack;
     taskParams.priority = OCUARTDMATX_TASK_PRIORITY;
     Util_create_task(&taskParams, &uartdma_tx_taskfxn, true);
-    //Task_construct(&ocUARTDMATxTask, (Task_FuncPtr)uartdma_tx_taskfxn,
-    //               &taskParams, NULL);
     LOGGER_DEBUG("UARTDMACTRl:INFO::Creating UART DMA TX task function.\n");
+}
+
+/*****************************************************************************
+ * ap_console_taskfxn -Handles the UART received data.
+ ****************************************************************************/
+static void ap_console_taskfxn(UArg arg0, UArg arg1)
+{
+    // Initialize application
+    ap_console_if_init();
+    static int i = 0;
+    uint32_t offset = 0;
+    // Application main loop
+    while (true) {
+        if (Semaphore_pend(semAPConsole, BIOS_WAIT_FOREVER)) {
+           offset = i*UART_RXBUF_SIZE;
+           if(offset >54000)
+           {
+               LOGGER_DEBUG("FS::END Received packet %d total size %d\n",i , offset);
+           }else {
+               memcpy(testBuffer+offset,ui8uartdmaRxBuf,UART_RXBUF_SIZE);
+               i++;
+               LOGGER_DEBUG("FS:: Received packet %d total size %d\n",i , offset);
+           }
+
+           /* LOGGER_DEBUG("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+                         *(ui8uartdmaRxBuf+0),*(ui8uartdmaRxBuf+1),*(ui8uartdmaRxBuf+2),*(ui8uartdmaRxBuf+3),*(ui8uartdmaRxBuf+4),*(ui8uartdmaRxBuf+5),*(ui8uartdmaRxBuf+6),*(ui8uartdmaRxBuf+7),*(ui8uartdmaRxBuf+8),*(ui8uartdmaRxBuf+9),
+                         *(ui8uartdmaRxBuf+10),*(ui8uartdmaRxBuf+11),*(ui8uartdmaRxBuf+12),*(ui8uartdmaRxBuf+13),*(ui8uartdmaRxBuf+14),*(ui8uartdmaRxBuf+15),*(ui8uartdmaRxBuf+16),*(ui8uartdmaRxBuf+17),*(ui8uartdmaRxBuf+18),*(ui8uartdmaRxBuf+19),
+                         *(ui8uartdmaRxBuf+20),*(ui8uartdmaRxBuf+21),*(ui8uartdmaRxBuf+22),*(ui8uartdmaRxBuf+23),*(ui8uartdmaRxBuf+24),*(ui8uartdmaRxBuf+25),*(ui8uartdmaRxBuf+66),*(ui8uartdmaRxBuf+27),*(ui8uartdmaRxBuf+2),*(ui8uartdmaRxBuf+29));
+            */
+#if 0            //Send data to File system task.
+            FILESystemStruct fileSysStruct = {
+                                              "apConsoleLogs",          UART_RXBUF_SIZE,
+                                              1,   ui8uartdmaRxBuf,
+                                              100000, WRITE_FLAG, 0
+            };
+            uint8_t *payload = malloc(sizeof(FILESystemStruct));
+            if(payload) {
+                memcpy(payload,&fileSysStruct,sizeof(fileSysStruct));
+                Util_enqueueMsg(fsRxMsgQueue, semFilesysMsg, payload);
+            } else {
+                LOGGER_DEBUG("Console logs writing failed.\n");
+            }
+            Util_enqueueMsg(fsRxMsgQueue, semFilesysMsg, (uint8_t *)&fileSysStruct);
+#endif
+#if 0
+            /* Reset Uart DMA if the SOF is not equal to 0X55 */
+            if (ui8uartdmaRxBuf[0] != OCMP_MSG_SOF) {
+                resetUARTDMA();
+            } else {
+                /* OCMP UART RX Messgaes */
+                uint8_t *pWrite = NULL;
+                pWrite = (uint8_t *)malloc(sizeof(OCMPMessageFrame) +
+                                           OCMP_FRAME_MSG_LENGTH);
+                if (pWrite != NULL) {
+                    memset(pWrite, '\0', UART_RXBUF_SIZE);
+                    memcpy(pWrite, ui8uartdmaRxBuf, UART_RXBUF_SIZE);
+#if 0
+                    uint8_t i = 0;
+                    LOGGER_DEBUG("UARTDMACTR:INFO:: UART RX BUFFER:\n");
+                    for( i = 0; i < UART_RXBUF_SIZE; i++)
+                    {
+                        LOGGER_DEBUG("0x%x  ",ui8uartdmaRxBuf[i]);
+                    }
+                    LOGGER_DEBUG("\n");
+#endif
+                    Util_enqueueMsg(gossiperRxMsgQueue, semGossiperMsg, pWrite);
+                } else {
+                    LOGGER_ERROR(
+                        "UARTDMACTR:ERROR:: No memory left for Msg Length %d.\n",
+                        UART_RXBUF_SIZE);
+                }
+            }
+#endif
+        }
+
+    }
+}
+
+/******************************************************************************
+ **    FUNCTION NAME   : ap_console_createtask
+ **
+ **    DESCRIPTION     : Task creation function for the UARTDMA RX for AP console
+ **
+ **    ARGUMENTS       : None
+ **
+ **    RETURN TYPE     : None
+ **
+ ******************************************************************************/
+void ap_console_createtask(void)
+{
+    Task_Params taskParams;
+    Task_Params_init(&taskParams);
+    taskParams.instance->name="AP_CONSOLE_UARTDMA_t";
+    taskParams.stackSize = AP_CONUARTDMA_TASK_STACK_SIZE;
+    taskParams.stack = &AP_CON_UARTDMATaskStack;
+    taskParams.priority = AP_CON_UARTDMA_TASK_PRIORITY;
+    Util_create_task(&taskParams, &ap_console_taskfxn, true);
+    LOGGER_DEBUG("UARTDMACTRl:INFO::Creating Console UART DMA RX task function.\n");
 }

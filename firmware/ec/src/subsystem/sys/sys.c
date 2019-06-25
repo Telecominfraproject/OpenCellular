@@ -29,8 +29,8 @@
 #include <xdc/runtime/System.h>
 #include <xdc/std.h>
 
-#define OCFS_TASK_PRIORITY 1
-#define OCFS_TASK_STACK_SIZE 4096
+#define OCFS_TASK_PRIORITY 8
+#define OCFS_TASK_STACK_SIZE 8096
 
 Task_Struct ocFSTask;
 Char ocFSTaskStack[OCFS_TASK_STACK_SIZE];

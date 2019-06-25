@@ -75,8 +75,8 @@ AT45DB_Dev gbc_spi_flash_memory = {
                     .chip_select = &(OcGpio_Pin){ &ec_io, OC_EC_FLASH_nCS },
                 },
             .pin_alert = NULL,
-            .fileName = { "alertLog", "configLog", "bootLog" },
-            .noOfFiles = 3,
+            .fileName = { "alertLog", "configLog", "apConsoleLogs", "ecLogs"   },
+            .noOfFiles = 4,
         },
     .obj = {},
 };

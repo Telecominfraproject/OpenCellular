@@ -23,8 +23,11 @@
 #define OCUARTDMATX_TASK_PRIORITY 7
 #define OCUARTDMATX_TASK_STACK_SIZE 2048
 
-#define UART_TXBUF_SIZE 128
-#define UART_RXBUF_SIZE 128
+#define AP_CON_UARTDMA_TASK_PRIORITY 8
+#define AP_CONUARTDMA_TASK_STACK_SIZE 4096
+
+#define UART_TXBUF_SIZE 256
+#define UART_RXBUF_SIZE 1024
 
 /*****************************************************************************
  *                             HANDLE DECLARATIONS

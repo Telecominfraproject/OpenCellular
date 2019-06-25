@@ -313,9 +313,14 @@ static void bigborther_spwan_task(void)
     usb_tx_createtask();   // P - 04
 
     /*UART task*/
+#ifndef SERIAL_LOGGING
+    ap_console_createtask();
+#endif
+
+#ifdef SERIAL_BRIDGE
     uartdma_rx_createtask();
     uartdma_tx_createtask();
-
+#endif
     /* Gossiper*/
     gossiper_createtask(); // P - 06
 

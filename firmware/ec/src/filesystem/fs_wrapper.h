@@ -29,6 +29,7 @@
 #define NO_OF_ALERT_FILES 8
 #define READ_FLAG 0
 #define WRITE_FLAG 1
+#define CONSOLE_LOG 2
 
 Semaphore_Handle semFilesysMsg;
 Semaphore_Struct semFSstruct;
@@ -50,11 +51,12 @@ Queue_Handle fsTxMsgQueue;
 
 typedef struct FILESystemStruct {
     char *fileName;
-    uint8_t frameSize;
+    uint32_t frameSize;
     uint8_t noOfFiles;
     void *pMsg;
-    uint16_t maxFileSize;
+    uint32_t maxFileSize;
     uint8_t operation;
+    uint32_t fileSize;
 } FILESystemStruct;
 
 int fs_wrapper_get_fileSize(const char *path);

@@ -65,7 +65,9 @@ bool gpp_pmic_control(Gpp_gpioCfg *driver, uint8_t control)
         //ebmp_init(driver);
         //SysCtlDelay(100);
         OcGpio_write(&driver->pin_ap_12v_onoff, true);
-        SysCtlDelay(100);
+        LOGGER_DEBUG("GPP:INFO:: GPP task on sleep mode.\n");
+        //Task_sleep(90000);
+        LOGGER_DEBUG("GPP:INFO:: GPP task outoff sleep mode.\n");
 
         if (gpp_check_core_power(driver)) {
             // OcGpio_write(&cfg->pin_ec_reset_to_proc, true);

@@ -46,6 +46,8 @@
 #define READ_SIZE 256
 #define WRITE_SIZE 256
 
+#define CONSOLE_BUFFER 256
+
 extern OCSubsystem *ss_reg[SUBSYSTEM_COUNT];
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -257,6 +259,72 @@ bool fs_wrapper_data_read(FILESystemStruct *fileSysStruct)
     return true;
 }
 
+void fs_console(FILESystemStruct *fileSysStruct)
+{
+    char printdata[CONSOLE_BUFFER] = {'\0'};
+    uint16_t printCount = 0;
+    uint16_t tmpCount = 0;
+    uint16_t iter = 0;
+    uint8_t check = 0;
+    file.cache.buffer = 0; /* make buffer zero to avoid fail, might be a bug with filesystem */
+    if (lfs_file_open(&lfs, &file, fileSysStruct->fileName,
+                      LFS_O_RDONLY) == LFS_ERR_OK) {
+        int32_t file_size = fs_wrapper_get_fileSize(fileSysStruct->fileName);
+        LOGGER_DEBUG("FS:: File %s reading %d bytes.\n",fileSysStruct->fileName,file_size);
+        while(file_size >= 0) {
+                if (lfs_file_read(&lfs, &file, printdata, CONSOLE_BUFFER) == CONSOLE_BUFFER) {
+                    printCount = 0;
+                    check = 0;
+                    //Need to something like read line and print it in serial console
+                    while(printCount <CONSOLE_BUFFER ) {
+                        tmpCount = ConPrintf("%s",(printdata+printCount));
+                        printCount+=tmpCount;
+                        check++;
+                        if(check == 255) {
+                            break;
+                        }
+                    }
+                    iter++;
+                    LOGGER_DEBUG("FS:: Buffer %d printed with %d bytes.\n",iter,tmpCount);
+                } else {
+                    LOGGER_ERROR("FS:: File %s read failed for %d bytes\n",fileSysStruct->fileName,CONSOLE_BUFFER);
+                }
+                file_size-=CONSOLE_BUFFER;
+        }
+    } else {
+        LOGGER_ERROR("FS:: File %s opening failed.\n",fileSysStruct->fileName);
+    }
+}
+
+void fs_write(FILESystemStruct *fileSysStruct)
+{
+    if ( (fileSysStruct->fileSize + fileSysStruct->frameSize) >
+        fileSysStruct->maxFileSize) {
+        if (lfs_remove(&lfs, fileSysStruct->fileName)) {
+            fileSysStruct->fileSize = 0;
+            LOGGER_DEBUG("FS:: File %s at max size. Deletion of file success.\n",fileSysStruct->fileName);
+        } else {
+            LOGGER_ERROR("FS:: File %s at max size. Deletion of file failed.\n",fileSysStruct->fileName);
+        }
+    }
+
+    if (lfs_file_open(&lfs, &file, fileSysStruct->fileName,
+                      LFS_O_RDWR | LFS_O_APPEND) == LFS_ERR_OK) {
+        if (lfs_file_write(&lfs, &file, fileSysStruct->pMsg,
+                           fileSysStruct->frameSize) ==
+                                   fileSysStruct->frameSize) {
+            fileSysStruct->fileSize += fileSysStruct->frameSize;
+            LOGGER_DEBUG("FS:: File %s write success with %d bytes.\n",fileSysStruct->fileName,fileSysStruct->frameSize);
+            if (lfs_file_close(&lfs, &file) != LFS_ERR_OK) {
+                LOGGER_DEBUG("FS:: File %s didn't close successfully \n");
+            }
+        }
+    } else {
+        LOGGER_ERROR("FS:: File %s opening failed.\n",fileSysStruct->fileName);
+    }
+    return true;
+}
+
 /*****************************************************************************
  **    FUNCTION NAME   : fs_wrapper_data_write
  **
@@ -378,11 +446,19 @@ static bool fs_wrapper_msgHandler(FILESystemStruct *fileSysStruct)
 {
     switch (fileSysStruct->operation) {
         case WRITE_FLAG:
-            fs_wrapper_data_write(fileSysStruct);
-            Semaphore_post(semFSwriteMsg);
+            if(strcmp(fileSysStruct->fileName,"apConsoleLogs") == 0 )
+            {
+                fs_write(fileSysStruct);
+            } else {
+                fs_wrapper_data_write(fileSysStruct);
+                Semaphore_post(semFSwriteMsg);
+            }
             break;
         case READ_FLAG:
             fs_wrapper_data_read(fileSysStruct);
+            break;
+        case CONSOLE_LOG:
+            fs_console(fileSysStruct);
             break;
         default:
             break;
@@ -440,13 +516,30 @@ void fs_wrapper_fileSystem_init(UArg arg0, UArg arg1)
                               ((AT45DB_Dev *)arg0)->cfg.fileName[index],
                               LFS_O_CREAT | LFS_O_EXCL) == LFS_ERR_OK) {
                 LOGGER_DEBUG(
-                    "FS:: File created successfully in flash(at45db) memory \n");
+                        "FS:: File %s created successfully in flash(at45db) memory \n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
                 if (lfs_file_close(&lfs, &file) == LFS_ERR_OK) {
-                    LOGGER_DEBUG("FS:: File closed successfully \n");
+                    LOGGER_DEBUG("FS:: File %s closed successfully \n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
                 }
             } else {
+                if(strcmp(((AT45DB_Dev *)arg0)->cfg.fileName[index],"apConsoleLogs") == 0) {
+                    if (!(lfs_remove(&lfs, ((AT45DB_Dev *)arg0)->cfg.fileName[index]))) {
+                        LOGGER_DEBUG("FS:: File %s deletion success.\n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
+                    } else {
+                        LOGGER_ERROR("FS:: File %s deletion failed.\n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
+                    }
+
+                    if (lfs_file_open(&lfs, &file,
+                                      ((AT45DB_Dev *)arg0)->cfg.fileName[index],
+                                      LFS_O_CREAT | LFS_O_EXCL) == LFS_ERR_OK) {
+                        LOGGER_DEBUG(
+                                "FS:: File %s created successfully in flash(at45db) memory \n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
+                        if (lfs_file_close(&lfs, &file) == LFS_ERR_OK) {
+                            LOGGER_DEBUG("FS:: File %s closed successfully \n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
+                        }
+                    }
+                }
                 LOGGER_DEBUG(
-                    "FS:: File already exist in flash(at45db) memory \n");
+                        "FS:: File %s already exist in flash(at45db) memory \n",((AT45DB_Dev *)arg0)->cfg.fileName[index]);
             }
             index++;
         }

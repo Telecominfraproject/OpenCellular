@@ -14,6 +14,8 @@
 #define _FW_REV_BUGFIX_ 0
 #define _FW_REV_TAG_ __COMMIT_HASH__
 
+#define xstr(a) str(a)
+#define str(a) #a
 /* xdc/runtime/System.h is poorly written so this must be included first */
 #include <stdbool.h>
 

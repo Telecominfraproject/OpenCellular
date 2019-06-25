@@ -16,8 +16,6 @@
 #include <driverlib/sysctl.h>
 #include <ti/sysbios/BIOS.h>
 
-#define xstr(a) str(a)
-#define str(a) #a
 
 //*****************************************************************************
 //                             FUNCTION DECLARATIONS

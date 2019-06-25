@@ -29,7 +29,7 @@ typedef void (*AT45DB_CallbackFn)(AT45DB_Event evt, uint16_t value,
 typedef struct AT45DB_Cfg {
     SPI_Dev dev;
     OcGpio_Pin *pin_alert;
-    const char *fileName[5];
+    const char *fileName[32];
     uint8_t noOfFiles;
 } AT45DB_Cfg;
 
