@@ -1,0 +1,13 @@
+Unique_ID,Request_type,Start_time,Longitude,Latitude,Antenna_Height,AGLorASL,Longitude_uncertainty,Latitude_uncertainty,Emission_class,Device_category,Device_type,PREFSENS,MaxP0_Master
+2057,Specific,01/01/2013 01:01,0.112561,51.517211,10,AGL,0,0,1,Master,A,,
+2058,Specific,02/01/2013 01:01,0.140001,51.510643,10,AGL,0,0,1,Master,A,,
+2059,Specific,03/01/2013 01:01,-0.109302,51.511106,10,AGL,0,0,1,Master,A,,
+2060,Specific,04/01/2013 01:01,-0.095638,51.570911,10,AGL,0,0,1,Master,A,,
+2061,Specific,05/01/2013 01:01,-0.109293,51.511331,10,AGL,0,0,1,Master,A,,
+2062,Specific,06/01/2013 01:01,-0.118077,51.46426,10,AGL,0,0,1,Master,A,,
+2063,Generic,01/01/2013 01:01,0.112561,51.517211,10,AGL,0,0,1,Master,A,,
+2064,Generic,02/01/2013 01:01,0.140001,51.510643,10,AGL,0,0,1,Master,A,,
+2065,Generic,03/01/2013 01:01,-0.109302,51.511106,10,AGL,0,0,1,Master,A,,
+2066,Generic,04/01/2013 01:01,-0.095638,51.570911,10,AGL,0,0,1,Master,A,,
+2067,Generic,05/01/2013 01:01,-0.109293,51.511331,10,AGL,0,0,1,Master,A,,
+2068,Generic,06/01/2013 01:01,-0.118077,51.46426,10,AGL,0,0,1,Master,A,,

@@ -1,0 +1,77 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.UserSummaryViewModel
+
+<section class="info">
+    <h2>Users Summary</h2>
+    <ul>
+        <li class="group-user">
+            <label>Total User Count</label>
+            <div class="input">
+                <span>@Model.UsersCount</span>
+            </div>
+        </li>        
+        <li class="pending">
+            <label>Access Elevation Requests Count</label>
+            <div class="input">
+                <span>@Model.RequestsCount</span>
+            </div>
+        </li>        
+    </ul>
+</section>
+<section class="info">
+    <h2>DemoGraphics Summary</h2>
+    <div class="col a">
+        <h4>By City</h4>
+        <ul>
+            @foreach (string city in Model.Cities)
+            {
+                <li class="location">
+                    <div class="input">
+                        <span>@city</span>
+                    </div>
+                </li>
+            }
+
+        </ul>
+    </div>
+    <div class="col b">
+        <h4>By Country</h4>
+        <ul>
+            @foreach (string country in Model.Countries)
+            {
+                <li class="location">
+                    <div class="input">
+                        <span>@country</span>
+                    </div>
+                </li>
+
+            }
+        </ul>
+    </div>
+</section>
+<section class="info">
+    <h2>Access Roles</h2>
+    <ul>
+        <li class="group-user">
+            <label>Portal Users Count</label>
+            <div class="input">
+                <span>@Model.PortalUserCount</span>
+            </div>
+        </li>
+        <li class="group-user">
+            <label>Region Administrators Count</label>
+            <div class="input">
+                <span>@Model.RegionAdminCount</span>
+            </div>
+        </li>
+        <li class="group-user">
+            <label>Portal Administrators Count</label>
+            <div class="input">
+                <span>@Model.PortalAdminCount</span>
+            </div>
+        </li>
+    </ul>
+</section>

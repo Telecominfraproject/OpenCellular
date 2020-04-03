@@ -1,0 +1,135 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+
+@using System.Collections
+@using Microsoft.WhiteSpaces.Portal.Models
+@using Microsoft.WhiteSpaces.Common.Enums
+@using Microsoft.WhiteSpaces.Common.Entities
+@using INCU = Microsoft.WhiteSpaces.Common.Incumbent
+
+@{
+    var channelInfoList = @Model.Channels != null ? @Model.Channels.Where(chanel => chanel.OperationMode != (int)ChannelOperationMode.None) : null;
+}
+
+@if (Model.AnalysisResult != null)
+{
+    <div class="details summary" id="summaryTable">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <thead>
+                <tr>
+                    <th width="70%">Whitespace Summary</th>
+                    @foreach (DeviceType deviceType in @Model.DeviceTypes)
+                    {
+                        <th width="10%">@deviceType.FriendlyName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total free channels</td>
+                    @foreach (DeviceType deviceType in @Model.DeviceTypes)
+                    {
+                        int totalFreeChannels = 0;
+
+                        if (@Model.AnalysisResult[deviceType.Type] != null)
+                        {
+                            totalFreeChannels = @Model.AnalysisResult[deviceType.Type].TotalFreeChannels;
+                        }
+
+                        <td>@totalFreeChannels</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Max Contiguous Width</td>
+                    @foreach (DeviceType deviceType in @Model.DeviceTypes)
+                    {
+                        int maxContiguousWidth = 0;
+
+                        if (@Model.AnalysisResult[deviceType.Type] != null)
+                        {
+                            maxContiguousWidth = @Model.AnalysisResult[deviceType.Type].MaxContiguousWidth;
+                        }
+
+                        <td>@maxContiguousWidth</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Median Contiguous</td>
+                    @foreach (DeviceType deviceType in @Model.DeviceTypes)
+                    {
+                        int medianContiguousWidth = 0;
+
+                        if (@Model.AnalysisResult[deviceType.Type] != null)
+                        {
+                            medianContiguousWidth = @Model.AnalysisResult[deviceType.Type].MedianContiguousWidth;
+                        }
+
+                        <td>@medianContiguousWidth</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Min Contiguous Width</td>
+                    @foreach (DeviceType deviceType in @Model.DeviceTypes)
+                    {
+                        int minContiguousWidth = 0;
+
+                        if (@Model.AnalysisResult[deviceType.Type] != null)
+                        {
+                            minContiguousWidth = @Model.AnalysisResult[deviceType.Type].MinContiguousWidth;
+                        }
+
+                        <td>@minContiguousWidth</td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+
+
+@if (@Model.EnableProtectedAreas && @Model.OccupiedChannes != null)
+{
+    <div class="details" id="detailsTable">
+        @*<div class="title">
+               <div class="right">
+                        <select>
+                            <option>Filter By Channel Availability</option>
+                        </select>
+                    </div>
+            </div>*@
+
+        <div class="table-header">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <thead>
+                <tr>
+                    <th width="10%">Channel</th>
+                    <th width="30%">CallSign</th>
+                    <th width="20%">Incumbent Type</th>
+                    <th width="20%">Latitude</th>
+                    <th width="20%">Longitude</th>
+                </tr>
+            </thead>
+            </table>
+        </div>
+        <div class="table-body">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tbody>
+                @foreach (INCU channel in Model.OccupiedChannes)
+                    {
+                    <tr id="@channel.Channel">
+                        <td id="channel" width="10%">@channel.Channel</td>
+                        <td id="callsign" width="30%">@channel.CallSign</td>
+                        <td id="incumbentType" width="20%">@channel.IncumbentType</td>
+                        <td id="latitude" width="20%">@channel.TransmitLocation.Latitude</td>
+                        <td id="longitude" width="20%  ">@channel.TransmitLocation.Longitude</td>
+                    </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+
+    </div>
+}

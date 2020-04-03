@@ -1,0 +1,46 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "TV WhiteSpaces - Home Page";
+    List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo> regions = ViewData["availableRegions"] as List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo>;
+}
+@section Left{
+    <section>
+        <div class="title">
+            <h2>
+                <span class="noFollow">Welcome to</span>
+                White Spaces Database
+            </h2>
+        </div>
+        <p>The Microsoft White Spaces Database enables users to learn about the available TV white spaces spectrum, i.e., unoccupied TV channels, at a given location. A user can specify a location, and our service returns a list of TV channels that can be used with the allowed power levels on each channel.</p>
+        <p>To search for TV white spaces channel availability in an area, click on the white spaces finder icon from the left menu and enter the location details.  For US locations, the portal allows to view protected areas for the entire region interactively.</p>
+        <div class="list">
+            <span>This web portal can also be used for the following services:</span>
+            <ul>
+                <li>Register and Manage Protected Entities</li>
+                <li>Download TV white spaces public data </li>
+            </ul>
+        </div>
+        <p>To view a specific service, that may be available for a region, please choose ‘Available Regions’ from the left menu and click an appropriate region name.</p>
+    </section>
+}
+
+@section Right{
+    @Html.Partial("MapPartial")
+}
+
+@section scripts{
+    <script type="text/javascript" src="~/Scripts/whitespaceFinder.js"></script>
+    @Scripts.Render("~/bundles/jqueryunobtrusive")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('.tab-strip ul .home').addClass("active");
+            //bingMap Instance is created in MapPartial
+            bingMap.LoadPushPinsForRegions(@Html.Raw(Json.Encode(regions)),"/Content/Images/PushPin.png");
+        });
+    </script>
+}

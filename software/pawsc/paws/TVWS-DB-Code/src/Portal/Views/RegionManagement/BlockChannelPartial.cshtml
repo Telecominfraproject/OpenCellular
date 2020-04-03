@@ -1,0 +1,204 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+
+
+<section>
+    <div id="dvBlockChannel">
+        <ul>
+            <li class="blockAChannel country">
+                    @Html.Label("Select Region")
+                <div class="input left">@Html.DropDownList("Regions", null, new { @id = "ddlRegion" })</div>
+            </li>
+            <li class="blockAChannel">
+                <input type="checkbox" id="chkSelectAll" />
+                <label for="chkSelectAll" class="inline">Select All</label>
+                <div class="channel-list channel-num">
+                    <span class="error hide " id="errrchannelList">Select atleast one channel</span>
+                    <ul id="channelList">
+                        @for (int i = 2; i < 52; i++)
+                        {
+                            <li>
+                                @{var id = "chk" + i;
+                                var value = string.Empty;
+                                if (i < 10)
+                                {
+                                    value = "0" + i;
+                                }
+                                else
+                                {
+                                    value = i.ToString();
+                                }
+                                }
+                                @if (i == 3 || i == 4 || i == 37)
+                                {
+                                    <input type="checkbox" id="@id" class="hide" value="@i" disabled="disabled" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="@id" class="hide" value="@i" />
+                                }
+                                <label for="@id">@value</label>
+                            </li>
+                        }
+                    </ul>
+
+                    <ul id="channelListUK" class="hide">
+                        @for (int i = 21; i <= 60; i++)
+                        {
+                            <li>
+                                @{
+                            var id = "chkuk" + i;
+                            var value = string.Empty;
+                            if (i < 10)
+                            {
+                                value = "0" + i;
+                            }
+                            else
+                            {
+                                value = i.ToString();
+                            }
+                                }
+
+                                <input type="checkbox" id="@id" class="hide" value="@i" />
+                                <label for="@id">@value</label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </li>
+            <li class="noPad blockAChannel">
+                <label class="block">Location</label>
+                <input type="radio" id="location" name="locate" checked="checked" />
+                <label class="inline" for="location">Coordinates</label>
+                <input type="radio" id="region" name="locate" />
+                <label class="inline" for="region">Entire Region</label>
+            </li>
+            <li class="split clear noPad location noFollow blockAChannel">
+                <div id="divCoordinates">
+                    <span class="error hide " id="errrLat">Please enter all coordinates</span>
+                    <table id="tblCoordinates">
+                        <thead>
+                            <tr>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                                <th width="71"><button type="button" id="AddRow" class="add right smart">Add</button></th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td>
+                                <input type="text" value="" id="lat">
+                            </td>
+                            <td>
+                                <input type="text" value="" id="long">
+                            </td>
+                            <td>
+                                <a class="icon delete hide">Delete</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div id="divRegion" class="hide">
+                    @*<select>
+                            <option></option>
+                        </select>*@
+                </div>
+            </li>
+            <li id="blockedChannels">
+
+            </li>
+        </ul>
+
+    </div>
+
+
+    <div id="dvexcludedChannels">
+        @{ Html.RenderAction("GetExcludedChannels");}
+    </div>
+
+
+</section>
+<div class="end-stripe blockAChannel">
+    <button type="submit" role="button" class="submit" id="btnSubmit">Submit</button>
+    <div id="error" class="alert error"></div>
+    <div id="success" class="alert succeed"></div>
+</div>
+
+<script type="text/javascript" src="/Scripts/BlockChannel.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+        $("#dvexcludedChannels a").on('click', function (event) {
+            excludeChannelAnchorClick(this, event);
+        });
+    });
+
+    function excludeChannelAnchorClick(obj, event) {
+        if (obj.className.indexOf("del-") >= 0) {
+            var partitionKey = $(obj).data('pk');
+            var rowKey = $(obj).data('rk');
+            var regionCode = $(obj).data('regioncode');
+
+            deleteExcludedChannel(regionCode, partitionKey, rowKey);
+        }
+        else {
+            event.preventDefault();
+            var href = $(obj).attr("href");
+            var queryString = href.substring(href.indexOf('?'), href.length);
+
+            var requestUrl = '/RegionManagement/GetExcludedChannels' + queryString;
+            $("#dvexcludedChannels").load(requestUrl, function () {
+                $("#dvexcludedChannels a").on('click', function (event) {
+                    excludeChannelAnchorClick(this, event);
+                });
+            });
+        }
+    }
+
+
+    function deleteExcludedChannel(regionCode, partitionKey, rowKey) {
+        if (confirm("Are you sure want to delete the Excluded Channels")) {
+            var url = "/RegionManagement/DeleteExcludedChannel";
+            var data = { "regionCode": regionCode, "partitionKey": partitionKey, "rowkey": rowKey };
+
+            ServerManager.AjaxRequest(
+            {
+                url: url,
+                data: JSON.stringify(data),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                success: function (result) {
+                    if (result.error) {
+                        ServerManager.handleError(result, null);
+                    }
+                    else {
+                        var requestUrl = '/RegionManagement/GetExcludedChannels';
+                        $("#dvexcludedChannels").load(requestUrl, function () {
+                            $("#dvexcludedChannels a").on('click', function (event) {
+                                excludeChannelAnchorClick(this, event);
+                            });
+                        });
+                    }
+                },
+                error: function (error) {
+                    if (error.status == 200 && error.statusText == "OK") {
+                        var requestUrl = '/RegionManagement/GetExcludedChannels';
+                        $("#dvexcludedChannels").load(requestUrl, function () {
+                            $("#dvexcludedChannels a").on('click', function (event) {
+                                excludeChannelAnchorClick(this, event);
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    }
+</script>
+

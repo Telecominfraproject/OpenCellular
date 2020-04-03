@@ -1,0 +1,10 @@
+{
+  "SettingsSpectrumOverride": {
+    "present": true,
+    "bandwidth_rb": 25,
+    "earfcndl": 5205,
+    "earfcnul": 23205,
+    "RefSigPower": -3,
+    "PMax": 10
+  }
+}

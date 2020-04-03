@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
+  <WebRole name="Portal" vmsize="Small">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+    </Endpoints>
+    <Imports>
+    </Imports>
+    <!--<Startup>
+      <Task commandLine="..\Startup\startup.cmd" executionContext="elevated"/>
+    </Startup>-->
+    <ConfigurationSettings>
+      <Setting name="StorageAccountConnectionString" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="FccApi" />
+      <Setting name="OfcomApi" />
+      <Setting name="PawsApi" />
+      <Setting name="AuthorizationSchema" />
+      <Setting name="LiveClientId" />
+      <Setting name="LiveSecretClientId" />
+      <Setting name="RequestScopes" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="Authority" />
+      <Setting name="DBConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="StorageConnectionString" />
+      <Setting name="BingCredential" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+    <LocalResources>
+      <LocalStorage name="OutputStorage" cleanOnRoleRecycle="true" sizeInMB="50" />
+    </LocalResources>
+  </WebRole>
+  <WorkerRole name="NotificationWorker" vmsize="Small">
+    <Imports>
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="StorageAccountConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="DBConnectionString" />
+      <Setting name="StorageConnectionString" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="FccApi" />
+      <Setting name="OfcomApi" />
+      <Setting name="AuthorizationSchema" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>

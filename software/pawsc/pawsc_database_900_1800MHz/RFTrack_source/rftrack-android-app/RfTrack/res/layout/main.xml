@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/btnSetRFEparameters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_label" />
+ 
+    <EditText
+        android:id="@+id/editTextResult"
+        android:layout_width="match_parent"
+        android:inputType="text"
+        android:layout_height="wrap_content" >
+ 
+    </EditText>
+    
+    <TextView
+        android:id="@+id/rfexploTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/hello" />
+
+    <ScrollView
+        android:id="@+id/rfexploScroller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/rfexploText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:typeface="monospace" />
+        
+    </ScrollView>
+    
+    <ScrollView
+        android:id="@+id/table"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    </ScrollView>
+    
+    <ScrollView
+        android:id="@+id/graphic"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+     </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,40 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.Whitespace.Entities.MVPDRegistration>
+
+@if (Model.Count() > 0)
+{
+
+    WebGrid mvpdGrid = new WebGrid(rowsPerPage: 5);
+    mvpdGrid.Bind(Model, autoSortAndPage: false, rowCount: ViewBag.mvpdRowCount);
+    mvpdGrid.Pager(WebGridPagerModes.All);
+
+    @mvpdGrid.GetHtml(htmlAttributes: new { id = "mvpdGrid" },
+     mode: WebGridPagerModes.All,
+     firstText: "<< First",
+     previousText: "< Prev",
+     nextText: "Next >",
+     lastText: "Last >>",
+    columns: mvpdGrid.Columns(
+mvpdGrid.Column("", "Channel Number", @<text> @item.Channel.Channel </text>),
+mvpdGrid.Column("", "CallSign", @<text> @item.Channel.CallSign </text>),
+mvpdGrid.Column("", "Recieve Location", @<text> @item.Location.Latitude , @item.Location.Longitude </text>),
+mvpdGrid.Column("", "Transmit Location", @<text> @item.TransmitLocation.Latitude , @item.TransmitLocation.Longitude </text>),
+mvpdGrid.Column("", "Registration Date", @<text> @item.Disposition.RegDate </text>),
+mvpdGrid.Column("", "", @<text>  <a data-pk="@item.PartitionKey" data-rk="@item.RowKey" data-type="Mvpd" data-etag="@item.ETag" class="del-mvpd delete icon">Delete</a> </text>)
+                           ))
+    if (Convert.ToInt16(ViewBag.mvpdRowCount) > 5)
+    {
+        <div class="total-count">Total Records: @ViewBag.mvpdRowCount</div>
+    }
+}
+else
+{
+    <label>No records found</label>
+}
+
+
+
+

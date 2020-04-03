@@ -1,0 +1,95 @@
+{% extends 'base_ii.html' %}
+
+
+
+{% load static %}
+
+{% block content %}
+  <div class="container">
+    <h1 style="text-align: center;">White Space analyzer</h1>
+    <br>
+    <p class="lead" style="text-align: center;">
+      List of reports generated from Measurement Campaigns carried out with <a href="http://wireless.ictp.it/tvws/rftrack/">RFTrack</a>.
+    </p>
+    <br>
+    <!-- Start of Campaigns map -->
+    <h1 style="text-align: center;">Map of the Measurement Campaigns</h1>
+    <p class="lead" style="text-align: center;">Region where measurements were performed.</p>
+    <a  href="{%static  'idximages/world_map.png' %}" > {% load static %} <img src="{% static 'idximages/world_map.png' width="100%" height="100% %}" alt="world map"  >
+    </a>
+    <!-- End of Campaigns map -->
+    
+    <h1 style="text-align: center;">Latest reports generated</h1>
+<p class="lead" style="text-align: center;">
+
+<!-- Insert report brief/instructions here -->
+
+<!-- START table -->
+<!-- table report country -->
+<table class="table table-hover">
+<thead>
+<tr>
+<th width="15%">Report Html</th>
+<th >Report Pdf</th>
+<th >Campaign date</th>
+<th>Country</th>
+<th >Place of measurement</th>
+<th>Region</th>
+<th >Route length</th>
+<th >Duration (hh:mm:ss)</th>
+<th >Frequency range</th>
+<th >N. points</th>
+<th width="10%">Download Page</th>
+</tr>
+</thead>
+<tbody>
+<!-- row table -->
+<tr>
+<td img>
+
+<a href="./201908301007280101_ict4d_lab/index.html">
+ {% load static %}  <img src="{% static  'reports/1/images/spectral-map.png'  %}" </a> 
+</td>
+<td img>
+<a href="{%static 'reports/1/filedown/report.pdf' %}">
+{% load static %} <img src="{% static 'reports/1/ico/pdfdownload.png' %}" </a>
+</td>
+<td style="vertical-align:middle;">
+2019-08-30
+</td>
+<td style="vertical-align:middle;">
+South Africa
+</td>
+<td style="vertical-align:middle;">
+Rondebosch
+</td>
+<td style="vertical-align:middle;">
+Western Cape
+</td>
+<td style="vertical-align:middle;">
+1.5 Km
+</td>
+<td style="vertical-align:middle;">
+0:42:05
+</td>
+<td style="vertical-align:middle;">
+300..900 MHz
+</td>
+<td style="vertical-align:middle;">
+1616
+</td>
+<td style="vertical-align:middle;">
+<a href="{%static  'download/measures.db' %}">
+{% load static %} <img src="{% static 'reports/1/ico/download.png' %}">
+</a>
+</td>
+</tr>
+<!-- row table -->
+
+
+<!-- end row table -->
+</tbody>
+</table>
+
+{% endblock %}
+

@@ -1,0 +1,39 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.AccessElevationViewModel
+
+<h2>Request Access Elevation</h2>
+@using (Ajax.BeginForm("RequestElevatedAccess", "Profile", new AjaxOptions() { UpdateTargetId = "request", HttpMethod = "POST", InsertionMode = InsertionMode.Replace }))
+{
+    <div class="access">
+        <ul>
+            <li>
+                @Html.LabelFor(m => m.Regulatory)
+                @Html.DropDownListFor(m => m.Regulatory, new SelectList(Model.Regulatories, "AuthorityName", "AuthorityName"), "Select Regulatory", new { @id = "Regulatory", style = "text-transform: uppercase;" })@*, @onchange = "getAccessLevels(this)"*@
+                @Html.ValidationMessageFor(m => m.Regulatory, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li>
+                @Html.LabelFor(m => m.AccessRole)
+                @Html.DropDownListFor(m => m.AccessRole, new SelectList(Model.Roles, "Id", "FriendlyName"), "Select Role", new { @id = "AccessLevel" })
+                @Html.ValidationMessageFor(m => m.AccessRole, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li>
+                <label>Justification</label>
+                @Html.TextAreaFor(x => x.Justification, new { @class = "ProfileTxtArea", @id = "justificationText" })
+                @Html.ValidationMessageFor(m => m.Justification, string.Empty, new { @class = "mandatory" })
+            </li>
+        </ul>
+    </div>
+    @Html.HiddenFor(x => x.UserId, new { @id = "userId" })
+    <div class="end-stripe">
+        <button type="submit" title="Submit Request" role="button" class="submit">Submit Request</button>
+        <label style="color:red">@ViewBag.Message</label>
+    </div>
+    @*<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>*@
+    <script src="~/Scripts/Profile.js"></script>
+
+}

@@ -1,0 +1,37 @@
+{
+  "Gps": [
+    {
+      "deviceid": "test.fap",
+      "fixed": true,
+      "latitude": 52.194903,
+      "longitude": 0.134992,
+      "height": 15,
+      "heightType": "AGL"
+    },
+    {
+      "deviceid": "00101123001001",
+      "fixed": true,
+      "latitude": 52.194903,
+      "longitude": 0.134992,
+      "height": 15,
+      "heightType": "AGL"
+    },
+    {
+      "deviceid": "00101123001002",
+      "fixed": true,
+      "latitude": 52.194903,
+      "longitude": 0.134992,
+      "height": 15,
+      "heightType": "AGL"
+    },
+    {
+      "deviceid": "00101123001003",
+      "fixed": true,
+      "latitude": 52.194903,
+      "longitude": 0.134992,
+      "height": 15,
+      "heightType": "AGL"
+    }
+  ]
+}
+

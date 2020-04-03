@@ -1,0 +1,6 @@
+﻿.MicrosoftMap.BingTheme .MicrosoftNav.stylev2 .NavBar_compassControlContainer {
+    top:50px !important;
+}
+.MicrosoftMap.BingTheme .MicrosoftNav.stylev2 .NavBar_zoomControlContainer {
+    top:55px !important;
+}

@@ -1,0 +1,53 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "TVWhiteSpaces - About Us";
+}
+
+@section Left{    
+    <section>
+        <div class="title">
+            <a href="#" onclick="history.go(-1)" title=" back" role="link" class="back icon"></a>
+            <h3>
+                About
+            </h3>
+        </div>
+    </section>
+}
+
+@section Right{
+    @*<section class="rightContentArea">
+        <div class="about-tabs">
+            <ul class="tabContainer">
+                <li class="tab1"><a href="#tab1">ABOUT</a></li>
+
+                <li class="tab2"><a href="#tab2">WHITE SPACES APIs</a></li>
+
+                <li class="tab3"><a href="#tab3">FAQs</a></li>
+            </ul>
+            <div id="tab1" class="tab1">
+                @Html.Partial("AboutPartial")
+            </div>
+
+            <div id="tab2" class="tab2">
+                @Html.Partial("ApisPartial")
+            </div>
+
+            <div id="tab3" class="tab3">
+                @Html.Partial("FaqsPartial")
+            </div>
+        </div>
+    </section>*@
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $('.about-tabs').tabs({ active: 0 });
+            $('.ritSection').css('background', '#fff');
+        });
+    </script>
+}
+

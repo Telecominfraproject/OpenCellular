@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  <style> 
+            .small_image{ 
+                width:60%; 
+                height:60; 
+            } 
+            img{ 
+	        display: block;
+		margin-left: auto;
+  		margin-right: auto;
+                width:40%; 
+                height:40%; 
+            } 
+        </style> 
+
+  <!--    <meta charset="utf-8"> --> <!-- regular version -->
+  <!-- Making page mobile friendly: https://www.w3schools.com/w3css/w3css_mobile.asp -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- mobile version -->
+    <title>Spectrum measurement reports</title>
+
+<link href="./jscript/bootstrap.min.css" rel="stylesheet">
+  {% load static %} <link href="{% static './jscript/style.css' %}" rel="stylesheet" type="text/css">
+   {% load static %}<script src="{% static './jscript/jquery.min.js' %}"></script>
+  {% load static %} <script src="{% static 'jscript/bootstrap.min.js' %}"></script>
+
+  </head>
+  <body>
+    {% block content %}
+    {% endblock %}
+  </body>
+</html>

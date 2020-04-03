@@ -1,0 +1,445 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Left
+{
+    <section>
+        <h2>OFCOM Qualification Tests</h2>
+        <div class="notes">
+            <strong>Notes for Stage Tests:</strong>
+            <ul>
+                <li>
+                    <label>Stage 1:</label>
+                    <p>Test of the location translation, the location uncertainty, the look-up procedure in the TVWS availability files and the coverage area calculation.</p>
+                </li>
+                <li>
+                    <label>Stage 2:</label>
+                    <p>Test of the PMSE calculation.</p>
+                </li>
+                <li>
+                    <label>Stage 3:</label>
+                    <p>Test of the calculation of generic parameters when both PMSE and DTT are present.</p>
+                </li>
+                <li>
+                    <label>Stage 4:</label>
+                    <p>Test of the application of the unscheduled adjustment.</p>
+                </li>
+                <li>
+                    <label>Stage 5:</label>
+                    <p>Test of the Hata calculations with clutter.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+}
+
+@section Right
+{
+    <form name="multiform" id="multiform" action="ProcessFiles" method="POST" enctype="multipart/form-data">
+        <section class="qualificationTest">
+            <h2>OFCOM Qualification Tests</h2>
+
+            <input type="radio" name="FileSelection" id="StageTest" checked="checked" class="hide" />
+            <label class="interact" for="StageTest">Select  Testing Stage</label>
+
+            <input type="radio" name="FileSelection" id="CustomTest" class="hide" />
+            <label class="interact" for="CustomTest">Upload Custom Source Data</label>
+
+            <input type="radio" name="FileSelection" id="operationParameter" class="hide" />
+            <label class="interact" for="operationParameter">Input Operational Parameters</label>
+
+
+            <div class="row testingStage">
+                <div class="channel-list channel-num">
+                    <ul>
+                        <li class="clear">
+                            <input type="checkbox" id="Stage1" name="Stage1" class="hide case" />
+                            <label for="Stage1">Stage 1</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Stage2" name="Stage2" class="hide case" />
+                            <label for="Stage2">Stage 2</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Stage3" name="Stage3" class="hide  case" />
+                            <label for="Stage3">Stage 3</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Stage4" name="Stage4" class="hide case" />
+                            <label for="Stage4">Stage 4</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Stage5" name="Stage5" class="hide case" />
+                            <label for="Stage5">Stage 5</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Stage6" name="Stage6" class="hide case" />
+                            <label for="Stage6">Stage 6</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row sourceData">
+                <input type="file" name="file" id="file" class="hide" multiple="multiple" onchange="CheckExtension(this.value)" />
+                <label for="file" class="btn">Choose an input file (csv)</label>
+            </div>
+            <div class="row operationParameter">
+                @Html.Partial("OperationParametersRequestPartial", new Microsoft.WhiteSpaces.Portal.OperationalParametersRequest())
+            </div>
+
+            <div class="end-stripe common">
+                <button type="submit" title="Execute Test" class="submit" id="btnSubmit">Run</button>
+                <span id="error" style="color:red"></span>
+                <span id="success" style="color:green"></span>
+            </div>
+
+
+            <div class="hide" id="dvSourceData1">
+                <h2>Source Data</h2>
+                <p id="CustomPara"></p>
+                <div style="height:400px;overflow:auto">
+                    <div id="dvStage1" class=" hide">
+                        <h3>Stage1</h3>
+                        <p>
+                            test cases - stage 1 - lot 1.csv<br />
+                            test cases - stage 1 - lot 2.csv<br />
+                            test cases - stage 1 - lot 3.csv<br />
+                            test cases - stage 1 - lot 4.csv<br />
+                        </p>
+                    </div>
+                    <div id="dvStage2" class=" hide">
+                        <h3>Stage2</h3>
+                        <p>
+                            Stage 2 - Lot5A - Device Parameters.csv<br />
+                            Stage 2 - Lot5B - Device Parameters.csv<br />
+                            Stage 2 - Lot6A - Device Parameters.csv<br />
+                            Stage 2 - Lot6B - Device Parameters.csv<br />
+                            Stage 2 - Lot6C - Device Parameters.csv<br />
+                            Stage 2 - Lot7A - Device Parameters.csv<br />
+                            Stage 2 - Lot7B - Device Parameters.csv<br />
+                            Stage 2 - Lot7C - Device Parameters.csv<br />
+                            Stage 2 - Lot8A - Device Parameters.csv<br />
+                            Stage 2 - Lot8B - Device Parameters.csv<br />
+                        </p>
+                    </div>
+                    <div id="dvStage3" class=" hide">
+                        <h3>Stage3</h3>
+                        <p>
+                            Stage 3 - Lot9 - Device Parameters.csv<br />
+                        </p>
+                    </div>
+                    <div id="dvStage4" class=" hide">
+                        <h3>Stage4</h3>
+                        <p>
+                            Stage 4 - Lot10 - Device Parameters.csv<br />
+                            Stage 4 - Unscheduled Adjustments.csv<br />
+                        </p>
+                    </div>
+                    <div id="dvStage5" class=" hide">
+                        <h3>Stage5</h3>
+                        <p>
+                            Stage 5 - Lot11 - Device parameters.csv<br />
+                            Stage 5 - Lot12 - Device parameters.csv<br />
+                            Stage 5 - Lot13 - Device parameters.csv<br />
+                            Stage 5 - Lot14 - Device parameters.csv<br />
+                        </p>
+                    </div>
+                    <div id="dvStage6" class=" hide">
+                        <h3>Stage5</h3>
+                        <p>
+                            Stage 6 - Lot15 - Device parameters.csv<br />
+                            Stage 6 - Lot16 - Device parameters.csv<br />
+                            Stage 6 - Lot17 - Device parameters.csv<br />                            
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dvDownload" class="hide">
+            </div>
+            <div id="dvOutput" style="height:400px;overflow-y:auto" class="hide">
+
+            </div>
+        </section>
+    </form>
+
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#wrapper').addClass("inner");
+
+            $('#multiform')
+ .submit(function (e) {
+
+     var url = "";
+     var isValid = true;     
+
+     if ($("#operationParameter")[0].checked) {
+         url = "/TestCaseFileProcessor/ProcessOperationalParameter";
+         isValid = validateInputParams();
+     }
+     else {
+         url = "/TestCaseFileProcessor/ProcessFiles";
+         isValid = validateForm();
+     }
+
+     if (isValid) {
+         $(".error").hide();
+         $("#dvDownload").empty();
+         $("#error").text('');
+         $('.preloader').show();
+         $.ajax({
+             url: url,
+             type: 'POST',
+             data: new FormData(this),
+             processData: false,
+             timeout:3600000,
+             contentType: false,
+             success: function (result) {
+                 if (result != null) {
+
+                     if (result.error) {
+                         if (result.type == "Access Denied") {
+                             window.location = "/Account/Login?ReturnUrl=" + result.url;
+                         }
+                         else if (result.type == "Unknown") {
+                             window.location = "/Home/Error";
+                         }
+                         else {                             
+                             $("#error").text(result.message);
+                         }
+                     }
+                     else {
+                         if ($("#operationParameter")[0].checked) {
+                             $("#dvOutput").empty();
+                             $("#dvOutput").removeClass("hide");
+                             $("#dvOutput").append(result);                             
+                         }
+                         else {
+                             $("#dvDownload").empty();
+                             $("#dvDownload").removeClass("hide");
+                             $("#dvDownload").append(result);
+                         }
+                     }
+                 } 
+                 
+                 $('.preloader').hide();
+             },
+
+             error: function (result) {                 
+                 $('.preloader').hide();
+             },
+         });
+     }
+     e.preventDefault();
+ });
+
+
+            $("#AllStages").click(function () {
+                var seleceted = this.checked;
+                $('.case').each(function () {
+                    if (this.disabled == false) {
+                        this.checked = seleceted;
+                    }
+                })
+
+                if (seleceted) {
+                    $("#dvSourceData1").removeClass("hide");
+                    $("#dvStage1").removeClass("hide");
+                    $("#dvStage2").removeClass("hide");
+                }
+                else {
+                    $("#dvSourceData1").addClass("hide");
+                    $("#dvStage1").addClass("hide");
+                    $("#dvStage2").addClass("hide");
+                }
+            });
+
+            $(".case").click(function () {
+                if ($(".case").length == $(".case:checked").length) {
+                    $("#AllStages").attr("checked", "checked");
+                } else {
+                    $("#AllStages").removeAttr("checked");
+                }
+
+                var id = this.id;
+                var divId = "#dv" + id;
+
+                if (this.checked) {
+                    $("#dvSourceData1").removeClass("hide");
+                    $(divId).removeClass("hide");
+                }
+                else {
+                    $(divId).addClass("hide");
+                }
+
+                if ($(".case:checked").length == 0) {
+                    $("#dvSourceData1").addClass("hide");
+                }
+
+            });
+
+            $("#CustomTest").click(function () {
+                $(".error").hide();
+                $("#error").text('');
+                $(":checkbox").each(
+                    function () {
+                        this.checked = false;
+                    });
+                $("#dvSourceData1").addClass("hide");
+                $("#dvStage1").addClass("hide");
+                $("#dvStage2").addClass("hide");
+                $("#dvStage3").addClass("hide");
+                $("#dvStage4").addClass("hide");
+                $("#dvStage5").addClass("hide");
+                $("#dvStage6").addClass("hide");
+                $("#CustomPara").empty();
+                $("#dvDownload").empty();
+                $("#dvOutput").empty();
+                $("#dvDownload").addClass("hide");
+                $("#dvOutput").addClass("hide");
+            });
+
+            $("#StageTest").click(function () {
+                $(".error").hide();
+                $("#error").text('');
+                $("#CustomPara").empty();
+                $("#dvSourceData1").addClass("hide");
+                $("#dvStage1").addClass("hide");
+                $("#dvStage2").addClass("hide");
+                $("#dvStage3").addClass("hide");
+                $("#dvStage4").addClass("hide");
+                $("#dvStage5").addClass("hide");
+                $("#dvStage6").addClass("hide");
+                $("#dvOutput").empty();
+                $("#dvDownload").empty();
+                $("#dvDownload").addClass("hide");
+                $("#dvOutput").addClass("hide");
+
+                var oldInput = document.getElementById("file");
+
+                var newInput = document.createElement("input");
+
+                newInput.type = "file";
+                newInput.id = oldInput.id;
+                newInput.name = oldInput.name;
+                newInput.multiple = oldInput.multiple;
+                newInput.className = oldInput.className;
+                newInput.style.cssText = oldInput.style.cssText;
+                // copy any other relevant attributes
+                newInput.onchange = function () {
+                    CheckExtension(this.value);
+                };
+
+                oldInput.parentNode.replaceChild(newInput, oldInput);
+            });
+
+            $("#operationParameter").click(function () {
+                $(".error").hide();
+                $("#error").text('');
+                $("#dvSourceData1").addClass("hide");
+                $("#dvStage1").addClass("hide");
+                $("#dvStage2").addClass("hide");
+                $("#dvStage3").addClass("hide");
+                $("#dvStage4").addClass("hide");
+                $("#dvStage5").addClass("hide");
+                $("#dvStage6").addClass("hide");
+                $("#CustomPara").empty();
+                $("#dvDownload").empty();
+                $("#dvOutput").empty();
+                $("#dvDownload").addClass("hide");
+                $("#dvOutput").addClass("hide");
+            });
+
+        });
+
+
+        function CheckExtension(filenames) {
+            var actualFiles = filenames.split(',');
+            var regEx = /\..+$/;
+            var matched = true;
+            var fileText = " ";
+
+            $.each(actualFiles, function () {
+                var extension = this.match(regEx);
+                if (extension[0] != ".csv") {
+                    matched = false;
+                }
+
+                fileText = fileText + this + '\n';
+            });
+
+            if (!matched) {
+                $("#error").text("Invalid file type. Please choose a csv files");
+            }
+            else {
+                $("#dvSourceData1").removeClass("hide");
+                $("#CustomPara")[0].innerText = fileText;
+            }
+        }
+
+        function validateForm() {
+            var isValid = true;
+
+            if ($("#CustomTest")[0].checked) {
+                if ($("#file").val() == '') {
+                    isValid = false;
+                    $("#error").text("Please select atleast one file");
+                }
+            }
+            else if ($("#StageTest")[0].checked) {
+                var isStageSelected = false;
+                $('.case').each(function () {
+                    if (this.disabled == false) {
+                        if (this.checked) {
+                            isStageSelected = true;
+                        }
+
+                    };
+                });
+
+                $("#error").text("Please select atleast one stage");
+                isValid = isStageSelected;
+            }
+
+            return isValid;
+        }
+
+        function validateInputParams()
+        {
+            var requiredControls = [$("#UniqueId"), $("#Start_time"), $("#Latitude"), $("#Longitude")];
+            isValid = true;
+            $(requiredControls).each(function () {              
+                var errId = "#err" + this.attr('id');
+                if (this.val() == "" || this.val() == null) {
+                    isValid = false;                   
+                    $(errId).removeClass("hide");
+                    $(errId)[0].style.display = "";
+                    $(errId).text("Required");
+                }
+                else {
+                    if (!$(errId).hasClass("hide")) {
+                        $(errId).addClass("hide");
+                    }
+                }
+            });
+
+            return isValid;
+        }
+
+
+    </script>
+}

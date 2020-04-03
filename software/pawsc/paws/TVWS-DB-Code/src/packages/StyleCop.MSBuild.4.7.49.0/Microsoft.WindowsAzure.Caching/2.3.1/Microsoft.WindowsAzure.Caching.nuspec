@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.WindowsAzure.Caching</id>
+    <version>2.3.1.0</version>
+    <title>Windows Azure Cache</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkId=306250</licenseUrl>
+    <projectUrl>http://go.microsoft.com/fwlink/?LinkID=235165</projectUrl>
+    <iconUrl>http://www.gravatar.com/avatar/425be63bdaaeeffd26d0172ed2030198.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Windows Azure Cache is a distributed, in-memory cache that increases performance by allowing you to store commonly accessed data in memory and reduces load on backend databases. The Windows Azure Cache NuGet package provides the cache client libraries that can be used to build applications to target the Cache Service or the In-Role Cache.
+This NuGet package can only be used with the Windows Azure SDK version 2.3 of Windows Azure Cache.</description>
+    <summary>A package that adds client libraries and configuration for Windows Azure Cache.</summary>
+    <tags>Microsoft Azure WindowsAzure Cache Caching Dedicated Distributed In-Memory In-Role SQL windowsazureoffical</tags>
+  </metadata>
+</package>

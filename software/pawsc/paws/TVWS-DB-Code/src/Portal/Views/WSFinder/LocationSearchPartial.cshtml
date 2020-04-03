@@ -1,0 +1,57 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+
+@{
+    System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+    serializer.MaxJsonLength = int.MaxValue;
+
+    string jsonResult = serializer.Serialize(@Model.OccupiedChannes);
+    string channelLookup = serializer.Serialize(@Model.AvailableChannelsLookup);
+}
+
+@using (Ajax.BeginForm("FindNearByIncumbents", "WSFinder", null, new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "whitespacePanel", InsertionMode = InsertionMode.Replace, OnComplete = "OnSuccess", OnFailure = "OnSearchFailed" }, new { @id = "locationSearchForm" }))
+{
+    <div class="row">
+        <div class="label">
+            <label>Region: <span id="regionName"><strong>@Model.RegionChannelsDetail.RegionName</strong></span></label>
+        </div>
+    </div>
+    <div class="row input">
+        <div class="label">
+            <label>Location</label>
+            @Html.ValidationMessageFor(m => m.Location, string.Empty, new { id = "locationValMsg" })
+            @Html.ValidationMessageFor(m => m.AntennaHeight)
+        </div>
+        @Html.TextBox("location", "", new { @id = "location" })
+        @Html.TextBox("antennaHeight", @Model.AntennaHeight, (@Model.AntennaHeight.HasValue == true ? (object)new { @class = "antenna-height" } : (object)new { @class = "antenna-height", @name = "", @disabled = "disabled", @placeholder = "Height" }))
+        <button type="button" role="button" id="findIncumbents" title="Find"></button>
+
+        @Html.Hidden("countryRegion", @Model.RegionChannelsDetail.RegionName)
+        @Html.Hidden("latitude", @Model.RegionChannelsDetail.Latitude)
+        @Html.Hidden("longitude", @Model.RegionChannelsDetail.Longitude)
+        @Html.Hidden("incumbentType", @Model.SelectedIncumbentType)
+    </div>
+    <div class="option">
+        @Html.CheckBox("requireAntennaHeight", @Model.AntennaHeight.HasValue, new { @id = "requireAntennaHeight" })
+        <label for="requireAntennaHeight">With Antenna Height</label>
+        <span>Min 3, Max 30 Meters</span>
+    </div>
+}
+
+<script type="text/javascript">
+    function OnSuccess() {
+        whitespaceFinder.UpdateLayout(@Html.Raw(Json.Encode(Model.EnableProtectedAreas)));
+        whitespaceFinder.initializeIncumbentCollection(@Html.Raw(jsonResult));
+
+        whitespaceFinder.AvailableChannels.reset();
+
+        whitespaceFinder.AvailableChannels.initialize(@Html.Raw(channelLookup),@Html.Raw(Json.Encode(Model.PowerDBmTransitionPoint)));
+    }
+
+    function OnSearchFailed(xht, error, status) {
+        $('#preloader').hide();
+    }
+</script>

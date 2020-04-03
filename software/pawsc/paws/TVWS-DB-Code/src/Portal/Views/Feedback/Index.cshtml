@@ -1,0 +1,160 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@section Left{
+
+    <section>
+        <h2>Feedback</h2>
+        <p>Please use this form to submit your feedback, comments, issues and responses.  We’ll respond to your feedback as appropriate.</p>
+    </section>
+}
+
+@section Right{
+
+    <section>
+        <h2>Feedback Submission Form</h2>
+        <form method="post">
+
+            <ul>
+                <li class="name">
+                    <label>First Name</label>
+                    <span class="error hide" id="errFirstName">Required</span>
+                    <div class="input mandatory">
+                        <input type="text" id="FirstName" />
+                    </div>
+                </li>
+
+                <li class="name">
+                    <label>Last Name</label>
+                    <div class="input">
+                        <input type="text" id="LastName" />
+                    </div>
+                </li>
+
+                <li class="email">
+                    <span class="error hide" id="errEmail">Required</span>
+                    <label>Email Address</label>
+                    <div class="input mandatory">
+                        <input type="email" id="Email" />
+                    </div>
+                </li>
+
+                <li class="phone">
+                    <label>Phone Number</label>
+                    <div class="input">
+                        <input type="text" id="Phone" />
+                    </div>
+                </li>
+
+                <li class="subject">
+                    <span class="error hide" id="errSubject">Required</span>
+                    <label>Subject</label>
+                    <div class="input mandatory">
+                        <input type="text" id="Subject" />
+                    </div>
+                </li>
+
+                <li class="feedback">
+                    <span class="error hide" id="errMessage">Required</span>
+                    <label>Your Feedback</label>
+                    <div class="input mandatory">
+                        <textarea id="Message"></textarea>
+                    </div>
+                </li>
+            </ul>
+            <div class="end-stripe">
+                <button type="button" title="Register" class="submit" id="btnSubmit">Submit</button>
+                <button type="button" title="Cancel" class="cancel" id="btnCancel">Cancel</button>
+
+                <span id="error" style="color:red"></span>
+                <span id="success" style="color:green"></span>
+            </div>
+        </form>
+    </section>
+
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <script src="~/Scripts/Common.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#wrapper').addClass("inner");
+
+            $("#btnSubmit").on("click", function () {
+
+                var validationControls = ["FirstName", "Email", "Subject", "Message"];               
+
+                $("#error").text("");
+                $("#success").text("");
+                $(".error").addClass("hide");
+
+                var isformValid = validateForm(validationControls);
+
+                if (isformValid) {
+                    var url = "/Feedback/Save";
+                    var data = {
+                        "FirstName": $("#FirstName").val(),
+                        "LastName": $("#LastName").val(),
+                        "Email": $("#Email").val(),
+                        "Phone": $("#Phone").val(),
+                        "Subject": $("#Subject").val(),
+                        "Message": $("#Message").val()
+                    }
+                    $('.preloader').show();
+                    ServerManager.AjaxRequest(
+                           {
+                               url: url,
+                               data: JSON.stringify(data),
+                               type: "POST",
+                               dataType: "json",
+                               contentType: "application/json; charset=utf-8",
+                               success: function (result) {
+                                   if (result.error) {
+                                       ServerManager.handleError(result, null);
+                                   }
+                                   if (result != null && result != "") {
+                                       if (result == "True" || result == "true") {
+                                           $("#success").text("Feedback submitted successfully ")
+                                       }
+
+                                       $('.preloader').hide();
+                                   }
+                               },
+                               error: function (error) {
+                                   $("#error").text("Feedback submission failed");
+                                   $('.preloader').hide();
+                               }
+                           });
+                }
+            })
+        });
+
+        function validateForm(requiredControls) {
+            isValid = true;
+            $(requiredControls).each(function () {
+                var errId = "#err" + this;
+                if ($("#" + this).val() == "" || $("#" + this).val() == null) {
+                    isValid = false;
+                    $(errId).removeClass("hide");
+                    $(errId).text("Required");
+                }
+                else {
+                    if (!$(errId).hasClass("hide")) {
+                        $(errId).addClass("hide");
+                    }
+                }
+            });
+
+            return isValid;
+        }
+    </script>
+}

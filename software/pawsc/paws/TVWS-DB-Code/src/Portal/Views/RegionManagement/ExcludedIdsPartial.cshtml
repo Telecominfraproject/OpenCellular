@@ -1,0 +1,35 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.WhiteSpaces.Common.ExcludedDevice>
+
+@if (Model.Count() > 0)
+{    
+    WebGrid idGrid = new WebGrid(rowsPerPage: 5);
+    idGrid.Bind(Model, autoSortAndPage: false, rowCount: ViewBag.IdsRowCount);
+    idGrid.Pager(WebGridPagerModes.All);
+
+    @idGrid.GetHtml(htmlAttributes: new { id = "excludedIds" },
+     mode: WebGridPagerModes.All,
+     firstText: "<< First",
+     previousText: "< Prev",
+     nextText: "Next >",
+     lastText: "Last >>",
+        columns: idGrid.Columns(
+        idGrid.Column("", "DeviceId", @<text> @item.DeviceId </text>),
+                    idGrid.Column("", "SerialNumber", @<text> @item.SerialNumber </text>),
+                            idGrid.Column("", "Region", @<text> @item.Region </text>),
+            idGrid.Column("", "Delete", @<text>  <a data-pk="@item.RecordPartitionKey" data-rk="@item.RecordRowKey" data-regioncode="@item.RegionCode" class="del-Id  icon delete" style="color:red">Delete</a> </text>)
+                    ))
+    if (Convert.ToInt16(ViewBag.IdsRowCount) > 5)
+    {
+        <label>Total Records: @ViewBag.IdsRowCount</label>
+    }
+}
+else
+{
+    <label>No records found</label>
+}
+
+

@@ -1,0 +1,69 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    @Styles.Render("~/Content/theme")
+        @Styles.Render("~/Content/main")
+        @Styles.Render("~/Content/overridden")
+    @Styles.Render("~/Content/controls")
+    @Styles.Render("~/Content/perfect-scrollbar")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/slimScroll")
+
+    @*@Scripts.Render("~/bundles/jqueryunobtrusive")*@
+    <script type="text/javascript" src="~/Scripts/perfect-scrollbar.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.mousewheel.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        @Html.Partial("_TabStripPartial")
+        <div id="left-pane">
+            <header>
+                <div class="logo">
+                    <h1>
+                        <a href="@Url.Action("Index","Home")" title="Microsoft Whitespaces Database" role="link">
+                            <img src="~/Content/Images/WhitespacesLogo.png" />
+                        </a>
+                    </h1>
+                </div>
+                <nav class="secondary">
+                    @if (Request.IsAuthenticated)
+                    {
+                        <span class="userName" title="@User.Identity.Name">Hi, @Html.FormattedText(User.Identity.Name)</span>
+                    }
+                </nav>
+            </header>
+            <div id="leftPaneContentPlaceHolder">
+                @RenderSection("Left", true)
+            </div>
+        </div>
+        @RenderSection("tabs", required: false)
+        <div id="right-pane">
+            <div class="container" id="rightPaneContainer">
+                @RenderSection("Right", true)
+                @Html.Partial("FooterPartial")
+            </div>
+        </div>
+    </div>
+    @RenderSection("Preloader", false)
+    @RenderSection("HiddenHtml", false)
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

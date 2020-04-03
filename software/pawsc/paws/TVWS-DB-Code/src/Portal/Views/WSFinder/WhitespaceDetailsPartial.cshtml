@@ -1,0 +1,11 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+<div id="searchPane">
+    @{Html.RenderPartial("SearchPanePartial", @Model);}
+</div>
+<div id="summarySection">
+    @{Html.RenderPartial("WhitespaceSummaryPartial", @Model);}
+</div>

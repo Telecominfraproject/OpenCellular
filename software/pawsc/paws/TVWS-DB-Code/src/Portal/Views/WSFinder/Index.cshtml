@@ -1,0 +1,80 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal.Models
+@{
+    ViewBag.Title = "TV WhiteSpaces - Search Result";
+    List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo> regions = ViewData["availableRegions"] as List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo>;
+}
+
+@section Left{
+    <div class="accordion ws-finder noShadow">
+        <input type="checkbox" style="display:none" checked="checked" id="wsFinder" name="secExpand" />
+
+        <label class="no-interaction" for="wsFinder">
+            <span>White Spaces Finder</span>
+            @* TODO: Updated Message property with appropriate text *@
+            @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "searchSection", Message = "Explore the protected areas on the region map by channels.", SectionTabId = "wsFinder", Url = "/Home/FAQ" })
+        </label>
+
+        <div class="wrap">
+            <section class="search">
+                @using (Ajax.BeginForm("FindNearByIncumbents", "WSFinder", null, new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "whitespacePanel", InsertionMode = InsertionMode.Replace, OnComplete = "OnSuccess", OnFailure = "OnSearchFailed" }, new { @id = "locationSearchForm" }))
+                {
+                    <div class="row input">
+                        <div class="label">
+                            <label>Location</label>
+                            <span class="field-validation-valid" data-valmsg-for="Location" data-valmsg-replace="true" id="locationValMsg"></span>
+                            <span class="field-validation-valid" data-valmsg-for="AntennaHeight" data-valmsg-replace="true"></span>
+                        </div>
+                        @Html.TextBox("location", "", new { @id = "location", @placeholder = "Enter Address or Coordinates" })
+                        @Html.TextBox("antennaHeight", "", new { @class = "antenna-height", @name = "AntennaHeight", @disabled = "disabled", @placeholder = "Height" })
+                        <button type="button" role="button" id="findIncumbents" title="Find"></button>
+
+                        @Html.Hidden("countryRegion")
+                        @Html.Hidden("latitude")
+                        @Html.Hidden("longitude")
+                        @Html.Hidden("incumbentType")
+                    </div>
+                    <div class="option">
+                        @Html.CheckBox("requireAntennaHeight", false, new { @id = "requireAntennaHeight" })
+                        <label for="requireAntennaHeight">With Antenna Height</label>
+                        <span>Min 3, Max 30 Meters</span>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+}
+
+@section Right{
+    @Html.Partial("FinderRightPanePartial")
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section HiddenHtml{
+    <div id="whitespacePanel" style="display:none">
+    </div>
+}
+
+@section scripts{
+    <script type="text/javascript" src="/Scripts/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="/Scripts/whitespaceFinder.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+    <script type="text/javascript">
+        //instance of bingMap is created in MapPartial
+        $(function () {
+            bingMap.LoadPushPinsForRegions(@Html.Raw(Json.Encode(regions)),"/Content/Images/PushPin.png");
+
+            $('.tab-strip ul .finder').addClass("active");
+
+            $('#rightPaneContainer').removeClass('left-view bottom-view collapse-view');
+            $('.summary-pane').removeClass('left bottom expanded').addClass('collapsed');
+        });
+    </script>
+}

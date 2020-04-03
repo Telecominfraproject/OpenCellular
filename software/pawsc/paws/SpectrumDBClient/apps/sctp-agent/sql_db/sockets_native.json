@@ -1,0 +1,14 @@
+{
+    "SocketInfo": {
+        "passthrough_ctl_port": 36411,
+        "mme_connection_type": "tcp"
+    },
+    "SocketInfoMmeList": [
+        {
+            "ip_address": "1.2.3.4"
+        },
+        {
+            "ip_address": "an-example-dns.com"
+        }
+    ]
+}

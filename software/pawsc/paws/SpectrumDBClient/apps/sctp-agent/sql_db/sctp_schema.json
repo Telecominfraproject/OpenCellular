@@ -1,0 +1,35 @@
+{
+    "VersionInfo": {
+        "version": "INTEGER"
+    },
+    "SocketInfo": {
+        "passthrough_ctl_port": "INTEGER",
+        "mme_connection_type": "VARCHAR(4)",
+        "SocketInfoMmeCurrent": "VARCHAR(200)"
+    },
+    "SocketInfoMmeList": {
+        "ip_address": "VARCHAR(200)"
+    },
+  "SettingsLogInfo": {
+    "level": "INTEGER",
+    "logname": "VARCHAR(100)",
+    "file_size": "VARCHAR(10)",
+    "max_files": "INTEGER",
+    "compress": "BOOLEAN"
+  },
+  "SettingsCloudLogInfo": {
+    "level": "INTEGER",
+    "logname": "VARCHAR(100)",
+    "cloud_ip": "VARCHAR(200)",
+    "port": "INTEGER"
+  },
+  "Settings": {
+    "use_passthrough_ctl": "BOOLEAN",
+    "passthrough_ctl_periodicity": "INTEGER",
+    "azure_mme_socket_retry_s": "INTEGER",
+    "azure_mme_socket_drop_enb_s": "INTEGER",
+    "azure_mme_socket_swap_mme_s": "INTEGER",
+    "azure_mme_pkt_retx_guard_ms": "INTEGER",
+    "azure_mme_pkt_retx_max_attempts": "INTEGER"
+  }
+}

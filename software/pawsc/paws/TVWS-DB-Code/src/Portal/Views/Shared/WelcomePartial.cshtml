@@ -1,0 +1,61 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+
+<div id="">
+    <section class="whiteSpaceHome bClear SpectrumContentSection">
+        <h1 class="spectrumTitle bClear">
+            <em>
+                Welcome to ...
+                <br />
+                Microsoft TV White Spaces
+            </em>
+        </h1>
+        <div class="tileContainer">
+
+            @if (Request.IsAuthenticated)
+            {
+                <a href="@Url.Action("Index", "DeviceConfig")">
+                    <div class="stationTile chartMain">
+                        <div class="stationTileImg carousel--cropped">
+                            <ul class="carousel-slides">
+                                <li id="slide-1">
+                                    <img src="~/Content/Images/Brussels.JPG" alt="Description">
+                                </li>
+
+                            </ul>
+                        </div>
+                        <h2 class="stationTileHead">Find TV WhiteSpaces</h2>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="stationTile chartMain">
+                    <div class="stationTileImg carousel--cropped">
+                        <ul class="carousel-slides">
+                            <li id="slide-2">
+                                <img src="~/Content/Images/Brussels.JPG" alt="Description">
+                            </li>
+
+                        </ul>
+                    </div>
+                    <h2 class="stationTileHead">Find TV WhiteSpaces</h2>
+                </div>
+            }
+            <div class="long-text bClear">
+                <p>
+                    The Microsoft Research White Space database enables users to learn about the available TV white spaces spectrum, i.e.,
+                    unoccupied TV channels, at a given location. A user can specify a location, and our service
+                    returns a list of TV channels that can be used for voice, video, and data communication along with the allowed
+                    power levels on each channel. We build upon our experience building similar white space databases for the
+                    United States and United Kingdom, and for demonstrations in several other locations and have customized the database to meet requirements
+                    set forth by regulators.
+                </p>
+            </div>
+        </div>
+        <div class="spacing">
+        </div>
+    </section>
+</div>

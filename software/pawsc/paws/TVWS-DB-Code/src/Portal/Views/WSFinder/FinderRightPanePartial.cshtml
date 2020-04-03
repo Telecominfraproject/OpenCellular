@@ -1,0 +1,48 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{Html.RenderPartial("MapPartial");}
+<div class="summary-pane accordion" id="summaryPane" style="display:none">
+    <div class="container">
+        <div class="title">
+            <ul id="summaryPaneTitle">
+                <li>
+                    <input type="radio" class="hide" name="toggleChannels" id="channelsSummary" />
+                    <label for="channelsSummary">Channels Summary</label>
+                </li>
+                <li>
+                    <input type="radio" class="hide" name="toggleChannels" id="channelsDetail" />
+                    <label for="channelsDetail">Channels Detail</label>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "PublicData")" title="Download Data" class="hyperLink" id="downloadData">Download Data</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "RegisterMVPD")" title="Register Incumbents" class="hyperLink" id="registerIncumbent">Register Incumbents</a>
+                </li>
+            </ul>
+            <nav>
+                <ul>
+                    <li class="split">
+                        <button type="button" role="button" title="Split View"></button>
+                    </li>
+                    <li class="bottom">
+                        <button type="button" role="button" title="Split Bottom"></button>
+                    </li>
+                    <li class="left">
+                        <button type="button" role="button" title="Split Left"></button>
+                    </li>
+                    <li class="full">
+                        <button type="button" role="button" title="Full View"></button>
+                    </li>
+                    <li class="collapse">
+                        <button type="button" role="button" title="Collapse"></button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div id="summarySection">
+        </div>
+    </div>
+</div>

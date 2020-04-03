@@ -1,0 +1,264 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@section tabs
+{
+    <nav class="tab">
+        <ul>
+            <li class="block" id="manageChannels">
+                <input type="radio" class="hide" id="blockChannel" name="tabNav" checked="checked" />
+                <label for="blockChannel">Manage Channels</label>
+                @*<ul class="sub-tab">
+                        <li class="blockedChannelBtn">
+                            <input type="radio" name="mcSubTab" id="mcA" class="hide" checked="checked" />
+                            <label for="mcA">Blocked Channels</label>
+                        </li>
+                        <li class="blockAChannelBtn">
+                            <input type="radio" name="mcSubTab" id="mcB" class="hide" />
+                            <label for="mcB">Block a Channel</label>
+                        </li>
+                    </ul>*@
+            </li>
+            <li class="block" id="manageDevices">
+                <input type="radio" class="hide" id="blockDevice" name="tabNav" />
+                <label for="blockDevice">Manage Devices</label>
+                @*<ul class="sub-tab">
+                        <li class="blockDeviceBtn">
+                            <input type="radio" name="mdSubTab" id="mdA" class="hide" checked="checked" />
+                            <label for="mdA">Block Device</label>
+                        </li>
+                        <li class="excludeDeviceBtn">
+                            <input type="radio" name="mdSubTab" id="mdB" class="hide" />
+                            <label for="mdB">Exclude Device</label>
+                        </li>
+                    </ul>*@
+            </li>
+            <li class="manage" id="manageIncumbents">
+                <input type="radio" class="hide" id="regionMngt" name="tabNav" />
+                <label for="regionMngt">Manage Incumbents</label>
+                @*<ul class="sub-tab">
+                        <li class="mvpdBtn">
+                            <input type="radio" name="miSubTab" id="miA" class="hide" checked="checked" />
+                            <label for="miA">MVPD Registration</label>
+                        </li>
+                        <li class="lpAuxBtn">
+                            <input type="radio" name="miSubTab" id="miB" class="hide" />
+                            <label for="miB">LP Aux Registration</label>
+                        </li>
+                        <li class="tempBasBtn">
+                            <input type="radio" name="miSubTab" id="miC" class="hide" />
+                            <label for="miC">Temp BAS Registration</label>
+                        </li>
+                    </ul>*@
+            </li>
+        </ul>
+    </nav>
+}
+
+@section left
+{
+    <section class="noBorder">
+        <div class="title">
+            <h2>
+                Manage Region
+            </h2>
+        </div>
+    </section>
+}
+
+@section right
+{
+    <div id="channel">
+        <nav class="sub-tab">
+            <ul>
+                <li>
+                    <input type="radio" name="st1" id="blockedChannels" checked="checked" class="blockedChannelBtn hide" />
+                    <label for="blockedChannels">Blocked Channels</label>
+                </li>
+                <li>
+                    <input type="radio" name="st1" id="blockaChannel" class="blockAChannelBtn hide" />
+                    <label for="blockaChannel">Block a Channel</label>
+                </li>
+            </ul>
+        </nav>
+        @Html.Partial("BlockChannelPartial")
+    </div>
+    <div id="device" class="hide">
+        <nav class="sub-tab">
+            <ul>
+                <li>
+                    <input type="radio" name="st2" id="blockedDevices" checked="checked" class="excludeDeviceBtn hide" />
+                    <label for="blockedDevices">Blocked Devices</label>
+                </li>
+                <li>
+                    <input type="radio" name="st2" id="blockaDevice" class="blockDeviceBtn hide" />
+                    <label for="blockaDevice">Block a Device</label>
+                </li>
+            </ul>
+        </nav>
+        @Html.Partial("BlockDevicePartial")
+    </div>
+    <div id="registrations" class="hide">
+        <nav class="sub-tab">
+            <ul>
+                <li class="mvpdBtn">
+                    <input type="radio" name="st3" id="mvpdReg" class="mvpdBtn hide" checked="checked" />
+                    <label for="mvpdReg">MVPD Registration</label>
+                </li>
+                <li class="lpAuxBtn">
+                    <input type="radio" name="st3" id="lpAuxReg" class="lpAuxBtn hide" />
+                    <label for="lpAuxReg">LP Aux Registration</label>
+                </li>
+                <li class="tempBasBtn">
+                    <input type="radio" name="st3" id="tempBASReg" class="tempBasBtn hide" />
+                    <label for="tempBASReg">Temp BAS Registration</label>
+                </li>
+            </ul>
+        </nav>
+        @{ Html.RenderPartial("RegistrationsPartial");}
+    </div>
+
+    <input type="hidden" id="hdnController" value="RegionManagement" />
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/Common.js"></script>
+    <script type="text/javascript">
+        $("#wrapper").addClass("inner");
+        $("#right-pane").addClass("tabbedContainer");
+
+        $("#blockChannel").click(function () {
+            hideAll();
+            $("#channel").removeClass("hide");
+        });
+
+        $("#blockDevice").click(function () {
+            hideAll();
+            $("#device").removeClass("hide");
+        });
+
+        $("#regionMngt").click(function () {
+            hideAll();
+            $("#registrations").removeClass("hide");
+        });
+
+        hideAllRegistrations();
+        $('#mvpdRegistrations').show();
+
+        $('#registrations .sub-tab li input').click(function (e) {
+            hideAllRegistrations();
+            if ($(this).hasClass('mvpdBtn')) {
+                $('#mvpdRegistrations').show();
+            }
+            else if ($(this).hasClass('lpAuxBtn')) {
+                $('#LpAuxRegistrations').show();
+            }
+            else if ($(this).hasClass('tempBasBtn')) {
+                $('#tempBasRegistrations').show();
+            }
+        });
+
+        function hideAllRegistrations() {
+            $('#mvpdRegistrations').hide();
+            $('#LpAuxRegistrations').hide();
+            $('#tempBasRegistrations').hide();
+        }
+
+        function hideAll() {
+            if (!$("#channel").hasClass("hide")) {
+                $("#channel").addClass("hide");
+            }
+            if (!$("#device").hasClass("hide")) {
+                $("#device").addClass("hide");
+            }
+            if (!$("#registrations").hasClass("hide")) {
+                $("#registrations").addClass("hide");
+            }
+        }
+
+
+        function deleteRegistration(partionKey, rowKey, type, etag) {
+            if (confirm("Are you sure want to delete the current registration ?")) {
+                var url = "/RegionManagement/DeleteRegistration";
+                var data = { "partitionKey": partionKey, "rowkey": rowKey, "type": type, "etag": etag };
+
+                ServerManager.AjaxRequest(
+                {
+                    url: url,
+                    data: JSON.stringify(data),
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (result) {
+                        if (result.error) {
+                            ServerManager.handleError(result, null);
+                        }
+                        switch (type) {
+                            case "LpAux":
+                                var requestUrl = '@Url.Action("GetLpAuxRegistrations", "RegionManagement")';
+                                $("#LpAuxRegistrations").load(requestUrl, function () {
+                                    $("#LpAuxRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "LpAux")
+                                    });
+                                });
+                                break;
+                            case "TBas":
+                                var requestUrl = '@Url.Action("GetTempBasRegistrations", "RegionManagement")';
+                                $("#tempBasRegistrations").load(requestUrl, function () {
+                                    $("#tempBasRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "TBas")
+                                    });
+                                });
+                                break;
+                            case "Mvpd":
+                                var requestUrl = '@Url.Action("GetMvpdRegistrations", "RegionManagement")';
+                                $("#mvpdRegistrations").load(requestUrl, function () {
+                                    $("#mvpdRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "Mvpd")
+                                    });
+                                });
+                                break;
+                        }
+                    },
+                    error: function (error) {
+                        if (error.status == 200 && error.statusText == "OK") {
+                            switch (type) {
+                                case "LpAux":
+                                    var requestUrl = '@Url.Action("GetLpAuxRegistrations", "RegionManagement")';
+                                    $("#LpAuxRegistrations").load(requestUrl, function () {
+                                        $("#LpAuxRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "LpAux")
+                                        });
+                                    });
+                                    break;
+                                case "TBas":
+                                    var requestUrl = '@Url.Action("GetTempBasRegistrations", "RegionManagement")';
+                                    $("#tempBasRegistrations").load(requestUrl, function () {
+                                        $("#tempBasRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "TBas")
+                                        });
+                                    });
+                                    break;
+                                case "Mvpd":
+                                    var requestUrl = '@Url.Action("GetMvpdRegistrations", "RegionManagement")';
+                                    $("#mvpdRegistrations").load(requestUrl, function () {
+                                        $("#mvpdRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "Mvpd")
+                                        });
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

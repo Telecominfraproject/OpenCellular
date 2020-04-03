@@ -1,0 +1,2 @@
+C:\work\TVWS_FCC_OFCOM\src\external\AzurePortal\bin\Release\ServiceConfiguration.cscfg
+C:\work\TVWS_FCC_OFCOM\src\external\AzurePortal\bin\Release\ServiceDefinition.csdef

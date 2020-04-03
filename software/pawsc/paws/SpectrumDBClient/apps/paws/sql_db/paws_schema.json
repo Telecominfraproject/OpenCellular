@@ -1,0 +1,77 @@
+{
+  "VersionInfo": {
+    "version": "INTEGER"
+  },
+  "TVWSDBInfo": {
+    "weblist_host": "VARCHAR(100)",
+    "weblist_filename": "VARCHAR(30)"
+  },
+  "TVWSDBInfoDB": {
+    "name": "VARCHAR(64)",
+    "host": "VARCHAR(100)",
+    "token": "VARCHAR(128)",
+    "valid": "BOOLEAN",
+    "barred_utc": "VARCHAR(64)"
+  },
+  "Settings": {
+    "min_dl_dbm_100k": "FLOAT",
+    "min_ul_dbm_100k": "FLOAT",
+    "db_retry_secs": "INTEGER",
+    "db_barred_secs": "INTEGER",
+    "setting_periodic_secs": "INTEGER",
+    "devices_periodic_secs": "INTEGER",
+    "gps_periodic_fast_check_secs": "INTEGER",
+    "gps_periodic_slow_check_secs": "INTEGER",
+    "max_polling_quick_secs": "INTEGER"
+  },
+  "SettingsLogInfo": {
+    "level": "INTEGER",
+    "logname": "VARCHAR(100)",
+    "tvwsdb_messages_logname": "VARCHAR(100)",
+    "file_size": "VARCHAR(10)",
+    "max_files": "INTEGER",
+    "compress": "BOOLEAN"
+  },
+  "SettingsCloudLogInfo": {
+    "level": "INTEGER",
+    "logname": "VARCHAR(100)",
+    "cloud_ip": "VARCHAR(200)",
+    "port": "INTEGER"
+  },
+  "PreBootState": {
+    "state_str": "VARCHAR(25000)"
+  },
+  "DeviceInfo": {
+    "deviceid": "VARCHAR(30)",
+    "manufacturer": "VARCHAR(30)",
+    "model": "VARCHAR(20)"
+  },
+  "DeviceInfoAntenna": {
+    "deviceid": "VARCHAR(30)",
+    "gain": "FLOAT"
+  },
+  "DeviceInfoCharacteristics": {
+    "deviceid": "VARCHAR(30)",
+    "type": "VARCHAR(2)",
+    "cat": "VARCHAR(7)",
+    "emission_class": "INTEGER",
+    "technology_id": "VARCHAR(7)"
+  },
+  "Gps": {
+    "deviceid": "VARCHAR(30)",
+    "fixed": "BOOLEAN",
+    "latitude": "FLOAT",
+    "longitude": "FLOAT",
+    "height": "INTEGER",
+    "heightType": "VARCHAR(20)"
+  },
+  "SettingsSpectrumOverride": {
+    "present": "BOOLEAN",
+    "bandwidth_rb": "INTEGER",
+    "earfcndl": "INTEGER",
+    "earfcnul": "INTEGER",
+    "RefSigPower": "INTEGER",
+    "PMax": "INTEGER"
+  }
+}
+

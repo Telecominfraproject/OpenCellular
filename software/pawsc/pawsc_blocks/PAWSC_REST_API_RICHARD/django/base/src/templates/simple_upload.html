@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+     <p style="margin-left:10px; margin-right:5px;">
+     <input type="file" name="myfile">
+    <button type="submit">Upload</button> 
+    </p>
+  </form>
+
+  {% if uploaded_file_url %}
+    <p style="margin-left:10px; margin-right:5px;">
+    File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a>
+    </p>
+  {% endif %}
+
+
+  <br />
+  <br />
+  <p style="margin-left:10px; margin-right:5px;">
+  <a href="{% url 'home' %}">Return to home</a>
+  </p>
+{% endblock %}

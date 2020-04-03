@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:v="urn:ietf:params:xml:ns:vcard-4.0" 
+           targetNamespace="urn:ietf:params:xml:ns:vcard-4.0" 
+           elementFormDefault="qualified">
+            
+  <!-- =============================================================
+       Value Types 
+       ============================================================= -->
+          
+  <xs:element name="text" type="xs:string"/>
+  
+  <xs:simpleType name="UriType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  
+  <xs:element name="uri" type="v:UriType" />  
+  
+  <xs:element name="date">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="\d{8}|\d{4}-\d\d|--\d\d(\d\d)?|---\d\d"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+  
+  <xs:element name="time">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="(\d\d(\d\d(\d\d)?)?|-\d\d(\d\d?)|--\d\d)(Z|[+\-]\d\d(\d\d)?)?"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+  
+  <xs:element name="date-time">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="(\d{8}|--\d{4}|---\d\d)T\d\d(\d\d(\d\d)?)?(Z|[+\-]\d\d(\d\d)?)?"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+  
+  <xs:complexType name="DateAndOrTimeType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element ref="v:date" />
+        <xs:element ref="v:date-time" />
+        <xs:element ref="v:time" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="date-and-or-time" type="v:DateAndOrTimeType" />
+  
+  <xs:element name="timestamp">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="\d{8}T\d{6}(Z|[+\-]\d\d(\d\d)?)?"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+
+  <xs:element name="boolean" type="xs:boolean" />
+
+  <xs:element name="integer" type="xs:integer" />
+  
+  <xs:element name="float" type="xs:float" />
+  
+  <xs:element name="language-tag">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="([a-z]{2,3}((-[a-z]{3}){0,3})?|[a-z]{4,8})(-[a-z]{4})?(-([a-z]{2}|\d{3}))?(-([0-9a-z]{5,8}|\d[0-9a-z]{3}))*(-[0-9a-wyz](-[0-9a-z]{2,8})+)*(-x(-[0-9a-z]{1,8})+)?|x(-[0-9a-z]{1,8})+|[a-z]{1,3}(-[0-9a-z]{2,8}){1,2}"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+  
+  <xs:element name="pid-val">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="\d+(\.\d+)?"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>  
+            
+  <!-- =============================================================
+       Parameters 
+       ============================================================= -->
+
+  <xs:complexType name="BaseParameterType" abstract="true" >
+  </xs:complexType>
+
+  <xs:element name="baseParameter" type="v:BaseParameterType" />
+
+  <xs:complexType name="ArrayOfParameters">
+    <xs:sequence>
+      <xs:element ref="v:baseParameter" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="language" type="v:LanguageParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="pref" type="v:PrefParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="altid" type="v:TextParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="pid" type="v:PidParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="type" type="v:TextParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="calscale" type="v:TextParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="sort-as" type="v:TextListParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <!-- Renamed from geo -->
+  <xs:element name="geoloc" type="v:UriParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <!-- Renamed from tz -->
+  <xs:element name="tzid" type="v:TzParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <xs:element name="label" type="v:TextParamType"
+              substitutionGroup="v:baseParameter" />
+
+  <!-- Parameters that take a simple text value -->
+  <xs:complexType name="TextParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="v:text" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Parameters that take one or more simple text value -->
+  <xs:complexType name="TextListParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="v:text" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Parameters that take a uri value -->
+  <xs:complexType name="UriParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence>
+          <xs:element ref="v:uri"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="PrefParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence>
+          <xs:element ref="v:text" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="TzParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence>
+          <xs:choice>
+            <xs:element ref="v:text" />
+            <xs:element ref="v:uri"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="LanguageParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="v:language-tag" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="PidParamType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="v:pid-val" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+            
+  <!-- =============================================================
+       Properties 
+       ============================================================= -->
+
+  <!-- =====================================================================
+        BasePropertyType 
+        All properties are based off this type which defines a property as 
+        nothing more than a list of parameters. 
+        
+        We make no attempt to define valid parameters for each property as this
+        would complicate the schema significantly. Consumers can ignore 
+        property parameters they do not understand or expect. 
+       ===================================================================== -->  
+  <xs:complexType name="BasePropertyType" abstract="true" >
+    <xs:sequence>
+      <xs:element name="parameters" type="v:ArrayOfParameters"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="baseProperty" type="v:BasePropertyType" />
+
+  <xs:complexType name="ArrayOfProperties">
+    <xs:sequence>
+      <xs:element ref="v:baseProperty" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="source" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+  
+  <!--  "individual" | "group" | "org" | "location"   -->   
+  <xs:element name="kind" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="fn" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="n" type="v:NamePropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="nickname" type="v:TextListPropertyType"
+              substitutionGroup="v:baseProperty" />
+  
+  <xs:element name="photo" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+  
+  <xs:element name="bday" type="v:BdayPropertyType"
+              substitutionGroup="v:baseProperty" />
+  
+  <xs:element name="anniversary" type="v:BdayPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <!-- "male" | "female" -->
+  <xs:element name="gender" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="adr" type="v:AdrPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="tel" type="v:TextUriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="email" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="impp" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="lang" type="v:LangPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="tz" type="v:TextUriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="geo" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="title" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="role" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="logo" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="org" type="v:TextListPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="member" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="related" type="v:TextUriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="categories" type="v:TextListPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="note" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="prodid" type="v:TextPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="rev" type="v:TimestampPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="sound" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="uid" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="clientpidmap" type="v:ClientPidmapPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="url" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="key" type="v:TextUriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="fburl" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="caladruri" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:element name="caluri" type="v:UriPropertyType"
+              substitutionGroup="v:baseProperty" />
+
+  <xs:complexType name="NamePropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element name="surname" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="given" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="additional" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="prefix" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="suffix" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BdayPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:choice>
+            <xs:element ref="v:date-and-or-time" />
+            <xs:element ref="v:text" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ClientPidmapPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element name="sourceid" type="xs:integer" />
+          <xs:element ref="v:uri" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AdrPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element name="pobox" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="ext" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="street" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="locality" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="region" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="code" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+          <xs:element name="country" type="v:TextListPropertyType" 
+                      minOccurs="0" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TextUriPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:choice>
+            <xs:element ref="v:uri" />
+            <xs:element ref="v:text" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="LangPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element ref="v:language-tag" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Properties that take a simple text value -->
+  <xs:complexType name="TextPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element ref="v:text" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="TextListPropertyType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence>
+          <xs:element ref="v:text" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TimestampPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence> 
+          <xs:element ref="v:timestamp" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Properties that take a uri value -->
+  <xs:complexType name="UriPropertyType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="v:BasePropertyType">
+        <xs:sequence>
+          <xs:element ref="v:uri"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+            
+  <!-- =============================================================
+       Vcard components 
+       ============================================================= -->
+  
+  <!-- Vcard Stream -->
+  <xs:element name="vcards" type="v:ArrayOfVcards"/>
+  
+  <xs:complexType name="ArrayOfVcards">
+    <xs:sequence>
+      <xs:element ref="v:vcard" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="vcard" type="v:VcardType"/>
+          
+  <xs:complexType name="GroupType" >
+    <xs:sequence>
+      <xs:element name="properties" type="v:ArrayOfProperties"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string"/>
+  </xs:complexType>
+          
+  <xs:complexType name="VcardType" >
+    <xs:sequence maxOccurs="unbounded">
+      <xs:choice>
+        <xs:element name="properties" type="v:ArrayOfProperties"/>
+        <xs:element name="group" type="v:GroupType"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

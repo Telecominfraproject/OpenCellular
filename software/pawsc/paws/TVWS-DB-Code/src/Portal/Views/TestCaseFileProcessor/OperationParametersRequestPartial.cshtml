@@ -1,0 +1,104 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.OperationalParametersRequest
+
+<section>
+    <ul>
+        <li>
+            @Html.LabelFor(m => m.UniqueId)
+            <span class="error hide" id="errUniqueId"></span>
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.UniqueId, new { @id = "UniqueId" })
+            </div>
+        </li>
+
+        <li >
+            @Html.LabelFor(m => m.Request_type)
+            <div class="input">
+                @Html.DropDownListFor(m => m.Request_type, Model.RequestTypes)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Start_time)
+            <span class="error hide" id="errStart_time"></span>
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.Start_time, new { @id = "Start_time" })
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Latitude)
+            <span class="error hide" id="errLatitude"></span>
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.Latitude, new { @id = "Latitude" })
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Longitude)
+            <span class="error hide" id="errLongitude"></span>
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.Longitude, new { @id = "Longitude" })
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Latitude_uncertainty)
+            <div class="input">
+                @Html.TextBoxFor(m => m.Latitude_uncertainty)
+            </div>
+        </li>
+
+        <li class="country">
+            @Html.LabelFor(m => m.Longitude_uncertainty)
+            <div class="input">
+                @Html.TextBoxFor(m => m.Longitude_uncertainty)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Antenna_Height)
+            <div class="input">
+                @Html.TextBoxFor(m => m.Antenna_Height)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.AntennaHeightType)
+            <div class="input">
+                @Html.DropDownListFor(m => m.AntennaHeightType, Model.HieghtTypes)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Emission_class)
+            <div class="input">
+                @Html.DropDownListFor(m => m.Emission_class, Model.EmissionClasses)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Device_category)
+            <div class="input">
+                @Html.DropDownListFor(m => m.Device_category, Model.DeviceCategories)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Device_type)
+            <div class="input">
+                @Html.DropDownListFor(m => m.Device_type, Model.DeviceTypes)
+            </div>
+        </li>
+
+        <li>
+            @Html.LabelFor(m => m.Technology_ID)
+            <div class="input">
+                @Html.TextBoxFor(m => m.Technology_ID)
+            </div>
+        </li>
+    </ul>
+</section>

@@ -1,0 +1,222 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal;
+
+@model Microsoft.WhiteSpaces.Portal.UserProfileModel
+
+
+@section tabs
+{
+    <nav class="tab">
+        <ul>
+            <li class="my-profile">
+                <input type="radio" class="hide" id="myPro" name="tabNav" checked="checked" />
+                <label for="myPro">My Profile</label>
+            </li>
+            <li class="my-registrations">
+                <input type="radio" class="hide" id="myReg" name="tabNav"/>
+                <label for="myReg">Registered Incumbents</label>
+            </li>
+            @if (Request.IsAuthenticated)
+            {
+                UserPrincipal principal = (UserPrincipal)User;
+
+                if (!principal.IsSuperAdmin)
+                {
+                    <li class="access-request">
+                        <input type="radio" class="hide" id="accReq" name="tabNav" />
+                        <label for="accReq">Access Request</label>
+                    </li>
+                }
+            }
+        </ul>
+    </nav>
+}
+
+@section left
+{
+    <section class="noBorder">
+        <div class="title">
+            <h2>
+                Profile
+            </h2>
+        </div>
+    </section>
+}
+
+@section right
+{
+    <div id="profile">
+        @{ Html.RenderAction("GetUserDetails");}
+    </div>
+    <div id="request" class="hide">
+        @{ Html.RenderAction("GetRequestView");}
+    </div>
+    <div id="registrations" class="hide">
+        <nav class="sub-tab">
+            <ul>
+                <li class="mvpdBtn">
+                    <input type="radio" name="st3" id="mvpdReg" class="mvpdBtn hide" checked="checked" />
+                    <label for="mvpdReg">MVPD Registration</label>
+                </li>
+                <li class="lpAuxBtn">
+                    <input type="radio" name="st3" id="lpAuxReg" class="lpAuxBtn hide" />
+                    <label for="lpAuxReg">LP Aux Registration</label>
+                </li>
+                <li class="tempBasBtn">
+                    <input type="radio" name="st3" id="tempBASReg" class="tempBasBtn hide" />
+                    <label for="tempBASReg">Temp BAS Registration</label>
+                </li>
+            </ul>
+        </nav>
+        @{ Html.RenderPartial("RegistrationsPartial");}
+</div>
+<input type="hidden" id="hdnController" value="Profile" />
+}
+
+@section scripts{
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script type="text/javascript" src="~/Scripts/Common.js"></script>
+    <script type="text/javascript">
+
+        $(document).on("click", "a[data-ajax=true]", function (evt) {
+            evt.preventDefault();
+            asyncRequest(this, {
+                url: this.href,
+                type: "GET",
+                data: []
+            });
+        });
+
+        hideAllRegistrations();
+        $('#mvpdRegistrations').show();
+
+
+        $('#registrations .sub-tab li input').click(function (e) {
+            hideAllRegistrations();
+            if ($(this).hasClass('mvpdBtn')) {
+                $('#mvpdRegistrations').show();
+            }
+            else if ($(this).hasClass('lpAuxBtn')) {
+                $('#LpAuxRegistrations').show();
+            }
+            else if ($(this).hasClass('tempBasBtn')) {
+                $('#tempBasRegistrations').show();
+            }
+        });
+
+        function hideAllRegistrations() {
+            $('#mvpdRegistrations').hide();
+            $('#LpAuxRegistrations').hide();
+            $('#tempBasRegistrations').hide();
+        }
+
+        $("#wrapper").addClass("inner");
+        $("#right-pane").addClass("tabbedContainer");
+
+        $("#myPro").click(function () {
+            $("#profile").removeClass("hide");
+            $("#request").addClass("hide");
+            $("#registrations").addClass("hide");
+
+        });
+        $("#accReq").click(function () {
+            $("#profile").addClass("hide");
+            $("#request").removeClass("hide");
+            $("#registrations").addClass("hide");
+
+        });
+        $("#myReg").click(function () {
+            $("#registrations").removeClass("hide");
+            $("#profile").addClass("hide");
+            $("#request").addClass("hide");
+
+        });
+
+
+        function deleteRegistration(partionKey, rowKey, type, etag) {
+            if (confirm("Are you sure want to delete the current registration ?")) {
+                var url = "/Profile/DeleteRegistration";
+                var data = { "partitionKey": partionKey, "rowkey": rowKey, "type": type, "etag": etag };
+
+                ServerManager.AjaxRequest(
+                {
+                    url: url,
+                    data: JSON.stringify(data),
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (result) {
+                        if (result.error) {
+                            ServerManager.handleError(result, null);
+                        }
+                        switch (type) {
+                            case "LpAux":
+                                var requestUrl = '@Url.Action("GetLpAuxRegistrations", "Profile")';
+                                $("#LpAuxRegistrations").load(requestUrl, function () {
+                                    $("#LpAuxRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "LpAux")
+                                    });
+                                });
+                                break;
+                            case "TBas":
+                                var requestUrl = '@Url.Action("GetTempBasRegistrations", "Profile")';
+                                $("#tempBasRegistrations").load(requestUrl, function () {
+                                    $("#tempBasRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "TBas")
+                                    });
+                                });
+                                break;
+                            case "Mvpd":
+                                var requestUrl = '@Url.Action("GetMvpdRegistrations", "Profile")';
+                                $("#mvpdRegistrations").load(requestUrl, function () {
+                                    $("#mvpdRegistrations a").on('click', function (event) {
+                                        anchorClick(this, event, "Mvpd")
+                                    });
+                                });
+                                break;
+                        }
+                    },
+                    error: function (error) {
+                        if (error.status == 200 && error.statusText == "OK") {
+                            switch (type) {
+                                case "LpAux":
+                                    var requestUrl = '@Url.Action("GetLpAuxRegistrations", "RegionManagement")';
+                                    $("#LpAuxRegistrations").load(requestUrl, function () {
+                                        $("#LpAuxRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "LpAux")
+                                        });
+                                    });
+                                    break;
+                                case "TBas":
+                                    var requestUrl = '@Url.Action("GetTempBasRegistrations", "RegionManagement")';
+                                    $("#tempBasRegistrations").load(requestUrl, function () {
+                                        $("#tempBasRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "TBas")
+                                        });
+                                    });
+                                    break;
+                                case "Mvpd":
+                                    var requestUrl = '@Url.Action("GetMvpdRegistrations", "RegionManagement")';
+                                    $("#mvpdRegistrations").load(requestUrl, function () {
+                                        $("#mvpdRegistrations a").on('click', function (event) {
+                                            anchorClick(this, event, "Mvpd")
+                                        });
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+    </script>
+}
+
+

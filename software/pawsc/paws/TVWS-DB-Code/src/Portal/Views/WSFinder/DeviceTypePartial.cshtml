@@ -1,0 +1,24 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+@using Microsoft.WhiteSpaces.Portal.Models
+@using Microsoft.WhiteSpaces.Common.Entities
+
+<h2>
+    <span>Device Type</span>
+    @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "deviceType", Message = "Fixed: A TVBD that transmits and/or receives radio communication signals at a specified fixed location.  Mode 1: A personal/ portable TVBD that does not use an internal GPS. Mode 2: A personal/ portable TVBD that uses an internal GPS", SectionTabId = "wsFinder", Url = "/Home/FAQ" })
+</h2>
+<nav>
+    <ul>
+        @foreach (DeviceType deviceType in @Model.DeviceTypes)
+        {
+            bool isChecked = string.Compare(deviceType.Type, @Model.SelectedIncumbentType, StringComparison.OrdinalIgnoreCase) == 0;
+            <li>
+                @Html.RadioButton("deviceType", deviceType.Type, isChecked, new { @id = @deviceType.FriendlyName, style = "display : none" })
+                @Html.Label(deviceType.FriendlyName, deviceType.FriendlyName, new { @for = deviceType.FriendlyName })
+            </li>
+        }
+    </ul>
+</nav>

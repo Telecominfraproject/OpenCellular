@@ -1,0 +1,5 @@
+D:\TVWS_FCC_OFCOM\src\external\InterpolationLibrary\bin\Release\Microsoft.Whitespace.InterpolationLibrary.dll
+D:\TVWS_FCC_OFCOM\src\external\InterpolationLibrary\bin\Release\Microsoft.Whitespace.InterpolationLibrary.pdb
+D:\TVWS_FCC_OFCOM\src\external\InterpolationLibrary\obj\Release\InterpolationLibrary.csprojResolveAssemblyReference.cache
+D:\TVWS_FCC_OFCOM\src\external\InterpolationLibrary\obj\Release\Microsoft.Whitespace.InterpolationLibrary.dll
+D:\TVWS_FCC_OFCOM\src\external\InterpolationLibrary\obj\Release\Microsoft.Whitespace.InterpolationLibrary.pdb

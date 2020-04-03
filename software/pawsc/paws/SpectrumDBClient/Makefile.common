@@ -1,0 +1,29 @@
+#
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+#
+
+TARGET_PLATFORM ?= native
+
+C_SRC ?= $(wildcard ./*.c)
+C_OBJ = $(addprefix obj/$(TARGET_PLATFORM)/,$(patsubst %.c,%.o,$(C_SRC)))
+DEPS = $(patsubst %.o,%.d,$(C_OBJ))
+
+LIBS_DIR = $(PRJROOT)/libs
+
+CFLAGS += -D_GNU_SOURCE -g -MMD -msoft-float -std=c99 -Wall -Werror -Wextra
+
+INC_DIRS = -I$(LIBS_DIR) -I.
+C_LIBS = -L$(LIBS_DIR)
+
+# add SDK stuff
+ifeq ($(TARGET_PLATFORM),fap)
+	SDK_LIBS_DIR = -L/opt/E40_SDK/sysroots/ppce500v2-ipa-linux-gnuspe/usr/lib
+	INC_DIRS += -I/opt/E40_SDK/sysroots/ppce500v2-ipa-linux-gnuspe/usr/include
+	C_LIBS += $(SDK_LIBS_DIR)
+endif
+ifeq ($(TARGET_PLATFORM),$(filter $(TARGET_PLATFORM),native test))     
+	SDK_LIBS_DIR = -L/opt/E40_SDK/sysroots/x86_64-cpesdk-linux/usr/lib
+	INC_DIRS += -I/opt/E40_SDK/sysroots/x86_64-cpesdk-linux/usr/include
+	C_LIBS += $(SDK_LIBS_DIR)
+endif

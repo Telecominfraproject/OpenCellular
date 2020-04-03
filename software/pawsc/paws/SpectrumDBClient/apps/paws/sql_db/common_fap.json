@@ -1,0 +1,43 @@
+{
+  "VersionInfo": {
+    "version": 1
+  },
+  "TVWSDBInfo": {
+    "weblist_host": "http://sandbox-tvws-databases.wsdb.uk",
+    "weblist_filename": "/weblist.json"
+  },
+  "TVWSDBInfoDB": [
+    {
+      "name": "nominet-sandbox",
+      "host": "http://sandbox-paws.wsdb.uk",
+      "token": "your token",
+      "valid": true
+    }
+  ],
+  "Settings": {
+    "min_dl_dbm_100k": -30.0,
+    "min_ul_dbm_100k": -30.0,
+    "db_retry_secs": 15,
+    "db_barred_secs": 45,
+    "setting_periodic_secs": 300,
+    "devices_periodic_secs": 60,
+    "gps_periodic_fast_check_secs": 10,
+    "gps_periodic_slow_check_secs": 120,
+    "max_polling_quick_secs": 300
+  },
+  "SettingsLogInfo": {
+    "level": 2,
+    "logname": "/var/log/paws_app_log.txt",
+    "tvwsdb_messages_logname": "/var/log/paws_messages.json",
+    "file_size": "2M",
+    "max_files": 5,
+    "compress": true
+  },
+  "SettingsCloudLogInfo": {
+    "level": 3,
+    "logname": "/var/log/paws_cloud_log.txt",
+    "cloud_ip": "",
+    "port": 8600
+  }
+}
+

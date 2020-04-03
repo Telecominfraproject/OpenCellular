@@ -1,0 +1,8 @@
+{
+    "SocketInfo": {
+        "passthrough_ctl_port": 36411,
+        "mme_connection_type": "tcp"
+    },
+    "SocketInfoMmeList": [
+    ]
+}

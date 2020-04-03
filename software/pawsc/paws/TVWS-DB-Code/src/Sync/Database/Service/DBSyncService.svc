@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="Microsoft.Whitespace.Sync.Database.Service.DBSyncService" CodeBehind="DBSyncService.svc.cs" %>

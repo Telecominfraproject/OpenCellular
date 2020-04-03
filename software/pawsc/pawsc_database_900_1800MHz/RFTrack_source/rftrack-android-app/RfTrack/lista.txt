@@ -1,0 +1,107 @@
+.
+├── AndroidManifest.xml
+├── assets
+├── bin
+│   ├── AndroidManifest.xml
+│   ├── classes
+│   │   └── com
+│   │       └── hoho
+│   │           └── android
+│   │               └── usbserial
+│   │                   └── examples
+│   │                       ├── aj.sh
+│   │                       ├── BuildConfig.class
+│   │                       ├── ByteRingBuffer.class
+│   │                       ├── DemoActivity.java.orig
+│   │                       ├── R$attr.class
+│   │                       ├── R.class
+│   │                       ├── R$drawable.class
+│   │                       ├── RFExplorerActivity$1.class
+│   │                       ├── RFExplorerActivity$2$1.class
+│   │                       ├── RFExplorerActivity$2.class
+│   │                       ├── RFExplorerActivity$3.class
+│   │                       ├── RFExplorerActivity$4$1.class
+│   │                       ├── RFExplorerActivity$4$2.class
+│   │                       ├── RFExplorerActivity$4.class
+│   │                       ├── RFExplorerActivity.class
+│   │                       ├── RFExplorerActivity$RFEConfiguration.class
+│   │                       ├── R$id.class
+│   │                       ├── R$layout.class
+│   │                       ├── R$string.class
+│   │                       ├── R$xml.class
+│   │                       ├── RxRfMsg.class
+│   │                       └── RxRfMsg$State.class
+│   ├── classes.dex
+│   ├── dexedLibs
+│   │   └── usbseriallibrary-5a16ac9c5afb577353ec8d1794fe5f09.jar
+│   ├── res
+│   │   └── crunch
+│   │       ├── drawable-hdpi
+│   │       │   └── ic_launcher.png
+│   │       ├── drawable-ldpi
+│   │       │   └── ic_launcher.png
+│   │       └── drawable-mdpi
+│   │           └── ic_launcher.png
+│   ├── resources.ap_
+│   ├── R.txt
+│   └── UsbSerialEx2.apk
+├── gen
+│   └── com
+│       └── hoho
+│           └── android
+│               └── usbserial
+│                   └── examples
+│                       ├── BuildConfig.java
+│                       └── R.java
+├── lib
+│   ├── au
+│   │   └── com
+│   │       └── bytecode
+│   │           └── opencsv
+│   │               ├── bean
+│   │               │   ├── ColumnPositionMappingStrategy.class
+│   │               │   ├── CsvToBean.class
+│   │               │   ├── HeaderColumnNameMappingStrategy.class
+│   │               │   ├── HeaderColumnNameTranslateMappingStrategy.class
+│   │               │   └── MappingStrategy.class
+│   │               ├── CSVParser.class
+│   │               ├── CSVReader.class
+│   │               ├── CSVWriter.class
+│   │               ├── ResultSetHelper.class
+│   │               └── ResultSetHelperService.class
+│   ├── META-INF
+│   │   └── MANIFEST.MF
+│   └── opencsv-2.3.jar
+├── lint.xml
+├── lista.txt
+├── proguard.cfg
+├── project.properties
+├── project.properties~
+├── res
+│   ├── drawable-hdpi
+│   │   └── ic_launcher.png
+│   ├── drawable-ldpi
+│   │   └── ic_launcher.png
+│   ├── drawable-mdpi
+│   │   └── ic_launcher.png
+│   ├── drawable-xhdpi
+│   ├── layout
+│   │   ├── main.xml
+│   │   └── prompts.xml
+│   ├── values
+│   │   └── strings.xml
+│   └── xml
+│       └── device_filter.xml
+└── src
+    └── com
+        └── hoho
+            └── android
+                └── usbserial
+                    └── examples
+                        ├── aj.sh
+                        ├── ByteRingBuffer.java
+                        ├── DemoActivity.java.orig
+                        ├── RFExplorerActivity.java
+                        └── RxRfMsg.java
+
+41 directories, 63 files

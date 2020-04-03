@@ -1,0 +1,139 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@section tabs
+{
+    <nav class="tab">
+        <ul>
+            <li class="overview">
+                <input type="radio" name="hiw" id="hwOverview" class="hide" checked="checked" />
+                <label for="hwOverview" title="Overview">Overview</label>
+            </li>
+            <li class="process">
+                <input type="radio" name="hiw" id="hwOnboardingProcess" class="hide" />
+                <label for="hwOnboardingProcess" title="Onboarding Process">Onboarding Process</label>
+            </li>
+            <li class="video">
+                <input type="radio" name="hiw" id="hwVideos" class="hide" />
+                <label for="hwVideos" title="Videos">Videos</label>
+            </li>
+        </ul>
+    </nav>
+}
+@section Left{
+    <section>
+        <h2>How It Works</h2>
+    </section>
+}
+@section Right{
+
+    <div class="overviewPane pane">
+        @{Html.RenderPartial("HowItWorksOverviewPartial");}
+    </div>
+    <div class="processPane pane">
+        @{Html.RenderPartial("HowItWorksOnboardingProcessPartial");}
+    </div>
+    <div class="videoPane pane">
+        @{Html.RenderPartial("HowItWorksVediosPartial");}
+    </div>
+
+}
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.tab-strip ul .demo').addClass("active");
+
+            $('.pane').not($('.overviewPane')).hide();
+
+            $('.tab ul li').click(function (e) {
+                $('.pane').hide();
+                if ($(this).hasClass('overview')) {
+                    $('.overviewPane').show();
+                }
+                else if ($(this).hasClass('process')) {
+                    $('.processPane').show();
+                }
+                else if ($(this).hasClass('video')) {
+                    $('.videoPane').show();
+                }
+            });
+            $('#wrapper').addClass("inner");
+
+            var constant = 563;
+
+            var slideCount = $('.how-it-works .content ul li').length;
+            var maxLeft = slideCount * constant;
+            
+            $('#howItWorks').click(function () {
+                $('#howItWorksContainer').show();
+                $('.how-it-works ul').css('margin-left', 0);
+                $('#previousSlide').attr('disabled', true);
+                constant = $('.how-it-works ul li').first().outerWidth() + parseInt($('.how-it-works ul li').first().css('margin-right'), 10);
+            });
+
+            $('#previousSlide').click(function () {
+                var nextValue = parseInt($('.how-it-works .content ul').css('margin-left'), 10) + constant;
+
+                if (nextValue < constant) {
+                    $('.how-it-works .content ul').css('margin-left', nextValue);
+                    $('#nextSlide').attr('disabled', false);
+                    $('#previousSlide').attr('disabled', true);
+
+                    var index = Math.abs(nextValue) / constant;
+                    setSlideController(index);
+
+                    setTimeout(function () {
+                        $('#previousSlide').attr('disabled', false);
+                    }, 800)
+                } else {
+                    $('#previousSlide').attr('disabled', true);
+                }
+            });
+
+            $('.how-it-works .controller ul li label').click(function () {
+                var currentliDom = $(this).parent('li');
+                var index = $('.controller ul li').index(currentliDom);
+                selectSlide(index);
+
+            })
+
+            function setSlideController(index)
+            {
+                $($('.how-it-works .controller ul li')[index]).find('input').prop('checked', true);
+            }
+
+            function selectSlide(index) {
+
+                var nextValue = 0;
+                if (index > 0) {
+                    nextValue = -index * constant;
+                }
+
+                $('.how-it-works .content ul').css('margin-left', nextValue);
+            }
+
+            $('#nextSlide').click(function () {                
+                var nextValue = parseInt($('.how-it-works .content ul').css('margin-left'), 10) - constant;
+                if (Math.abs(nextValue) < maxLeft) {
+                    $('.how-it-works .content ul').css('margin-left', nextValue);
+                    $('#previousSlide').attr('disabled', false);
+                    $('#nextSlide').attr('disabled', true);
+
+                    var index = Math.abs(nextValue) / constant;
+                    setSlideController(index);
+
+                    setTimeout(function () {
+                        $('#nextSlide').attr('disabled', false);
+                    }, 800)
+                } else {
+                    $('#nextSlide').attr('disabled', true);
+                }
+            })
+
+            $('#closeHowItWorks').click(function () {
+                $('#howItWorksContainer').hide();
+            });
+        });
+    </script>
+}

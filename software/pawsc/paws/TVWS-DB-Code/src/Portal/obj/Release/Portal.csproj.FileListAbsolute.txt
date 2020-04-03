@@ -1,0 +1,1 @@
+C:\work\TVWS_FCC_OFCOM\src\external\Portal\obj\Release\Portal.csprojResolveAssemblyReference.cache

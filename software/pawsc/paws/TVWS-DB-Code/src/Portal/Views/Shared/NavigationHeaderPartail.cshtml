@@ -1,0 +1,22 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+<div style="position:absolute;z-index:999">
+    @*@Html.DropDownList("Providers", new SelectList(new List<Object> { new { value = -1, Text = "Select" }, new { value = 0, Text = "FCC" }, new { value = 1, Text = "ofcom" } }, "value", "Text", -1), new { onchange = "NavigatePage(this)" })*@
+</div>
+
+<script type="text/javascript">
+        function NavigatePage(object)
+        {
+            var selection = object.value;
+            if(selection == 0)
+            {
+                document.location = '@Url.Action("Index", "Home", new {area="fcc" })'
+            }
+            else
+            {
+                document.location = '@Url.Action("Index", "Home", new {area="Ofcom" })'
+            }
+        }
+</script>

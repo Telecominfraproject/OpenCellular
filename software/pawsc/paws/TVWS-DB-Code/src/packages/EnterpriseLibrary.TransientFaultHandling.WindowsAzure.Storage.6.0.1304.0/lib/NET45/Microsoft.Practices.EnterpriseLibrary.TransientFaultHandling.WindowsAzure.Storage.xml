@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.WindowsAzure.Storage</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.WindowsAzureStorageExtensions">
+            <summary>
+            Extends the RetryStrategy class to allow using the retry strategies from the Transient Fault Handling Application Block with Windows Azure Store.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.WindowsAzureStorageExtensions.AsAzureStorageClientRetryPolicy(Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryStrategy)">
+            <summary>
+            Wraps a Transient Fault Handling Application Block retry strategy into a Microsoft.WindowsAzure.StorageClient.RetryPolicy.
+            </summary>
+            <param name="retryStrategy">The Transient Fault Handling Application Block retry strategy to wrap.</param>
+            <returns>Returns a wrapped Transient Fault Handling Application Block retry strategy into a Microsoft.WindowsAzure.StorageClient.RetryPolicy.</returns>
+        </member>
+        <member name="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManagerWindowsAzureStorageExtensions">
+            <summary>
+            Provides extensions to the <see cref="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManager"/> class for using the Windows Azure Storage retry strategy.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManagerWindowsAzureStorageExtensions.DefaultStrategyTechnologyName">
+            <summary>
+            The technology name that can be used to get the default Windows Azure Storage retry strategy name.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManagerWindowsAzureStorageExtensions.GetDefaultAzureStorageRetryStrategy(Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManager)">
+            <summary>
+            Returns the default retry strategy for Windows Azure Storage.
+            </summary>
+            <returns>The default Windows Azure Storage retry strategy (or the default strategy if no default for Windows Azure Storage could be found).</returns>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManagerWindowsAzureStorageExtensions.GetDefaultAzureStorageRetryPolicy(Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.RetryManager)">
+            <summary>
+            Returns the default retry policy dedicated to handling transient conditions with Windows Azure Storage.
+            </summary>
+            <returns>The retry policy for Windows Azure Storage with the corresponding default strategy (or the default strategy if no retry strategy definition for Windows Azure Storage was found).</returns>
+        </member>
+        <member name="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy">
+            <summary>
+            Provides the transient error detection logic that can recognize transient faults when dealing with Windows Azure storage services.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.TransientStorageErrorCodeStrings">
+            <summary>
+            The error code strings that will be used to check for transient errors.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.IsTransient(System.Exception)">
+            <summary>
+            Determines whether the specified exception represents a transient failure that can be compensated by a retry.
+            </summary>
+            <param name="ex">The exception object to be verified.</param>
+            <returns>true if the specified exception is considered transient; otherwise, false.</returns>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.CheckIsTransient(System.Exception)">
+            <summary>
+            Checks whether the specified exception is transient.
+            </summary>
+            <param name="ex">The exception object to be verified.</param>
+            <returns>true if the specified exception is considered transient; otherwise, false.</returns>
+        </member>
+        <member name="M:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.GetErrorCode(System.Data.Services.Client.DataServiceRequestException)">
+            <summary>
+            Gets the error code string from the exception.
+            </summary>
+            <param name="ex">The exception that contains the error code as a string inside the message.</param>
+            <returns>The error code string.</returns>
+        </member>
+        <member name="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.StorageV1ExceptionChecker">
+            <summary>
+            Provides support for checking transient faults when using the Windows Azure Storage version 1 managed API.
+            </summary>
+            <remarks>
+            This type avoids externalizing the usage of the Windows Azure Storage assembly, so if the application
+            is using another version of the assembly, this type does not throw exceptions when the JIT
+            compiler tries to load this version of the assembly.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.StorageTransientErrorDetectionStrategy.StorageV2ExceptionChecker">
+            <summary>
+            Provides support for checking transient faults when using the Windows Azure Storage version 2 managed API.
+            </summary>
+            <remarks>
+            This type avoids externalizing the usage of the Windows Azure Storage assembly, so if the application
+            is using another version of the assembly, this type does not throw exceptions when the JIT
+            compiler tries to load this version of the assembly.
+            </remarks>
+        </member>
+    </members>
+</doc>

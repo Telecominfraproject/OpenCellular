@@ -1,0 +1,7 @@
+Created: 16/10/2019
+
+1) log script activities 
+2) add date in naming of report directory i.e. <campaignName><date>
+3) customize the "info" fields on i) reports landing page and ii) index.html
+4) do some error checking on df file e.g. check checksum to avoid duplicate records
+5) what if two users upload db at the same time, what needs to happen?

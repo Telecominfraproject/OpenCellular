@@ -1,0 +1,143 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.UserProfileModel
+
+<h2>My Profile</h2>
+@using (Ajax.BeginForm("EditProfile", "Profile", new AjaxOptions() { UpdateTargetId = "profile", HttpMethod = "POST", InsertionMode = InsertionMode.Replace }))
+{
+    <div id="Profile">
+        <ul>
+            <li class="info name">
+                @Html.LabelFor(m => m.FirstName)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.FirstName)
+                </div>
+            </li>
+
+            <li class="info name">
+                @Html.LabelFor(m => m.LastName)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.LastName)
+                </div>
+
+            </li>
+
+            <li class="info country">
+                @Html.LabelFor(m => m.PhoneCountryCode)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.PhoneCountryCode)
+                </div>
+            </li>
+
+            <li class="info phone">
+                @Html.LabelFor(m => m.Phone)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.Phone)
+                </div>
+            </li>
+
+            <li class="info email">
+                @Html.LabelFor(m => m.PreferredEmail)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.PreferredEmail)
+                </div>
+            </li>
+
+            <li class="info email">
+                @Html.LabelFor(m => m.AccountEmail)
+                <div class="input">
+                    @Html.DisplayTextFor(m => m.AccountEmail)
+                </div>
+            </li>
+        </ul>
+    </div>
+    <h2>Address</h2>
+    <ul>
+        <li class="info home">
+            @Html.LabelFor(m => m.Address1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Address1)
+            </div>
+        </li>
+
+        <li class="info home">
+            @Html.LabelFor(m => m.Address2)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Address2)
+            </div>
+        </li>
+
+        <li class="info location">
+            @Html.LabelFor(m => m.City)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.City)
+            </div>
+        </li>
+
+        <li class="info location">
+            @Html.LabelFor(m => m.State)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.State)
+            </div>
+        </li>
+
+        <li class="info zip">
+            @Html.LabelFor(m => m.ZipCode)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.ZipCode)
+            </div>
+        </li>
+
+        <li class="info location">
+            @Html.LabelFor(model => model.Country)
+            <div class="input">
+                @Html.DisplayTextFor(model => model.Country)
+            </div>
+        </li>
+        <li class="info country">
+            @Html.LabelFor(model => model.TimeZone)
+            <div class="input">
+                @Html.DisplayTextFor(model => model.TimeZone)
+            </div>
+        </li>
+    </ul>
+
+
+    <h2>Access Levels</h2>
+        <div class="content">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th>
+                        @Html.DisplayName("Authority")
+                    </th>
+                    <th>
+                        @Html.DisplayName("AccessLevel")
+                    </th>
+                </tr>
+
+                @for (int i = 0; i < Model.AccessInfo.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => Model.AccessInfo[i].Authority)
+                            @Html.HiddenFor(modelItem => Model.AccessInfo[i].Authority)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => Model.AccessInfo[i].AccessLevel)
+                            @Html.HiddenFor(modelItem => Model.AccessInfo[i].AccessLevel)
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    
+
+    @Html.HiddenFor(x => x.UserId, new { @id = "userId" })
+
+    <div class="end-stripe">
+        <button type="submit" title="Edit Profile" role="button" class="edit">Edit Profile</button>
+        <label style="color:red">@ViewBag.Message</label>
+    </div>
+}

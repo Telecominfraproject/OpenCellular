@@ -1,0 +1,10 @@
+1) filemon.sh: monitor directory for *.db file uploads. Currently on one directory is monitored -chkdirdb(). The others have to meaninful logic in them.
+
+2)querydb.sh: gets called by filemon.sh whenever *.db file land in directory being watched. filemon.sh passes *.db filename to querydb.sh. querydb.sh interrogates the db to farm out the data needed to generate graph. The output of querydb.sh get directed to tmp/spec_map.txt, a text file used by spemap.sh to plot spectrum map.
+
+3) specmap.sh: gets called by querydb.sh when it finishes its thing.
+
+
+..... <possibly other plotting scripts>
+
+4) cp.sh: called by querydb.sh after plotting scripts. This scripts creates directory for the new report and moves all the plots that have been generated to where they need to be to be accessible via reports webpage in this case.

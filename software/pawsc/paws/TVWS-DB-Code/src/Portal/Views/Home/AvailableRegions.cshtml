@@ -1,0 +1,114 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal.Models
+@{
+    ViewBag.Title = "TV WhiteSpaces - Home Page";
+    List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo> regions = ViewData["availableRegions"] as List<Microsoft.WhiteSpaces.Common.Entities.RegionInfo>;
+}
+
+@section Left{
+    <section>
+        <h2>
+            <span class="title-text">Available Regions</span>
+            @* TODO: Updated Message property with appropriate text *@
+            @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "availableRegions", Message = "Explore the protected areas on the region map by channels.", SectionTabId = "availableRegion", Url = "/Home/FAQ" })
+        </h2>
+
+        <nav class="regions">
+            <ul>
+                @foreach (var region in regions)
+                {
+                    <li>
+                        <a href="#" title="@region.Name" class="region" role="link">
+                            <img src="@region.ImagePath" />
+                        </a>
+                        <span class="regionName">@region.Name</span>
+                    </li>
+                    <div class="content">
+                        <p>The Microsoft White Spaces Database complies with FCC regulations as mentioned in Part 15 Subpart H – Television Band Devices.  These devices are unlicensed intentional radiators that operate on available TV channels in the broadcast television frequency bands at 54-60 MHz (TV channel 2), 76-88 MHz (TV channels 5 and 6), 174-216 MHz (TV channels 7-13), 470-608 MHz (TV channels 14-36) and 614-698 MHz (TV channels 38-51).</p>
+
+<p>The Microsoft TV White Spaces Database is currently in the process for FCC certification.  Please submit any feedback using feedback submission form available from the left menu.</p>
+                        <div class="list">
+                            <span>Following services available for United States region:</span>
+                            <ul>
+                                <li>White Spaces Finder</li>
+                                <li>Explore protected entities across region</li>
+                                <li>Download TV white spaces public database</li>
+                                <li>Register protected entities</li>
+                            </ul>
+                        </div>
+
+<p>Please note, registration of protected entities requires users to sign-in to the portal using Microsoft account.  Please follow the instructions on the sign-in page.
+</p>
+                        </div>
+                }
+            </ul>
+        </nav>
+    </section>
+}
+
+@section Right{
+    @Html.Partial("MapPartial")
+    @*<div class="summary-pane collapsed accordion" id="">
+        <div class="container">
+            <div class="title">
+                <ul id="">
+                    <li>
+                        
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>*@
+    <div class="summary-pane accordion collapsed" id="summaryPane" style="">
+        <div class="container">
+            <div class="title">
+                <ul id="summaryPaneTitle">
+                    <li id="liDownload" class="hide">
+                        <input type="radio" class="hide" name="toggleChannels" id="downloadData">
+                        <label for="channelsSummary" class="hyperLink" onclick="navigateTo('/PublicData/index')">Download Data</label>
+                    </li>
+                    <li id="liRegister" class="hide">
+                        <input type="radio" class="hide" name="toggleChannels" id="registerIncumbents">
+                        <label for="channelsDetail" class="hyperLink" onclick="navigateTo('/RegisterMVPD/index')">Register Incumbents</label>
+                    </li>
+                    <li id="liTest" class="hide">
+                        <a href="@Url.Action("Index", "TestCaseFileProcessor")" title="OFCOM Qualification Tests" class="hyperLink" id="">OFCOM Qualification Tests</a>
+                    </li>
+                    <li id="liSpectrumUse" class="hide">
+                        <a href="@Url.Action("Index", "WSDInfoSystem")" title="Spectrum Usage Information" class="hyperLink" id="">WSD Information System</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <script type="text/javascript" src="~/Scripts/whitespaceFinder.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#left-pane').perfectScrollbar({
+                wheelSpeed: 10,
+                wheelPropagation: true,
+                minScrollbarLength: 20
+            });
+
+            $('.tab-strip ul .available-region').addClass("active");
+            //bingMap Instance is created in MapPartial
+            bingMap.LoadPushPinsForRegions(@Html.Raw(Json.Encode(regions)),"/Content/Images/PushPin.png");
+        });
+
+        function navigateTo(url)
+        {
+            window.location = url;
+        }
+    </script>
+}

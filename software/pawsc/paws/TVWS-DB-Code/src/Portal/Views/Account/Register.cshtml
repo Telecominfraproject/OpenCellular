@@ -1,0 +1,214 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.RegisterExternalLoginModel
+
+@{
+    ViewBag.Title = "UserRegistration";
+}
+
+<h2>UserRegistration</h2>
+<link rel="stylesheet" type="text/css" href="master.css" />
+<link rel="stylesheet" type="text/css" href="overridden.css" />
+@section Left{
+    <section>
+        <div class="title">
+            <a href="#" title="back" role="link" class="back icon"></a>
+            <h2>
+                User Registration
+            </h2>
+        </div>
+    </section>
+}
+
+@section Right{
+
+    <h2>User Registration</h2>
+    @using (Html.BeginForm("ExternalLoginConfirmation", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul>
+            <li class="name">
+                @Html.LabelFor(m => m.FirstName)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.FirstName)
+                </div>
+                @Html.ValidationMessageFor(m => m.FirstName, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="name">
+                @Html.LabelFor(m => m.LastName)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.LastName)
+                </div>
+                @Html.ValidationMessageFor(m => m.LastName, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="country">
+                @Html.LabelFor(m => m.PhoneCountryCode)
+                <div class="input">@Html.DropDownList("PhoneCountryCode", null, new { @id = "PhoneCountryCode" })</div>
+            </li>
+
+            <li class="phone">
+                @Html.LabelFor(m => m.Phone)
+                <div class="input">@Html.TextBoxFor(m => m.Phone, new { @id = "Phone" })</div>
+            </li>
+
+            <li class="email">
+                @Html.LabelFor(m => m.PreferredEmail)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.PreferredEmail, new { @id = "PreferredEmail" })
+                </div>
+                @Html.ValidationMessageFor(m => m.PreferredEmail, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="email">
+                @Html.LabelFor(m => m.AccountEmail)
+                <div class="input">
+                    @Html.TextBoxFor(m => m.AccountEmail, new { @id = "AccountEmail", @readonly = true })
+                </div>
+            </li>
+        </ul>
+
+        <h2>Address</h2>
+        <ul>
+            <li class="home">
+                @Html.LabelFor(m => m.Address1)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.Address1, new { @id = "Address1" })
+                </div>
+                <span class="min-info">Street Name, P. O. Box, Company Name etc.,</span>
+                @Html.ValidationMessageFor(m => m.Address1, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="home">
+                @Html.LabelFor(m => m.Address2)
+                <div class="input">
+                    @Html.TextBoxFor(m => m.Address2, new { @id = "Address2" })
+                </div>
+                <span class="min-info">Suit, Unit, Building etc.,</span>
+            </li>
+
+            <li class="location">
+                @Html.LabelFor(m => m.City)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.City, new { @id = "Location" })
+                </div>
+                @Html.ValidationMessageFor(m => m.City, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="location">
+                @Html.LabelFor(m => m.State)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.State, new { @id = "Location" })
+                </div>
+                @Html.ValidationMessageFor(m => m.State, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="zip">
+                @Html.LabelFor(m => m.ZipCode)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.ZipCode, new { @id = "ZipCode" })
+                </div>
+                @Html.ValidationMessageFor(m => m.ZipCode, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="location">
+                @Html.LabelFor(model => model.Country)
+                <div class="input mandatory">
+                    @Html.DropDownList("Country", null, new { @id = "Country" })
+                </div>
+            </li>
+
+            <li class="country zone">
+                @Html.LabelFor(model => model.TimeZone)
+                <div class="input">
+                    @Html.DropDownList("TimeZone", null, new { @id = "TimeZone" })
+                </div>
+            </li>
+        </ul>
+
+        <div class="end-stripe">
+            <div class="acceptance"><input type="checkbox" id="accept" /><label for="accept">Agree to <a href="#" title="Privacy Plicy" role="link">Privacy</a> & <a href="#" role="link" title="Terms and Conditions">Terms and Conditions</a></label></div>
+            <button type="submit" title="Cancel" role="button" class="cancel">Cancel</button>
+            <button type="submit" title="Register" role="button" class="submit" id="btnsubmit" disabled="disabled">Register</button>
+        </div>
+        @Html.HiddenFor(m => m.UserName)
+        @Html.HiddenFor(m => m.ExternalLoginData)
+    }
+}
+
+@section scripts{
+
+    <script type="text/javascript" src="~/Scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+
+        $("#wrapper").addClass("inner");
+
+        $(document).ready(function () {
+            var bingKey = @Html.Raw(Json.Encode(Microsoft.WhiteSpaces.Common.ConfigHelper.BingCredential));
+            $('#Location').autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "http://dev.virtualearth.net/REST/v1/Locations",
+                        dataType: "jsonp",
+                        data: {
+                            key: bingKey,
+                            query: request.term
+                        },
+                        jsonp: "jsonp",
+                        success: function (result) {
+                            if (result &&
+                                result.resourceSets &&
+                                result.resourceSets.length > 0 &&
+                                result.resourceSets[0].resources &&
+                                result.resourceSets[0].resources.length > 0) {
+
+                                response($.map(result.resourceSets[0].resources, function (item) {
+                                    return {
+                                        data: item,
+                                        label: item.name,
+                                        value: item.name
+                                    }
+                                }));
+                            }
+                        },
+                        minLenght: 1,
+                        change: function (event, ui) {
+                            alert("changed");
+                        }
+                    });
+                }
+
+            });
+
+
+            $("#accept").change(function () {               
+                if (this.checked) {
+                    $("#btnsubmit")[0].disabled = false;
+                }
+                else {
+                    $("#btnsubmit")[0].disabled = true;
+                }
+            });
+
+            $('.input *').focusin(function () {
+                var parent = $(this).parent("div");
+                parent.addClass("focus");
+            });
+
+            $('.input *').focusout(function () {
+                var parent = $(this).parent("div");
+                if (parent.hasClass('focus')) {
+                    parent.removeClass('focus');
+                }
+            });
+
+        });
+    </script>
+}
+

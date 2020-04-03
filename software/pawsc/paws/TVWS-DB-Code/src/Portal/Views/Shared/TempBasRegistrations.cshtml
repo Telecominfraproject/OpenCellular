@@ -1,0 +1,39 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.Whitespace.Entities.TempBASRegistration>
+
+@if (Model.Count() > 0)
+{
+
+    WebGrid tempBasGrid = new WebGrid(rowsPerPage: 5);
+    tempBasGrid.Bind(Model, autoSortAndPage: false, rowCount: ViewBag.tbasRowCount);
+    tempBasGrid.Pager(WebGridPagerModes.All);
+
+    @tempBasGrid.GetHtml(htmlAttributes: new { id = "tempBasGrid" },
+     mode: WebGridPagerModes.All,
+     firstText: "<< First",
+     previousText: "< Prev",
+     nextText: "Next >",
+     lastText: "Last >>",
+            columns: tempBasGrid.Columns(
+                     tempBasGrid.Column("", "Channel Number", @<text> @item.Channel.Channel </text>),
+                     tempBasGrid.Column("", "CallSign", @<text> @item.Channel.CallSign </text>),
+                     tempBasGrid.Column("", "Recieve Location", @<text> @item.RecvLocation.Latitude , @item.RecvLocation.Longitude </text>),
+                     tempBasGrid.Column("", "Transmit Location", @<text> @item.TransmitLocation.Latitude , @item.TransmitLocation.Longitude </text>),
+    @*tempBasGrid.Column("", "Channels", @<text> @item.AuxEvent.Channels</text>),*@
+ tempBasGrid.Column("", "Registration Date", @<text> @item.Disposition.RegDate </text>),
+ tempBasGrid.Column("", "", @<text>  <a data-pk="@item.PartitionKey" data-rk="@item.RowKey" data-type="TBas" data-etag="@item.ETag" class="del-tbas delete icon">Delete</a> </text>)
+                      ))
+    if (Convert.ToInt16(ViewBag.tbasRowCount) > 5)
+    {
+        <div class="total-count">Total Records: @ViewBag.tbasRowCount</div>
+    }
+
+}
+else
+{
+    <label>No records found</label>
+}
+

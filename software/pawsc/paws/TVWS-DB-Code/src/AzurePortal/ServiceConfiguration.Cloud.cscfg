@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="3" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="Portal">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="StorageAccountConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="UnityContainerNames" value="SharedCommon,SharedDalc,BusinessManager" />
+      <Setting name="FccApi" value="" />
+      <Setting name="OfcomApi" value="" />
+      <Setting name="PawsApi" value="" />
+      <Setting name="AuthorizationSchema" value="oAuth" />
+      <Setting name="LiveClientId" value="" />
+      <Setting name="LiveSecretClientId" value="" />
+      <Setting name="RequestScopes" value="wl.emails,wl.postal_addresses" />
+      <Setting name="LogLevelTransferTime" value="5" />
+      <Setting name="RegionId" value="1" />
+      <Setting name="RegionName" value="RGN" />
+      <Setting name="Authority" value="US" />
+      <Setting name="DBConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="StorageConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="BingCredential" value="" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="NotificationWorker">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="StorageAccountConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="LogLevelTransferTime" value="5" />
+      <Setting name="DBConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="StorageConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[MyAccountName];AccountKey=[MyAccountKey]" />
+      <Setting name="RegionId" value="1" />
+      <Setting name="RegionName" value="RGN" />
+      <Setting name="UnityContainerNames" value="SharedCommon,SharedDalc,AdminNotificationSystem" />
+      <Setting name="FccApi" value="" />
+      <Setting name="OfcomApi" value="" />
+      <Setting name="AuthorizationSchema" value="oAuth" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

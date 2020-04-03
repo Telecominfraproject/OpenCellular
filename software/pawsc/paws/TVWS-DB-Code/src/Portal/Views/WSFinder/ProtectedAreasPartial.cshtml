@@ -1,0 +1,152 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+
+@*<div class="know-more">
+    <input type="checkbox" class="hide" id="toggleC" />
+    <label for="toggleC" class="no-interaction" title="Know More">Know More</label>
+    <ul class="minimal-info">
+        <a href="#" title="Read More">Read More</a>
+        <li>Explore the protected areas on the region map by channels.</li>
+    </ul>
+</div>*@
+<nav>  
+    <ul>
+        <li>
+            @Html.RadioButton("protectedNav", "TV_US", string.Compare(@Model.SelectedIncumbentType, "TV_US", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "tv_US", style = "display : none", colorcode = "#7d85f4" })
+            <label for="tv_US" title="TV US" role="button">TV US</label>
+        </li>
+        <li>
+            @Html.RadioButton("protectedNav", "TV_TRANSLATOR", string.Compare(@Model.SelectedIncumbentType, "TV_TRANSLATOR", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "TV_Translator", style = "display : none", colorcode = "#ee8484" })
+            <label for="TV_Translator" title="TV Translators" role="button">TV Translators</label>
+        </li>
+        <li>
+            @Html.RadioButton("protectedNav", "MVPD", string.Compare(@Model.SelectedIncumbentType, "MVPD", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "mpvd", style = "display : none", colorcode = "#ee8484" })
+            <label for="mpvd" title="MVPD Receivers" role="button">MVPD Receivers</label>
+        </li>
+        <li>
+            @Html.RadioButton("protectedNav", "TBAS", string.Compare(@Model.SelectedIncumbentType, "TBAS", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "tbl", style = "display : none", colorcode = "#0c9000" })
+            <label for="tbl" title="Temp BAS links" role="button">Temp BAS links</label>
+        </li>
+        <li>
+            @Html.RadioButton("protectedNav", "LPAux", string.Compare(@Model.SelectedIncumbentType, "LPAux", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "lpa", style = "display : none", colorcode = "#41bf4a" })
+            <label for="lpa" title="Unlicensed Low Power Auxilary" role="button">Licensed LP Aux</label>
+        </li>
+        <li>
+            @Html.RadioButton("protectedNav", "Microphone", string.Compare(@Model.SelectedIncumbentType, "Microphone", StringComparison.OrdinalIgnoreCase) == 0, new { @id = "uwm", style = "display : none", colorcode = "#a864a8" })
+            <label for="uwm" title="Unlicensed Wireless Microphone" role="button">Unlicensed Mic</label>
+        </li>
+    </ul>
+</nav>
+<section class="select channels noPad">
+
+    <h2>Channels</h2>
+    <nav class="channel-list">
+        <ul>
+            @for (int channelNo = Model.StartChannelNo; channelNo <= Model.EndChannelNo; channelNo++)
+            {
+                <li class="none">
+                    <button title="@channelNo" role="button" type="button">@channelNo</button>
+                </li>
+            }
+        </ul>
+    </nav>
+</section>
+
+
+
+<?xml version="1.0" ?>
+<configuration>
+    <configsections>
+        <section name="unity" type="Microsoft.Practices.Unity.Configuration.UnityConfigurationSection, Microsoft.Practices.Unity.Configuration" />
+        <section name="RawIqData" type="Microsoft.Spectrum.Scanning.Scanners.RawIqDataConfigurationSection, Microsoft.Spectrum.Scanning.Scanners" />
+        <section name="ScannerConfiguration" type="Microsoft.Spectrum.Scanning.Scanners.ScannerConfigurationSection, Microsoft.Spectrum.Scanning.Scanners" />
+    </configsections>
+
+    <startup>
+        <supportedruntime version="v4.0" sku=".NETFramework,Version=v4.5.1" />
+    </startup>
+
+    <unity xmlns="http://schemas.microsoft.com/practices/2010/unity">
+        <assembly name="Microsoft.Spectrum.Scanning.Scanners" />
+        <namespace name="Microsoft.Spectrum.Scanning.Scanners" />
+        <container>
+            <register type="IScanner" mapto="Scanner" />
+        </container>
+    </unity>
+
+    <rawiqdata outputdata="true"
+               rawiqdirectory="c:\spectrumdata\scan"
+               startfrequencyhz="50000000"
+               stopfrequencyhz="75000000"
+               secondsofdataperfile="2"
+               retentionseconds="30" />
+
+    <!--
+          minutesPerFile should be something that evenly divides the hour into minutes, with no remainder
+          e.g. 60, 30, 20, 15, 12, 10, 6, 5, 4, 3, 2, 1.
+          This is to control the size of the file on disk and to make scan files faster to load and parse.
+
+          minutesOfDataPerScanFile: how many minutes of data to store per scan file
+          scanDirectory: where to store the scan files
+          secondsOfDataPerSample: how many seconds to collect data for feature vector
+          singleScan: exit scanning loop after a single iterations
+
+          fftAlg: n(ative), m(anaged)
+          tuneSleep: how long to sleep after tuning
+          decibelShift: value for compensating for a conversion to dBm's
+          numberOfSampleBlocksToThrowAway: number of sample blocks to throw away after tuning the RF Sensor
+          numberOfSampleBlocksPerScan: number of samples to take before retuning the RF sensor
+          scanOverlap: overlap of scans in MHz
+          rxRate: receive rate (smaples per second)
+          samplesPerScan: how many samples to capture for each bandwidth scan, power of 2 - 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304
+          otwFormat: sc16, sc8, "" (sc16)
+          peak: specifies a fractional sample level to calculate scaling with the sc8 wire format. When using sc8 samples over the wire, the device must scale samples (both on the host and in the device) to satisfy the dynamic range needs. The peak value specifies a fraction of the maximum sample level (1.0 = 100%). Set peak to max_sample_level/full_scale_level to ensure optimum dynamic range.
+          fullscale: specifies the full-scale amplitude when using floats. By default, the fullscale amplitude under floating point is 1.0. Set the "fullscale" to scale the samples in the host to the expected input range and/or output range of your application.
+          antenna: TX/RX, RX2, CAL
+          clockSource: internal, external, MIMO
+          gain: volume for increasing the signal
+          ipAddress: IpAddress of the device
+          name: friendly name of the device, only used for logging purposes
+          startFrequency: center frequency, inclusive, at which device should start collecting data
+          stopFrequency: center frequency, inclusive, at which device should stop collecting data
+          timeSource: none, external, _external_, mimo
+          commChannel:  string that specifies the communication channel being used
+              addr, IP based communications,
+              serial, USB based communications
+          lockingCommChannel: boolean value that specifies if the communications channel accepts the lock command
+      -->
+    <scannerconfiguration minutesofdataperscanfile="10"
+                          scandirectory="c:\spectrumdata\scan"
+                          secondsofdatapersample="120"
+                          singlescan="false">
+        <devices>
+            <add name="USRP-N200-with-SBX-Daughterboard"
+                 devicetype="USRP"
+                 tunesleep="0"
+                 decibelshift="0"
+                 numberofsampleblockstothrowaway="0"
+                 numberofsampleblocksperscan="1"
+                 scanoverlap="0"
+                 otwformat="sc16"
+                 peak="0"
+                 bandwidthhz="25000000"
+                 samplesperscan="1024"
+                 fullscale="0"
+                 antenna="RX2"
+                 clocksource="internal"
+                 gain="38"
+                 address="192.168.20.20"
+                 startfrequencyhz="2200000000"
+                 stopfrequencyhz="4400000000"
+                 timesource="none"
+                 scanpattern="DCSpikeAdaptiveScan"
+                 commchannel="addr"
+                 communicationschannellocks="true"
+                 fftalgorithm="n" />
+        </devices>
+    </scannerconfiguration>
+
+</configuration>

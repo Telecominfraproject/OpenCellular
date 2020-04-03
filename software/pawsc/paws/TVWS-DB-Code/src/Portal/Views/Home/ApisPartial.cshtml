@@ -1,0 +1,969 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+<div id="api">
+    <h2>
+        White Space APIs
+    </h2>
+    <p>
+        The API section is classified into below categories
+    </p>
+    <ul>
+        <li><a href="#howto">How to access APIs?</a></li>
+        <li><a href="#apiclassification">API classification</a></li>
+        <li><a href="#datatypes">Types used</a></li>
+        <li><a href="#apidef">API definitions</a></li>
+    </ul>
+    <h3 id="howto">
+        <strong>How to access APIs?</strong>
+    </h3>
+    <p>
+        The White Space Service uses SOAP to implement the APIs.These APIs can be queried
+        in the following ways:
+    </p>
+    <p>
+        <strong>(1) Http requests:</strong>
+    </p>
+    <p>
+        To access the web service from a Unix based system or the command line,a user can
+        use HTTP POST command. For example, if curl is used, post command looks like below:
+    </p>
+    @*<p>
+        Curl -k --request POST --header "Content-type: text/xml" --data @queryChannelPower.xml
+    </p>*@
+    <p>
+        http://whitespacesdb.cloudapp.net/driver.asmx
+    </p>
+    <p>
+        Link to<a href="#"> queryChannelPower.xml </a>
+    </p>
+    <p>
+        <strong>(2) ASP.NET web-reference:</strong>
+    </p>
+    <p>
+        Developers can make use of APIs by adding the following asmx file as a web reference
+        in ASP.NET applications: <a href="http://whitespacesdb.cloudapp.net/driver.asmx">
+            http://whitespacesdb.cloudapp.net/driver.asmx
+        </a>
+    </p>
+    <p>
+    <p>
+        <strong>Note:</strong> Queries to all the APIs in the service require authentication;
+        a user needs a (username, password) pair to issue queries to the web service. To
+        request access, join the mailing list and send a request as specified in the FAQ.
+    </p>
+    </p>
+    <h3 id="apiclassification">
+        <strong>API Classification</strong>
+    </h3>
+    <p>
+        At a high-level, these APIs are defined for two types of users:
+    </p>
+    <p>
+        <strong>Device Manufacturers</strong>
+    </p>
+    <p>
+        Device Manufacturers can query the DB using APIs like GetChannelPowerMap, GetChannelPowerNoiseMap
+        to retrieve information like permissible channel transmission power level at a particular
+        location. APIs with target audience as device manufacturers don't require elevated
+        access.
+    </p>
+    <p>
+        <strong>Administrators(e.g.IDA) </strong>
+    </p>
+    <p>
+        Users with admin access have full access to the APIs.They can query as well as write
+        to the DB.
+    </p>
+    <p>
+        <strong>Note:</strong> Irrespective of the user type, query to any API requires
+        authentication.
+    </p>
+    <h3 id="datatypes">
+        <strong>Types used</strong>
+    </h3>
+    <p>
+        <ul>
+            <li><a href="#incumbent">IncumbentType (enum)</a></li>
+            <li><a href="#blockedtype">BlockedType (enum)</a></li>
+            <li><a href="#location">Location </a></li>
+            <li><a href="#flattype">FlatIncumbentType </a></li>
+            <li><a href="#analysis">Analysis Result </a></li>
+            <li><a href="#chlincumbent">ChannelIncumbent </a></li>
+            <li><a href="#user_reg">UserRegistration</a></li>
+        </ul>
+    </p>
+    <h4 id="incumbent">
+        <strong>IncumbentType (enum)</strong>
+    </h4>
+    <p>
+        <strong>Description:</strong>
+    </p>
+    <p>
+        IncumbentType defines various types of Incumbents.
+    </p>
+    <p>
+        <strong>Syntax:</strong> public enum IncumbentType<br />
+        {
+        <br />
+        DTV,
+        <br />
+        LPTVAnalog,
+        <br />
+        LPTVDigital,
+        <br />
+        Translator,
+        <br />
+        TVAnalogHigh,
+        <br />
+        TVAnalogLow,
+        <br />
+        TVDigitalLow,
+        <br />
+        Microphone,
+        <br />
+        Unknown,
+        <br />
+        SNG-B, // SNG Broadcast (Island-wide)
+        <br />
+        PMR-LAN,
+        <br />
+        W-MIC, // Wireless Microphone
+        <br />
+        LM-ISLAND, // Land Mobile Services (25W and island-wide use)
+        <br />
+        LMLocalised // Land Mobile Services (5W and localised use)
+        <br />
+        MLA // MLA incumbents
+        <br />
+        INS // INS incumbents
+        <br />
+        };
+    </p>
+    <h4 id="blockedtype">
+        <strong>BlockedType (enum) </strong>
+    </h4>
+    <p>
+        <strong>Description:</strong>
+    </p>
+    <p>
+        BlockedType defines the type of WS device blocked.
+        <br />
+        There are two types of WS devices:
+        <br />
+        <ul>
+            <li>(1) Mobile: Mobile devices operate at 100mW EIRP </li>
+            <li>(2) Fixed: Fixed devices operate at 4W EIRP</li>
+        </ul>
+    </p>
+    <p>
+        <strong>Syntax:</strong><br />
+        public enum BlockedType { None, Fixed, Both };
+    </p>
+    <ul>
+        <li>
+            &bull; A value of 'None' signifies that none of the devices are blocked, i.e. both
+            Mobile and Fixed devices are allowed to transmit.
+        </li>
+        <li>
+            &bull; A value of 'Fixed' signifies that fixed devices are blocked; i.e. only Mobile
+            devices are allowed to transmit.
+        </li>
+        <li>
+            &bull; A value of 'Both' signifies that both the devices are blocked; i.e. none
+            of the devices are allowed to transmit.
+        </li>
+    </ul>
+    <h4 id="location">
+        <strong>Location </strong>
+    </h4>
+    <p>
+        <strong>Description: </strong>
+        <br />
+        It defines the latitude and longitude of a given location.
+    </p>
+    <p>
+        Syntax:
+        <br />
+        public class Location
+        <br />
+        {
+        <br />
+        public double Latitude; </br> public double Longitude;
+        <br />
+        }
+    </p>
+    <h4 id="flattype">
+        FlatIncumbentType
+    </h4>
+    <p>
+        <strong>Description: </strong>
+        <br />
+        FlatIncumbentType defines an Incumbent with attributes like IncumbentType, channel
+        on which it transmits, latitude,
+        <br />
+        longitude, HAAT, Txpower etc.
+        <br />
+        FlatIncumbent type provides detailed incumbent information for administrators.
+    </p>
+    <p>
+        <strong>Syntax: </strong>
+        <br />
+        public class FlatIncumbentType
+        <br />
+        {
+        <br />
+        public IncumbentType Type;
+        <br />
+        public int Channel;
+        <br />
+        public int PermissibleTxPowerLevel; //In mW
+        <br />
+        public BlockedType blockedDeviceType = BlockedType.None;
+        <br />
+        public double Height; //Height in feet
+        <br />
+        public double TxPower; //Transmit power in kW
+        <br />
+        public double ThresholdDistance; //In miles
+        <br />
+        public double Latitude;
+        <br />
+        public double Longitude;
+        <br />
+        public int Population; //# of people this incumbent covers
+        <br />
+        public int Area; //Square miles
+        <br />
+        public string Status; //If this is a DTV then this field
+        <br />
+        public int AntennaID; public string AntennaMake;
+        <br />
+        public string CallSign;
+        <br />
+        public double RSSI; //In dBm
+        <br />
+        public int AntennaRotation; //In degrees
+        <br />
+        public string State;
+        <br />
+        public double MechanicalTilt;
+        <br />
+        public string ElevationDataSource;
+        <br />
+        public string PropagationMode;
+        <br />
+        public string Comments;
+        <br />
+        public Location[] AreaPoints;
+        <br />
+        public string StationID; //useful for MLA/INS incumbents
+        <br />
+        public string Operator; //useful for MLA/INS incumbents
+        <br />
+        }
+    </p>
+    <h4 id="analysis">
+        <strong>AnalysisResult</strong>
+    </h4>
+    <p>
+        <strong>Description: </strong>
+        <br />
+        AnalysisResult defines a brief analysis of the resultant whitespaces at a given
+        location.
+    </p>
+    <p>
+        <strong>Syntax </strong>public class AnalysisResult
+        <br />
+        {
+        <br />
+        //following are for both mobile and fixed devices<br />
+        public int TotalFreeChannels;
+        <br />
+        public int MaxContiguousWidth;
+        <br />
+        public int MedianContiguousWidth;
+        <br />
+        public int MinContiguousWidth;<br />
+        //following are for fixed devices only
+        <br />
+        public int FixedTotalFreeChannels;
+        <br />
+        public int FixedMaxContiguousWidth;
+        <br />
+        public int FixedMedianContiguousWidth;
+        <br />
+        public int FixedMinContiguousWidth;<br />
+        public bool[] ChannelMap;
+        <br />
+        public AnalysisResult()
+        <br />
+        {
+        <br />
+        this.ChannelMap = new bool[68]; // boolean array of values
+        <br />
+        }
+        <br />
+        }
+    </p>
+    <h4 id="chlincumbent">
+        ChannelIncumbent
+    </h4>
+    <p>
+        <strong>Description: </strong>
+        <br />
+        ChannelIncumbent denotes a data type with attributes like channel, noise-level etc.
+        ChannelIncumbent type provides detailed incumbent information for device manufacturers.
+    </p>
+    <p>
+        <strong>Syntax </strong>
+        <br />
+        public class ChannelIncumbent
+        <br />
+        {
+        <br />
+        public int Channel;
+        <br />
+        public double NoiseLevel; // quality of the channel<br />
+        public string Remarks; // reason for blocking<br />
+        public int PermissiblePower; // max power level allowed on this channel
+        <br />
+        }
+    </p>
+    <h4 id="user_reg">
+        <strong>UserRegistration</strong>
+    </h4>
+    <p>
+        <strong>Description:</strong>
+        <br />
+        UserRegistration describes a User object with attributes like Firstname, Lastname,
+        country etc.
+    </p>
+    <p>
+        <strong>Syntax </strong>
+        <br />
+        public class UserRegistration
+        <br />
+        {
+        <br />
+        public string UserId { get; set; } // Gets or sets user id.
+        <br />
+        public string UserFirstName { get; set; } // Gets or sets user's firstname
+        <br />
+        public string UserLastName { get; set; } // Gets or sets user last name.
+        <br />
+        public string Country { get; set; } // Gets or sets user country.
+        <br />
+        public string City { get; set; } // Gets or sets user City or state.
+        <br />
+        public string AccessLevel { get; set; } // Gets or sets User access level.
+        <br />
+        public bool IsAdminAccessRequested { get; set; } // Gets or sets indicating whether
+        user requested for access.
+        <br />
+        public DateTime CreateDate { get; set; } // Gets or sets user registered date.
+        <br />
+        public DateTime UpdateDate { get; set; } // Gets or sets updated date.
+        <br />
+        }
+    </p>
+    <h3 id="apidef">
+        <strong>API definitions</strong>
+    </h3>
+    <ul>
+        <li><a href="#channelMap">GetChannelPowerMap </a></li>
+        <li><a href="#channelNoiseMap">GetChannelPowerNoiseMap </a></li>
+        <li><a href="#addTvTower">AddTVTower</a> </li>
+        <li><a href="#addIncumbent">AddIncumbent</a> </li>
+        <li><a href="#deleteIncumbent">DeleteIncumbent</a> </li>
+        <li><a href="#getUserInfo">GetUserInformation</a> </li>
+        <li><a href="#registerUser">RegisterUser</a> </li>
+    </ul>
+    <h4>
+        <strong id="channelMap">GetChannelPowerMap </strong>
+    </h4>
+    <p>
+        <strong>Syntax</strong> -
+        <br />
+        bool[] GetChannelPowerMap (PropagationModel, Latitude, Longitude)
+    </p>
+    <p>
+        <strong>Description</strong> -
+        <br />
+        For a given location, GetChannelPowerMap API returns an integer array of 69 values.
+        Each value denotes the permissible power level in mW (milliwatts) supported by the
+        channel. The index of array corresponds to Channel number.
+    </p>
+    <p>
+        <strong>For example </strong>
+        <br />
+        If the array returned is 'PowerMap' and PowerMap [1] = 100, It means that permissible
+        power level for Channel 1 is 100mW.
+    </p>
+    <p>
+        <strong>Note:</strong> For easy mapping of channels from 1-68, the size of return
+        array is 69 instead of 68. Hence, the value corresponding to index =0 is ignored.
+    </p>
+    <p>
+        <strong>Target audience </strong>-
+        <br />
+        Device Manufacturers
+    </p>
+    <p>
+        <strong>Inputs</strong>
+    </p>
+    <table border="2" class="data-table1">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Propagation Model (String)</strong>
+                    <br />
+                    <strong>Note: </strong>This input is case-sensitive.
+                </td>
+                <td>
+                    Use the following values
+                    <br />
+                    <br />
+                    <strong>&lsquo;Rice&rsquo;</strong> for LongelyRice Model <strong>
+                        <br />
+                        &lsquo;Egli&rsquo;
+                    </strong> for Egli Model <strong>
+                        <br />
+                        &lsquo;Okumura-Hata&rsquo;
+                    </strong> for Okumura Model <strong>
+                        <br />
+                        &lsquo;Distance&rsquo;
+                    </strong> for Distance-based Model <strong>
+                        <br />
+                        &lsquo;LRArea&rsquo;
+                    </strong> for LRArea Model <strong>
+                        <br />
+                        &lsquo;Freespace&rsquo;
+                    </strong> for Freespace Model
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Latitude</strong> (<strong>double</strong>)
+                </td>
+                <td>
+                    Latitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Longitude (double)</strong>
+                </td>
+                <td>
+                    Longitude of input location
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output</strong> - Integer array of 69 values, each value corresponds to
+        permissible transmit power level of the channel. Channel number = Array index.
+    </p>
+    <ul>
+        <li>A value of 0 denotes:</li>
+        <li>(1) Permissible transmit power = 0mW </li>
+        <li>(2) Devices blocked = both mobile & fixed </li>
+        <li>(3) Devices allowed = none</li>
+    </ul>
+    <ul>
+        <li>A value of 100 denotes:</li>
+        <li>(1) Permissible transmit power = 100mW </li>
+        <li>(2) Devices blocked = fixed</li>
+        <li>(3) Devices allowed = mobile</li>
+    </ul>
+    <ul>
+        <li>A value of 400 denotes:</li>
+        <li>(1) Permissible transmit power = 4000mW </li>
+        <li>(2) Devices blocked = none</li>
+        <li>(3) Devices allowed = both mobile & fixed</li>
+    </ul>
+    <h4>
+        <strong id="channelNoiseMap">GetChannelPowerNoiseMap</strong>
+    </h4>
+    <p>
+        <strong>Syntax </strong>
+        <br />
+        public ChannelIncumbent[] GetChannelPowerNoiseMap(string propagationModel, double
+        Latitude, double Longitude)
+    </p>
+    <p>
+        <strong>Description</strong>
+        <br />
+        For a given location, GetChannelPowerNoiseMap API returns a ChannelMap array of
+        69 values.
+    </p>
+    <p>
+        Each value in the output denotes a ChannelMap with fields like permissible power
+        level in mW (milliwatts), Channel number, supported by the channel.
+        <br />
+        The index of array corresponds to Channel number.
+    </p>
+    <p>
+        For <strong>example</strong>, If the array returned is 'ChannelNoiseMap' and ChannelNoiseMap
+        [1] = {1, 100, Blocked by W-MIC}
+    </p>
+    <p>
+        1st field denotes Channel number ; In the above example, Channel number = 1<br />
+        2nd field denotes PermissiblePower; In the above example, PermissiblePower = 100mW<br />
+        3rd field denotes remarks about the channel availability ; Remarks = Blocked by
+        W-MIC (wireless mic)
+    </p>
+    <p>
+        <strong>Note:</strong> For easy mapping of channels from 1-68, the size of return
+        array is 69 instead of 68.
+        <br />
+        Hence, the value corresponding to index =0 is ignored.
+    </p>
+    <p>
+        <strong>Target audience</strong> - Device Manufacturers
+    </p>
+    <p>
+        <strong>inputs</strong>
+    </p>
+    <table id="ctl00_MainContent_Table1" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Propagation Model (String)</strong>
+                    <br />
+                    <strong>Note: </strong>This input is case-sensitive.
+                </td>
+                <td>
+                    Use the following values
+                    <br />
+                    <br />
+                    <strong>&lsquo;Rice&rsquo;</strong> for LongelyRice Model <strong>
+                        <br />
+                        &lsquo;Egli&rsquo;
+                    </strong> for Egli Model <strong>
+                        <br />
+                        &lsquo;Okumura-Hata&rsquo;
+                    </strong> for Okumura Model <strong>
+                        <br />
+                        &lsquo;Distance&rsquo;
+                    </strong> for Distance-based Model <strong>
+                        <br />
+                        &lsquo;LRArea&rsquo;
+                    </strong> for LRArea Model <strong>
+                        <br />
+                        &lsquo;Freespace&rsquo;
+                    </strong> for Freespace Model
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Latitude</strong> (<strong>double</strong>)
+                </td>
+                <td>
+                    Latitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Longitude (double)</strong>
+                </td>
+                <td>
+                    Longitude of input location
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output</strong><br />
+        ChannelIncumbent array of 69 values. Value at array index 0 is ignored.
+    </p>
+    <h4>
+        <strong id="addTvTower">AddTVTower</strong>
+    </h4>
+    <p>
+        <strong>Syntax </strong>
+        <br />
+        void AddTVTower(Callsign, Channel, Latitude, Longitude, Txpower, HAAT, CountryID,
+        Operator, StationID)
+    </p>
+    <p>
+        <strong>Description</strong>
+        <br />
+        AddTVTower API is used to add a TVTower at a given location with a given HAAT, Txpower
+        etc.
+    </p>
+    <p>
+        <strong>Note: </strong>Use this API to add towers that are external to Singapore
+        that may result in signal attenuation (noise) over channels. For <strong>example</strong>
+        Admins may use this API to add a Malaysian or Indonesian Incumbent.
+    </p>
+    <p>
+        <strong>Target audience</strong> - Administrators
+    </p>
+    <p>
+        <strong>Inputs</strong>
+    </p>
+    <table id="ctl00_MainContent_Table3" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Callsign (string)</strong>
+                </td>
+                <td>
+                    Callsign is unique for an incumbent, i.e. no two incumbents can have the same callsign.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Channel (int)</strong>
+                </td>
+                <td>
+                    Channel number
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Latitude</strong> (<strong>double</strong>)
+                </td>
+                <td>
+                    Latitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Longitude (double)</strong>
+                </td>
+                <td>
+                    Longitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>TxPower (double) </strong>
+                </td>
+                <td>
+                    Transmit power of tower
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>HAAT (double)</strong>
+                </td>
+                <td>
+                    Height of incumbent
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>CountryID (string)</strong>
+                </td>
+                <td>
+                    Country in which the incumbent resides.
+                    <br />
+                    <strong>Note:</strong> Use the following notation for insertion:
+                    <br />
+                    &lsquo;MLA&rsquo; for Malaysian towers
+                    <br />
+                    &lsquo;INS&rsquo; for Indonesian towers
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Operator (string)</strong>
+                </td>
+                <td>
+                    Name of the channel operator using the tower
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>StationID (string)</strong>
+                </td>
+                <td>
+                    Station id of the operating channel
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output</strong> - No return value
+    </p>
+    <p>
+        <strong id="addIncumbent">AddIncumbent</strong>
+    </p>
+    <p>
+        <strong>Syntax </strong>
+        <br />
+        void AddIncumbent (Callsign, IncumbentType, Channel, Latitude, Longitude, TxPower,
+        HAAT, CenterFrequency, CenterBW)
+    </p>
+    <p>
+        <strong>Description</strong> - AddIncumbent API is used to add a Singapore Incumbent
+        at a given location, with a given HAAT, TxPower etc.
+    </p>
+    <p>
+        <strong>Note:</strong> Use this API to add Incumbents that are internal to Singapore
+        (i.e. incumbents whose location is inside the Singapore boundaries).
+    </p>
+    <p>
+        <strong>Target audience:</strong> Administrators
+    </p>
+    <p>
+        <strong>Inputs</strong>
+    </p>
+    <table id="ctl00_MainContent_Table4" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Callsign (string)</strong>
+                </td>
+                <td>
+                    Callsign is unique for an incumbent, i.e. no two incumbents can have the same callsign.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>IncumbentType(string)</strong>
+                </td>
+                <td>
+                    Type of Incumbent. Please refer to the<strong>enum</strong> &lsquo;<strong><a href="http://whitespacesdb.cloudapp.net/driver.asmx#incumbent">IncumbentType</a></strong>&rsquo;
+                    for all available types.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Channel (int)</strong>
+                </td>
+                <td>
+                    Channel number
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Latitude</strong> (<strong>double</strong>)
+                </td>
+                <td>
+                    Latitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Longitude (double)</strong>
+                </td>
+                <td>
+                    Longitude of input location
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>TxPower (double) </strong>
+                </td>
+                <td>
+                    Transmit power of tower
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>HAAT (double)</strong>
+                </td>
+                <td>
+                    Height of incumbent
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>CenterFrequency (double)</strong>
+                </td>
+                <td>
+                    Center frequency of channel in MHz
+                    <br />
+                    <strong>Note :</strong> you can ignore this field
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>ChannelBW(double)</strong>
+                </td>
+                <td>
+                    Bandwidth of channel in MHz
+                    <br />
+                    <strong>Note </strong>: you can ignore this field
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output </strong>- No return value
+    </p>
+    <h4>
+        <strong id="deleteIncumbent"></strong>DeleteIncumbent
+    </h4>
+    <p>
+        <strong>Syntax</strong>
+        <br />
+        void DeleteIncumbentData(Callsign)
+    </p>
+    <p>
+        <strong>Description</strong> - DeleteIncumbent API deletes an existing incumbent
+        from the DB with a given Callsign.
+    </p>
+    <p>
+        <strong>Target-audience</strong> - Administrators
+    </p>
+    <p>
+        <strong>Inputs</strong>
+    </p>
+    <table id="ctl00_MainContent_Table5" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Callsign (string)</strong>
+                </td>
+                <td>
+                    Callsign is unique for an incumbent, i.e. no two incumbents can have the same callsign.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output</strong> : No return value.
+    </p>
+    <h4>
+        <strong id="getUserInfo">GetUserInformation</strong>
+    </h4>
+    <p>
+        <strong>Syntax</strong>
+        <br />
+        UserRegistration GetUserInformation(string userID)
+    </p>
+    <p>
+        <strong>Description:</strong><br />
+        GetUserInformation API is used to retrieve User information from DB, it takes a
+        unique string 'userID' as input and returns user's profile.
+    </p>
+    <p>
+        <strong>Target audience:</strong> Device Manufacturers
+    </p>
+    <p>
+        <strong>Inputs</strong>
+    </p>
+    <table id="ctl00_MainContent_Table7" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>UserID (string)</strong>
+                </td>
+                <td>
+                    UserID here is a unique alphanumeric string corresponding to a Windows Live ID account
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output:</strong> UserRegistration object with specified userID.
+    </p>
+    <h4>
+        <strong id="registerUser">RegisterUser</strong>
+    </h4>
+    <p>
+        <strong>Syntax</strong>
+        <br />
+        bool RegisterUser(UserRegistration userInfo)
+    </p>
+    <p>
+        <strong>Description: </strong>
+        <br />
+        RegisterUser API is used to register a Windows Live ID user to our web service.
+    </p>
+    <p>
+        <strong>Target audience:</strong> Administrators
+    </p>
+    <table id="ctl00_MainContent_Table8" class="data-table1" border="2">
+        <thead>
+            <tr>
+                <th>
+                    Input-field
+                </th>
+                <th>
+                    Comments
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>UserInfo (UserRegistration)</strong>
+                </td>
+                <td>
+                    Please refer to class <a href="http://whitespacesdb.cloudapp.net/driver.asmx#user_reg">
+                        UserRegistration
+                    </a>type for details on UserRegistration object.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Output</strong> - Returns true for successful user registration, else false.
+    </p>
+</div>

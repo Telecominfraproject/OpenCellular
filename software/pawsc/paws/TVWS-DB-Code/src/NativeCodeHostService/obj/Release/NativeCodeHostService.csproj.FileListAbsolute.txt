@@ -1,0 +1,8 @@
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\bin\Release\NativeCodeHostService.exe.config
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\bin\Release\NativeCodeHostService.exe
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\bin\Release\NativeCodeHostService.pdb
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\bin\Release\Microsoft.Whitespace.InterpolationLibrary.dll
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\bin\Release\Microsoft.Whitespace.InterpolationLibrary.pdb
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\obj\Release\NativeCodeHostService.csprojResolveAssemblyReference.cache
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\obj\Release\NativeCodeHostService.exe
+D:\TVWS_FCC_OFCOM\src\external\NativeCodeHostService\obj\Release\NativeCodeHostService.pdb

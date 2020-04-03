@@ -1,0 +1,57 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.WhiteSpaces.Common.IntialUserInfo>
+
+@if (Model.Count() > 0)
+{
+    WebGrid grid = new WebGrid(rowsPerPage: 10);
+    grid.Bind(Model, autoSortAndPage: false, rowCount: ViewBag.rowCount);
+    grid.Pager(WebGridPagerModes.All);
+    grid.PageIndex = ViewBag.pageIndex;
+
+    @grid.GetHtml(htmlAttributes: new { id = "intialList" },
+    mode: WebGridPagerModes.All,
+    firstText: "<< First",
+    previousText: "< Prev",
+    nextText: "Next >",
+    lastText: "Last >>",
+    columns: grid.Columns(
+    grid.Column("", "User Name", @<text><a data-id="@item.Id" class="view-item">@item.UserName</a></text>),
+    grid.Column("PrefferedEmail", "Preferred Email",canSort:false),
+    grid.Column("Regulatory", "Regulatory", canSort: false),
+    grid.Column("Role", "Role", canSort: false),
+    grid.Column("RequestStatus", "RequestStatus", canSort: false),
+    grid.Column("DateRegistered", "DateRegistered", canSort: false),
+    grid.Column("Country", "Country", canSort: false)))
+    if (Convert.ToInt16(ViewBag.rowCount) > 10)
+    {
+        <div class="total-count">Total Records: @ViewBag.rowCount</div>
+    }
+}
+else
+{
+    <label>No records found</label>
+}
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#userDetails a").on('click', function (event) {
+            if (this.className == "view-item") {
+                var userManagement = new UserManagement();
+                userManagement.getUserDetails($(this).data('id'));
+            }
+            else {
+                event.preventDefault();
+                var href = $(this).attr("href");
+                var page = href.substring(href.indexOf('=') + 1, href.length);
+                $("#page").val(page);
+                $("#isPaging").val("true");
+                $("#findIncumbents").click();
+            }
+
+        });
+    })
+</script>

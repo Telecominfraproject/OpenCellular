@@ -1,0 +1,274 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "TVWhiteSpaces - FAQ";
+}
+
+@section tabs
+{
+    <nav class="tab">
+        <ul>
+            <li class="common">
+                <input type="radio" class="hide" id="general" name="tabNav" checked="checked" />
+                <label for="general">General</label>
+            </li>
+            <li class="region">
+                <input type="radio" class="hide" id="availableRegion" name="tabNav" />
+                <label for="availableRegion">Available Region</label>
+            </li>
+            <li class="finder">
+                <input type="radio" class="hide" id="wsFinder" name="tabNav" />
+                <label for="wsFinder">White Space Finder</label>
+            </li>
+            <li class="access">
+                <input type="radio" class="hide" id="accessLevel" name="tabNav" />
+                <label for="accessLevel">Access Level</label>
+            </li>
+            <li class="registration">
+                <input type="radio" class="hide" id="registration" name="tabNav" />
+                <label for="registration">Registration</label>
+            </li>
+            <li class="api">
+                <input type="radio" class="hide" id="wsAPI" name="tabNav" />
+                <label for="wsAPI">White Spaces API</label>
+            </li>
+            <li class="profile">
+                <input type="radio" class="hide" id="userProfile" name="tabNav" />
+                <label for="userProfile">User Profile</label>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Left{
+    @{
+        Html.RenderPartial("FaqsPartial");
+    }
+}
+
+@section Right{
+    <div id="gnrl" class="faq">
+        <h2>
+            General
+        </h2>
+        <p>
+            <strong>Q. What are TV White Spaces?</strong><br />
+            The term TV White Space spectrum refers to frequencies in the VHF and UHF television broadcast bands that are either unassigned or unused by existing broadcast or other licensees. Television broadcasts occupy designated channels in the VHF and UHF bands, with the assignment of channels to broadcasts varying by location. Not all the designated channels are in use for broadcast in any given market, giving rise to “White Spaces” in which a channel that is not used for broadcast may be available for other purposes. Microsoft believes that the first globally-harmonized opportunity to use DSA technologies and techniques will be in the TV bands.
+        </p>
+        <p>
+            <strong>Q. How do we know the use of White Spaces won’t interfere with licensed operations?</strong><br />
+            Microsoft has conducted trials and commercial pilots in Singapore, the U.S. and the U.K. and other companies have implemented similar solutions elsewhere. Our numerous tests have proved that TV band white space devices operate without causing interference to existing licensees entitled to interference protection.
+        </p>
+        <p>White Spaces devices will gain managed access to unused TV channels by providing their precise locations to a database which in turn provides channel lists along with other operating parameters, such as power, duration, and geographic boundaries. White Space devices will only use those channels provided by an authorized White Space database. If no channels are returned, a White Spaces device will not transmit on TV band spectrum.</p>
+        <p>
+            <strong>Q. What’s the benefit to consumers?</strong><br />
+            Consumers will benefit from higher bandwidth and/or more widely available network access, which will in turn enable them to enjoy the growing number of online services more fully and conveniently. This includes the full range of communications services, including the ability to send and receive audio-visual content. In addition, consumers will undoubtedly benefit from the economic growth that these new technologies would enable.
+        </p>
+    </div>
+    <div id="available-region" class="faq">
+        <nav class="sub-tab">
+            <ul>
+                @*<li class="ghana">
+                    <input type="radio" class="hide" id="regA" name="arSub" checked="checked" />
+                    <label for="regA">Ghana</label>
+                </li>*@
+                <li class="uk">
+                    <input type="radio" class="hide" id="regB" name="arSub" />
+                    <label for="regB">United Kingdom</label>
+                </li>
+                <li class="usa">
+                    <input type="radio" class="hide" id="regC" name="arSub" />
+                    <label for="regC">United States</label>
+                </li>
+            </ul>
+        </nav>
+        @*<div id="arGhana" class="chFaq">
+            <h2>Ghana</h2>
+        </div>*@
+        <div id="arUnitedKingdom" class="chFaq">
+            <h2>United Kingdom</h2>
+        </div>
+        <div id="arUnitedStates" class="chFaq">
+            <h2>United States</h2>
+        </div>
+    </div>
+    <div id="whitespacesFinder" class="faq">
+        <h2>White Spaces Finder</h2>
+    </div>
+    <div id="accessLvl" class="faq">
+        <h2>Access Level</h2>
+    </div>
+    <div id="device-registration" class="faq">
+        <nav class="sub-tab">
+            <ul>
+                <li class="overview">
+                    <input type="radio" class="hide" id="rgsA" name="regSub" checked="checked" />
+                    <label for="rgsA">Overview</label>
+                </li>
+                <li class="receiver">
+                    <input type="radio" class="hide" id="rgsB" name="regSub" />
+                    <label for="rgsB">MVPD Receivers</label>
+                </li>
+                <li class="aux">
+                    <input type="radio" class="hide" id="rgsC" name="regSub" />
+                    <label for="rgsC">Licensed LP Aux</label>
+                </li>
+                <li class="mic">
+                    <input type="radio" class="hide" id="rgsD" name="regSub" />
+                    <label for="rgsD">Unlicensed Wireless Mic</label>
+                </li>
+                <li class="link">
+                    <input type="radio" class="hide" id="rgsE" name="regSub" />
+                    <label for="rgsE">Temp BAS Links</label>
+                </li>
+            </ul>
+        </nav>
+        <div id="rgOverview" class="chFaq">
+            <h2>Overview</h2>
+        </div>
+        <div id="rgReceiver" class="chFaq">
+            <h2>MVPD Receiver</h2>
+        </div>
+        <div id="rgAux" class="chFaq">
+            <h2>Licensed LP Aux</h2>
+        </div>
+        <div id="rgMic" class="chFaq">
+            <h2>Unlicensed Wireless Mic</h2>
+        </div>
+        <div id="rgLink" class="chFaq">
+            <h2>Temp BAS Links</h2>
+        </div>
+    </div>
+    <div id="wsAPI" class="faq">
+        <h2>White Spaces API</h2>
+    </div>
+    <div id="usrProfile" class="faq">
+        <h2>User Profile</h2>
+    </div>
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function changeTab(tabId) {
+            $('#rightPaneContainer .faq').hide();            
+            $('#' + tabId).show();
+        }
+
+        function changeSubTab(tabId) {
+            $('.chFaq').hide();
+            $('#' + tabId).show();            
+        }
+
+        function availableRegionTab(){                
+                $('input[name="arSub"]').prop('checked', false);
+            $('#regA').prop('checked', true);
+            changeTab('available-region');
+            changeSubTab('arGhana');                
+        }
+
+        function registrationTab() {
+            $('input[name="regSub"]').prop('checked', false);
+            $('#rgsA').prop('checked', true);
+            changeTab('device-registration');
+            changeSubTab('rgOverview');
+        }
+
+        $(document).ready(function () {
+            changeTab('gnrl');
+
+            $('#wrapper').addClass("inner");
+
+            $('#general').click(function () {
+                changeTab('gnrl');
+            });
+
+            $('#availableRegion').click(function () {
+                availableRegionTab();
+            });
+
+            $('#regA').click(function () {
+                changeSubTab('arGhana');
+            });
+
+            $('#regB').click(function () {
+                changeSubTab('arUnitedKingdom');
+            });
+
+            $('#regC').click(function () {
+                changeSubTab('arUnitedStates');
+            });
+
+            $('#wsFinder').click(function () {
+                changeTab('whitespacesFinder');
+            });
+
+            $('#accessLevel').click(function () {
+                changeTab('accessLvl');
+            });
+
+            $('#registration').click(function () {
+                registrationTab();
+            });
+
+            $('#rgsA').click(function () {
+                changeSubTab('rgOverview');
+            });
+
+            $('#rgsB').click(function () {
+                changeSubTab('rgReceiver');
+            });
+
+            $('#rgsC').click(function () {
+                changeSubTab('rgAux');
+            });
+
+            $('#rgsD').click(function () {
+                changeSubTab('rgMic');
+            });
+
+            $('#rgsE').click(function () {
+                changeSubTab('rgLink');
+            });
+
+            $('#wsAPI').click(function () {
+                changeTab('wsAPI');
+            });
+
+            $('#userProfile').click(function () {
+                changeTab('usrProfile');
+            });
+            window.onload = function () {
+                var url = window.location.href;
+                var sectionTabId = url.split('=')[1];
+                
+                $('#' + sectionTabId).prop('checked', true);
+                switch (sectionTabId) {
+                    case "wsFinder":                       
+                        changeTab('whitespacesFinder');
+                        break;
+                    case "availableRegion":
+                        availableRegionTab();
+                        break;                        
+                    case "accessLevel":
+                        changeTab('accessLvl');
+                        break;
+
+                    case "registration":
+                        RegistrationTab();
+                        break;
+                    case "wsAPI":
+                        changeTab('wsAPI');
+                        break;
+                    case "userProfile":
+                        changeTab('usrProfile');
+                    default:
+                        changeTab('gnrl');
+                } 
+               
+            }
+        });
+        
+    </script>
+}

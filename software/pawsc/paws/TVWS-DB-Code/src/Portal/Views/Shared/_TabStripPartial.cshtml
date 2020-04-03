@@ -1,0 +1,104 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal;
+@using Microsoft.Web.WebPages.OAuth;
+@using Microsoft.WhiteSpaces.Portal.Models;
+
+<nav class="tab-strip">
+    <ul>
+        <li class="home">
+            @Html.ActionLink("Home", "Index", "Home")
+            <span></span>
+        </li>
+        <li class="available-region">
+            @Html.ActionLink("Available Regions", "GetAvailableRegions", "Home")
+            <span></span>
+        </li>
+        <li class="finder">
+            @Html.ActionLink("White Spaces Finder", "Index", "WSFinder")
+            <span></span>
+        </li>
+        @*<li class="download-data">
+            @Html.ActionLink("Download Data", "Index", "PublicData")
+            <span></span>
+        </li>*@
+
+        @if (Request.IsAuthenticated)
+        {
+            <li class="profile">
+                @Html.ActionLink("Profile", "Index", "Profile")
+                <span></span>
+            </li>
+
+            UserPrincipal principal = (UserPrincipal)User;
+
+            if (principal.IsSuperAdmin)
+            {
+                <li class="user-management">
+                    @Html.ActionLink("Manage User", "Index", "UserManagement")
+                    <span></span>
+                </li>
+            }
+            @*<li class="register-incumbent">
+                @Html.ActionLink("Register Incumbents", "Index", "RegisterMVPD")
+                <span></span>
+            </li>*@
+            if (principal.IsSuperAdmin || principal.IsRegionAdmin)
+            {
+                <li class="manage-region">
+                    @Html.ActionLink("Manage Region", "Index", "RegionManagement")
+                    <span></span>
+                </li>
+            }
+            <li class="feedback">
+                @Html.ActionLink("Feedback", "Index", "Feedback")
+                <span></span>
+            </li>
+            <li class="faq">
+                @Html.ActionLink("FAQ", "FAQ", "Home")
+                <span></span>
+            </li>
+            <li class="demo">
+                @Html.ActionLink("How it works? Watch Demo", "HowItWorks", "Home", new { id="howItWorks", title = "How it works? Watch Demo" })
+                <span></span>
+            </li>
+            <li class="signout">
+                @using (Html.BeginRouteForm("Default", new { controller = "Account", action = "LogOff" }, FormMethod.Post, new { id = "logoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <a href="javascript:document.getElementById('logoutForm').submit()" role="link">SignOut</a>
+                    <span></span>
+                }
+            </li>
+        }
+        else
+        {
+            <li class="feedback">
+                @Html.ActionLink("Feedback", "Index", "Feedback")
+                <span></span>
+            </li>
+            <li class="faq">
+                @Html.ActionLink("FAQ", "FAQ", "Home")
+                <span></span>
+            </li>
+            <li class="demo">
+                @Html.ActionLink("How it works? Watch Demo", "HowItWorks", "Home", new { id="howItWorks", title = "How it works? Watch Demo" })
+                <span></span>
+            </li>
+            <li class="signin">
+                @using (Html.BeginRouteForm("Default", new { controller = "Account", action = "ExternalLogin" }, FormMethod.Post, new { returnUrl = ViewBag.ReturnUrl, id = "loginForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("provider", OAuthWebSecurity.RegisteredClientData.FirstOrDefault().AuthenticationClient.ProviderName)
+                    <a href="javascript:document.getElementById('loginForm').submit()" role="link">Sign In</a>
+                    <span></span>
+                }
+            </li>
+        }
+    </ul>
+</nav>
+<script type="text/javascript">
+    
+</script>

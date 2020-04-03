@@ -1,0 +1,121 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+<section class="info">
+    <div id="dvBlockDevice">
+        <ul>
+            <li class="blockdevice">
+                <div class="row">
+                    @Html.Label("Select Region")
+                    @Html.DropDownList("Regions", null, new { @id = "ddlRegionDevice" })
+                </div>
+            </li>
+            <li class="noPad no-min-height noFollow clear blockdevice">
+                <input type="radio" id="sDevice" name="block" checked="checked" />
+                <label class="inline" for="sDevice">Single Device</label>
+                <input type="radio" id="aDevice" name="block" />
+                <label class="inline" for="aDevice">All Device</label>
+            </li>
+            <li class="split noPad device noFollow clear blockdevice">
+                <span class="error hide " id="errrDevice">Required</span>
+                <div class="input mandatory">
+                    <input placeholder="Model Id" type="text" value="" id="deviceId" />
+                </div>
+
+                <div class="input" id="dvSerialNumber">
+                    <input placeholder="Serial" type="text" value="" id="serialNumber">
+                </div>
+            </li>            
+        </ul>
+    </div>
+    <div id="dvexcludedIds">
+        @{ Html.RenderAction("GetExcludedIds");}
+    </div>
+</section>
+<div class="end-stripe blockdevice">
+    <button type="submit" role="button" class="submit" id="btnSubmitDevice">Submit</button>
+    <div id="errorDevice" class="alert error"></div>
+    <div id="successDevice" class="alert succeed"></div>
+</div>
+
+<script type="text/javascript" src="/Scripts/BlockDevice.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+
+        $("#dvexcludedIds a").on('click', function (event) {
+            excludeIdAnchorClick(this, event);
+        });
+    });
+
+
+    function excludeIdAnchorClick(obj, event) {
+        if (obj.className.indexOf("del-") >= 0) {
+            
+            var partitionKey = $(obj).data('pk');
+            var rowKey = $(obj).data('rk');
+            var regionCode = $(obj).data('regioncode');
+
+            deleteExcludedId(regionCode, partitionKey, rowKey);
+        }
+        else {
+           
+            event.preventDefault();
+            var href = $(obj).attr("href");
+            var queryString = href.substring(href.indexOf('?'), href.length);
+
+            var requestUrl = '/RegionManagement/GetExcludedIds' + queryString;
+            $("#dvexcludedIds").load(requestUrl, function () {
+                $("#dvexcludedIds a").on('click', function (event) {
+                    excludeIdAnchorClick(this, event);
+                });
+            });
+        }
+    }
+
+    function deleteExcludedId(regionCode, partitionKey, rowKey) {
+        if (confirm("Are you sure want to delete the Excluded Id")) {
+            var url = "/RegionManagement/DeleteExcludedId";
+            var data = { "regionCode": regionCode, "partitionKey": partitionKey, "rowkey": rowKey };
+
+            ServerManager.AjaxRequest(
+            {
+                url: url,
+                data: JSON.stringify(data),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                success: function (result) {
+                    if (result.error) {
+                        ServerManager.handleError(result, null);
+                    }
+                    else {
+                        var requestUrl = '/RegionManagement/GetExcludedIds';
+                        $("#dvexcludedIds").load(requestUrl, function () {
+                            $("#dvexcludedIds a").on('click', function (event) {
+                                excludeIdAnchorClick(this, event);
+                            });
+                        });
+                    }
+                },
+                error: function (error) {
+                    if (error.status == 200 && error.statusText == "OK") {
+                        var requestUrl = '/RegionManagement/GetExcludedIds';
+                        $("#dvexcludedIds").load(requestUrl, function () {
+                            $("#dvexcludedIds a").on('click', function (event) {
+                                excludeIdAnchorClick(this, event);
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+
+</script>

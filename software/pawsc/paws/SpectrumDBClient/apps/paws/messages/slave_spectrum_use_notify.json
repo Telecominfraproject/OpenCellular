@@ -1,0 +1,47 @@
+  {
+    "jsonrpc": "2.0", 
+    "method": "spectrum.paws.notifySpectrumUse",
+    "id": 0,
+    "params": {
+      "type": "SPECTRUM_USE_NOTIFY",
+      "version": "1.0",
+      "deviceDesc": {
+        "serialNumber": "S01D201621592159",
+        "manufacturerId": "IPAccess",
+        "modelId": "Radio",
+        "rulesetIds": [
+          "ETSI-EN-301-598-1.1.1"
+        ],
+        "etsiEnDeviceType": "A",
+        "etsiEnDeviceCategory": "master",
+        "etsiEnDeviceEmissionsClass": 3,
+        "etsiEnTechnologyId": "AngularJS"
+      },
+      "masterDeviceDesc": {
+        "serialNumber": "M01D201621592159",
+        "manufacturerId": "IPAccess",
+        "modelId": "Radio",
+        "rulesetIds": [
+          "ETSI-EN-301-598-1.1.1"
+        ],
+        "etsiEnDeviceType": "A",
+        "etsiEnDeviceCategory": "master",
+        "etsiEnDeviceEmissionsClass": 3,
+        "etsiEnTechnologyId": "AngularJS"
+      },
+      "masterDeviceLocation": {
+        "point": {
+          "center": {
+            "latitude": 51.507611,
+            "longitude": -0.111162
+          },
+          "semiMajorAxis": 0,
+          "semiMinorAxis": 0,
+          "orientation": 0
+        },
+        "confidence": 95
+      },
+      "spectra": [ ]
+    }
+  }
+  

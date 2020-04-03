@@ -1,0 +1,27 @@
+{
+    "VersionInfo": {
+        "version": 1
+    },
+    "SettingsLogInfo": {
+        "level": 0,
+        "logname": "/var/log/sctp_agent_app_log.txt",
+        "file_size": "2M",
+        "max_files": 5,
+        "compress": true
+    },
+    "SettingsCloudLogInfo": {
+        "level": 3,
+        "logname": "/var/log/sctp_agent_cloud_log.txt",
+        "cloud_ip": "",
+        "port": 8600
+    },
+  "Settings": {
+    "use_passthrough_ctl": true,
+    "passthrough_ctl_periodicity": 60,
+    "azure_mme_socket_retry_s": 1,
+    "azure_mme_socket_drop_enb_s": 30,
+    "azure_mme_socket_swap_mme_s": 20,
+    "azure_mme_pkt_retx_guard_ms": 250,
+    "azure_mme_pkt_retx_max_attempts": 4
+  }
+}

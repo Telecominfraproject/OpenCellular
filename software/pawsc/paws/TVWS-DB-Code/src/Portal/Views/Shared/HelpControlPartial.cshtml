@@ -1,0 +1,9 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.HelpControl
+<button class="icon info noBg" name="@Model.DomElementId" title="Know More">ℹ</button>
+<div id="notification" style="display:none">
+    @Html.Partial("NoficationBolloonControlPartial", @Model)
+</div>

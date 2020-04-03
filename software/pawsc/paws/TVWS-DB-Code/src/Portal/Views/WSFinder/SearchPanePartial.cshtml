@@ -1,0 +1,48 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+@using Microsoft.WhiteSpaces.Portal.Models
+<div class="accordion ws-finder">
+
+    <input type="checkbox" style="display:none" checked="checked" id="wsFinder" name="secExpand" />
+    <label for="wsFinder">
+        <span>White Spaces Finder</span>
+        @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "searchSection", Message = "Explore the protected areas on the region map by channels.",SectionTabId = "wsFinder", Url = "/Home/FAQ" })
+    </label>
+
+    <div class="wrap">
+        <div id="finder-controls">
+            <section class="search">
+                @Html.Partial("LocationSearchPartial", @Model)
+            </section>
+            @if (@Model.DeviceTypes != null)
+            {
+                <section class="device-type input-nav">
+                    @Html.Partial("DeviceTypePartial", @Model)
+                </section>
+            }
+            <section class="channels">
+                @Html.Partial("ChannelsAvailabilityPartial", @Model)
+            </section>
+        </div>
+    </div>
+</div>
+@if (@Model.EnableProtectedAreas)
+{
+    <div class="accordion ws-protectedArea collapse">
+        <input type="checkbox" style="display:none" id="wsProtect" name="secExpand" />
+        <label for="wsProtect">
+            <span>Protected Area</span>
+            @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "protectedArea", Message = "Explore the protected areas on the region map by channels.",SectionTabId = "wsFinder", Url = "/Home/FAQ" })
+        </label>
+        <div class="wrap">
+            <div id="protecteArea-controls">
+                <section class="protected-area input-nav">
+                    @Html.Partial("ProtectedAreasPartial")
+                </section>
+            </div>
+        </div>
+    </div>
+}

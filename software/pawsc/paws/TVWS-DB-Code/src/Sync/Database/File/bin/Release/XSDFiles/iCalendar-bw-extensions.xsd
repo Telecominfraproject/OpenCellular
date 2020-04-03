@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Bedework extensions to icalendar -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0" 
+           targetNamespace="urn:ietf:params:xml:ns:icalendar-2.0" 
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="iCalendar-valtypes.xsd" />
+            
+  <!-- ===================== Properties =================================  -->
+  <xs:include schemaLocation="iCalendar-props.xsd" />
+          
+  <!-- =====================================================================
+       3.2 Property parameter definitions
+       ===================================================================== -->
+  
+  <!-- Bedework x-parameters -->
+  <xs:element name="x-bedework-uid" type="xcal:XBedeworkUidParamType" 
+              substitutionGroup="xcal:baseParameter" />
+              
+  <xs:complexType name="XBedeworkUidParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- =====================================================================
+       3.7 Calendar Properties
+       ===================================================================== -->  
+
+  <xs:element name="x-bedework-cost" 
+              type="xcal:XBedeworkCostPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-exsynch-endtzid" 
+              type="xcal:XBedeworkExsynchEndtzidPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-exsynch-lastmod" 
+              type="xcal:XBedeworkExsynchLastmodPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-exsynch-organizer" 
+              type="xcal:OrganizerPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-exsynch-starttzid" 
+              type="xcal:XBedeworkExsynchStarttzidPropType"
+              substitutionGroup="xcal:baseProperty" />
+  
+  <xs:complexType name="XBedeworkCostPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkExsynchEndtzidPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkExsynchLastmodPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkExsynchStarttzidPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- =====================================================================
+       Properties for event registration
+       ===================================================================== -->  
+
+  <xs:element name="x-bedework-instance-only" 
+              type="xcal:XBedeworkInstanceOnlyPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-registration-end" 
+              type="xcal:XBedeworkRegistrationEndPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-registration-start" 
+              type="xcal:XBedeworkRegistrationStartPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-max-tickets" 
+              type="xcal:XBedeworkMaxTicketsPropType"
+              substitutionGroup="xcal:baseProperty" />
+
+  <xs:element name="x-bedework-max-tickets-per-user" 
+              type="xcal:XBedeworkMaxTicketsPerUserPropType"
+              substitutionGroup="xcal:baseProperty" />
+  
+  <xs:complexType name="XBedeworkInstanceOnlyPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkRegistrationEndPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:DateDatetimePropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkRegistrationStartPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:DateDatetimePropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkMaxTicketsPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:IntegerPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="XBedeworkMaxTicketsPerUserPropType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:IntegerPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+       
+</xs:schema>

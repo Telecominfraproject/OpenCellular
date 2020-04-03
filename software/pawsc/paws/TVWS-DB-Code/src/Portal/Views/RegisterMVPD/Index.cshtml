@@ -1,0 +1,184 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using System;
+@using System.Text;
+@model Microsoft.WhiteSpaces.Portal.MVPDRegisterViewModel
+
+@section Left{
+    <section>
+        @Html.Partial("RegisterNavigation")
+    </section>
+}
+
+@section Right{
+    @Html.Partial("MapPartial")
+    @using (Ajax.BeginForm("Register", "RegisterMVPD", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "registerDiv" }))
+    {
+        <div id="registerDiv" class="summary-pane accordion left">
+            <div class="container">
+                <h2>Register MVPD Receivers</h2>
+                <p>Multi-channel Video Programming Distributor (MVPD) receive sites located outside the protected contour of the TV station(s) being received may be registered in the TV bands database if they are no farther than 80 km outside the nearest edge of the relevant contour(s). Only channels received over the air and used by the MVPD may be registered (§15.712)</p>
+                <section>
+                    <div class="row">
+                        @Html.Label("Friendly Name")
+                        <span class="error hide" id="errFriendlyName"></span>
+                        @Html.TextBoxFor(model => model.FriendlyName, new { @id = "FriendlyName", @maxlength = 100 })
+                            <span class="balloon">Name to identify the registration (optional)</span>
+                        </div>
+                    @*<div class="row">
+                            @Html.Label("Description")
+                            @Html.TextBoxFor(model => model.Description, new { @id = "Description", @maxlength = 100 })
+                            <span class="balloon">Precise description about registration</span>
+                        </div>*@
+                    <h5>Receiver</h5>
+                    <div class="row">
+                        <span class="error hide" id="errMAddress"></span>
+                        @Html.Label("Address")
+                        @Html.TextArea("dcbfdf", new { @id = "MAddress", @maxlength = 250 })
+                        <span class="balloon">Location of the MVPD receive site. Enter address and click on GetLocation link to get coordinates</span>
+                        <a id="lnkGetLocation">Get Location</a>
+                    </div>
+                    <div class="row split">
+                        @Html.Label("Coordinates")
+                        <span class="error hide " id="errmLat"></span>
+                        <div class="input mandatory">
+                                                        @Html.TextBoxFor(x => x.MVPDLocationLatittude, new { @id = "mLat", @placeholder = "latitude" })
+                            <span class="balloon">Location of the MVPD receive site (latitude and longitude in NAD 83, accurate to ±/− 50 m);</span>
+                        </div>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.MVPDLocationLongitude, new { @id = "mLon", @placeholder = "longitude" })
+                            <span class="balloon">Location of the MVPD receive site (latitude and longitude in NAD 83, accurate to ±/− 50 m);</span>
+                        </div>
+                    </div>
+
+                    <h5>Callsign</h5>
+                    <div class="row">
+                        @Html.LabelFor(x => x.CallSign)
+                        <span class="error hide " id="errtxtCallsign"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.CallSign, new { @id = "txtCallsign" })
+                        <span class="balloon">Call sign of each television channel received and eligible for registration</span>
+                        </div>
+                        <span class="error hide " id="errLoadData">Invalid callsign</span>
+                    </div>
+
+                    <div class="row">
+                        @Html.LabelFor(x => x.Channel)
+                        @Html.TextBoxFor(x => x.Channel, new { @id = "txtChannel", @disabled = true })
+                        <span class="balloon">Channel number of each television channel received, subject to the following condition: channels for which the MVPD receive site is located within the protected contour of that channel's transmitting station are not eligible for registration in the database</span>
+                    </div>
+
+                    <h5>Transmitter</h5>
+
+                    <div class="row split">
+                        @Html.Label("Coordinates")
+                        <span class="error hide " id="errtLat"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.TransmitterLatittude, new { @id = "tLat", @placeholder = "latitude", @disabled = true, @maxlength = 20 })
+                        </div>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(X => X.TransmitterLongitude, new { @id = "tLong", @placeholder = "longitude", @disabled = true, @maxlength = 20 })
+                            <span class="balloon">Location (latitude and longitude) of the transmitter of each television channel received</span>
+                        </div>
+                    </div>
+
+
+                    <h5>Contact Information </h5>
+                    <div class="row">
+                        @Html.Label("MVPD Company Name")
+                        <span class="error hide" id="errmvpdCompanyName"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.CableCompanyName, new { @id = "mvpdCompanyName", @maxlength = 200 })
+                            <span class="balloon">Name of the MVPD Company.</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @Html.LabelFor(x => x.Name)
+                        <span id="Name">@Model.Name</span>
+                    </div>
+
+                    <div class="row hide">
+                        <span id="Address1">@Model.Address1</span>
+                        <span id="Address2">@Model.Address2</span>
+                        <span id="City">@Model.City</span>
+                        <span id="State">@Model.State</span>
+                        <span id="Country">@Model.Country</span>
+                    </div>
+
+                    <div class="row">
+                        @{
+        StringBuilder address = new StringBuilder();
+        if (!string.IsNullOrEmpty(Model.Address1))
+        {
+            address.Append(Model.Address1);
+        }
+        if (!string.IsNullOrEmpty(Model.Address2))
+        {
+            address.Append(", ");
+            address.Append(Model.Address2);
+        }
+        address.Append("<br />");
+
+        if (!string.IsNullOrEmpty(Model.City))
+        {
+            address.Append(Model.City);
+        }
+        if (!string.IsNullOrEmpty(Model.State))
+        {
+            address.Append(", ");
+            address.Append(Model.State);
+        }
+        address.Append("<br />");
+        if (!string.IsNullOrEmpty(Model.Country))
+        {
+            address.Append(Model.Country);
+        }
+
+        @Html.Label("Address")
+                            <span>@Html.Raw(@address.ToString())</span>
+                        }
+                    </div>
+
+                    <div class="row">
+                        @Html.LabelFor(x => x.Email)
+                        <span id="Email">@Model.Email</span>
+
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Phone))
+                    {
+                        <div class="row">
+                            @Html.LabelFor(x => x.Phone)
+                            <span id="Phone">@Model.Phone</span>
+                        </div>
+                    }
+
+                    <div class="row">
+                        @ViewBag.Result
+                    </div>
+                    <div class="row">
+                        <div class="contactcard-label">
+                            <input type="checkbox" id="accept" class="contact-card-check" /><label for="accept">Agree to <a href="#" title="Privacy Plicy" role="link">Privacy</a> & <a href="#" role="link" title="Terms and Conditions">Terms and Conditions</a></label>
+                        </div>
+                        <div class="info">By clicking submit, I understand that all information required by the FCC to be in a TV white space database will be shared with other TVWS database administrators authorized by the FCC and will be available to the public. If the information I have provided is inaccurate or incomplete, I understand that the FCC has the right to reject my registration request or remove my information from the database.</div>
+                        <button id="submit" class="submit contactcard-submit" type="button" disabled="disabled">Submit</button>
+                        <div id="error" class="alert error"></div>
+                        <div id="success" class="alert succeed"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    }
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <script type="text/javascript" src="/Scripts/RegisterMvpd.js"></script>
+    <script type="text/javascript" src="/Scripts/Register.js"></script>
+    <script type="text/javascript" src="/Scripts/Common.js"></script>
+}

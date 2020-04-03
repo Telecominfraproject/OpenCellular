@@ -1,0 +1,8 @@
+<StyleCopViolations>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\ClutterDatasetReader.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\OrdnanceSurveyOSReader.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\USGS1ArcReader.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\ElevationCache.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\Properties\AssemblyInfo.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+  <Violation LineNumber="1" Source="C:\work\TVWS_FCC_OFCOM\src\external\Terrain\SRTMReader.cs" RuleNamespace="StyleCop.CSharp.DocumentationRules" Rule="FileHeaderMustShowCopyright" RuleId="SA1634">The file header must contain a copyright tag.</Violation>
+</StyleCopViolations>

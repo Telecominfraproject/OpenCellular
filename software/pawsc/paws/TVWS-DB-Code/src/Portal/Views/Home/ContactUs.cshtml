@@ -1,0 +1,35 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "ContactUs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>ContactUs</h2>
+
+@section Left{
+    <section>
+        <div class="title">
+            @*<a href="#" onclick="history.go(-1)" title="back" role="link" class="back icon"></a>*@
+            <h3>Contact Us</h3>
+        </div>
+    </section>
+}
+
+@section Right{
+    <section class="rightContentArea">
+        <h2>Contact Us</h2>
+            <p>
+                For any inquiries about the White Spaces project, questions and suggestions please email us at <a href="mailto:email@aliashere">email@aliashere.com</a>
+            </p>
+    </section>
+}
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#wrapper').addClass("inner");
+        });
+</script>
+}

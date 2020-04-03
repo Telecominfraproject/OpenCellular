@@ -1,0 +1,13 @@
+AVAILBLE_SPECTRUM_REQ:
+
+{"jsonrpc":"2.0", 
+"method":"spectrum.pawsc.getSpectrum", 
+"params":{"type":"AVAIL_SPECTRUM_REQ", "version":"1.0", "deviceDesc":{"serialNumber":"SN504", "fccId":"TA-2016/001","ModelID":"MN502"},"location":{"point":{"center":{"latitude":-34.129,"longitude":18.380}}}, "antenna":{"height":10.2,"heightType":"AGL"} }, "id":"103"}
+
+================================================
+
+REGISTRATION_REQ
+
+{"jsonrpc":"2.0", 
+"method":"spectrum.pawsc.register", 
+"params":{"type":"REGISTRATION_REQ", "version":"1.0", "serial_number":"SN504", "location":"13.14, 16.7", "antenna_characteristics":"10", "device_type":"fcc1244", "device_capabilities":"all", "device_description":"nice description"},"id":"100"}

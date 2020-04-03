@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0" 
+           targetNamespace="urn:ietf:params:xml:ns:icalendar-2.0" 
+           elementFormDefault="qualified">
+
+<!-- This schema extension defines properties and components for the availability
+     components defined in draft-daboo-calendar-availability -->
+
+  <!-- ===================== Value-types ================================  -->
+  <xs:include schemaLocation="iCalendar-valtypes.xsd" />
+            
+  <!-- ===================== Components =================================  -->
+  <xs:include schemaLocation="iCalendar.xsd" />
+            
+  <!-- ===================== Properties =================================  -->
+  <xs:include schemaLocation="iCalendar-props.xsd" />
+          
+  <!-- =====================================================================
+       Calendar Properties
+       ===================================================================== -->  
+  
+  <!-- The BUSYTYPE property is used to specify the default busy time
+      type.  The values correspond to those used by the "FBTYPE"
+      parameter used on a "FREEBUSY" property, with the exception that
+      the "FREE" value is not used.  If not specified on a component
+      that allows this property, the default is "BUSY-UNAVAILABLE".
+      
+      busytypevalue = "BUSY" / "BUSY-UNAVAILABLE" /
+                        "BUSY-TENTATIVE" / iana-token / x-name
+                        ; Default is "BUSY-UNAVAILABLE"
+      
+   -->
+   
+  <xs:complexType name="BusytypePropType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       encodingparam      = "ENCODING" "="
+                          ( "8BIT"
+          ; "8bit" text encoding is defined in [RFC2045]
+                          / "BASE64"
+          ; "BASE64" binary encoding format is defined in [RFC4648]
+                          )
+      busytypevalue = "BUSY" 
+                    / "BUSY-UNAVAILABLE" 
+                    / "BUSY-TENTATIVE" 
+                    / iana-token 
+                    / x-name
+                    
+                    ; Default is "BUSY-UNAVAILABLE".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextPropertyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+   
+  <!-- =====================================================================
+       Calendar Components
+       ===================================================================== -->  
+       
+  <xs:complexType name="VavailabilityType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseComponentType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="vavailability" type="xcal:VavailabilityType"
+              substitutionGroup="xcal:baseComponent"/>
+       
+  <xs:complexType name="AvailableType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseComponentType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="available" type="xcal:AvailableType"
+              substitutionGroup="xcal:baseComponent"/>
+</xs:schema>

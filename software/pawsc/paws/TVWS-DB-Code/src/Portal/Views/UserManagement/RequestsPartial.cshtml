@@ -1,0 +1,107 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.WhiteSpaces.Common.AccessRequest>
+
+<h2>Request in Queue</h2>
+
+@if (Model.Count() > 0)
+{
+    WebGrid grid = new WebGrid(Model);
+
+    @grid.GetHtml(
+    columns: grid.Columns(
+    grid.Column("UserName", "User Name"),
+    grid.Column("Regulatory", "Regulatory"),
+    grid.Column("CurrentRole", "Current Access Level"),
+    grid.Column("RequestedRole", "Requested Access Level"),
+    grid.Column("Justification", "Justification"),
+    grid.Column("TimeUpdated", "Request Date"),
+    grid.Column("", "",
+    @<text>
+        <a data-id="@item.UserId" data-regulatory="@item.Regulatory" class="accept-item">Accept</a>
+        <a data-id="@item.UserId" data-regulatory="@item.Regulatory" class="deny-item error">Reject</a>
+    </text>)))
+}
+else
+{
+    <label>No records found</label>
+}
+
+<input type="submit" class="hide" id="btnReload" />
+
+<div id="dvRemarks" class="hide">
+    <label>Remarks</label>
+    <textarea rows="4" cols="50" id="txtRemarks"></textarea>
+    <button id="btnOk">Ok</button>
+    <button id="btnCancelRemarks">Cancel</button>
+</div>
+
+
+<script type="text/javascript">
+
+    var rejectUserId = "";
+    var authority = "";
+
+    $(function () {
+        $('.accept-item').on('click', function (e) {
+            $('.preloader').show();
+            var self = this;
+            var userId = $(this).data('id');
+            var regulatory = $(this).data('regulatory');
+            var isAccepted = true;
+            var remarks = "";
+            ServerManager.AjaxRequest(
+            {
+                url: "/UserManagement/UpdateRequest",
+                dataType: "JSON",
+                type: "POST",
+                data: { "userId": userId, "regulatory": regulatory, "isAccepted": isAccepted, "remarks": remarks },
+                success: function (result) {
+                    if (result.error) {
+                        ServerManager.handleError(result, null);
+                    }
+                    $("#btnReload").click();
+                },
+                error: function (result) { }
+            });
+        });
+        $('.deny-item').on('click', function (e) {
+            var self = this;
+            rejectUserId = $(this).data('id');
+            authority = $(this).data('regulatory');
+
+            $("#txtRemarks").focus();
+            $("#dvRemarks").toggleClass("hide");
+        });
+
+        $('#btnCancelRemarks').on('click', function (e) {
+            $("#dvRemarks").toggleClass("hide");
+        });
+
+        $("#btnOk").on('click', function (e) {
+            $('.preloader').show();
+            var isAccepted = false;
+            var userId = rejectUserId;
+            var remarks = $("#txtRemarks").val();
+            var regulatory = authority;
+
+            ServerManager.AjaxRequest(
+            {
+                url: "/UserManagement/UpdateRequest",
+                dataType: "JSON",
+                type: "POST",
+                data: { "userId": userId, "regulatory": regulatory, "isAccepted": isAccepted, "remarks": remarks },
+                success: function (result) {
+                    $("#btnReload").click();
+                },
+                error: function (result) {}
+            });
+            $("#dvRemarks").toggleClass("hide");
+        });
+    });
+
+
+
+</script>

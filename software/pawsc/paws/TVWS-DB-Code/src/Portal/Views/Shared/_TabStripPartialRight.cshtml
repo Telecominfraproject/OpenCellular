@@ -1,0 +1,149 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using Microsoft.WhiteSpaces.Portal;
+@using Microsoft.Web.WebPages.OAuth;
+@using Microsoft.WhiteSpaces.Portal.Models;
+
+<nav class="tab-strip right">
+    <ul>
+        <li class="home">
+            @Html.ActionLink("Home", "Index", "Home")
+            <span></span>
+        </li>
+        <li class="available-region">
+            @Html.ActionLink("Available Regions", "GetAvailableRegions", "Home")
+            <span></span>
+        </li>
+        <li class="finder">
+            @Html.ActionLink("White Spaces Finder", "Index", "WSFinder")
+            <span></span>
+        </li>
+        @*<li class="download-data">
+            @Html.ActionLink("Download Data", "Index", "PublicData")
+            <span></span>
+        </li>*@
+
+        @if (Request.IsAuthenticated)
+        {
+            <li class="profile">
+                @Html.ActionLink("Profile", "Index", "Profile")
+                <span></span>
+            </li>
+
+            UserPrincipal principal = (UserPrincipal)User;
+
+            if (principal.IsSuperAdmin)
+            {
+                <li class="user-management">
+                    @Html.ActionLink("Manage User", "Index", "UserManagement")
+                    <span></span>
+                </li>
+            }
+            @*<li class="register-incumbent">
+                @Html.ActionLink("Register Incumbents", "Index", "RegisterMVPD")
+                <span></span>
+            </li>*@
+            if (principal.IsSuperAdmin || principal.IsRegionAdmin)
+            {
+                <li class="manage-region">
+                    @Html.ActionLink("Manage Region", "Index", "RegionManagement")
+                    <span></span>
+                </li>
+            }
+            <li class="feedback">
+                @Html.ActionLink("Feedback", "Index", "Feedback")
+                <span></span>
+            </li>
+            <li class="faq">
+                @Html.ActionLink("FAQ", "FAQ", "Home")
+                <span></span>
+            </li>
+            <li class="demo">
+                <a id="howItWorks" href="#" title="How it works? Watch Demo">How it works? Watch Demo</a>
+            </li>
+            <li class="signout">
+                @using (Html.BeginRouteForm("Default", new { controller = "Account", action = "LogOff" }, FormMethod.Post, new { id = "logoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <a href="javascript:document.getElementById('logoutForm').submit()" role="link">SignOut</a>
+                    <span></span>
+                }
+            </li>
+        }
+        else
+        {
+            <li class="feedback">
+                @Html.ActionLink("Feedback", "Index", "Feedback")
+                <span></span>
+            </li>
+            <li class="faq">
+                @Html.ActionLink("FAQ", "FAQ", "Home")
+                <span></span>
+            </li>
+            <li class="demo">
+                <a id="howItWorks" href="#" title="How it works? Watch Demo">How it works? Watch Demo</a>
+            </li>
+            <li class="signin">
+                @using (Html.BeginRouteForm("Default", new { controller = "Account", action = "ExternalLogin" }, FormMethod.Post, new { returnUrl = ViewBag.ReturnUrl, id = "loginForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("provider", OAuthWebSecurity.RegisteredClientData.FirstOrDefault().AuthenticationClient.ProviderName)
+                    <a href="javascript:document.getElementById('loginForm').submit()" role="link">Sign In</a>
+                    <span></span>
+                }
+            </li>
+        }
+    </ul>
+</nav>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var constant = 533;
+        
+        var slideCount = $('.how-it-works ul li').length;
+        var maxLeft = slideCount * constant;
+
+        
+
+        $('#howItWorks').click(function () {
+            $('#howItWorksContainer').show();
+            $('.how-it-works ul').css('margin-left', 0);
+            $('#previousSlide').attr('disabled', true);
+            constant = $('.how-it-works ul li').first().outerWidth() + parseInt($('.how-it-works ul li').first().css('margin-right'), 10);
+        });
+
+        $('#previousSlide').click(function () {
+            var nextValue = parseInt($('.how-it-works ul').css('margin-left'), 10) + constant;
+            if (nextValue < constant) {
+                $('.how-it-works ul').css('margin-left', nextValue);
+                $('#nextSlide').attr('disabled', false);
+                $('#previousSlide').attr('disabled', true);
+                setTimeout(function () {
+                    $('#previousSlide').attr('disabled', false);
+                }, 800)
+            } else {
+                $('#previousSlide').attr('disabled', true);
+            }
+        })
+
+        $('#nextSlide').click(function () {
+            var nextValue = parseInt($('.how-it-works ul').css('margin-left'), 10) - constant;
+            if (Math.abs(nextValue) <= maxLeft) {
+                $('.how-it-works ul').css('margin-left', nextValue);
+                $('#previousSlide').attr('disabled', false);
+                $('#nextSlide').attr('disabled', true);
+                setTimeout(function () {
+                    $('#nextSlide').attr('disabled', false);
+                }, 800)
+            } else {
+                $('#nextSlide').attr('disabled', true);
+            }
+        })
+
+        $('#closeHowItWorks').click(function () {
+            $('#howItWorksContainer').hide();
+        });
+
+    });
+</script>

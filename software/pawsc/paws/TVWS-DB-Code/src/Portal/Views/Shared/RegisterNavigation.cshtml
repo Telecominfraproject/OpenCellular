@@ -1,0 +1,46 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+<h2>Register Incumbents</h2>
+<p>Online forms to register and receive interference protection and to enable unlicensed White Space devices.</p>
+<p>Select your type of service to begin.</p>
+<nav class="tab register-incumbent">
+    <ul>
+        <li>
+            <input type="radio" class="hide" name="regNav"  id="mvpd" checked="checked"  />
+            <label for="mvpdRec" onclick="navigateTo('/RegisterMVPD/index')">MVPD Receivers</label>
+        </li>
+        <li>
+            <input type="radio" class="hide" name="regNav" id="lpaux"  />
+            <label for="lpaux" onclick="navigateTo('/RegisterLicensedLpAux/index')">Licensed LP Auxiliary</label>
+        </li>
+        <li>
+            <input type="radio" class="hide" name="regNav" id="wlessMic" />
+            <label for="wlessMic" onclick="navigateTo('/RegisterUnLicensedLpAux/index')">Unlicensed Wireless Mic</label>
+        </li>
+        <li>
+            <input type="radio" class="hide" name="regNav" id="tempBAS" />
+            <label for="tempBAS" onclick="navigateTo('/RegisterTBasLink/index')">Temp BAS Links</label>
+        </li>
+        @*<li>
+            <input type="radio" class="hide" name="regNav" id="mng" />
+            <label for="mng">Manage</label>
+        </li>*@
+    </ul>
+</nav>
+
+<script type="text/javascript">
+    function navigateTo(url)
+    {     
+        window.location = url;
+    }
+
+    $(document).ready(function () {
+        $('#right-pane form input').focus(function () {
+            $('#right-pane form input').removeClass('activeInput');
+            $(this).addClass('activeInput');
+        });
+    });
+
+</script>

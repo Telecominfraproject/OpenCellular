@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <table cellpadding="5" cellspacing="0" border="1" width="100%">
+        <tbody>
+            <tr>
+                <td>
+                    <p>Please find the below list of users that were pending for approvals for the recent role changes.  Please login to White Spaces and either approve/ deny the role change</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Current Role</th>
+                                <th>Requested Role</th>
+                                <th>Region</th>
+                                <th>Justification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {AccessRequests}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

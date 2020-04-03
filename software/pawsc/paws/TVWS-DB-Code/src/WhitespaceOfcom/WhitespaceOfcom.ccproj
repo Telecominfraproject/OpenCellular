@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>2.9</ProductVersion>
+    <ProjectGuid>78d4e2c2-9606-4324-8f79-27d273caeaba</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WhitespaceOfcom</RootNamespace>
+    <AssemblyName>WhitespaceOfcom</AssemblyName>
+    <StartDevelopmentStorage>True</StartDevelopmentStorage>
+    <Name>WhitespaceOfcom</Name>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <UseEmulatorExpressByDefault>False</UseEmulatorExpressByDefault>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- Items for the project -->
+  <ItemGroup>
+    <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
+    <ServiceDefinition Include="ServiceDefinition.csdef" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DTTSync\DTTSync.csproj">
+      <Name>DTTSync</Name>
+      <Project>{445cf0f8-60e9-4911-b155-e0c35d306a3d}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>DTTSync</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\PMSESync\PMSESync.csproj">
+      <Name>PMSESync</Name>
+      <Project>{d8a2ae32-07a4-4d6e-8114-503c13e4daf6}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>PMSESync</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\RegionManagement\RegionManagement.csproj">
+      <Name>RegionManagement</Name>
+      <Project>{09143df9-1a15-42cf-ad97-4409a37d349a}</Project>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>RegionManagement</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\PAWS\Service\Service.csproj">
+      <Name>Microsoft.Whitespace.PAWS.Service</Name>
+      <Project>{0a91c4a7-33eb-4a89-af96-654df2215327}</Project>
+      <Properties>SkipValidatePackageReferences=true</Properties>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>Microsoft.Whitespace.PAWS.Service</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DTTSyncContent\" />
+    <Folder Include="Microsoft.Whitespace.PAWS.ServiceContent\" />
+    <Folder Include="PMSESyncContent\" />
+    <Folder Include="Profiles" />
+    <Folder Include="RegionManagementContent\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\tvwhitespacesCloud.azurePubxml" />
+    <PublishProfile Include="Profiles\tvwhitespacesLocal.azurePubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <DiagnosticsConfiguration Include="DTTSyncContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="Microsoft.Whitespace.PAWS.ServiceContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="PMSESyncContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="RegionManagementContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <!-- Import the target files for this project template -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\2.9\</CloudExtensionsDir>
+  </PropertyGroup>
+  <Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
+</Project>

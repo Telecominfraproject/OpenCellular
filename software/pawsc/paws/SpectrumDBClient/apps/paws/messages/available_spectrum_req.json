@@ -1,0 +1,38 @@
+{
+    "jsonrpc": "2.0",
+    "method": "spectrum.paws.getSpectrum",
+    "params": {
+        "type": "AVAIL_SPECTRUM_REQ",
+        "version": "1.0",
+        "deviceDesc": {
+            "serialNumber": "M01D201621592159",
+            "manufacturerId": "IPAccess",
+            "modelId": "Radio",
+            "rulesetIds": [
+                "ETSI-EN-301-598-1.1.1"
+            ],
+            "etsiEnDeviceType": "A",
+            "etsiEnDeviceCategory": "master",
+            "etsiEnDeviceEmissionsClass": 3,
+            "etsiEnTechnologyId": "AngularJS"
+        },
+        "location": {
+            "point": {
+                "center": {
+                    "latitude": 51.507611,
+                    "longitude": -0.111162
+                },
+                "semiMajorAxis": 0,
+                "semiMinorAxis": 0,
+                "orientation": 0
+            },
+            "confidence": 95
+        },
+        "antenna": {
+            "height": 15,
+            "heightType": "AGL",
+            "heightUncertainty": 0
+        }
+    },
+    "id": 0
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, RfTrackActivity!</string>
+    <string name="app_name">RfTrack</string>
+    <string name="tv_label">Acquisition Parameters : </string>
+    <string name="button_label">Modify acquisition Parameters</string>
+    
+</resources>

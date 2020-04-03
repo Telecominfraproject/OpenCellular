@@ -1,0 +1,60 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+
+@{
+    ViewBag.Title = "TV WhiteSpaces - Search Result";
+}
+
+@section Left{
+    @Html.Partial("SearchPanePartial", @Model)
+}
+
+@section Right{
+    @Html.Partial("FinderRightPanePartial")
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section HiddenHtml{
+    <div id="whitespacePanel" style="display:none">
+    </div>
+}
+
+@section scripts{
+    <script type="text/javascript" src="/Scripts/perfect-scrollbar.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="/Scripts/whitespaceFinder.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+    <script type="text/javascript">
+        //instance of bingMap is created in MapPartial
+        $(function () {
+            var countryRegion = @Html.Raw(Json.Encode( @Model.RegionChannelsDetail.RegionName))
+
+            $('#left-pane,#summaryPane').perfectScrollbar({
+                wheelSpeed: 20,
+                wheelPropagation: true,
+                minScrollbarLength: 20
+            });
+
+            $('.tab-strip ul .finder').addClass("active");
+
+            $('#rightPaneContainer').removeClass('left-view bottom-view collapse-view');
+            $('.summary-pane').removeClass('left bottom expanded').addClass('collapsed');
+
+            var searchRequest = {
+                where: countryRegion,
+                callback: bingMap.onGeocodeSuccess,
+                errorCallback: bingMap.onSerachFailed
+            }
+
+            bingMap.locationFinder(searchRequest, bingMap.SearchRequestType.geocodeRequest);
+        });
+    </script>
+}
+

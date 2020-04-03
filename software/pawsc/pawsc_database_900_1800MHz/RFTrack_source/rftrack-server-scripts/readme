@@ -1,0 +1,5 @@
+created: 16 September
+
+1) filemon.sh requires 'inotifywait' to be installed on the host. The script runs eternally. To stop it: sudo pkill -f filemon.sh
+
+2) pdf generation i) xvfb; ii)wkhtmltopdf (sudo apt-get install xvfb wkhtmltopdf), which render html into pdf

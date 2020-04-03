@@ -1,0 +1,54 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.RegionWhitespaceDetails
+
+@using Microsoft.WhiteSpaces.Portal.Models
+@using Microsoft.WhiteSpaces.Common.Enums
+
+<h2>
+    <span>Channels Availability</span>
+    @Html.Partial("HelpControlPartial", new HelpControl { DomElementId = "channelAvailability", Message = "List of channels either available and/or occupied used by a TVBD for transmission and/or reception.  A check mark on a channel number indicates the contour can be shown on the map by clicking on it.", SectionTabId = "wsFinder", Url = "/Home/FAQ" })
+</h2>
+<nav class="channel-list">
+    <ul>
+        @if (@Model.Channels != null)
+        {
+            foreach (ChannelInformation channelInfo in @Model.Channels)
+            {
+                switch ((ChannelOperationMode)channelInfo.OperationMode)
+                {
+                    case ChannelOperationMode.HighPower:
+                        <li class="high">
+                            <button type="button" title="" id="@channelInfo.Channel.ChannelId" role="button">@channelInfo.Channel.ChannelId</button>
+                        </li>
+                        break;
+                    case ChannelOperationMode.LowPower:
+                    <li class="low">
+                        <button type="button" title="" id="@channelInfo.Channel.ChannelId" role="button">@channelInfo.Channel.ChannelId</button>
+                    </li>
+                        break;
+                    default:
+                    <li class="none">
+                        <button type="button" title="" id="@channelInfo.Channel.ChannelId" role="button">@channelInfo.Channel.ChannelId</button>
+                    </li>
+                        break;
+                }
+            }
+        }
+    </ul>
+</nav>
+<nav class="total-channels-info">
+    <ul>
+        <li class="high">
+            <button type="button" title="Available High (@Model.RegionChannelsDetail.HighPowerChannelsCount)" role="button">@Model.RegionChannelsDetail.HighPowerChannelsCount</button>
+        </li>
+        <li class="low">
+            <button type="button" title="Avaialble Low (@Model.RegionChannelsDetail.LowPowerChannelsCount)" role="button">@Model.RegionChannelsDetail.LowPowerChannelsCount</button>
+        </li>
+        <li class="not-available">
+            <button type="button" role="button" title="Not Available (@Model.RegionChannelsDetail.UnAvailableChannelsCount)">@Model.RegionChannelsDetail.UnAvailableChannelsCount</button>
+        </li>
+    </ul>
+</nav>

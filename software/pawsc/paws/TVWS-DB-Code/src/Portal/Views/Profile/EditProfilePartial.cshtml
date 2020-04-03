@@ -1,0 +1,145 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.UserProfileModel
+
+<h2>My Profile</h2>
+@using (Ajax.BeginForm("SaveUserDetails", "Profile", new AjaxOptions() { UpdateTargetId = "profile", HttpMethod = "POST", InsertionMode = InsertionMode.Replace }))
+{
+    <div id="Profile">
+        <ul>
+            <li class="name">
+                @Html.LabelFor(m => m.FirstName)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.FirstName)
+                </div>
+                @Html.ValidationMessageFor(m => m.FirstName, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="name">
+                @Html.LabelFor(m => m.LastName)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.LastName)
+                </div>
+                @Html.ValidationMessageFor(m => m.LastName, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="country">
+                @Html.LabelFor(m => m.PhoneCountryCode)
+                <div class="input">@Html.DropDownList("PhoneCountryCode", null, new { @id = "PhoneCountryCode" })</div>
+</li>
+
+            <li class="phone">
+                @Html.LabelFor(m => m.Phone)
+                <div class="input">@Html.TextBoxFor(m => m.Phone, new { @id = "Phone" })</div>
+            </li>
+
+            <li class="email">
+                @Html.LabelFor(m => m.PreferredEmail)
+                <div class="input mandatory">
+                    @Html.TextBoxFor(m => m.PreferredEmail, new { @id = "PreferredEmail" })
+                </div>
+                @Html.ValidationMessageFor(m => m.PreferredEmail, string.Empty, new { @class = "mandatory" })
+            </li>
+
+            <li class="email">
+                @Html.LabelFor(m => m.AccountEmail)
+                <div class="input">
+                    @Html.TextBoxFor(m => m.AccountEmail, new { @id = "AccountEmail", @readonly = true })
+                </div>
+            </li>
+        </ul>
+    </div>
+    <h2>Address</h2>
+    <ul>
+        <li class="home">
+            @Html.LabelFor(m => m.Address1)
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.Address1, new { @id = "Address1" })
+            </div>
+            <span class="min-info">Street Name, P. O. Box, Company Name etc.,</span>
+            @Html.ValidationMessageFor(m => m.Address1, string.Empty, new { @class = "mandatory" })
+        </li>
+
+        <li class="home">
+            @Html.LabelFor(m => m.Address2)
+            <div class="input">
+                @Html.TextBoxFor(m => m.Address2, new { @id = "Address2" })
+            </div>
+            <span class="min-info">Suit, Unit, Building etc.,</span>
+        </li>
+
+        <li class="location">
+            @Html.LabelFor(m => m.City)
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.City, new { @id = "Location" })
+            </div>
+            @Html.ValidationMessageFor(m => m.City, string.Empty, new { @class = "mandatory" })
+        </li>
+
+        <li class="location">
+            @Html.LabelFor(m => m.State)
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.State, new { @id = "Location" })
+            </div>
+            @Html.ValidationMessageFor(m => m.State, string.Empty, new { @class = "mandatory" })
+        </li>
+
+        <li class="zip">
+            @Html.LabelFor(m => m.ZipCode)
+            <div class="input mandatory">
+                @Html.TextBoxFor(m => m.ZipCode, new { @id = "ZipCode" })
+            </div>
+            @Html.ValidationMessageFor(m => m.ZipCode, string.Empty, new { @class = "mandatory" })
+        </li>
+
+        <li class="location">
+            @Html.LabelFor(model => model.Country)
+            <div class="input mandatory">
+                @Html.DropDownList("Country", null, new { @id = "Country" })
+            </div>
+        </li>
+
+        <li class="zone">
+            @Html.LabelFor(model => model.TimeZone)
+            <div class="input">
+                @Html.DropDownList("TimeZone", null, new { @id = "TimeZone" })
+            </div>
+        </li>
+    </ul>
+   
+
+    @Html.HiddenFor(x => x.UserId, new { @id = "userId" })
+
+    <div class="end-stripe">
+        <div class="acceptance"><input type="checkbox" id="accept" /><label for="accept">Agree to <a href="#" title="Privacy Plicy" role="link">Privacy</a> & <a href="#" role="link" title="Terms and Conditions">Terms and Conditions</a></label></div>
+        
+        <button type="submit" title="Submit" role="button" class="submit" name="ButtonType" value="Update" id="btnSubmit" disabled="true">Update</button>
+        <button type="submit" title="Cancel" role="button" class="cancel" name="ButtonType" value="Cancel">Cancel</button>
+        <label style="color:red">@ViewBag.Message</label>
+    </div>
+    
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script type="text/javascript">
+        $("#accept").click(function () {
+            $("#btnSubmit").attr("disabled", !this.checked);
+        });
+
+        $('.input *').focusin(function () {
+            var parent = $(this).parent("div");
+            parent.addClass("focus");
+        });
+
+        $('.input *').focusout(function () {
+            var parent = $(this).parent("div");
+            if (parent.hasClass('focus')) {
+                parent.removeClass('focus');
+            }
+        });
+
+
+    </script>
+}
+

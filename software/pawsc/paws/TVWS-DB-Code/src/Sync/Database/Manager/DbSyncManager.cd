@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Microsoft.Whitespace.Sync.Database.Manager.RegistrationEntityBuilder">
+    <Position X="2" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAgAAAAACAAAAAAIgABACCAAABAAAI=</HashCode>
+      <FileName>RegistrationEntityBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Whitespace.Sync.Database.Manager.SftpHelper">
+    <Position X="7.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAABA=</HashCode>
+      <FileName>SftpHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Whitespace.Sync.Database.Manager.SyncManager">
+    <Position X="4.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAICQQEsEAAACASAAAAagAAAAAgCKAAAABAAAAAA=</HashCode>
+      <FileName>SyncManager.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Microsoft.Whitespace.Sync.Database.Manager.XmlCryptography">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>XmlCryptography.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Microsoft.Whitespace.Sync.Database.Manager.XmlSchemaValidator">
+    <Position X="7.25" Y="2" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAABAA=</HashCode>
+      <FileName>XmlSchemaValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

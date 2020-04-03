@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <table cellpadding="5" cellspacing="0" border="1" width="100%">
+        <tbody>
+            <tr>
+                <td colspan="3">
+                    <p>Please see the below list of recent exceptions and/ or issues observed in the white spaces audit logs.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>Date and Time Scanned:</label>
+                    <span>{ScanTime} (UTC)</span>
+                </td>
+                <td>
+                    <label>Duration:</label>
+                    <span>Last 24 Hours</span>
+                </td>
+                <td>
+                    <label>Severity:</label>
+                    <span>Error/ Critical</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Audit ID</th>
+                                <th>Error Message</th>
+                                <th>Transaction ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {LogEntries}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="background:#FFFCE0; color#807619; border:1px solid #C9C383;">
+                    <p>Note: Please note that the above list is only the top 50 exceptions/ issues observed.  For full list, please view from audit log viewer.</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.WSDInfoInput
+
+
+@section Left{
+    <section>
+        <h2>WSD Information System</h2>
+    </section>
+}
+@section Right{
+    <div id="registerDiv">
+        <section>
+            <h2>WHITE SPACES DEVICES INFORMATION SYSTEM (WSDIS)</h2>
+            <form name="multiform" id="multiform" action="SubmitRequest" method="POST">
+                <ul>
+                    <li class="location">
+                        @Html.Label("Location (Latitude)")
+                        <span class="error hide " id="errlat"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.Latitude, new { @id = "lat", @maxlength = 20 })
+                            @*<span class="balloon">Latitude of the interference victim </span>*@
+                        </div>
+                        </li>
+                    <li class="location">
+                        @Html.Label("Location (Longitude)")
+                        <span class="error hide " id="errlat"></span>
+
+                        <div class="input">
+                            @Html.TextBoxFor(x => x.Longitude, new { @id = "long", @maxlength = 20 })
+                            @*<span class="balloon">Longitude of the interference victim </span>*@
+                        </div>
+                    </li>
+                    <li class="antenna">
+                        @Html.Label("Radius")
+                        <span class="error hide" id="errRadius"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.Radius, new { @id = "Radius", @maxlength = 15 })
+                            @*<span class="balloon">Radius in kilometres of a circle centred on the location specified in above location</span>*@
+                        </div>
+                    </li>
+                    <li class="time">
+                        @Html.Label("Start Time")
+                        <span class="error hide " id="errStartDate"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.StartDate, new { @id = "StartDate" })
+                            @*<span class="balloon">The time period for which White Space Use Data is being requested</span>*@
+                        </div>
+                    </li>
+                    <li class="time">
+                        @Html.Label("End Time")
+                        <span class="error hide " id="errEndDate"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.EndDate, new { @id = "EndDate" })
+                            @*<span class="balloon">The time period for which White Space Use Data is being requested</span>*@
+                        </div>
+                    </li>
+                    <li class="email">
+                        @Html.Label("Email")
+                        <span class="error hide" id="errEmail"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.Email, new { @id = "Email", @maxlength = 50 })
+                            @*<span class="balloon">An email address to receive the response</span>*@
+                        </div>
+                    </li>
+                </ul>
+                    <div class="end-stripe">
+                    <button type="submit" title="Submit Request" class="submit" id="btnSubmit">Submit</button>
+                    <span id="error" class="alert error"></span>
+                    <span id="success" class="alert succeed"></span>
+                </div>
+            </form>
+        </section>
+    </div>
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        $('#wrapper').addClass("inner");
+        $(document).ready(function () {
+
+            date_obj = new Date();
+            date_obj_hours = date_obj.getHours();
+            date_obj_mins = date_obj.getMinutes();
+            date_obj_secs = date_obj.getSeconds();
+
+            date_obj_time = "' " + date_obj_hours + ":" + date_obj_mins + ":" + date_obj_secs + "'";
+
+            $("#StartDate").datepicker({ dateFormat: $.datepicker.W3C + date_obj_time });
+            $("#EndDate").datepicker({ dateFormat: $.datepicker.W3C + date_obj_time });
+
+
+            $('#multiform')
+.submit(function (e) {
+    $("#success").text("");
+    var url = "/WSDInfoSystem/SubmitRequest/";
+    var isValid = validateForm();
+
+    if (isValid) {
+        $(".error").hide();
+        //$("#dvDownload").empty();
+        $("#error").text('');
+        //$('.preloader').show();
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (result != null) {
+
+                    if (result.error) {
+
+                    }
+                    else {
+
+                    }
+                }
+                $('.preloader').hide();
+            },
+
+            error: function (result) {
+                $('.preloader').hide();
+            },
+        });
+
+        $("#success").text("Request submitted successfully. You will receive Spectrum Use Data by mail shortly");
+    }
+    e.preventDefault();
+});
+        });
+
+
+        function validateForm() {
+            var requiredControls = [$("#lat"), $("#Radius"), $("#StartDate"), $("#EndDate"), $("#Email")];
+            isValid = true;
+            $(requiredControls).each(function () {
+                var errId = "#err" + this.attr('id');
+                if (this.val() == "" || this.val() == null) {
+                    isValid = false;
+                    $(errId).removeClass("hide");
+                    $(errId)[0].style.display = "";
+                    $(errId).text("Required");
+                }
+                else {
+                    if (!$(errId).hasClass("hide")) {
+                        $(errId).addClass("hide");
+                    }
+                }
+            });
+
+            return isValid;
+        }
+    </script>
+}

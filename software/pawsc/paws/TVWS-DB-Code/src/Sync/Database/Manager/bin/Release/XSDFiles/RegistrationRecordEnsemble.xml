@@ -1,0 +1,9 @@
+<n1:RegistrationRecordEnsemble xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:n1="http://www.whitespace-db-providers.org/2011//InterDB/xsd" version="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:vcard="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ical="urn:ietf:params:xml:ns:icalendar-2.0" xmlns:gml="http://www.opengis.net/gml">
+	<n1:EnsembleDescription>
+		<n1:Registrar></n1:Registrar>
+		<n1:GenerationDate></n1:GenerationDate>
+		<n1:Scope></n1:Scope>
+		<n1:RecordsFrom></n1:RecordsFrom>
+		<n1:RecordsTo/>
+	</n1:EnsembleDescription>
+</n1:RegistrationRecordEnsemble>

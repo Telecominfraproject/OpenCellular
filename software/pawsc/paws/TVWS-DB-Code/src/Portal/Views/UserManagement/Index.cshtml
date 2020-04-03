@@ -1,0 +1,132 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@section tabs
+{
+    <nav class="tab">
+        <ul>
+            <li class="summary">
+                <input type="radio" class="hide" id="summaryTab" name="tabNav" checked="checked" />
+                <label for="summaryTab">Summary</label>
+            </li>
+            <li class="access-request">
+                <input type="radio" class="hide" id="accReq" name="tabNav" />
+                <label for="accReq">Requests in Queue</label>
+            </li>
+            <li class="user-detail">
+                <input type="radio" class="hide" id="users" name="tabNav" />
+                <label for="users">User List</label>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section left
+{
+    <section class="noBorder">
+        <div class="title">
+            <h2>
+                Manage Users
+            </h2>
+        </div>
+    </section>
+}
+
+@section right
+{
+    <div id="summary">
+        @{ Html.RenderAction("GetAllUsersSummary");}
+    </div>
+    <div id="userInfo" class="hide">
+        @{ Html.RenderAction("LoadUserInfo");}
+    </div>
+    <div id="requests" class="hide">
+        @using (Ajax.BeginForm("GetAllRequestsInfo", "UserManagement", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "requestsList", InsertionMode = InsertionMode.Replace,OnComplete = "OnSuccess" }))
+        {
+            <div id="requestsList">
+                @Html.Action("GetAllRequestsInfo")
+            </div>
+        }
+    </div>
+}
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <script type="text/javascript" src="~/Scripts/Common.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        $("#wrapper").addClass("inner");
+        //$("#right-pane").addClass("tabbedContainer");
+
+        $("#users").click(function () {
+            hideAll();
+            $("#userInfo").removeClass("hide");
+        });
+
+        $("#accReq").click(function () {
+            hideAll();
+            $("#requests").removeClass("hide");
+        });
+
+        //$("#blockChannel").click(function () {
+        //    hideAll();
+        //    $("#channel").removeClass("hide");
+        //});
+
+        //$("#blockDevice").click(function () {
+        //    hideAll();
+        //    $("#device").removeClass("hide");
+        //});
+
+        $("#summaryTab").click(function () {
+            hideAll();
+            $("#summary").removeClass("hide");
+        });
+
+        function hideAll() {
+            if (!$("#summary").hasClass("hide")) {
+                $("#summary").addClass("hide");
+            }
+            if (!$("#userInfo").hasClass("hide")) {
+                $("#userInfo").addClass("hide");
+            }
+            //if (!$("#channel").hasClass("hide")) {
+            //    $("#channel").addClass("hide");
+            //}
+            if (!$("#requests").hasClass("hide")) {
+                $("#requests").addClass("hide");
+            }
+            //if (!$("#device").hasClass("hide")) {
+            //    $("#device").addClass("hide");
+            //}
+        };
+
+        function OnSuccess() {
+            $('.preloader').hide();
+        };
+
+        $(function () {
+            $('#summary').perfectScrollbar({
+                wheelSpeed: 20,
+                wheelPropagation: true,
+                minScrollbarLength: 20
+            });
+
+            $('#userDetails').perfectScrollbar({
+                wheelSpeed: 20,
+                wheelPropagation: true,
+                minScrollbarLength: 20
+            });
+
+            $('#requests').perfectScrollbar({
+                wheelSpeed: 20,
+                wheelPropagation: true,
+                minScrollbarLength: 20
+            });
+        });
+
+    </script>
+}

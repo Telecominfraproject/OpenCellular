@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0428F356-7B86-4178-90EE-C3EB24FE96D7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Whitespace.Entities</RootNamespace>
+    <AssemblyName>Microsoft.Whitespace.Entities</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Data.Edm, Version=5.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Edm.5.6.1\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.OData.5.6.1\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.1\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
+      <HintPath>..\packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Logging">
+      <HintPath>..\packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45\Microsoft.Practices.EnterpriseLibrary.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\EnterpriseLibrary.Validation.6.0.1304.0\lib\NET45\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.CloudDrive, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzureLibraries\lib\net40\Microsoft.WindowsAzure.CloudDrive.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.8.0.0\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzureLibraries\lib\net40\Microsoft.WindowsAzure.Diagnostics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\WindowsAzureLibraries\lib\net40\Microsoft.WindowsAzure.ServiceRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=3.1.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.Storage.3.1.0.1\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzureLibraries\lib\net40\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Spatial, Version=5.6.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Spatial.5.6.1\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Address.cs" />
+    <Compile Include="AntennaCharacteristics.cs" />
+    <Compile Include="Area.cs" />
+    <Compile Include="AvailableSpectrumConverter.cs" />
+    <Compile Include="AvailableSpectrumRequest.cs" />
+    <Compile Include="AvailableSpectrumRequestBase.cs" />
+    <Compile Include="BasePawsClass.cs" />
+    <Compile Include="BaseJsonConverter.cs" />
+    <Compile Include="BatchAvailableSpectrumConverter.cs" />
+    <Compile Include="BatchAvailableSpectrumRequest.cs" />
+    <Compile Include="BatchAvailableSpectrumRequestBase.cs" />
+    <Compile Include="BlockedType.cs" />
+    <Compile Include="LocationRect.cs" />
+    <Compile Include="CacheObjectPMSEAssignment.cs" />
+    <Compile Include="CacheObjectTvEngdata.cs" />
+    <Compile Include="Calendar.cs" />
+    <Compile Include="CDBSAntennaPattern.cs" />
+    <Compile Include="CDBSApplication.cs" />
+    <Compile Include="CDBSAppTracking.cs" />
+    <Compile Include="CDBSFacility.cs" />
+    <Compile Include="CDBSIfStaData.cs" />
+    <Compile Include="CDBSTableEntity.cs" />
+    <Compile Include="CDBSTvEngData.cs" />
+    <Compile Include="ChannelInfo.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="CircleArea.cs" />
+    <Compile Include="AntennaPatternItem.cs" />
+    <Compile Include="AuthorizedDeviceRecord.cs" />
+    <Compile Include="IntermediateResults2.cs" />
+    <Compile Include="IntermediateResults1.cs" />
+    <Compile Include="MergedData.cs" />
+    <Compile Include="DttData.cs" />
+    <Compile Include="DistinctDTTQueryParams.cs" />
+    <Compile Include="DTTSquare.cs" />
+    <Compile Include="FortranDoubleArray.cs" />
+    <Compile Include="RegionPolygon.cs" />
+    <Compile Include="RegionPolygonsCache.cs" />
+    <Compile Include="PortalContour.cs" />
+    <Compile Include="SearchCacheRequestType.cs" />
+    <Compile Include="DistinctOSGLocations.cs" />
+    <Compile Include="ContourDetailsInfo.cs" />
+    <Compile Include="DTTQueryParams.cs" />
+    <Compile Include="GeoSpectrumSpec.cs" />
+    <Compile Include="ContourPointItem.cs" />
+    <Compile Include="KeyHoleContourItem.cs" />
+    <Compile Include="LpAuxLicenseInfo.cs" />
+    <Compile Include="OSGLocation.cs" />
+    <Compile Include="ProtectedDevice.cs" />
+    <Compile Include="DTTDataAvailability.cs" />
+    <Compile Include="ElevatedAccessRequest.cs" />
+    <Compile Include="InterferenceQueryConverter.cs" />
+    <Compile Include="NextTransactionID.cs" />
+    <Compile Include="ParsePollRequestResult.cs" />
+    <Compile Include="PmseAssignment.cs" />
+    <Compile Include="PMSEResponse.cs" />
+    <Compile Include="Power.cs" />
+    <Compile Include="ProtectedDeviceType.cs" />
+    <Compile Include="ProtectedEntityWithEvent.cs" />
+    <Compile Include="ProtectedEntity.cs" />
+    <Compile Include="EventRecurrence.cs" />
+    <Compile Include="RegionAccess.cs" />
+    <Compile Include="GetChannelsResponse.cs" />
+    <Compile Include="RegionManagementResponse.cs" />
+    <Compile Include="RegionManagementResponseConverter.cs" />
+    <Compile Include="RuleSetInfoEntity.cs" />
+    <Compile Include="ServiceCacheObjectType.cs" />
+    <Compile Include="ServiceCacheRequestParameters.cs" />
+    <Compile Include="ServiceCacheUpdateType.cs" />
+    <Compile Include="SpectrumProfile.cs" />
+    <Compile Include="SpectrumSpec.cs" />
+    <Compile Include="SquareArea.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Contour.cs" />
+    <Compile Include="DbUpdateSpecConverter.cs" />
+    <Compile Include="DatabaseSpecConverter.cs" />
+    <Compile Include="DeviceValidityConverter.cs" />
+    <Compile Include="ElevationCacheEntry.cs" />
+    <Compile Include="Distance.cs" />
+    <Compile Include="FrequencyRangeConverter.cs" />
+    <Compile Include="GeoSpectrumScheduleConverter.cs" />
+    <Compile Include="IInterferenceQueryRequest.cs" />
+    <Compile Include="InterferenceQueryRequest.cs" />
+    <Compile Include="InterferenceQueryRequestBase.cs" />
+    <Compile Include="PawsResponseConverter.cs" />
+    <Compile Include="ResultConverter.cs" />
+    <Compile Include="RulesetInfoConverter.cs" />
+    <Compile Include="MVPDCallSignsInfo.cs" />
+    <Compile Include="TranslatorData.cs" />
+    <Compile Include="TranslatorInput.cs" />
+    <Compile Include="ULSRecord.cs" />
+    <Compile Include="UsedSpectrum.cs" />
+    <Compile Include="SpectrumConverter.cs" />
+    <Compile Include="EventTimeConverter.cs" />
+    <Compile Include="SpectrumScheduleConverter.cs" />
+    <Compile Include="DatabaseSpec.cs" />
+    <Compile Include="DBAdminInfo.cs" />
+    <Compile Include="DbUpdateSpec.cs" />
+    <Compile Include="DeviceCapabilities.cs" />
+    <Compile Include="DeviceDescriptor.cs" />
+    <Compile Include="DeviceDescriptorConverter.cs" />
+    <Compile Include="DeviceId.cs" />
+    <Compile Include="DeviceOwner.cs" />
+    <Compile Include="DeviceOwnerConverter.cs" />
+    <Compile Include="DeviceRegistrationMap.cs" />
+    <Compile Include="DeviceValidity.cs" />
+    <Compile Include="DeviceValidityRequest.cs" />
+    <Compile Include="DeviceValidityRequestBase.cs" />
+    <Compile Include="Ellipse.cs" />
+    <Compile Include="EllipseConverter.cs" />
+    <Compile Include="Email.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="EventTime.cs" />
+    <Compile Include="FixedTVBDRegistration.cs" />
+    <Compile Include="FrequencyRange.cs" />
+    <Compile Include="GeoLocation.cs" />
+    <Compile Include="GeoLocationConverter.cs" />
+    <Compile Include="GeoSpectrumSchedule.cs" />
+    <Compile Include="IAvailableSpectrumRequest.cs" />
+    <Compile Include="IBatchAvailableSpectrumRequest.cs" />
+    <Compile Include="IDeviceValidityRequest.cs" />
+    <Compile Include="IInitRequest.cs" />
+    <Compile Include="Incumbent.cs" />
+    <Compile Include="IncumbentId.cs" />
+    <Compile Include="IncumbentType.cs" />
+    <Compile Include="InitRequest.cs" />
+    <Compile Include="InitRequestBase.cs" />
+    <Compile Include="INotifyRequest.cs" />
+    <Compile Include="InitializedDeviceDetails.cs" />
+    <Compile Include="IParameters.cs" />
+    <Compile Include="IRegisterRequest.cs" />
+    <Compile Include="JsonSerialization.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="LPAuxRegistration.cs" />
+    <Compile Include="MVPDRegistration.cs" />
+    <Compile Include="NotifyConverter.cs" />
+    <Compile Include="NotifyRequest.cs" />
+    <Compile Include="NotifyRequestBase.cs" />
+    <Compile Include="Organization.cs" />
+    <Compile Include="ParameterMissingException.cs" />
+    <Compile Include="ParametersBase.cs" />
+    <Compile Include="ParameterConverter.cs" />
+    <Compile Include="Parameters.cs" />
+    <Compile Include="Point.cs" />
+    <Compile Include="PointConverter.cs" />
+    <Compile Include="Polygon.cs" />
+    <Compile Include="PolygonConverter.cs" />
+    <Compile Include="Position.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuadrilateralArea.cs" />
+    <Compile Include="RadialHAT.cs" />
+    <Compile Include="RadiationCenter.cs" />
+    <Compile Include="RegisterRequest.cs" />
+    <Compile Include="RegisterRequestBase.cs" />
+    <Compile Include="Registration.cs" />
+    <Compile Include="RegistrationDisposition.cs" />
+    <Compile Include="Request.cs" />
+    <Compile Include="RequestConverter.cs" />
+    <Compile Include="PawsResponse.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="RulesetInfo.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="RegisteredDevice.cs" />
+    <Compile Include="Spectrum.cs" />
+    <Compile Include="SpectrumSchedule.cs" />
+    <Compile Include="SyncRow.cs" />
+    <Compile Include="SyncTable.cs" />
+    <Compile Include="Telephone.cs" />
+    <Compile Include="TempBASRegistration.cs" />
+    <Compile Include="TransactionInfo.cs" />
+    <Compile Include="TVReceiveSiteRegistration.cs" />
+    <Compile Include="TvSpectrum.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="ValidationHelper.cs" />
+    <Compile Include="Vcard.cs" />
+    <Compile Include="VcardConverter.cs" />
+    <Compile Include="Versitcard\Address.cs" />
+    <Compile Include="Versitcard\Email.cs" />
+    <Compile Include="Versitcard\FormattedName.cs" />
+    <Compile Include="Versitcard\Name.cs" />
+    <Compile Include="Versitcard\Organization.cs" />
+    <Compile Include="Versitcard\Telephone.cs" />
+    <Compile Include="Versitcard\Title.cs" />
+    <Compile Include="Versitcard\VCard.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="CustomDictionary.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <StyleCopMSBuildTargetsFile>..\packages\StyleCop.MSBuild.4.7.49.0\build\StyleCop.MSBuild.Targets</StyleCopMSBuildTargetsFile>
+  </PropertyGroup>
+  <Import Condition="Exists('$(StyleCopMSBuildTargetsFile)')" Project="$(StyleCopMSBuildTargetsFile)" />
+  <PropertyGroup>
+    <StyleCopMSBuildMessageMissing>Failed to import StyleCop.MSBuild targets from '$(StyleCopMSBuildTargetsFile)'. The StyleCop.MSBuild package was either missing or incomplete when the project was loaded. Ensure that the package is present and then restart the build. If you are using an IDE (e.g. Visual Studio), reload the project before restarting the build.</StyleCopMSBuildMessageMissing>
+    <StyleCopMSBuildMessagePresent>Failed to import StyleCop.MSBuild targets from '$(StyleCopMSBuildTargetsFile)'. The StyleCop.MSBuild package was either missing or incomplete when the project was loaded (but is now present). To fix this, restart the build. If you are using an IDE (e.g. Visual Studio), reload the project before restarting the build.</StyleCopMSBuildMessagePresent>
+    <StyleCopMSBuildMessageRestore>Failed to import StyleCop.MSBuild targets from '$(StyleCopMSBuildTargetsFile)'. The StyleCop.MSBuild package was either missing or incomplete when the project was loaded. To fix this, restore the package and then restart the build. If you are using an IDE (e.g. Visual Studio), you may need to reload the project before restarting the build. Note that regular NuGet package restore (during build) does not work with this package because the package needs to be present before the project is loaded. If this is an automated build (e.g. CI server), you may want to ensure that the build process restores the StyleCop.MSBuild package before the project is built.</StyleCopMSBuildMessageRestore>
+    <StyleCopMSBuildMessageRestored>Failed to import StyleCop.MSBuild targets from '$(StyleCopMSBuildTargetsFile)'. The StyleCop.MSBuild package was either missing or incomplete when the project was loaded (but is now present). To fix this, restart the build. If you are using an IDE (e.g. Visual Studio), reload the project before restarting the build. Note that when using regular NuGet package restore (during build) the package will not be available for the initial build because the package needs to be present before the project is loaded. If package restore executes successfully in the intitial build then the package will be available for subsequent builds. If this is an automated build (e.g. CI server), you may want to ensure that the build process restores the StyleCop.MSBuild package before the initial build.</StyleCopMSBuildMessageRestored>
+  </PropertyGroup>
+  <Target Name="StyleCopMSBuildTargetsNotFound">
+    <Warning Condition="!Exists('$(StyleCopMSBuildTargetsFile)') And $(RestorePackages)!=true And $(StyleCopTreatErrorsAsWarnings)!=false" Text="$(StyleCopMSBuildMessageMissing)" />
+    <Warning Condition="Exists('$(StyleCopMSBuildTargetsFile)')  And $(RestorePackages)!=true And $(StyleCopTreatErrorsAsWarnings)!=false" Text="$(StyleCopMSBuildMessagePresent)" />
+    <Warning Condition="!Exists('$(StyleCopMSBuildTargetsFile)') And $(RestorePackages)==true And $(StyleCopTreatErrorsAsWarnings)!=false" Text="$(StyleCopMSBuildMessageRestore)" />
+    <Warning Condition="Exists('$(StyleCopMSBuildTargetsFile)')  And $(RestorePackages)==true And $(StyleCopTreatErrorsAsWarnings)!=false" Text="$(StyleCopMSBuildMessageRestored)" />
+    <Error Condition="!Exists('$(StyleCopMSBuildTargetsFile)') And $(RestorePackages)!=true And $(StyleCopTreatErrorsAsWarnings)==false" Text="$(StyleCopMSBuildMessageMissing)" />
+    <Error Condition="Exists('$(StyleCopMSBuildTargetsFile)')  And $(RestorePackages)!=true And $(StyleCopTreatErrorsAsWarnings)==false" Text="$(StyleCopMSBuildMessagePresent)" />
+    <Error Condition="!Exists('$(StyleCopMSBuildTargetsFile)') And $(RestorePackages)==true And $(StyleCopTreatErrorsAsWarnings)==false" Text="$(StyleCopMSBuildMessageRestore)" />
+    <Error Condition="Exists('$(StyleCopMSBuildTargetsFile)')  And $(RestorePackages)==true And $(StyleCopTreatErrorsAsWarnings)==false" Text="$(StyleCopMSBuildMessageRestored)" />
+  </Target>
+  <PropertyGroup>
+    <PrepareForBuildDependsOn Condition="!Exists('$(StyleCopMSBuildTargetsFile)')">StyleCopMSBuildTargetsNotFound;$(PrepareForBuildDependsOn)</PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+  </Target>
+</Project>

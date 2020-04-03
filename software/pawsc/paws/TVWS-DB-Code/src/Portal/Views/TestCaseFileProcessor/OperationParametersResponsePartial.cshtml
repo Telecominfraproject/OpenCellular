@@ -1,0 +1,512 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.OperationalParametersResponse
+
+<div id="dvResponse">
+    <h2>Output</h2>
+    <ul>
+        <li class="info name">
+            @Html.LabelFor(m => m.Unique_ID)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Unique_ID)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.RequestType)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.RequestType)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Time_start)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Time_start)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Time_end)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Time_end)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel21_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel21_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel21_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel21_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel22_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel22_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel22_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel22_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel23_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel23_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel23_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel23_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel24_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel24_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel24_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel24_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel25_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel25_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel25_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel25_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel26_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel26_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel26_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel26_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel27_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel27_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel27_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel27_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel28_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel28_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel28_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel28_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel29_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel29_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel29_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel29_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel30_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel30_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel30_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel31_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel31_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel31_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel32_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel32_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel32_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel32_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel33_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel33_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel33_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel33_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel34_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel34_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel34_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel34_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel35_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel35_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel35_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel35_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel36_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel36_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel36_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel36_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel37_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel37_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel37_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel37_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel38_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel38_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel38_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel38_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel39_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel39_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel39_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel39_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel40_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel40_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel40_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel40_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel41_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel41_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel41_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel41_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel42_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel42_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel42_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel42_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel43_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel43_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel43_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel43_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel44_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel44_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel44_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel44_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel45_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel45_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel45_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel45_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel46_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel46_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel46_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel46_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel47_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel47_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel47_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel47_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel48_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel48_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel48_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel48_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel49_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel49_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel49_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel49_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel50_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel50_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel50_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel50_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel51_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel51_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel51_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel51_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel52_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel52_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel52_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel52_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel53_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel53_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel53_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel53_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel54_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel54_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel54_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel54_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel55_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel55_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel55_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel55_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel56_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel56_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel56_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel56_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel57_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel57_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel57_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel57_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel58_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel58_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel58_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel58_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel59_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel59_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel59_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel59_P1)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel60_P_PMSE)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel60_P_PMSE)
+            </div>
+        </li>
+        <li class="info name">
+            @Html.LabelFor(m => m.Channel60_P1)
+            <div class="input">
+                @Html.DisplayTextFor(m => m.Channel60_P1)
+            </div>
+        </li>        
+    </ul>
+</div>
+
+
+

@@ -1,0 +1,24 @@
+curl -H "Content-Type: application/json; charset=UTF-8" -X POST -d  '{"jsonrpc":"2.0", "method":"spectrum.paws.init", "params":{ "type":"INIT_REQ", "version":"1.0", "deviceDesc":{"serialNumber":"SN504","fccId":"FCC110","ModelId":"MN502"}, "location":{"point":{"center":{"latitude": -25.0,"longitude": 28}}}},"antenna":{"height":10.5,"heightType":"AGL"}, "id":"103"}'  http://whitespaces.meraka.csir.co.za/PawsService
+
+
+
+curl -H "Content-Type:application/json; charset=UTF-8" -X POST -d '{"jsonrpc":"2.0", "method":"spectrum.paws.getSpectrum", "params":{"type":"AVAIL_SPECTRUM_REQ", "version":"1.0", "deviceDesc":{"serialNumber":"SN504", "fccId":"FCC110","ModelID":"MN502"},"location":{"point":{"center":{"latitude":-34.129,"longitude":18.380}}}, "antenna":{"height":10.2,"heightType":"AGL"} }, "id":"103"}' http://whitespaces.meraka.csir.co.za/PawsService
+
+Results
+{"id":"103","result":{"timestamp":"2014-08-11T18:06:35+0200","deviceDesc":{"fccId":"FCC110","serialNumber":"SN504","ModelID":"MN502"},"spectrumSpecs":[{"needSpectrumReport":false,"spectrumSchedules":[{"spectra":[{"profiles ":[{"hz":2.46E8,"dbm":36.0},{"hz":2.54E8,"dbm":36.0},{"hz":4.7E8,"dbm":36.0},{"hz":5.18E8,"dbm":36.0},{"hz":5.42E8,"dbm":36.0},{"hz":5.98E8,"dbm":36.0},{"hz":6.3E8,"dbm":36.0},{"hz":6.54E8,"dbm":36.0},{"hz":6.62E8,"dbm":36.0},{"hz":6.86E8,"dbm":36.0},{"hz":7.26E8,"dbm":36.0},{"hz":7.34E8,"dbm":36.0},{"hz":8.22E8,"dbm":36.0},{"hz":8.3E8,"dbm":36.0},{"hz":2.46E8,"dbm":20.0},{"hz":2.54E8,"dbm":20.0},{"hz":4.7E8,"dbm":20.0},{"hz":5.18E8,"dbm":20.0},{"hz":5.42E8,"dbm":20.0},{"hz":5.98E8,"dbm":20.0},{"hz":6.3E8,"dbm":20.0},{"hz":6.54E8,"dbm":20.0},{"hz":6.62E8,"dbm":20.0},{"hz":6.86E8,"dbm":20.0},{"hz":7.26E8,"dbm":20.0},{"hz":7.34E8,"dbm":20.0},{"hz":8.22E8,"dbm":20.0},{"hz":8.38E8,"dbm":20.0}],"resolutionBwHz":8000000.0}],"eventTime":{"startTime":"2014-08-11T18:06:35+0200","stopTime":"2014-08-11T18:06:35+0200"}}],"rulesetInfos":{"authority":"ZA"}}],"type":"AVAIL_SPECTRUM_RESP","version":"1.0"},"jsonrpc":"2.0"}
+
+
+
+netcat
+
+head="POST http://whitespaces.meraka.csir.co.za/PawsService
+ HTTP/1.1\r\nHost:whitespaces.meraka.csir.co.za
+ HTTP/1.1\r\nHost: twitter.com\r\nAuthorization: Basic myname:passwordinbs64\r\nContent-type: application/x-www-form-urlencoded\r\nContent-length: 10\r\nConnection: Close\r\n\r\nstatus=mymessage"
+
+POST /index.html HTTP/1.1
+host: www.example.com
+
+echo -ne "GET / \r\n\r\n" | nc www.google.com 80
+(echo 'POST /examples/jsp/dates/nextPageToPost.jsp HTTP/1.1'
+
+head="POST http://whitespaces.meraka.csir.co.za/PawsService HTTP1.1\r\nHost: whitespaces.meraka.csir.co.za\r\nContent-Type:application/json\r\n\r\n'{\"jsonrpc\":\"2.0\", \"method\":"spectrum.paws.getSpectrum\", \"params\":{"type":"AVAIL_SPECTRUM_REQ","version":"1.0","deviceDesc":{"serialNumber":"SN504","fccId":"FCC110","ModelID":"MN502"},"location":{"point":{"center":{"latitude":-34.129,"longitude":18.380}}}, "antenna":{"height":10.2,"heightType":"AGL"} }, "id":"103"}'

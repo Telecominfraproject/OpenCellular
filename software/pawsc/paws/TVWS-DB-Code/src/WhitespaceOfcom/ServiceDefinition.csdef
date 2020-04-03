@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="WhitespaceOfcom" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
+  <WebRole name="Microsoft.Whitespace.PAWS.Service" vmsize="Small">
+    <Sites>
+      <Site name="Web" physicalDirectory="..\PAWS\Service">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="8080" />
+    </Endpoints>
+    <Imports>
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="AzureStorageAccountConnectionString" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="Authority" />
+      <Setting name="DBConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+    <LocalResources>
+      <LocalStorage name="LocalCacheStore" cleanOnRoleRecycle="false" sizeInMB="10240" />
+    </LocalResources>
+  </WebRole>
+  <WebRole name="RegionManagement" vmsize="Small">
+    <Sites>
+      <Site name="Web" physicalDirectory="..\RegionManagement">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="8082" />
+    </Endpoints>
+    <Imports>
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="AzureStorageAccountConnectionString" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="Authority" />
+      <Setting name="DBConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="AdminToolProductToken" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+    <LocalResources>
+      <LocalStorage name="LocalCacheStore" cleanOnRoleRecycle="false" sizeInMB="10240" />
+    </LocalResources>
+  </WebRole>
+  <WorkerRole name="DTTSync" vmsize="Small">
+    <Imports>
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="AzureStorageAccountConnectionString" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="Authority" />
+      <Setting name="DBConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+  </WorkerRole>
+  <WorkerRole name="PMSESync" vmsize="Small">
+    <Imports>
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="AzureStorageAccountConnectionString" />
+      <Setting name="RegionId" />
+      <Setting name="RegionName" />
+      <Setting name="Authority" />
+      <Setting name="DBConnectionString" />
+      <Setting name="LogLevelTransferTime" />
+      <Setting name="UnityContainerNames" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+    <LocalResources>
+      <LocalStorage name="LocalCacheStore" cleanOnRoleRecycle="false" sizeInMB="10240" />
+    </LocalResources>
+  </WorkerRole>
+</ServiceDefinition>

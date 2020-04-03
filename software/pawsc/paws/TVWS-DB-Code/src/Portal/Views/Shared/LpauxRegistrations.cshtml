@@ -1,0 +1,41 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model IEnumerable<Microsoft.Whitespace.Entities.LPAuxRegistration>
+
+@if (Model.Count() > 0)
+{
+    WebGrid lpAuxGrid = new WebGrid(rowsPerPage: 5);
+    lpAuxGrid.Bind(Model, autoSortAndPage: false, rowCount: ViewBag.lpauxRowCount);
+    lpAuxGrid.Pager(WebGridPagerModes.All);
+
+    @lpAuxGrid.GetHtml(htmlAttributes: new { id = "lpAuxGrid" },
+     mode: WebGridPagerModes.All,
+     firstText: "<< First",
+     previousText: "< Prev",
+     nextText: "Next >",
+     lastText: "Last >>",
+    columns: lpAuxGrid.Columns(
+             lpAuxGrid.Column("", "ULS FileNumber", @<text> @item.ULSFileNumber </text>),
+             lpAuxGrid.Column("", "Licensed", @<text> @item.Licensed </text>),
+             lpAuxGrid.Column("", "Venue", @<text> @item.VenueName </text>),
+             lpAuxGrid.Column("", "Location", @<text> @item.Latitude , @item.Longitude </text>),
+ lpAuxGrid.Column("", "Registration Date", @<text> @item.Disposition.RegDate </text>),
+          lpAuxGrid.Column("", "", @<text>  <a data-pk="@item.PartitionKey" data-rk="@item.RowKey" data-type="LpAux" data-etag="@item.ETag" class="del-lpaux delete icon">Delete</a> </text>)
+                  ))
+    if (Convert.ToInt16(ViewBag.lpauxRowCount) > 5)
+    {
+        <div class="total-count">Total Records: @ViewBag.lpauxRowCount</div>
+    }
+}
+else
+{
+    <label>No records found</label>
+}
+
+
+
+
+
+

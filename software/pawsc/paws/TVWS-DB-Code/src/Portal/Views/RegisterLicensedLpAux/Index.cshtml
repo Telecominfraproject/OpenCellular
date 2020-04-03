@@ -1,0 +1,303 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@using System;
+@using System.Text;
+@model Microsoft.WhiteSpaces.Common.LicensedLpAuxRegistration
+
+@section Left{
+    <section>
+        @Html.Partial("RegisterNavigation")
+    </section>
+}
+
+@section Right{
+    @Html.Partial("MapPartial")
+    @using (Ajax.BeginForm("Register", "RegisterLicensedLpAux", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "registerDiv" }))
+    {
+        <div id="registerDiv" class="summary-pane accordion left">
+            <div class="container">
+                <h2>Register LP Aux (Licensed)</h2>
+                <p>Use of licensed low power auxiliary stations at well-defined times and locations may be registered in the database. To register a licensed LP Aux, the call sign of the TV station is required.  Registrations will be valid for no more than one year.</p>
+                <section>
+                    <div class="row">
+                        @Html.Label("Friendly Name")
+                        <span class="error hide" id="errFriendlyName"></span>
+
+                        @Html.TextBoxFor(model => model.FriendlyName, new { @id = "FriendlyName", @maxlength = 40 })
+                        <span class="balloon">Name to identify the registration</span>
+                    </div>
+
+                    @*<div class="row">
+                            @Html.Label("Description")
+                            @Html.TextBoxFor(model => model.Description, new { @id = "Description", @maxlength = 100 })
+                            <span class="balloon">Precise description about registration</span>
+                        </div>*@
+                    <div class="row">
+                        @Html.Label("Responsible Individual/Business Name")
+                        <span class="error hide" id="errresponsibleParty"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.ResponsibleParty, new { @id = "responsibleParty", @maxlength = 200 })
+                            <span class="balloon">Name of the individual or business responsible</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @Html.Label("Contact Phone")
+                        <span class="error hide" id="errcontactPhone"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.ContactPhone, new { @id = "contactPhone", @maxlength = 15 })
+                            <span class="balloon">The Contact Phone No. Format: (XXX) XXX-XXXX Or XXX-XXX-XXXX Or XXX XXX XXXX</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @Html.Label("Callsign")
+                        <span class="error hide" id="errCallSign"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(model => model.CallSign, new { @id = "CallSign", @maxlength = 15 })
+                            <span class="balloon">Call sign of each wireless microphone or other supporting wireless devices that are eligible for registration</span>
+                        </div>
+                    </div>
+                    <h5>Location</h5>
+                    <div class="row">
+                        <span class="error hide" id="errAddress"></span>
+                        @Html.Label("Address")
+                        @Html.TextArea("dcbfdf", new { @id = "Address", @maxlength = 250 })
+                        <span class="balloon">Location of the device receive site. Enter address and click on GetLocation link to get coordinates</span>
+                        <a id="lnkGetLocation">Get Location</a>
+                    </div>
+
+                    <div class="row split">
+                        @Html.Label("Coordinates")
+                        <span class="error hide " id="errlat"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.Latitude, new { @id = "lat", @placeholder = "latitude", @maxlength = 20 })
+                            <span class="balloon">Location of the receive site (latitude and longitude in NAD 83, accurate to ±/− 50 m);</span>
+                        </div>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.Longitude, new { @id = "long", @placeholder = "longitude", @maxlength = 20 })
+                            <span class="balloon">Location of the receive site (latitude and longitude in NAD 83, accurate to ±/− 50 m);</span>
+                        </div>
+                    </div>
+
+                    <div class="row hide" id="divChannels">
+                        <h5>Channels</h5>
+                        <span class="error hide" id="errChannels">Please select atleast one Channel</span>
+
+                        <div class="channel-list channel-num">
+                            <ul id="channelList">
+                                @for (int i = 2; i < 52; i++)
+                                {
+                                    <li>
+                                        @{
+                                    var id = "chk" + i;
+                                    var value = string.Empty;
+                                    if (i < 10)
+                                    {
+                                        value = "0" + i;
+                                    }
+                                    else
+                                    {
+                                        value = i.ToString();
+                                    }
+                                        }
+                                        <input type="checkbox" id="@id" class="hide" disabled="disabled" value="@i" />
+                                        <label for="@id">@value</label>
+                                    </li>
+                                }
+                            </ul>
+                            <span class="balloon">Channels used by the wireless microphones operated at the site</span>
+                        </div>
+                    </div>
+                    <h5>Event</h5>
+
+                    <div class="row split">
+                        @Html.Label("Start Time")
+                        <span class="error hide " id="errStartDate"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.StartDate, new { @id = "StartDate", @maxlength = 10 })
+                            <span class="balloon">Specific months, weeks, days of the week and times when the device(s) are used (on dates when microphones are not used the site will not be protected).Note duration of registration should not exceed 720 hours(FCC Rule)</span>
+                        </div>
+
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.StartTime, new { @id = "StartTime", @maxlength = 5 })
+                            <span class="balloon">Specific months, weeks, days of the week and times when the device(s) are used (on dates when microphones are not used the site will not be protected).Note duration of registration should not exceed 720 hours(FCC Rule)</span>
+                        </div>
+                    </div>
+
+                    <div class="row split">
+                        @Html.Label("End Time")
+                        <span class="error hide " id="errEndDate"></span>
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(x => x.EndDate, new { @id = "EndDate", @maxlength = 10 })
+                            <span class="balloon">Specific months, weeks, days of the week and times when the device(s) are used (on dates when microphones are not used the site will not be protected).Note duration of registration should not exceed 720 hours(FCC Rule)</span>
+                        </div>
+
+                        <div class="input mandatory">
+                            @Html.TextBoxFor(X => X.EndTime, new { @id = "EndTime", @maxlength = 5 })
+                            <span class="balloon">Specific months, weeks, days of the week and times when the device(s) are used (on dates when microphones are not used the site will not be protected).Note duration of registration should not exceed 720 hours(FCC Rule)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <a id="lnkReoccurence">Recurrence</a>
+                    </div>
+
+                    <div>
+                        <span class="error hide" id="errReoccurence"></span>
+                    </div>
+                    <div id="divReoccurence" class="hide">
+                        <div class="row">
+                            <input type="radio" name="recurrence" id="daily" checked="checked" />
+                            <label class="inline" for="daily">Daily</label>
+                            <input type="radio" name="recurrence" id="weekly" />
+                            <label class="inline" for="weekly">Weekly</label>
+                        </div>
+                        <div class="row hide" id="divWeekDays">
+                            <label>Choose Week Days</label>
+                            <div class="channel-list week channel-num">
+                                <ul id="lstDays">
+                                    <li>
+                                        <input type="checkbox" id="day01" class="hide" value="Sunday" />
+                                        <label for="day01">Sunday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day02" class="hide" value="Monday" />
+                                        <label for="day02">Monday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day03" class="hide" value="Tuesday" />
+                                        <label for="day03">Tuesday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day04" class="hide" value="Wednesday" />
+                                        <label for="day04">Wednesday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day05" class="hide" value="Thursday" />
+                                        <label for="day05">Thursday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day06" class="hide" value="Friday" />
+                                        <label for="day06">Friday</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="day07" class="hide" value="Saturday" />
+                                        <label for="day07">Saturday</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <input type="radio" name="stopreocurrence" id="stopInstance" checked="checked" />
+                            <label class="inline" for="stopInstance">Stop After Occurences</label>
+                            @Html.TextBoxFor(x => x.ReoccurenceInstance, new { @id = "REndInstance", @maxlength = 4 })
+
+                            <input type="radio" name="stopreocurrence" id="StopDate" />
+                            <label class="inline" for="StopDate">Stop Date</label>
+                            @Html.TextBoxFor(x => x.ReoccurrenceEndDate, new { @id = "REndDate", @maxlength = 10 })
+                        </div>
+                    </div>
+                    <h5>Contact Card </h5>
+                    <div class="row">
+                        @Html.LabelFor(x => x.Name)
+                        <span id="Name">@Model.Name</span>
+                    </div>
+
+                    <div class="row hide">
+                        <span id="Address1">@Model.Address1</span>
+                        <span id="Address2">@Model.Address2</span>
+                        <span id="City">@Model.City</span>
+                        <span id="State">@Model.State</span>
+                        <span id="Country">@Model.Country</span>
+                    </div>
+
+                    <div class="row">
+                        @{
+                                StringBuilder address = new StringBuilder();
+                                if (!string.IsNullOrEmpty(Model.Address1))
+                                {
+                                    address.Append(Model.Address1);
+                                }
+                                if (!string.IsNullOrEmpty(Model.Address2))
+                                {
+                                    address.Append(", ");
+                                    address.Append(Model.Address2);
+                                }
+                                address.Append("<br />");
+
+                                if (!string.IsNullOrEmpty(Model.City))
+                                {
+                                    address.Append(Model.City);
+                                }
+                                if (!string.IsNullOrEmpty(Model.State))
+                                {
+                                    address.Append(", ");
+                                    address.Append(Model.State);
+                                }
+                                address.Append("<br />");
+                                if (!string.IsNullOrEmpty(Model.Country))
+                                {
+                                    address.Append(Model.Country);
+                                }
+
+                                @Html.Label("Address")
+                                <span>@Html.Raw(@address.ToString())</span>
+                        }
+                    </div>
+
+                    <div class="row">
+                        @Html.LabelFor(x => x.Email)
+                        <span id="Email">@Model.Email</span>
+
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Phone))
+                    {
+                        <div class="row">
+                            @Html.LabelFor(x => x.Phone)
+                            <span id="Phone">@Model.Phone</span>
+                        </div>
+                    }
+
+                    <div class="row">
+                        @ViewBag.Result
+                    </div>
+                    <div class="row">
+                        <div class="contactcard-label">
+                            <input type="checkbox" id="accept" class="contact-card-check" /><label for="accept">Agree to <a href="#" title="Privacy Plicy" role="link">Privacy</a> & <a href="#" role="link" title="Terms and Conditions">Terms and Conditions</a></label>
+                        </div>
+                        <div class="info">By clicking submit, I understand that all information required by the FCC to be in a TV white space database will be shared with other TVWS database administrators authorized by the FCC and will be available to the public. If the information I have provided is inaccurate or incomplete, I understand that the FCC has the right to reject my registration request or remove my information from the database.</div>
+                        <button class="submit contactcard-submit" id="btnSubmit" type="button" disabled="disabled">Submit</button>
+                        <div id="error" class="alert error"></div>
+                        <div id="success" class="alert succeed"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        @Html.HiddenFor(x => x.ChannelListString, new { @id = "hdnChannelList" })
+        @Html.HiddenFor(x => x.WeekDaysString, new { @id = "hdnWeekDays" })
+        @Html.HiddenFor(x => x.IsRecurred, new { @id = "hdnIsReOccured" })
+        @Html.HiddenFor(x => x.IsReoccurenceDaily, new { @id = "hdnIsReoccurenceDaily", @value = "true" })
+    }
+}
+
+@section Preloader{
+    <div id="preloader" class="preloader"></div>
+}
+
+@section scripts{
+    <!-- TODO: This script should be moved to RegisterLpAux.js. Currently, one of the previous script is failing. Hence, it is placed here. -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#lpaux').prop('checked', true);
+        });
+    </script>
+    <script type="text/javascript" src="/Scripts/perfect-scrollbar.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="/Scripts/RegisterLpAux.js"></script>
+    <script type="text/javascript" src="/Scripts/Register.js"></script>
+    <script type="text/javascript" src="/Scripts/Common.js"></script>
+}
+

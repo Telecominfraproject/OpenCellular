@@ -1,0 +1,60 @@
+{
+  "DeviceInfo": [
+    {
+      "deviceid": "test.fap",
+      "manufacturer": "IPAccess",
+      "model": "E40"
+    },
+    {
+      "deviceid": "00101123001003",
+      "manufacturer": "Novatel",
+      "model": "6610L"
+    },
+    {
+      "deviceid": "00101123001001",
+      "manufacturer": "Novatel",
+      "model": "6610L"
+    },
+    {
+      "deviceid": "00101123001002",
+      "manufacturer": "Novatel",
+      "model": "6610L"
+    }
+  ],
+  "DeviceInfoAntenna": [
+    {
+      "deviceid": "test.fap",
+      "gain": 4.0
+    }
+  ],
+  "DeviceInfoCharacteristics": [
+    {
+      "deviceid": "test.fap",
+      "type": "A",
+      "cat": "master",
+      "emission_class": 3,
+      "technology_id": "AngularJS"
+    },
+    {
+      "deviceid": "00101123001003",
+      "type": "B",
+      "cat": "slave",
+      "emission_class": "5",
+      "technology_id": "AngularJS"
+    },
+    {
+      "deviceid": "00101123001001",
+      "type": "B",
+      "cat": "slave",
+      "emission_class": "5",
+      "technology_id": "AngularJS"
+    },
+    {
+      "deviceid": "00101123001002",
+      "type": "B",
+      "cat": "slave",
+      "emission_class": "5",
+      "technology_id": "AngularJS"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>2.9</ProductVersion>
+    <ProjectGuid>c0347af8-ac8f-4992-af96-864ae97abe2a</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WhitespaceFCC</RootNamespace>
+    <AssemblyName>WhitespaceFCC</AssemblyName>
+    <StartDevelopmentStorage>True</StartDevelopmentStorage>
+    <Name>WhitespaceFCC</Name>
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <UseEmulatorExpressByDefault>False</UseEmulatorExpressByDefault>
+    <PackageEnableRemoteDebugger>False</PackageEnableRemoteDebugger>
+    <UseWebProjectPorts>False</UseWebProjectPorts>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- Items for the project -->
+  <ItemGroup>
+    <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
+    <ServiceDefinition Include="ServiceDefinition.csdef" />
+    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NotificationWorker\NotificationWorker.csproj">
+      <Name>NotificationWorker</Name>
+      <Project>{af481f7d-7dec-4e1d-910b-298a73f764ba}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>NotificationWorker</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Portal\Portal.csproj">
+      <Name>Portal</Name>
+      <Project>{8a639bb5-c234-4a29-b017-a1fa8547de86}</Project>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>Portal</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\Database\File\File.csproj">
+      <Name>File</Name>
+      <Project>{620c03f5-4465-45b8-8608-aa3136c96ea9}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>File</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\Database\IncrementalFile\IncrementalFile.csproj">
+      <Name>IncrementalFile</Name>
+      <Project>{2359b1d8-c5b9-481c-aced-9957eec3c5f0}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>IncrementalFile</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\Database\Poller\Poller.csproj">
+      <Name>Poller</Name>
+      <Project>{4a439225-3171-479c-904a-180415be33ab}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>Poller</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\Database\Service\Service.csproj">
+      <Name>Microsoft.Whitespace.Sync.Database.Service</Name>
+      <Project>{f14438d5-6e0a-4bab-a0f7-52b290f5fd94}</Project>
+      <Properties>SkipValidatePackageReferences=true</Properties>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>Microsoft.Whitespace.Sync.Database.Service</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\RegionManagement\RegionManagement.csproj">
+      <Name>RegionManagement</Name>
+      <Project>{09143df9-1a15-42cf-ad97-4409a37d349a}</Project>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>RegionManagement</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\PAWS\Service\Service.csproj">
+      <Name>Microsoft.Whitespace.PAWS.Service</Name>
+      <Project>{0a91c4a7-33eb-4a89-af96-654df2215327}</Project>
+      <Properties>SkipValidatePackageReferences=true</Properties>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>Microsoft.Whitespace.PAWS.Service</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\Sync\Region\Region.csproj">
+      <Name>Microsoft.Whitespace.Sync.Region</Name>
+      <Project>{318674a2-8627-4022-9eaf-5bef01beba47}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>Microsoft.Whitespace.Sync.Region</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FileContent\" />
+    <Folder Include="IncrementalFileContent\" />
+    <Folder Include="Microsoft.Whitespace.PAWS.ServiceContent\" />
+    <Folder Include="NotificationWorkerContent\" />
+    <Folder Include="PollerContent\" />
+    <Folder Include="PortalContent\" />
+    <Folder Include="Profiles" />
+    <Folder Include="RegionManagementContent\" />
+    <Folder Include="Microsoft.Whitespace.Sync.Database.ServiceContent\" />
+    <Folder Include="Microsoft.Whitespace.Sync.RegionContent\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\tvwhitespacesCloud.azurePubxml" />
+    <PublishProfile Include="Profiles\tvwhitespacesLocal.azurePubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <DiagnosticsConfiguration Include="FileContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="IncrementalFileContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="Microsoft.Whitespace.PAWS.ServiceContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="Microsoft.Whitespace.Sync.Database.ServiceContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="Microsoft.Whitespace.Sync.RegionContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="NotificationWorkerContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="PollerContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="PortalContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="RegionManagementContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <!-- Import the target files for this project template -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\2.9\</CloudExtensionsDir>
+  </PropertyGroup>
+  <Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
+</Project>

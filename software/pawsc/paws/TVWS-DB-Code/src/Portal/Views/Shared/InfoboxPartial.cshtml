@@ -1,0 +1,72 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Common.Entities.Region
+
+@{
+    System.Text.StringBuilder deviceTypesLabel = new System.Text.StringBuilder();
+
+    Microsoft.WhiteSpaces.Common.Entities.DeviceType[] deviceTypes = @Model.Regulatory.SupportedDeviceTypes.ToArray();
+}
+
+@for (int i = 0; i < deviceTypes.Length; i++)
+{
+    deviceTypesLabel.Append(deviceTypes[i].FriendlyName);
+
+    if (i != deviceTypes.Length - 1)
+    {
+        deviceTypesLabel.Append(", ");
+    }
+}
+
+<div class="infobox">
+    <div class="infobox-body">
+        <div class="title">
+            <h2>@Model.RegionInformation.Name</h2>
+            <nav class="options">
+                <ul>
+                    <li>
+                        @Html.ActionLink("Find White Spaces", "GetWhitespacesFinderView", "WSFinder", new { regulatoryName = @Model.Regulatory.Name }, new { role = "link", title = "Find Whitespaces" })</li>
+
+                        @if (Model.Regulatory.SupportedFeatures.Contains("download"))
+                        {
+                            <li><a href="@Url.Action("Index", "PublicData")" title="Download Data">Download Data</a></li>
+                        }
+
+                        @if (Model.Regulatory.SupportedFeatures.Contains("register incumbents"))
+                        {
+                            <li>
+                                <a href="@Url.Action("Index", "RegisterMVPD")" title="Register Incumbents">Register Incumbents</a>
+                            </li>
+                        }
+                </ul>
+            </nav>
+
+        </div>
+        <section>
+            <h4>@Model.Regulatory.Name</h4>
+            <ul>
+                <li>
+                    <label>Device Types</label>
+                    <span>
+                        @deviceTypesLabel.ToString()
+                    </span>
+                </li>
+                <li>
+                    <label>Operating Channels</label>
+                    <span>@Model.Regulatory.WSChannelsInfo.StartChannel - @Model.Regulatory.WSChannelsInfo.EndChannel</span>
+                </li>
+                <li>
+                    <label>Channel Bandwidth</label>
+                    <span>@Model.Regulatory.WSChannelsInfo.ChannelBandwidth MHz</span>
+                </li>
+                <li>
+                    <label>Propagation Model</label>
+                    <span>@Model.Regulatory.WSChannelsInfo.PropagationModel</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+    <div class="infobox-stalk"></div>
+</div>

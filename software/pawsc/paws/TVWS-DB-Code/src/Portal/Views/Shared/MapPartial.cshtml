@@ -1,0 +1,18 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+<div id="mapDiv" class="map-area"></div>
+
+<script charset="UTF-8" type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
+<script type="text/javascript" src="~/Scripts/bingmap.js"></script>
+<script type="text/javascript" src="~/Scripts/Common.js"></script>
+<script type="text/javascript">
+    var credentials = @Html.Raw(Json.Encode(Microsoft.WhiteSpaces.Common.ConfigHelper.BingCredential));
+    var mapControl = document.getElementById("mapDiv");
+    var bingMap = new BingMap(credentials, mapControl);
+
+    $(window).unload(function () {
+        bingMap.UnloadMap();
+    })
+</script>

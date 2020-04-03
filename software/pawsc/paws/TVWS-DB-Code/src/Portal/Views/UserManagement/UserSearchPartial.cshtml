@@ -1,0 +1,245 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.UserSearchViewModel
+@using (Ajax.BeginForm("SearchUsers", "UserManagement", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "userDetails" }))
+{
+    <div id="dvList">
+        <div class="filter">
+            <div class="row">
+                <ul id="radioFilter">
+                    <li>                       
+                        <input type="radio" name="filter" id="All" checked="checked" onchange="allChecked(this)" />
+                        <label class="inline" for="All">All</label>
+                    </li>
+                    <li>
+                        <input type="radio" name="filter" id="Approved" onchange="approvedChecked(this)" />
+                        <label class="inline" for="Approved">Approved</label>
+                    </li>
+                    <li>
+                        <input type="radio" name="filter" id="Rejected" onchange="rejectedChecked(this)" />
+                        <label class="inline" for="Rejected">Rejected</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                @Html.DropDownListFor(x => x.SelectedCity, @Model.RoleList, "Select Role")
+                @Html.DropDownListFor(x => x.SelectedCountry, @Model.CountryList, "Select Country")
+            </div>
+            <div class="row">
+                <div class="channel-list channel-num">
+                    <ul id="Alphabets">
+                        @foreach (char alpha in @Model.Alphabets)
+                        {
+                            <li>
+                                @{var id = "chk" + alpha;}
+                                <input type="checkbox" id="@id" class="hide" value="@alpha" />
+                                <label for="@id">@alpha</label>
+                            </li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+            <div class="row clear noFollow">
+                <button type="submit" role="button" class="filter right" id="findIncumbents" title="Find" onclick="beforeSubmit()">Filter It</button>
+            </div>
+        </div>
+        <div id="userDetails">
+            @Html.Partial("UsersPartial", @Model.UserList)
+        </div>
+        @Html.HiddenFor(x => x.SelectedAlphabets, new { @id = "alphabet" })
+        @Html.HiddenFor(x => x.AllSelected, new { @id = "all" })
+        @Html.HiddenFor(x => x.ApprovedSelected, new { @id = "approved" })
+        @Html.HiddenFor(x => x.RejectedSelected, new { @id = "rejected" })
+        @Html.HiddenFor(x => x.Page, new { @id = "page"})       
+        <input type="hidden" value="false" id="isPaging"/>
+    </div>
+}
+
+<div id="details" class="hide">
+    <div class="title">
+        <a href="" class="back icon" id="btnBack"></a>
+        <h2>User Details</h2>
+    </div>
+    <section class="info">
+        <div id="Profile">
+            <ul>
+                <li class="info name">
+                    <label>First Name</label>
+                    <div class="input" id="FirstName"></div>
+
+                </li>
+
+                <li class="info name">
+                    <label>Last Name</label>
+                    <div class="input" id="LastName"></div>
+                </li>
+
+                <li class="info country">
+                    <label>Phone</label>
+                    <div class="input" id="Phone"></div>
+                </li>
+
+                <li class="info email">
+                    <label>Preferred Email</label>
+                    <div class="input" id="PreferredEmail"></div>
+                </li>
+
+                <li class="info email">
+                    <label>Account Email</label>
+                    <div class="input" id="PreferredEmail"></div>
+                </li>
+            </ul>
+        </div>
+        <h2>Address</h2>
+        <ul>
+            <li class="info home">
+                <label>Address1</label>
+                <div class="input" id="Address1"></div>
+            </li>
+
+            <li class="info home">
+                <label>Address2</label>
+                <div class="input" id="Address2"></div>
+            </li>
+
+            <li class="info location">
+                <label>City</label>
+                <div class="input" id="City"></div>
+            </li>
+
+            <li class="info location">
+                <label>State</label>
+                <div class="input" id="State"></div>
+            </li>
+
+            <li class="info zip">
+                <label>ZipCode</label>
+                <div class="input" id="ZipCode"></div>
+            </li>
+
+            <li class="info location">
+                <label>Country</label>
+                <div class="input" id="Country"></div>
+            </li>
+            <li class="info country">
+                <label>Time Zone</label>
+                <div class="input" id="TimeZone"></div>
+            </li>
+        </ul>
+
+        <div id="dvRequests" class="hide">
+            <h2>Elevation Requests</h2>
+            <table id="elevationRequests">
+                <thead>
+                    <tr>
+                        <th>Regulatory</th>
+                        <th>RequestedAccessLevel</th>
+                        <th>Justification</th>
+                        <th>RequestStatus</th>
+                        <th>ApprovedUser</th>
+                        <th>Remarks</th>
+                        <th>TimeUpdated</th>
+                    </tr>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="dvRoles">
+            <h2>Access Levels</h2>
+            <table id="accessLevels">
+                <thead>
+                    <tr>
+                        <th>Authority</th>
+                        <th>Access Level</th>
+                    </tr>
+                <tbody></tbody>
+            </table>
+
+            <div class="end-stripe">
+                <button id="btnEdit" type="button" title="Edit Profile" role="button" class="edit">Edit Access Levels</button>
+            </div>
+        </div>
+
+        <div id="dvEditRoles" class="hide">
+            <h2>Access Levels</h2>
+            <table id="editAccessLevels">
+                <thead>
+                    <tr>
+                        <th>Authority</th>
+                        <th>Access Level</th>
+                    </tr>
+                <tbody></tbody>
+            </table>
+
+            <div class="end-stripe">
+                <button id="btnUpdate" type="button" title="Update" class="submit" value="Update">Update</button>
+                <button id="btnCancel" type="button" title="Cancel" class="cancel" value="Cancel">Cancel</button>
+            </div>
+        </div>
+
+        <input type="hidden" id="userId" />
+    </section>
+</div>
+
+
+
+
+<script type="text/javascript" src="~/Scripts/UserManagement.js"></script>
+<script type="text/javascript">
+    function assignAlpha(value) {
+        var list = $("#alphabet").val() + "," + value;
+        $("#alphabet").val(list);
+    };
+
+    function allChecked(obj) {
+        if (obj.checked == true) {
+            $("#all").val(true);
+            $("#approved").val(false);
+            $("#rejected").val(false);
+        }
+    }
+
+    function approvedChecked(obj) {
+        if (obj.checked == true) {
+            $("#approved").val(true);
+            $("#all").val(false);
+            $("#rejected").val(false);
+        }
+    }
+
+    function rejectedChecked(obj) {
+        if (obj.checked == true) {
+            $("#rejected").val(true);
+            $("#all").val(false);
+            $("#approved").val(false);
+        }
+    }
+
+    function beforeSubmit() {        
+        if ($("#isPaging").val() == "true")
+        {            
+            $("#isPaging").val("false")
+        }
+        else
+        {
+            $("#page").val(1);
+        }
+
+        selectedAlphabets = [];
+        $("#alphabet").val("");
+
+        $('#Alphabets input:checked').each(function () {
+            selectedAlphabets.push($(this).val());
+        });
+
+        if (selectedAlphabets.length > 0) {
+            $("#alphabet").val(selectedAlphabets);
+        }
+
+        var radio = $('input[name=filter]:checked', '#radioFilter').val();       
+        return true;
+    }
+</script>

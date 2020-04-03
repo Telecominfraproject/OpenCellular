@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Toby Considine (TC9) -->
+<!--non-normative, to support development of WS-Calendar - 2010/10/30. Refer to rfc5545 and xCal in the IETF for normative description-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0" 
+           targetNamespace="urn:ietf:params:xml:ns:icalendar-2.0" 
+           elementFormDefault="qualified">
+          
+  <!-- =====================================================================
+       3.3 Property Value Data Types 
+       ===================================================================== -->
+          
+  <!-- 3.3.1 BINARY -->
+  <xs:element name="binary" type="xs:string"/>
+  
+  <!-- 3.3.2 BOOLEAN -->
+  <xs:element name="boolean" type="xs:boolean" />
+  
+  <!-- 3.3.3 CAL-ADDRESS -->
+  <xs:simpleType name="CalAddressType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  
+  <xs:element name="cal-address" type="xcal:CalAddressType" />  
+  
+  <!-- 3.3.4 DATE -->
+  <xs:element name="date" type="xs:date"/>
+  
+  <!-- 3.3.5 DATE-TIME -->
+  <!-- 
+  <xs:element name="date-time" type="xs:string"/>
+ -->  
+   <xs:simpleType name="DateTimeType">
+    <xs:restriction base="xs:dateTime">
+      <xs:pattern value="(\-|\+)?\d{4}\-\d{2}\-\d{2}T\d{2}:\d{2}:\d{2}(\.\d*)?Z?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="date-time" type="xcal:DateTimeType"/>
+  
+  <xs:simpleType name="UTCDateTimeType">
+    <xs:restriction base="xs:dateTime">
+      <xs:pattern value="(\-|\+)?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d*)Z"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="utc-date-time" type="xcal:UTCDateTimeType"/>
+  
+  <!-- 3.3.6 DURATION 
+  We cannot have a duration value type here as the value-type element has the same 
+  name as the property.  
+  <xs:element name="duration" type="xs:duration"/>-->
+  
+  <xs:simpleType name="DurationValueType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Durations are a problem: 
+           XML schema types allow Years, Months, Days, Hours, Minutes, Seconds
+           Ical allows Weeks, Days, Hours, Minutes, Seconds
+           
+        These overlap and we really need a combination of both.
+        So the compromise is to have a pattern restricted String type and note
+        that if data is to be exported into the icalendar world it cannot have 
+        years or months.
+        
+        Ultimately it is to be hoped the two worlds can be aligned.
+        
+        RFC5545 (icalendar) specifies
+        dur-value  = (["+"] / "-") "P" (dur-date / dur-time / dur-week)
+
+        dur-date   = dur-day [dur-time]
+        dur-time   = "T" (dur-hour / dur-minute / dur-second)
+        dur-week   = 1*DIGIT "W"
+        dur-hour   = 1*DIGIT "H" [dur-minute]
+        dur-minute = 1*DIGIT "M" [dur-second]
+        dur-second = 1*DIGIT "S"
+        dur-day    = 1*DIGIT "D"
+        
+        So P5W is valid: P5WT10M is not. If weeks re specified nothing else can be
+        
+        XML specifies
+           PnYnMnDTnHnMnS
+        
+        The elements must appear in the order specified and the 'T' is omitted 
+        if hours minutes and seconds are absent.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\+|\-)?P((\d+Y)?(\d+M)?(\d+D)?T?(\d+H)?(\d+M)?(\d+S)?)|(\d+W)"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- 3.3.7 FLOAT -->
+  <xs:element name="float" type="xs:float"/>
+  
+  <!-- 3.3.8 INTEGER -->
+  <xs:element name="integer" type="xs:integer"/>
+  
+  <!-- 3.3.9 PERIOD -->
+
+  <xs:complexType name="PeriodType">
+    <xs:sequence>
+      <xs:element name="start" type="xcal:DateTimeType" />
+      <xs:sequence>
+        <xs:choice>
+          <xs:element name="end" type="xcal:DateTimeType" />
+          <xs:element name="duration" type="xcal:DurationValueType" />
+        </xs:choice>
+      </xs:sequence>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="period" type="xcal:PeriodType" />
+     
+  <!-- 3.3.10 RECUR -->
+  <xs:complexType name="RecurType">
+    <xs:sequence>
+      <xs:element name="freq" type="xcal:FreqRecurType"/>
+      <xs:sequence>
+        <xs:choice minOccurs="0">
+          <xs:element ref="xcal:until" />
+          <xs:element ref="xcal:count" />
+        </xs:choice>
+      </xs:sequence>
+      <xs:element name="interval" type="xs:string" minOccurs="0"/>
+      <xs:element name="bysecond" type="xs:string" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="byminute" type="xs:string"  
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="byhour" type="xs:string" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="byday" type="xs:string" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="byyearday" type="xs:string" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="bymonthday" type="xcal:BymonthdayRecurType" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="byweekno" type="xs:string" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="bymonth" type="xcal:BymonthRecurType" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="bysetpos" type="xs:integer" 
+                  minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="wkst" type="xcal:WeekdayRecurType" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:simpleType name="FreqRecurType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="SECONDLY"/>
+      <xs:enumeration value="MINUTELY"/>
+      <xs:enumeration value="HOURLY"/>
+      <xs:enumeration value="DAILY"/>
+      <xs:enumeration value="WEEKLY"/>
+      <xs:enumeration value="MONTHLY"/>
+      <xs:enumeration value="YEARLY"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="until" type="xcal:UntilRecurType"/>
+  
+  <xs:complexType name="UntilRecurType" >
+    <xs:sequence>
+      <xs:choice>
+        <xs:element ref="xcal:date" />
+        <xs:element ref="xcal:date-time" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="count" type="xs:integer"/>
+  
+  <xs:simpleType name="WeekdayRecurType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="SU"/>
+      <xs:enumeration value="MO"/>
+      <xs:enumeration value="TU"/>
+      <xs:enumeration value="WE"/>
+      <xs:enumeration value="TH"/>
+      <xs:enumeration value="FR"/>
+      <xs:enumeration value="SA"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="BymonthdayRecurType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="-31"/>
+      <xs:maxInclusive value="31"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="BymonthRecurType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="12"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- 3.3.11 TEXT -->
+  <xs:element name="text" type="xs:string"/>
+  
+  <!-- 3.3.12 TIME -->
+  <xs:element name="time" type="xs:string"/>
+  
+  <!-- 3.3.13 URI -->
+  <xs:simpleType name="UriType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  
+  <xs:element name="uri" type="xcal:UriType" />  
+  
+  <!-- 3.3.14 UTC-OFFSET -->
+  <xs:simpleType name="UtcOffsetType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\-|\+)?\d{2}:\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="utc-offset" type="xcal:UtcOffsetType" />  
+  
+</xs:schema>

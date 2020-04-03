@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns="http://www.whitespace-db-providers.org/2011//InterDB/ws" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.whitespace-db-providers.org/2011//InterDB/ws" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:simpleType name="RT-PollResponseStatusCodeSeries">
+		<xsd:annotation>
+			<xsd:documentation> Full Name: Realtime Poll response Code. Description: Return code from the Web Services server indicating ability to respond to RealtimePollRequest Meanings are: 0 - Success 1 = TransactionID stale, recover from file 2 = Bad Request 3 = Requested version not supported 4 = No New Records (no RegistrationRecordEnsemble present) 5 = Database AccessServer Error </xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:int">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="RealTimePollRequest" type="RealTimePollRequest"/>
+	<xsd:complexType name="RealTimePollRequest">
+		<xsd:sequence>
+			<xsd:element name="RequestedTransactionID" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>The value of NextTransactionID which was received in the RegistrationRecordEnsemble of the last valid response to a poll or in a full download via FTP </xsd:documentation>
+				</xsd:annotation>
+				<!-- Changed from type=xsd:string 2/21/12 -->
+			</xsd:element>
+			<xsd:element name="Command" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>wsdPoll is the only allowed value</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="XsdVersion" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>Version of xsd requested, e.g. 1.2.3</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<!-- <xsd:attribute name="version" type="xsd:string" use="required"/> - removed 8/16/11 - gdk -->
+	</xsd:complexType>
+	<xsd:element name="RealTimePollResponse" type="RealTimePollResponse"/>
+	<xsd:complexType name="RealTimePollResponse">
+		<xsd:sequence>
+			<xsd:element name="RequestedTransactionID" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>Echo the value of CurrentTransactionID received in the RealTimePollRequest</xsd:documentation>
+				</xsd:annotation>
+				<!-- Changed from type=xsd:string 2/21/12 -->
+			</xsd:element>
+			<xsd:element name="Command" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>wsdPollResponse is the only allowed value</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="RegistrationRecordEnsemble" type="xsd:string" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Records changed since last poll</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="XsdVersion" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>Version of xsd in this response, e.g. 1.2.3</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="NextTransactionID" type="xsd:string" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Inserted in RealTimePollResponse when an RR Ensemble is not sent in response to a RealTimePollRequest due to No New Records. Used by client as RequestedTransactionID in the next RealTimePollRequest</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="RT-PollStatusCode" type="RT-PollResponseStatusCodeSeries"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

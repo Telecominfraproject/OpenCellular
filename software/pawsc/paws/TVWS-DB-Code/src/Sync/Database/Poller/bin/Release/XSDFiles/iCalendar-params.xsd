@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Toby Considine (TC9) -->
+<!--non-normative, to support development of WS-Calendar - 2010/10/30. Refer to rfc5545 and xCal in the IETF for normative description-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xcal="urn:ietf:params:xml:ns:icalendar-2.0" 
+           targetNamespace="urn:ietf:params:xml:ns:icalendar-2.0" 
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="iCalendar-valtypes.xsd" />
+          
+  <!-- =====================================================================
+       3.2 Property parameter definitions
+       ===================================================================== -->
+
+  <xs:complexType name="BaseParameterType" abstract="true" >
+  </xs:complexType>
+
+  <xs:element name="baseParameter" type="xcal:BaseParameterType" />
+
+  <xs:complexType name="ArrayOfParameters">
+    <xs:sequence>
+      <xs:element ref="xcal:baseParameter" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+         
+  <!-- =====================================================================
+       Define all the standard properties. By using a substitutionGroup we
+       make it easy to extend the list of parameters. As an example see 
+       the parameters defined in iCalendar-caldavsched-extensions.xsd
+       ===================================================================== -->  
+
+  <xs:element name="altrep" type="xcal:AltrepParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="cn" type="xcal:CnParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="cutype" type="xcal:CutypeParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="delegated-from" type="xcal:DelegatedFromParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="delegated-to" type="xcal:DelegatedToParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="dir" type="xcal:DirParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="encoding" type="xcal:EncodingParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="fmttype" type="xcal:FmttypeParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="fbtype" type="xcal:FbtypeParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="language" type="xcal:LanguageParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="member" type="xcal:MemberParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="partstat" type="xcal:PartstatParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="range" type="xcal:RangeParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="related" type="xcal:RelatedParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="reltype" type="xcal:ReltypeParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="role" type="xcal:RoleParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="rsvp" type="xcal:RsvpParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="sent-by" type="xcal:SentByParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="tzid" type="xcal:TzidParamType"
+              substitutionGroup="xcal:baseParameter" />
+              
+  
+  <!-- Scheduling parameters for attendee or organizer -->
+  <xs:element name="schedule-agent" type="xcal:ScheduleAgentParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="schedule-force-send" type="xcal:ScheduleForceSendParamType"
+              substitutionGroup="xcal:baseParameter" />
+  <xs:element name="schedule-status" type="xcal:ScheduleStatusParamType"
+              substitutionGroup="xcal:baseParameter" />
+  
+  <!-- Parameters that take a simple boolean value -->
+  <xs:complexType name="BooleanParameterType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="xcal:boolean" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Parameters that take a simple text value -->
+  <xs:complexType name="TextParameterType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence> 
+          <xs:element ref="xcal:text" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Parameters that take a uri value -->
+  <xs:complexType name="UriParameterType" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence>
+          <xs:element ref="xcal:uri"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="CalAddressListParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence>
+          <xs:element ref="xcal:cal-address" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="CalAddressParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence>
+          <xs:element ref="xcal:cal-address" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+ 
+  <!-- 3.2.1 Alternate Text Representation -->
+  <xs:complexType name="AltrepParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:UriParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.2 Common Name -->
+  <xs:complexType name="CnParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.3 Calendar User Type -->
+ 
+  <xs:complexType name="CutypeParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       cutypeparam        = "CUTYPE" "="
+                          ("INDIVIDUAL"   ; An individual
+                         / "GROUP"        ; A group of individuals
+                         / "RESOURCE"     ; A physical resource
+                         / "ROOM"         ; A room resource
+                         / "UNKNOWN"      ; Otherwise not known
+                         / x-name         ; Experimental type
+                         / iana-token)    ; Other IANA-registered
+                                          ; type
+       ; Default is INDIVIDUAL
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  
+  <!-- 3.2.4 Delegators -->
+  <xs:complexType name="DelegatedFromParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:CalAddressListParamType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- 3.2.5 Delegatees -->
+  <xs:complexType name="DelegatedToParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:CalAddressListParamType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.6 Directory Entry Reference -->
+  <xs:complexType name="DirParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:UriParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.7 Inline Encoding -->
+
+  <xs:complexType name="EncodingParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       encodingparam      = "ENCODING" "="
+                          ( "8BIT"
+          ; "8bit" text encoding is defined in [RFC2045]
+                          / "BASE64"
+          ; "BASE64" binary encoding format is defined in [RFC4648]
+                          )
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- 3.2.8 Format Type -->
+  <xs:complexType name="FmttypeParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.9 Free/Busy Time Type -->
+  <xs:complexType name="FbtypeParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       fbtypeparam        = "FBTYPE" "=" 
+                         ("FREE" 
+                          / "BUSY"
+                          / "BUSY-UNAVAILABLE" 
+                          / "BUSY-TENTATIVE"
+                          / x-name  ; Some experimental iCalendar free/busy type.
+                          / iana-token)
+                ; Some other IANA-registered iCalendar free/busy type.
+       ; Default is BUSY
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.10 Language -->
+  <xs:complexType name="LanguageParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.11 Group or List Membership -->
+  <xs:complexType name="MemberParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:CalAddressListParamType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.12 Participation Status -->
+  
+  <xs:complexType name="PartstatParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       partstat-event   = ("NEEDS-ACTION"    ; Event needs action
+                        / "ACCEPTED"         ; Event accepted
+                        / "DECLINED"         ; Event declined
+                        / "TENTATIVE"        ; Event tentatively
+                                             ; accepted
+                        / "DELEGATED"        ; Event delegated
+                        / x-name             ; Experimental status
+                        / iana-token)        ; Other IANA-registered
+                                             ; status
+       ; These are the participation statuses for a "VEVENT".
+       ; Default is NEEDS-ACTION.
+
+       partstat-todo    = ("NEEDS-ACTION"    ; To-do needs action
+                        / "ACCEPTED"         ; To-do accepted
+                        / "DECLINED"         ; To-do declined
+                        / "TENTATIVE"        ; To-do tentatively
+                                             ; accepted
+                        / "DELEGATED"        ; To-do delegated
+                        / "COMPLETED"        ; To-do completed
+                                             ; COMPLETED property has
+                                             ; DATE-TIME completed
+                        / "IN-PROCESS"       ; To-do in process of
+                                             ; being completed
+                        / x-name             ; Experimental status
+                        / iana-token)        ; Other IANA-registered
+                                             ; status
+       ; These are the participation statuses for a "VTODO".
+       ; Default is NEEDS-ACTION.
+
+       partstat-jour    = ("NEEDS-ACTION"    ; Journal needs action
+                        / "ACCEPTED"         ; Journal accepted
+                        / "DECLINED"         ; Journal declined
+                        / x-name             ; Experimental status
+                        / iana-token)        ; Other IANA-registered
+                                             ; status
+       ; These are the participation statuses for a "VJOURNAL".
+       ; Default is NEEDS-ACTION.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.13 Recurrence Identifier Range -->
+  <xs:simpleType name="RangeValueType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="THISANDFUTURE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="RangeParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BaseParameterType">
+        <xs:sequence>
+          <xs:element name="text" type="xcal:RangeValueType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.14 Alarm Trigger Relationship -->
+  <xs:complexType name="RelatedParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       trigrelparam       = "RELATED" "="
+                           ("START"       ; Trigger off of start
+                          / "END")        ; Trigger off of end
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.15 Relationship Type -->
+  <xs:complexType name="ReltypeParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+       reltypeparam       = "RELTYPE" "="
+                           ("PARENT"    ; Parent relationship - Default
+                          / "CHILD"     ; Child relationship
+                          / "SIBLING"   ; Sibling relationship
+                          / iana-token  ; Some other IANA-registered
+                                        ; iCalendar relationship type
+                          / x-name)     ; A non-standard, experimental
+                                        ; relationship type
+        Ws-Calendar adds the values
+                           / "FINISHTOSTART"
+                           / "FINISHTOFINISH"
+                           / "STARTTOFINISH"
+                           / "STARTTOSTART"             
+                           
+       ; Default is PARENT
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.16 Participation Role -->
+  <xs:complexType name="RoleParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Standard values
+           "CHAIR" 
+           "REQ-PARTICIPANT" 
+           "OPT-PARTICIPANT" 
+           "NON-PARTICIPANT"
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.17 RSVP Expectation -->
+  <xs:complexType name="RsvpParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:BooleanParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.18 Sent By -->
+  <xs:complexType name="SentByParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:CalAddressParamType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- 3.2.19 Time Zone Identifier -->
+  <xs:complexType name="TzidParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Scheduling parameters - Defined by CalDAV scheduling -->
+  
+  <xs:complexType name="ScheduleAgentParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        scheduleagentparam = "SCHEDULE-AGENT" "="
+                        ("SERVER"      ; The server handles scheduling
+                       / "CLIENT"      ; The client handles scheduling
+                       / "NONE"        ; No automatic scheduling
+                       / x-name        ; Experimental type
+                       / iana-token)   ; Other IANA registered type
+                                       ;
+                                       ; Default is SERVER
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ScheduleForceSendParamType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+      scheduleforcesendparam = "SCHEDULE-FORCE-SEND" "="
+                              ("REQUEST"    ; Force a "REQUEST"
+                             / "REPLY"      ; Force a "REPLY"
+                             / iana-token)  ; IANA registered method
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ScheduleStatusParamType">
+    <xs:complexContent mixed="false">
+      <xs:extension base="xcal:TextParameterType"/>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,92 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+
+
+<div id="mvpdRegistrations">
+    @{ Html.RenderAction("GetMvpdRegistrations");}        
+</div>
+
+
+<div id="LpAuxRegistrations">
+    @{ Html.RenderAction("GetLpAuxRegistrations");}
+</div>
+
+
+<div id="tempBasRegistrations">
+    @{ Html.RenderAction("GetTempBasRegistrations");}
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+
+        $("#mvpdRegistrations a").on('click', function (event) {
+            anchorClick(this, event, "Mvpd");
+        });
+
+        $("#LpAuxRegistrations a").on('click', function (event) {
+            anchorClick(this, event, "LpAux");
+        });
+
+        $("#tempBasRegistrations a").on('click', function (event) {
+            anchorClick(this, event, "TBas");
+        });
+    });
+
+    function anchorClick(obj, event, type) {
+        if (obj.className.indexOf("del-") >= 0) {
+            var partionKey = $(obj).data('pk');
+            var rowKey = $(obj).data('rk');
+            var type = $(obj).data('type');
+            var etag = $(obj).data('etag');
+
+            deleteRegistration(partionKey, rowKey, type, etag);
+        }
+        else {
+            event.preventDefault();
+            var href = $(obj).attr("href");
+            var queryString = href.substring(href.indexOf('?'), href.length);
+            var controller = $("#hdnController").val();
+
+            switch (type) {
+                case "Mvpd":
+                    {
+                        var requestUrl = '/'+ $("#hdnController").val()+'/GetMvpdRegistrations' + queryString;
+                        $("#mvpdRegistrations").load(requestUrl, function () {
+                            $("#mvpdRegistrations a").on('click', function (event) {
+                                anchorClick(this, event, "Mvpd")
+                            });
+                        });
+                    }
+                    break;
+
+                case "LpAux":
+                    {
+                        var requestUrl = '/' + $("#hdnController").val() + '/GetLpAuxRegistrations' + queryString;
+                        $("#LpAuxRegistrations").load(requestUrl, function () {
+                            $("#LpAuxRegistrations a").on('click', function (event) {
+                                anchorClick(this, event, "LpAux")
+                            });
+                        });
+                    }
+                    break;
+                case "TBas":
+                    {
+                        var requestUrl = '/' + $("#hdnController").val() + '/GetTempBasRegistrations' + queryString;                        
+                        $("#tempBasRegistrations").load(requestUrl, function () {
+                            $("#tempBasRegistrations a").on('click', function (event) {
+                                anchorClick(this, event, "TBas")
+                            });
+                        });
+                    }
+                    break;
+            }
+        }
+    }
+
+</script>

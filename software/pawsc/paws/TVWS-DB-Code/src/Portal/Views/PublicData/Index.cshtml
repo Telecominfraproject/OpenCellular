@@ -1,0 +1,54 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@{
+    ViewBag.Title = "TV WhiteSpaces - Home Page";
+    List<Microsoft.WhiteSpaces.Common.Entities.Region> regions = ViewData["availableRegions"] as List<Microsoft.WhiteSpaces.Common.Entities.Region>;
+}
+
+@section Left{
+    <section class="no-border">
+        <h2>Download Data</h2>
+
+        <p>TV white spaces public data is the database content extracted from FCC records.  The files are extracted and updated from FCC on a daily basis.</p>
+    </section>
+}
+
+@section Right{
+    @*@Html.Partial("MapPartial")*@
+    <section class="no-border list noPad">
+        <h2>Download Data</h2>
+        <p>Use the following links to download white spaces public data. All files are in CSV format.</p>
+        <h4>Protected Entities</h4>
+        <p>These CSV files list data for all protected entities:</p>
+        <ul>
+            <li>@Html.ActionLink("TV stations in the U.S.", "GetPublicData", new { entityType = "TV_US" })</li>
+            <li>@Html.ActionLink("TV stations in Canada and Mexico", "GetPublicData", new { entityType = "TVCA_MX" })</li>
+            <li>@Html.ActionLink("TV translators", "GetPublicData", new { entityType = "TV_TRANSLATOR" })</li>
+            <li>@Html.ActionLink("Broadcast Auxiliary Service (BAS) links", "GetPublicData", new { entityType = "BAS" })</li>
+            <li>@Html.ActionLink("PLMRS/CMRS base station operations", "GetPublicData", new { entityType = "PLCMRS" })</li>
+            <li>@Html.ActionLink("Multi-channel Video Programming Distributor (MVPD) receive sites", "GetPublicDataWithEvents", new { entityType = "MVPD" })</li>
+            <li>@Html.ActionLink("Temporary BAS links", "GetPublicDataWithEvents", new { entityType = "TBAS" })</li>
+            <li>@Html.ActionLink("Low Power Auxiliary Devices", "GetPublicDataWithEvents", new { entityType = "LPAux" })</li>
+            <li>@Html.ActionLink("Low Power Auxiliary Licenses", "GetUlsCallSigns")</li>
+            <li>@Html.ActionLink("Unlicensed Wireless Microphone Registrations", "GetULSFileNumbers")</li>
+        </ul>
+        <h4>TV White Space Devices</h4>
+        <p>These CSV files list data for TV White Space devices:</p>
+        <ul>
+            <li>@Html.ActionLink("Registered Fixed TV-band White Space devices", "GetPublicDataWithEvents", new { entityType = "FIXED_TVBD" })</li>
+            <li>@Html.ActionLink("Authorized device models from FCC's EAS database", "GetAuthorizedDeviceModels")</li>
+        </ul>
+    </section>
+}
+@section scripts{
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.tab-strip ul .download-data').addClass("active");
+            $("#wrapper").addClass("inner");
+        });
+    </script>
+}
+

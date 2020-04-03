@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>TVWS Analyzer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="./jscript/bootstrap.min.css" rel="stylesheet">
+  <link href="./jscript/style.css" rel="stylesheet" type="text/css">
+  <script src="./jscript/jquery.min.js"></script>
+  <script src="./jscript/bootstrap.min.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="./jscript/common.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="./jscript/util.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="./jscript/stats.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 style="text-align: center;">White Space analyzer</h1>
+    <br>
+    <p class="lead" style="text-align: left;">
+      Measurements carried out with <a href="http://wireless.ictp.it/tvws/rftrack/">RFTrack</a> over the specified frequency range and antenna.
+      <br> The received signal level measured in dBm is dependent on the antenna gain and orientation.
+      <br>
+      <br> In this report, click on charts to view the high-resolution versions, or other types of data representation.
+    </p>
+    <br>
+
+    <!-- Report title -->
+    <div class="container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th width="15%"></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td img>
+              <img src="./images/flagcountry.png" </td>
+              <td style="vertical-align:middle;">
+                <h1 style="vertical-align: middle;">Campaign measurements info</h1>
+              </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Route Map -->
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <a href="./images/maproute.png"><img src="./images/maproute.png" style="width:100%;height:100%">
+        </a>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+    <br>
+<!-- Campaign Data table -->
+<table class="table table-hover">
+<thead>
+<!-- Table's Row Title -->
+<tr>
+<th width="25%">Info</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<!-- Row1 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Campaign date:
+</td>
+<td style="vertical-align:middle;">
+<campaignDate>
+</td>
+</tr>
+<!-- Row2 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Campaign duration:
+</td>
+<td style="vertical-align:middle;">
+<campaignDuration> (hour:min:sec)
+</td>
+</tr>
+<!-- Row3 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Route length:
+</td>
+<td style="vertical-align:middle;">
+<routeLength> Km
+</td>
+</tr>
+<!-- Row4 body table -->
+<tr>
+<td style="vertical-align:middle;">
+N. points:
+</td>
+<td style="vertical-align:middle;">
+<nPoints>
+</td>
+</tr>
+<!-- Row5 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Country:
+</td>
+<td style="vertical-align:middle;">
+<country>
+</td>
+</tr>
+<!-- Row6 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Country Code:
+</td>
+<td style="vertical-align:middle;">
+<countryCode>
+</td>
+</tr>
+<!-- Row7 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Place of measurement:
+</td>
+<td style="vertical-align:middle;">
+<placeOfMeasurements>
+</td>
+</tr>
+<!-- Row8 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Region:
+</td>
+<td style="vertical-align:middle;">
+<region>
+</td>
+</tr>
+<!-- Row9 body table -->
+<tr>
+<td style="vertical-align:middle;">
+Population:
+</td>
+<td style="vertical-align:middle;">
+<population>
+</td>
+</tr>
+<!-- End of rows in table -->
+</tbody>
+<!-- End of body in table -->
+</table>
+<!-- End of Campaign data table -->
+
+    <br>
+
+    <!-- Campaign downloads -->
+    <div class="container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th width="15%"></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td img>
+              <a href="filedown/<dbName>">
+                <img src="./ico/download.png" </a>
+            </td>
+            <td style="vertical-align:middle;">
+              <h1 style="vertical-align: middle;">Campaign downloads</h1>
+              <p class="lead" style="text-align: left;">
+                Click on image to download other material concerning the measurement campaign.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+
+    <!-- GRAPHICS -->
+
+    <br>
+
+    <h1 style="text-align: center;">Spectrum Maps</h1>
+    <p class="lead" style="text-align: left;">The first image shows power levels over time (number of measurements), the following images show different thresholds of spectrum occupancy.</p>
+
+    <!-- Spectral Maps -->
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <a href="./images/spectral-map.png"><img src="./images/spectral-map.png" style="width:100%;height:100%">
+        </a>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+
+    <!-- Threshold 85% and 90% -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-lg-5">
+        <a href="./images/perc_85.png"><img src="./images/perc_85.png" style="width:100%;height:100%">
+        </a>
+      </div>
+      <div class="col-lg-5">
+        <a href="./images/perc_90.png"><img src="./images/perc_90.png" style="width:100%;height:100%">
+        </a>
+      </div>
+    </div>
+
+    <!-- Threshold 95% and 100% -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-lg-5">
+        <a href="./images/perc_95.png"><img src="./images/perc_95.png" style="width:100%;height:100%">
+        </a>
+      </div>
+      <div class="col-lg-5">
+        <a href="./images/perc_100.png"><img src="./images/perc_100.png" style="width:100%;height:100%">
+        </a>
+      </div>
+    </div>
+
+    <!-- Ghaph global Threshold and noise level -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-lg-5">
+        <a href="./images/graph_index_perc.png"><img src="./images/graph_index_perc.png" style="width:100%;height:100%">
+        </a>
+      </div>
+      <div class="col-lg-5">
+        <a href="./images/graph_index_noise.png"><img src="./images/graph_index_noise.png" style="width:100%;height:100%">
+        </a>
+      </div>
+    </div>
+
+    <br>
+
+    <!-- end graphics -->
+
+    <!-- footer page -->
+    <br>
+    <br>
+
+    <h3 style="text-align: center;">Share <a href="http://wireless.ictp.it/tvws/">White Space Spectrum Analyzer</a> </h3>
+    <p class="lead" style="text-align: center;">
+      <!-- http://expando.github.io/ -->
+      <iframe src="http://expando.github.io/add/?u=http://wireless.ictp.it/tvws/&t=TVWS%20Spectrum%20Analyzer" frameborder=0 frametransparency=1 scrolling=no height=30 width=500></iframe>
+    </p>
+
+   
+    
+  </div>
+</body>
+
+</html>

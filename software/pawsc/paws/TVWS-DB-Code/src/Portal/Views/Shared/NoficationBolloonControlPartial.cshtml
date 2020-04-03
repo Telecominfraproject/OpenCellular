@@ -1,0 +1,40 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved.
+     Licensed under the MIT License. -->
+
+
+@model Microsoft.WhiteSpaces.Portal.Models.HelpControl
+
+@{
+    var url = string.Empty;
+    var sectionTabId = string.Empty;
+    var path = string.Empty;
+    if(@Model.Url!=null)
+    {
+        url = @Model.Url;
+    }
+    if (@Model.SectionTabId!=null)
+    {
+        sectionTabId = @Model.SectionTabId;
+    }
+    if (sectionTabId != string.Empty && url != string.Empty)
+    { 
+    path = @Model.Url + "?sectionTabId=" + @Model.SectionTabId;
+    }
+    else if (sectionTabId == string.Empty && url != string.Empty)
+    {
+        path = @Model.Url;
+    }
+    else
+    { 
+        path = "#";
+    }
+}
+
+
+<div class="know-more">
+    <ul class="minimal-info">
+        <button class="icon close" title="Close"></button>
+        <a href="@path" title="Read More">Read More</a>
+        <li>@Model.Message</li>
+    </ul>
+</div>
