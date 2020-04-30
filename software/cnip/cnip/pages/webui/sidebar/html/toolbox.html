@@ -1,0 +1,45 @@
+﻿<h2 class="sidebar-header" style="color: rgb(255,152,0);">Toolbox<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h2>
+<div style="width: 257px">
+    <hr />    
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#analysisDiv">
+        Analysis
+    </button>
+    <div id="analysisDiv" class="visualDiv collapse">
+        <hr />
+        <button type="button" class="visualButton" onclick="showPredictBestCan(event);">
+            <img src="../../../../img/visuals/bestcandidate.png" style="vertical-align:super;padding-top:10px;" /><br />Best Candidate
+        </button>
+        <button type="button" class="visualButton" onclick="showPredictSites(event);">
+            <img src="../../../../img/visuals/network.png" style="vertical-align:super;" /><br />Predict Sites
+        </button>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#predictDiv">
+        Predictions
+    </button>
+    <div id="predictDiv" class="visualDiv collapse">
+        <hr />
+        <button type="button" class="visualButton" onclick="showPredict(event,'RadioPlan');">
+            <img src="../../../../img/visuals/radioplan.png" style="vertical-align:super;" /><br />Radio Plan
+        </button>
+        <button type="button" class="visualButton" onclick="showPredict(event,'Links');">
+            <img src="../../../../img/visuals/link.png" style="vertical-align:super;" /><br />Links
+        </button>
+        <button type="button" class="visualButton" onclick="showPredict(event,'Coverage');">
+            <img src="../../../../img/visuals/coverage.png" style="vertical-align:super;" /><br />Coverage
+        </button>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#reportDiv">
+        Reports
+    </button>
+    <hr />
+    <div id="reportDiv" class="visualDiv collapse">
+        <button type="button" class="visualButton" onclick="showNetworkReport(event);">
+            <img src="../../../../img/visuals/report.png" style="vertical-align:super;" /><br />Network
+        </button>
+        <button type="button" class="visualButton" onclick="showLinksReport(event,null);">
+            <img src="../../../../img/visuals/report.png" style="vertical-align:super;" /><br />Links
+        </button>
+    </div>
+</div>

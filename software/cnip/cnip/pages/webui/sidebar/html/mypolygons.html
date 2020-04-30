@@ -1,0 +1,45 @@
+﻿<h2 class="sidebar-header" style="color: rgb(127,58,183);">My Polygons<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h2>
+<div style="width: 257px">
+    <hr />
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        <button class="toolsButton" onclick="downloadPolygonsCSV(event);" title="Download CSV"><i class="fas fa-file-csv"></i></button>
+        <button class="toolsButton" onclick="downloadPolygonsJson(event);" title="Download Geojson"><i class="fas fa-file-invoice"></i></button>
+        <button class="toolsButton" onclick="downloadPolygonsKML(event);" title="Download KML"><i class="fas fa-file-code"></i></button>
+        &nbsp;
+        <button class="toolsButton" id="btnFileUpload" title="Upload Polygons"><i class="fas fa-file-upload"></i></button>
+        <input type="file" id="FileUpload1" style="display: none" />
+        <!--accept="geojson/geojson, geojson/json"-->
+        &nbsp;
+        <button class="toolsButton" onclick="setActiveInteraction(event,'drawPolygon', true);" title="Draw"><i class="fas fa-edit"></i></button>
+        <button class="toolsButton" onclick="setActiveInteraction(event,'modifyPolygon', true);" title="Modify"><i class="fas fa-external-link-alt"></i></button>
+        <button class="toolsButton" onclick="setActiveInteraction(event,'transformPolygon', true);" title="Transform"><i class="fas fa-retweet"></i></button>
+        <button class="toolsButton" onclick="setActiveInteraction(event,'deletePolygon', true);" title="Delete"><i class="fas fa-trash-alt"></i></button>
+        &nbsp;
+        <button class="toolsButton" onclick="saveVectorsToServer(event);" title="Save"><i class="fas fa-save"></i></button>
+    </div>
+    <hr />
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        Fill Opacity
+        <div id="polygonsFillOpacity"></div>
+    </div>
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        Stroke Opacity
+        <div id="polygonsStrokeOpacity"></div>
+    </div>
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        <input type="checkbox" id="polygonsVisibility" checked="checked" onclick="setPolygonsVisiblity()">
+        <label for="polygonsVisibility">My Polygons</label>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#polygonsDiv">
+        Polygons
+    </button>
+    <hr />
+    <div id="polygonsDiv" class="visualDiv collapse">
+        <ul id="polygonsUl" class="visualUl">
+            <li class="visualLi"><i class="fas fa-draw-polygon"></i>&nbsp;polygon1</li>
+            <li class="visualLi"><i class="fas fa-draw-polygon"></i>&nbsp;polygon2</li>
+            <li class="visualLi"><i class="fas fa-draw-polygon"></i>&nbsp;polygon3</li>
+        </ul>
+    </div>
+</div>

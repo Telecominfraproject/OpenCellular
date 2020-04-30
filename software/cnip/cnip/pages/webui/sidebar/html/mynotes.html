@@ -1,0 +1,38 @@
+﻿<h2 class="sidebar-header" style="color: rgb(255,227,0);">My Notes<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h2>
+<div style="width: 257px">
+    <hr />
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        <button class="toolsButton" onclick="downloadNotesCSV(event);" title="Download CSV"><i class="fas fa-file-csv"></i></button>
+        <button class="toolsButton" onclick="downloadNotesJson(event);" title="Download Geojson"><i class="fas fa-file-invoice"></i></button>
+        <button class="toolsButton" onclick="downloadNotesKML(event);" title="Download KML"><i class="fas fa-file-code"></i></button>
+        &nbsp;&nbsp;&nbsp;
+        <button class="toolsButton" onclick="setActiveInteraction(event,'drawNote', true);" title="Draw"><i class="fas fa-edit"></i></button>
+        <button class="toolsButton" onclick="setActiveInteraction(event,'modifyNote', true);" title="Modify"><i class="fas fa-external-link-alt"></i></button>
+        <button class="toolsButton" onclick="setActiveInteraction(event,'deleteNote', true);" title="Delete"><i class="fas fa-trash-alt"></i></button>
+        &nbsp;&nbsp;&nbsp;
+        <button class="toolsButton" onclick="saveVectorsToServer(event);" title="Save"><i class="fas fa-save"></i></button>
+    </div>
+    <hr />
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        Opacity
+        <div id="notesOpacity"></div>
+    </div>
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        <input type="checkbox" id="notesVisibility" checked="checked" onclick="setNotesVisiblity()">
+        <label for="notesVisibility">My Notes</label>
+        <input type="checkbox" id="publicNotesVisibility" checked="checked" onclick="setPublicNotesVisiblity()">
+        <label for="publicNotesVisibility">Public Notes</label>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#notesDiv">
+        Notes
+    </button>
+    <hr />
+    <div id="notesDiv" class="visualDiv collapse">
+        <ul id="notesUl" class="visualUl">
+            <li class="visualLi"><i class="fas fa-flag"></i>&nbsp;note1</li>
+            <li class="visualLi"><i class="fas fa-flag"></i>&nbsp;note2</li>
+            <li class="visualLi"><i class="fas fa-flag"></i>&nbsp;note3</li>
+        </ul>
+    </div>
+</div>

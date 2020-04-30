@@ -1,0 +1,111 @@
+﻿<h2 class="sidebar-header" style="color: rgb(0,150,136);">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h2>
+<div style="width: 257px">
+    <!--<hr />
+    <div style="padding-top: 5px; padding-bottom: 5px;">
+        <button class="toolsButton" onclick="saveSettings(event);" title="Save"><i class="fas fa-save"></i></button>
+    </div>-->
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#radioOptions">
+        Radio Plan
+    </button>
+    <hr />
+    <div id="radioOptions" class="visualDiv collapse">
+        Antenna Model
+        <div id="opt_antennamodel"></div>
+        Cell Radius (Km)
+        <div id="opt_cellradius"></div>
+        <hr />
+        <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#gsmOptions" style="color:var(--fontcolor);">
+            GSM
+        </button>
+        <div id="gsmOptions" class="visualDiv collapse">
+            <hr />
+            Band
+            <div id="opt_gsmband"></div>
+            Bandwidth (MHz)
+            <div id="opt_gsmbandwidth"></div>
+        </div>
+        <hr />
+        <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#lteOptions" style="color:var(--fontcolor);">
+            LTE
+        </button>
+        <div id="lteOptions" class="visualDiv collapse">
+            <hr />
+            Band
+            <div id="opt_lteband"></div>
+            Bandwidth (MHz)
+            <div id="opt_ltebandwidth"></div>
+        </div>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#losOptions">
+        Line of Sight
+    </button>
+    <hr />
+    <div id="losOptions" class="visualDiv collapse">
+        Frequency (GHz)
+        <div id="opt_frequency"></div>
+        Channel Width (MHz)
+        <div id="opt_channelwidth"></div>
+        Output Power (dBm)
+        <div id="opt_outputpower"></div>
+        Antenna Gain (dBi)
+        <div id="opt_antennagain"></div>
+        Losses (dB)
+        <div id="opt_losses"></div>
+        Fresnel Zone Clearance (%)
+        <div id="opt_fresnelclearance"></div>
+    </div>
+    <hr />
+    <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#coverage">
+        Coverage
+    </button>
+    <hr />
+    <div id="coverage" class="visualDiv collapse">
+        <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#outputOptions" style="color:var(--fontcolor);">
+            Output
+        </button>
+        <div id="outputOptions" class="visualDiv collapse">
+            <hr />
+            Measurement Type
+            <div id="opt_measurementtype"></div>
+            Terrain resolution
+            <div id="opt_terrainresolution"></div>
+            Thematic
+            <div id="opt_thematic"></div>
+            Radius (Km)
+            <div id="opt_radius"></div>
+        </div>
+        <hr />
+        <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#modelOptions" style="color:var(--fontcolor);">
+            Model
+        </button>
+        <div id="modelOptions" class="visualDiv collapse">
+            <hr />
+            Propagation Model
+            <div id="opt_propagationmodel"></div>
+            Reliability Situations (%)
+            <div id="opt_reliabilitys"></div>
+            Reliability Time (%)
+            <div id="opt_reliabilityt"></div>
+            Terrain Conductivity
+            <div id="opt_terrainconductivity"></div>
+            Radio Climate
+            <div id="opt_radioclimate"></div>
+        </div>
+        <hr />
+        <button type="button" class="visualBar collapsed" data-toggle="collapse" data-target="#receiverOptions" style="color:var(--fontcolor);">
+            Receiver
+        </button>
+        <div id="receiverOptions" class="visualDiv collapse">
+            <hr />
+            Height (m)
+            <div id="opt_receiverheight"></div>
+            Gain (dBi)
+            <div id="opt_receivergain"></div>
+            Sensitivity (dBm)
+            <div id="opt_receiversensitivity"></div>
+        </div>
+        <hr />
+    </div>
+</div>

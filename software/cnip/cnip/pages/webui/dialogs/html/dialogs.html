@@ -1,0 +1,155 @@
+﻿<div id="progressBar" class="panel panel-primary draggable">
+    <div id="progressTitle" class="panel-heading draggable-handler" style="text-align:left;">
+        Message Box
+    </div>
+    <div class="panel-body" style="text-align: left;">
+        <br />
+        &nbsp;&nbsp;&nbsp;Please sit back and relax this may take awhile
+        <img src="../img/loading.gif" style="bottom: 60px; left: 135px; height: 15px; position: absolute" />
+    </div>
+</div>
+<div id="siteOptions" class="panel panel-primary draggable" onclick="setDialogZIndex(event,'siteOptions');">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 94%">
+                <div class="panel-heading draggable-handler">
+                    Site Options
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Minimize" onclick="minimizeDialog(event,'siteOptions');"><i class="fas fa-window-minimize"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Restore" onclick="restoreDialog(event,'siteOptions');"><i class="fas fa-window-restore"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Close" onclick="event.stopPropagation(); document.getElementById('siteOptions').style.display = 'none'; document.getElementById('siteOptionsFrame').contentWindow.userDisplay = false;"><i class="fas fa-window-close"></i></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="panel-body" style="height: 392px; width: 642px;">
+        <iframe id="siteOptionsFrame" style="width: 100%; height: 100%;" src="webui/dialogs/siteoptions.aspx" frameborder="0"></iframe>
+    </div>
+</div>
+<div id="polyOptions" class="panel panel-primary draggable" onclick="setDialogZIndex(event,'polyOptions');">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 94%">
+                <div class="panel-heading draggable-handler">
+                    Polygon Options
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Minimize" onclick="minimizeDialog(event,'polyOptions');"><i class="fas fa-window-minimize"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Restore" onclick="restoreDialog(event,'polyOptions','351px','236px');"><i class="fas fa-window-restore"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Close" onclick="event.stopPropagation();document.getElementById('polyOptions').style.display='none';document.getElementById('polyOptionsFrame').contentWindow.userDisplay = false;"><i class="fas fa-window-close"></i></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="panel-body" style="height: 196px; width: 342px;">
+        <iframe id="polyOptionsFrame" style="width: 100%; height: 100%;" src="webui/dialogs/polyoptions.aspx" frameborder="0"></iframe>
+    </div>
+</div>
+<div id="linkOptions" class="panel panel-primary draggable" onclick="setDialogZIndex(event,'linkOptions');">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 94%">
+                <div class="panel-heading draggable-handler">
+                    Link Options
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Minimize" onclick="minimizeDialog(event,'linkOptions');"><i class="fas fa-window-minimize"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Restore" onclick="restoreDialog(event,'linkOptions');"><i class="fas fa-window-restore"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Close" onclick="event.stopPropagation();document.getElementById('linkOptions').style.display='none';document.getElementById('linkOptionsFrame').contentWindow.userDisplay = false;"><i class="fas fa-window-close"></i></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="panel-body" style="height: 392px; width: 642px;">
+        <iframe id="linkOptionsFrame" style="width: 100%; height: 100%;" src="webui/dialogs/linkoptions.aspx" frameborder="0"></iframe>
+    </div>
+</div>
+<div id="linkProfile" class="panel panel-primary draggable" onclick="setDialogZIndex(event,'linkProfile');">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 98%">
+                <div class="panel-heading draggable-handler">
+                    Link Profile
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Minimize" onclick="minimizeDialog(event,'linkProfile');"><i class="fas fa-window-minimize"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Restore" onclick="restoreDialog(event,'linkProfile','1103px','333px');"><i class="fas fa-window-restore"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Close" onclick="event.stopPropagation();document.getElementById('linkProfile').style.display='none';document.getElementById('linkProfileFrame').contentWindow.userDisplay = false;"><i class="fas fa-window-close"></i></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="panel-body" style="height: 293px; width: 1094px;">
+        <iframe id="linkProfileFrame" style="width: 100%; height: 100%;" src="webui/dialogs/linkprofile.aspx" frameborder="0"></iframe>
+    </div>
+</div>
+<div id="noteOptions" class="panel panel-primary draggable" onclick="setDialogZIndex(event,'noteOptions');">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 94%">
+                <div class="panel-heading draggable-handler">
+                    Note Options
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Minimize" onclick="minimizeDialog(event,'noteOptions');"><i class="fas fa-window-minimize"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Restore" onclick="restoreDialog(event,'noteOptions','451px','236px');"><i class="fas fa-window-restore"></i></button>
+                </div>
+            </td>
+            <td style="width: 2%">
+                <div class="panel-action">
+                    <button class="panel-action-button" title="Close" onclick="event.stopPropagation();document.getElementById('noteOptions').style.display='none';document.getElementById('noteOptionsFrame').contentWindow.userDisplay = false;"><i class="fas fa-window-close"></i></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="panel-body" style="height: 196px; width: 442px;">
+        <iframe id="noteOptionsFrame" style="width: 100%; height: 100%;" src="webui/dialogs/noteoptions.aspx" frameborder="0"></iframe>
+    </div>
+</div>

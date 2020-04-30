@@ -1,0 +1,542 @@
+﻿@import "root.css";
+@import "../../Scripts/nouislider.min.css";
+
+* {
+    box-sizing: border-box;
+    font-weight: lighter;
+    font-family: "Liberation Sans", "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+/*  single slider client user control  */
+.noUi-horizontal {
+    height: 4px;
+}
+
+.noUi-target {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.noUi-connects {
+    background-color: var(--bordercolor);
+}
+
+.noUi-connect {
+    background-color: var(--fontcolor);
+}
+
+.noUi-handle {
+    height: 12px !important;
+    width: 12px !important;
+    top: -4px !important;
+    left: 50% !important;
+    background-color: var(--fontcolor);
+    border: none;
+    box-shadow: none;
+}
+
+    .noUi-handle:hover {
+        background-color: var(--hovercolor);
+        cursor: pointer;
+    }
+
+    .noUi-handle:after, .noUi-handle:before {
+        height: 0;
+        width: 0;
+    }
+
+    .noUi-handle.noUi-handle-lower, .noUi-handle.noUi-handle-upper {
+        margin-left: 7px !important;
+        outline: none;
+        border: none;
+    }
+
+.noUi-pips-horizontal {
+    top: -5px !important;
+    height: 30px !important;
+}
+
+.noUi-marker.noUi-marker-horizontal.noUi-marker-normal {
+    display: none;
+}
+
+.noUi-marker.noUi-marker-horizontal.noUi-marker-large {
+    height: 5px;
+    width: 1px;
+}
+
+.noUi-value.noUi-value-horizontal.noUi-value-large {
+    font-weight: lighter;
+    font-size: xx-small;
+    color: var(--fontcolor);
+}
+
+/*customized checkbox styling*/
+[type="checkbox"]:not(:checked),
+[type="checkbox"]:checked {
+    position: absolute;
+    left: -9999px;
+}
+
+    [type="checkbox"]:not(:checked) + label,
+    [type="checkbox"]:checked + label {
+        position: relative;
+        padding-left: 1.95em;
+        cursor: pointer;
+        font-weight: lighter;
+    }
+
+        /* checkbox aspect */
+        [type="checkbox"]:not(:checked) + label:before,
+        [type="checkbox"]:checked + label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.25em;
+            height: 1.25em;
+            border: 2px solid var(--bordercolor);
+            background-color: var(--facecolor);
+            border-radius: 1px;
+            /*box-shadow: inset 0 1px 3px rgba(0,0,0,.1);*/
+        }
+        /* checked mark aspect */
+        [type="checkbox"]:not(:checked) + label:after,
+        [type="checkbox"]:checked + label:after {
+            content: '\2713\0020';
+            position: absolute;
+            top: .15em;
+            left: .22em;
+            font-size: 1.3em;
+            line-height: 0.8;
+            color: var(--checkcolor);
+            transition: all .2s;
+        }
+        /* checked mark aspect changes */
+        [type="checkbox"]:not(:checked) + label:after {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        [type="checkbox"]:checked + label:after {
+            opacity: 1;
+            transform: scale(1);
+        }
+/* disabled checkbox */
+[type="checkbox"]:disabled:not(:checked) + label:before,
+[type="checkbox"]:disabled:checked + label:before {
+    box-shadow: none;
+    border-color: var(--disabledfontcolor);
+    background-color: var(--disabledbackcolor);
+}
+
+[type="checkbox"]:disabled:checked + label:after {
+    color: var(--disabledfontcolor);
+}
+
+[type="checkbox"]:disabled + label {
+    color: var(--disabledfontcolor);
+}
+/* accessibility */
+[type="checkbox"]:checked:focus + label:before,
+[type="checkbox"]:not(:checked):focus + label:before {
+    border: 2px solid var(--checkcolor);
+}
+
+/* hover style */
+label:hover:before {
+    border: 2px solid var(--checkcolor) !important;
+}
+
+/* radio button styling*/
+[type="radio"]:checked,
+[type="radio"]:not(:checked) {
+    position: absolute;
+    left: -9999px;
+}
+
+    [type="radio"]:checked + label,
+    [type="radio"]:not(:checked) + label {
+        position: relative;
+        padding-left: 28px;
+        cursor: pointer;
+        line-height: 20px;
+        display: inline-block;
+        font-weight: lighter;
+    }
+
+        [type="radio"]:checked + label:before,
+        [type="radio"]:not(:checked) + label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--bordercolor);
+            border-radius: 100%;
+            background-color: var(--facecolor);
+        }
+
+        [type="radio"]:checked + label:after,
+        [type="radio"]:not(:checked) + label:after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: var(--checkcolor);
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            border-radius: 100%;
+            -webkit-transition: all 0.2s ease;
+            transition: all 0.2s ease;
+        }
+
+        [type="radio"]:not(:checked) + label:after {
+            opacity: 0;
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+
+        [type="radio"]:checked + label:after {
+            opacity: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+        }
+
+.label {
+    font-weight: lighter
+}
+
+.toolsButton {
+    background-color: var(--backcolor);
+    border: 1px solid var(--backcolor);
+    color: var(--fontcolor);
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    padding: 0 0;
+    margin: 0 0;
+    outline: none;
+}
+
+    .toolsButton:hover {
+        color: var(--hovercolor);
+    }
+
+    .toolsButton > * {
+        font-size: 18px !important;
+    }
+
+.textInput {
+    border: 1px solid var(--bordercolor);
+    background-color: var(--backcolor);
+    color: var(--fontcolor);
+    border-radius: 4px !important;
+    cursor: pointer;
+    height: 1.971428571em;
+    text-align: left;
+    outline: none;
+    padding: 3px;
+    width: 100%;
+    margin-top: 3px;
+    margin-bottom: 5px;
+}
+
+    .textInput:hover {
+        color: var(--hovercolor);
+        font-weight: 900;
+    }
+
+    .textInput:disabled {
+        color: var(--disabledfontcolor);
+        cursor: pointer;
+    }
+
+/*visual collapsible bar*/
+.visualBar {
+    color: dodgerblue;
+    cursor: pointer;
+    height: 35px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    background-color: var(--facecolor);
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+
+    .visualBar.collapsed {
+        background-color: var(--facecolor);
+    }
+
+    .visualBar:active, .visualBar:hover {
+        color: var(--hovercolor);
+        font-weight: 900;
+    }
+
+    .visualBar:after {
+        content: '\2212';
+        float: right;
+    }
+
+    .visualBar.collapsed:after {
+        content: '\002B';
+        float: right;
+    }
+
+    .visualBar:disabled {
+        background-color: var(--disabledbackcolor);
+        color: var(--disabledfontcolor);
+    }
+
+.visualDiv {
+    background-color: var(--menucolor);
+    padding: 0 5px;
+    margin-top: 5px;
+}
+
+.visualUl {
+    list-style-type: none;
+    margin: 0;
+    padding: 0 10px;
+}
+
+.visualLi {
+    color: var(--fontcolor);
+    cursor: pointer;
+}
+
+    .visualLi:hover {
+        color: var(--hovercolor);
+    }
+
+/* visual button*/
+.visualButton {
+    background-color: var(--facecolor);
+    cursor: pointer;
+    height: 70px;
+    width: 79px;
+    text-align: center;
+    border-radius: 2px;
+    border-color: var(--bordercolor);
+    border-style: solid;
+    border-width: thin;
+    border: none;
+    outline: none;
+    font-size: x-small;
+    vertical-align: middle;
+    margin-bottom: 3px;
+}
+
+    .visualButton:hover {
+        color: var(--hovercolor);
+        font-weight: 700;
+    }
+
+    .visualButton:disabled {
+        background-color: var(--disabledbackcolor);
+        color: var(--disabledfontcolor);
+    }
+
+/* select bar user control*/
+.selectBar {
+    border: 1px solid var(--bordercolor);
+    border-radius: 4px;
+    background-color: var(--facecolor);
+    cursor: pointer;
+    height: 1.971428571em;
+    width: 100%;
+    text-align: left;
+    outline: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+    .selectBar.collapsed {
+        background-color: var(--facecolor);
+    }
+
+    .selectBar:active, .selectBar:hover {
+        color: var(--hovercolor);
+        font-weight: 900;
+    }
+
+    .selectBar:disabled {
+        background-color: var(--disabledbackcolor);
+        color: var(--disabledfontcolor);
+    }
+
+.selectDiv {
+    margin-top: -1px;
+    width: 100%;
+    border: 1px solid var(--bordercolor);
+    border-radius: 1px;
+    display: none;
+    padding: 0;
+    position: absolute;
+    z-index: 1000;
+}
+
+.selectList {
+    background-color: var(--menucolor);
+    cursor: pointer;
+    height: 1.971428571em;
+    border: none;
+    text-align: left;
+    outline: none;
+    padding: 0 5px;
+}
+
+    .selectList:hover {
+        color: var(--hovercolor);
+        font-weight: 900;
+    }
+
+.pageTabLink {
+    background-color: var(--backcolor);
+    color: var(--fontcolor);
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 5px 16px;
+    font-size: 14px;
+    width: auto;
+}
+
+    .pageTabLink:hover {
+        background-color: #555;
+        color: white;
+    }
+
+.pageTabContent {
+    color: var(--fontcolor);
+    background-color: var(--backcolor);
+    display: none;
+    padding: 15px 10px;
+    height: 100%;
+}
+
+.pageTopButton {
+    float: right;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: large;
+    background-color: var(--backcolor);
+    color: var(--fontcolor);
+}
+
+    .pageTopButton:hover {
+        color: var(--hovercolor);
+    }
+
+    .pageTopButton > * {
+        font-size: 18px !important;
+    }
+
+.pageBottomButton {
+    position: absolute;
+    bottom: 10px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: large;
+    background-color: var(--backcolor);
+    color: var(--fontcolor);
+}
+
+    .pageBottomButton:hover {
+        color: var(--hovercolor);
+    }
+
+    .pageBottomButton > * {
+        font-size: 18px !important;
+    }
+
+.panel-heading {
+    border: none;
+    color: var(--facecolor) !important;
+    background-color: var(--barcolor) !important;
+    padding: 7px 7px;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.panel-action {
+    border: none;
+    color: var(--facecolor);
+    background-color: var(--barcolor);
+    padding: 7px 7px;
+    width: 32.4px;
+    height: 34px;
+}
+
+.panel-action-button {
+    border: none;
+    outline: none;
+    color: var(--facecolor);
+    background: none;
+    cursor: pointer;
+    padding: 0 0;
+    font-size: large;
+}
+
+    .panel-action-button:hover {
+        color: var(--hovercolor);
+    }
+
+.panel-body {
+    padding: 0 0 0 0;
+    overflow: hidden;
+    background-color: white;
+    margin: 0 0 0 0;
+}
+
+.draggable-handler {
+    cursor: move;
+    z-index: 200;
+}
+
+.draggable {
+    position: absolute;
+    z-index: 199;
+}
+
+.dragging {
+    z-index: 999 !important
+}
+
+hr {
+    margin: 0 0 0 0 !important;
+    padding: 0 0 0 0 !important;
+    background-color: var(--bordercolor);
+    width: 100%;
+    height: 1px;
+    border: none;
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    vertical-align: top;
+}
+
+.btn {
+    border-color: var(--bordercolor) !important;
+    color: var(--fontcolor) !important;
+    background-color: var(--backcolor) !important;
+    padding: 3px 12px;
+    font-size: 12px;
+}
+
+    .btn:hover {
+        background-color: var(--backcolor) !important;
+        color: var(--hovercolor) !important;
+        font-weight: 600;
+    }
