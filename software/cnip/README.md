@@ -52,7 +52,7 @@ Distributed Architecture, Easy to use UI, Advanced Software Algorithm using Mach
 #### Adding New Site
 
 Click below picture to watch video
-[![](img/01AddingNewSite.png)](https://youtu.be/K-RDCP6QwJg)
+[![](img/01AddingNewSite.png)](https://youtu.be/uEBEfSif5oI)
 
 #### Adding Microwave Link
 
@@ -60,12 +60,12 @@ Click below picture to watch video
 - **Channelwidth** between 10 MHz and 100 MHz supported
 
 Click below picture to watch video
-[![](img/02AddingMicrowaveLinks.png)](https://youtu.be/RNnIUR448Qw)
+[![](img/02AddingMicrowaveLinks.png)](https://youtu.be/2MWgKqFmmio)
 
 #### Creating And Editing Polygons
 
 Click below picture to watch video
-[![](img/03CreatingAndEditingPolygons.png)](https://youtu.be/S6Uc3hTOGqY)
+[![](img/03CreatingAndEditingPolygons.png)](https://youtu.be/AZG8Xg8J57U)
 
 #### Predicting Coverage
 
@@ -73,7 +73,7 @@ Click below picture to watch video
 - Propagation models **Longley-Rice Irregular Terrain (ITM)** and **Irregular Terrain With Obstructions (ITWOM v3.0)** for spectrum  between **20 MHz** and **20 GHz** supported
 
 Click below picture to watch video
-[![](img/04PredictingCoverage.png)](https://youtu.be/aB7oRVv6X7o)
+[![](img/04PredictingCoverage.png)](https://youtu.be/vUNtD-GlT4U)
 
 #### Predicting Radio Plan
 
@@ -81,7 +81,7 @@ Click below picture to watch video
 - **GSM 900 PGSM** and **LTE B08 FDD 900 EGSM** bands supported
 
 Click below picture to watch video
-[![](img/05PredictingRadioPlan.png)](https://youtu.be/nf26_7eutkY)
+[![](img/05PredictingRadioPlan.png)](https://youtu.be/1lsnoXpvjik)
 
 #### Predicting Microwave Links
 
@@ -89,21 +89,21 @@ Click below picture to watch video
 - Automatic **LOS Height** prediction for desired [Fresnel Zone](https://en.wikipedia.org/wiki/Fresnel_zone) clearance for Microwave Links
 
 Click below picture to watch video
-[![](img/06PredictingMicrowaveLinks.png)](https://youtu.be/VUMqltj37_I)
+[![](img/06PredictingMicrowaveLinks.png)](https://youtu.be/j1lr8WcP5js)
 
 #### Microwave Link Path Profile
 
 - **Path Profile** created using 30m [SRTM](https://en.wikipedia.org/wiki/Shuttle_Radar_Topography_Mission) [DTM](https://en.wikipedia.org/wiki/Digital_elevation_model) data
 
 Click below picture to watch video
-[![](img/07MicrowaveLinkPathProfile.png)](https://youtu.be/83fzxVXryA0)
+[![](img/07MicrowaveLinkPathProfile.png)](https://youtu.be/YhsLJE-dtFQ)
 
 #### Finding Best Candidate
 
 - **Best Candidate** analysis to find best site from coverage perspective for given polygon area from specified candidates  based on **Received Power** by analyzing polygon area covered by each power level distribution for each candidate
 
 Click below picture to watch video
-[![](img/08BestCandidate.png)](https://youtu.be/yYiJAKX9BRc)
+[![](img/08BestCandidate.png)](https://youtu.be/YEHYiHYV8UM)
 
 #### Auto Predicting Sites
 
@@ -112,19 +112,19 @@ Click below picture to watch video
 - Automatic **RF Power** calculation based on cell radius
 
 Click below picture to watch video
-[![](img/09AutoPredictingSites.png)](https://youtu.be/s3deMOxZHyM)
+[![](img/09AutoPredictingSites.png)](https://youtu.be/XQO9PPEfgMs)
 
 #### Choosing Background Map
 
 - Tile Maps: [OpenStreetMap](https://openstreetmap.org), [OpenTopoMap](https://opentopomap.org), [stamen](http://maps.stamen.com) (Toner, Terrain & Watercolor layers) and [Thunderforest](https://thunderforest.com) (Transport, Cycle, Landscape & Outdoor layers)
 
 Click below picture to watch video
-[![](img/10ChoosingBackgroundMap.png)](https://youtu.be/ptAPjXaziIs)
+[![](img/10ChoosingBackgroundMap.png)](https://youtu.be/KqrDkBjwYeY)
 
 #### Adding User Notes
 
 Click below picture to watch video
-[![](img/13AddingUserNotes.png)](https://youtu.be/y_9nB-sLBNk)
+[![](img/13AddingUserNotes.png)](https://youtu.be/Xvp_PghEiOU)
 
 #### Loading Sites From GeoJSON File
 
@@ -132,7 +132,7 @@ Click below picture to watch video
 - Use [MyGeodata Converter](https://mygeodata.cloud/converter) to convert your DATA to GeoJSON format
 
 Click below picture to watch video
-[![](img/11LoadingSitesFromGeoJSON.png)](https://youtu.be/uaAMREXx2v8)
+[![](img/11LoadingSitesFromGeoJSON.png)](https://youtu.be/ge0gKfsEUG8)
 
 #### Loading Polygons From GeoJSON File
 
@@ -140,7 +140,7 @@ Click below picture to watch video
 - Use [MyGeodata Converter](https://mygeodata.cloud/converter) to convert your DATA to GeoJSON format
 
 Click below picture to watch video
-[![](img/12LoadingPolygonsFromGeoJSON.png)](https://youtu.be/FPkXP75M4Hc)
+[![](img/12LoadingPolygonsFromGeoJSON.png)](https://youtu.be/j9LWylzOumQ)
 
 ## Credits
 
