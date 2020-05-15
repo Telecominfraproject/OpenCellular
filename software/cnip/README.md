@@ -209,4 +209,4 @@ This software code is licensed under the BSD license, located in OpenCellular [L
 
 - [Website](http://18.220.148.72/cnip)
 - [Source code](https://github.com/Telecominfraproject/OpenCellular/tree/cnip/software/cnip)
-- [Discussion and Issues](https://github.com/alirazaanis/Community-Network-Interactive-Planner/issues)
+- [Discussion and Issues](https://github.com/Telecominfraproject/OpenCellular/issues)
