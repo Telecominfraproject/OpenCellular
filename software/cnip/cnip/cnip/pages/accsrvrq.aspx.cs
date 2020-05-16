@@ -148,7 +148,7 @@ namespace cnip.pages
                                     {
                                         var senderEmail = new MailAddress("opencellularcnip@gmail.com", "CNIP");
                                         var receiverEmail = new MailAddress(pemail, pname);
-                                        var password = "opencellularAdmin123";
+                                        var password = "";
                                         var sub = "Deactivate 2-Step Verification";
                                         var smtp = new SmtpClient
                                         {
@@ -292,7 +292,7 @@ namespace cnip.pages
                                     {
                                         var senderEmail = new MailAddress("opencellularcnip@gmail.com", "CNIP");
                                         var receiverEmail = new MailAddress(pemail, pname);
-                                        var password = "opencellularAdmin123";
+                                        var password = "";
                                         var sub = "Reset password";
                                         var smtp = new SmtpClient
                                         {
@@ -442,7 +442,7 @@ namespace cnip.pages
                                     {
                                         var senderEmail = new MailAddress("opencellularcnip@gmail.com", "CNIP");
                                         var receiverEmail = new MailAddress(pemail, pname);
-                                        var password = "opencellularAdmin123";
+                                        var password = "";
                                         var sub = "Confirm your CNIP account, " + pname;
                                         var smtp = new SmtpClient
                                         {
