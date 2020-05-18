@@ -1,0 +1,15 @@
+﻿@if (ViewBag.Data == "redirecttowebadmin")
+{
+    Response.Redirect("~/pages/webadmin.aspx");
+}
+else
+{
+    if (ViewBag.Data == "redirecttowebui")
+    {
+        Response.Redirect("~/pages/webui.aspx");
+    }
+    else
+    {
+        Response.Redirect("~/pages/glavni.aspx");
+    }
+}

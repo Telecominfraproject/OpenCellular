@@ -1,0 +1,172 @@
+### APIs and Data, License Attributions and Credits
+
+#####  Tile Maps
+
+- ###### OpenStreetMap
+[openstreetmap.org](https://openstreetmap.org)
+[openstreetmap.org/copyright](https://openstreetmap.org/copyright)
+[wiki.openstreetmap.org/wiki/Contributors](https://wiki.openstreetmap.org/wiki/Contributors)
+[wiki.osmfoundation.org/wiki/Main_Page](https://wiki.osmfoundation.org/wiki/Main_Page)
+
+- ###### OpenTopoMap
+Kartendaten: © OpenStreetMap-Mitwirkende, SRTM | Kartendarstellung: © OpenTopoMap (CC-BY-SA)
+[opentopomap.org/about](https://opentopomap.org/about)
+[wiki.openstreetmap.org/wiki/OpenTopoMap](https://wiki.openstreetmap.org/wiki/OpenTopoMap)
+[github.com/der-stefan/OpenTopoMap/blob/master/LICENCE](https://github.com/der-stefan/OpenTopoMap/blob/master/LICENCE)
+
+- ###### stamen
+Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
+Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.
+[maps.stamen.com](http://maps.stamen.com)
+
+- ###### Thunderforest
+[thunderforest.com/terms](https://www.thunderforest.com/terms/)
+Maps © [thunderforest.com](https://thunderforest.com), Data © [osm.org/copyright](https://osm.org/copyright)
+
+##### Digital terrain model
+Map services and data available from U.S. Geological Survey, National Geospatial Program
+[usgs.gov](https://usgs.gov)
+[usgs.gov/faqs/uselicensing](https://usgs.gov/faqs/what-are-terms-uselicensing-map-services-and-data-national-map?qt-news_science_products=0#qt-news_science_products)
+
+- ###### Data sources
+ [e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11](https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/)
+ [e4ftl01.cr.usgs.gov/MEASURES/SRTMGL3.003/2000.02.11](https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL3.003/2000.02.11/)
+
+##### Microsoft, Visual Studio
+[visualstudio.microsoft.com](https://visualstudio.microsoft.com/)
+[visualstudio.microsoft.com/license-terms/mlt031819](https://visualstudio.microsoft.com/license-terms/mlt031819/)
+
+##### PostgreSQL
+[postgresql.org](https://postgresql.org)
+[postgresql.org/about/licence](https://postgresql.org/about/licence/)
+
+##### PostGIS
+[postgis.net](https://postgis.net)
+[postgis.net/workshops/postgis-intro/license](https://postgis.net/workshops/postgis-intro/license.html)
+
+##### pgRouting
+[pgrouting.org](https://pgrouting.org/)
+[github.com/pgRouting/website](https://github.com/pgRouting/website)
+
+##### SPLAT
+[qsl.net/kd2bd/splat.html](https://qsl.net/kd2bd/splat.html)
+[github.com/jmcmellen/splat](https://github.com/jmcmellen/splat)
+[ve3ncq.ca/wordpress](http://ve3ncq.ca/wordpress/?page_id=62)
+
+##### Frequency and PCI Planning Algorithm by Salman Bakhtiyar
+[linkedin.com/in/salman-bakhtiyar-3b18012](https://linkedin.com/in/salman-bakhtiyar-3b18012)
+
+##### GDAL
+[gdal.org](https://gdal.org/)
+[trac.osgeo.org/gdal/wiki/FAQGeneral/license](https://trac.osgeo.org/gdal/wiki/FAQGeneral#WhatlicensedoesGDALOGRuse)
+[github.com/OSGeo/gdal](https://github.com/OSGeo/gdal)
+
+##### GDAL, Repack
+[nuget.org/profiles/maeneak](https://nuget.org/profiles/maeneak)
+[nuget.org/packages/GDAL.Repack/2.4.4/license](https://nuget.org/packages/GDAL.Repack/2.4.4/license)
+
+##### NTS Topology Suite
+[nettopologysuite.github.io](https://nettopologysuite.github.io/)
+[github.com/NetTopologySuite/NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite)
+[github.com/NetTopologySuite/NetTopologySuite/blob/develop/License.md](https://github.com/NetTopologySuite/NetTopologySuite/blob/develop/License.md)
+
+##### Npgsql
+[npgsql.org](https://npgsql.org/)
+[github.com/npgsql/npgsql](https://github.com/npgsql/npgsql)
+[github.com/npgsql/npgsql/blob/master/LICENSE](https://github.com/npgsql/npgsql/blob/master/LICENSE)
+
+##### Bootstrap
+[getbootstrap.com](https://getbootstrap.com/)
+[nuget.org/packages/bootstrap/4.4.1/license](https://nuget.org/packages/bootstrap/4.4.1/license)
+[github.com/twbs/bootstrap](https://github.com/twbs/bootstrap)
+[github.com/twbs/bootstrap/blob/master/LICENSE](https://github.com/twbs/bootstrap/blob/master/LICENSE)
+
+##### JQuery
+[jquery.org](https://jquery.org)
+[jquery.org/license](https://jquery.org/license)
+[github.com/jquery](https://github.com/jquery)
+
+##### Font Awesome
+[fontawesome.com](https://fontawesome.com)
+[fontawesome.com/license/free](https://fontawesome.com/license/free)
+[github.com/FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome)
+[github.com/FortAwesome/Font-Awesome/blob/master/LICENSE](https://github.com/FortAwesome/Font-Awesome/blob/master/LICENSE.txt)
+
+##### Modernizr
+[modernizr.com](https://modernizr.com)
+[modernizr.com/license/](https://modernizr.com/license/)
+[github.com/Modernizr/Modernizr](https://github.com/Modernizr/Modernizr)
+[github.com/Modernizr/Modernizr/blob/master/LICENSE](https://github.com/Modernizr/Modernizr/blob/master/LICENSE)
+
+##### Leon Gersen, noUiSlider
+[refreshless.com/nouislider/](https://refreshless.com/nouislider/)
+[github.com/leongersen/noUiSlider/blob/master/LICENSE](https://github.com/leongersen/noUiSlider/blob/master/LICENSE.md)
+
+##### OpenLayers
+[openlayers.org](https://openlayers.org/)
+[raw.githubusercontent.com/openlayers/openlayers/master/LICENSE](https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md)
+
+##### Jean-Marc Viglino ol-ext
+[viglino.github.io/ol-ext](https://viglino.github.io/ol-ext/)
+[github.com/Viglino/ol-ext/blob/master/LICENSE](https://github.com/Viglino/ol-ext/blob/master/LICENSE.md)
+
+##### Matt Walker, ol-layerswitcher
+[github.com/walkermatt/ol-layerswitcher](https://github.com/walkermatt/ol-layerswitcher)
+
+##### Turbo87/sidebar-v2
+[github.com/Turbo87/sidebar-v2](https://github.com/Turbo87/sidebar-v2)
+[github.com/Turbo87/sidebar-v2/blob/master/LICENSE](https://github.com/Turbo87/sidebar-v2/blob/master/LICENSE)
+
+##### Chart.js
+[chartjs.org](https://chartjs.org)
+[chartjs.org/docs/latest/notes/license](https://chartjs.org/docs/latest/notes/license.html)
+
+##### Matt Holt, Papa Parse
+[github.com/mholt/PapaParse](https://github.com/mholt/PapaParse)
+[github.com/mholt/PapaParse/blob/master/LICENSE](https://github.com/mholt/PapaParse/blob/master/LICENSE)
+
+#####  Eli Grey, FileSaver.js
+[github.com/eligrey/FileSaver.js](https://github.com/eligrey/FileSaver.js)
+[github.com/eligrey/FileSaver.js/blob/master/LICENSE](https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md)
+
+##### Turfjs, TURF
+[turfjs.org](https://turfjs.org/)
+[github.com/Turfjs/turf/blob/master/LICENSE](https://github.com/Turfjs/turf/blob/master/LICENSE)
+
+##### Anatolii Saienko, DOM to Image
+[github.com/tsayen/dom-to-image](https://github.com/tsayen/dom-to-image)
+[github.com/tsayen/dom-to-image/blob/master/LICENSE](https://github.com/tsayen/dom-to-image/blob/master/LICENSE)
+
+##### Niklas von Hertzen, html2canvas
+[html2canvas.hertzen.com](https://html2canvas.hertzen.com)
+[github.com/niklasvh/html2canvas](https://github.com/niklasvh/html2canvas)
+[github.com/niklasvh/html2canvas/blob/master/LICENSE](https://github.com/niklasvh/html2canvas/blob/master/LICENSE)
+
+##### Financial Times, Polyfill.io
+[polyfill.io/v3](https://polyfill.io/v3/)
+[github.com/financial-times/polyfill-service](https://github.com/financial-times/polyfill-service)
+
+##### Brandon Potter, GoogleAuthenticator
+[github.com/BrandonPotter/GoogleAuthenticator](https://github.com/BrandonPotter/GoogleAuthenticator)
+[github.com/BrandonPotter/GoogleAuthenticator/blob/master/LICENSE](https://github.com/BrandonPotter/GoogleAuthenticator/blob/master/LICENSE)
+
+##### Raffael Herrmann, QRCoder
+[github.com/codebude/QRCoder](https://github.com/codebude/QRCoder)
+[github.com/codebude/QRCoder/blob/master/LICENSE](https://github.com/codebude/QRCoder/blob/master/LICENSE.txt)
+
+#####  Pandao, M Editor.md
+[pandao.github.io/editor.md/en.html](https://pandao.github.io/editor.md/en.html)
+[github.com/pandao/editor.md](https://github.com/pandao/editor.md)
+[github.com/pandao/editor.md/blob/master/LICENSE](https://github.com/pandao/editor.md/blob/master/LICENSE)
+
+##### MoustafaElsayed, rathbhupendra, reddybharathab426, Geeks for Geeks, Kruskal MST
+[geeksforgeeks.org/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/](https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/)
+
+##### Alex bell, C# Corner, Geo-distance
+[c-sharpcorner.com/blogs/the-orthodromic-distance-between-two-geopoints1](https://www.c-sharpcorner.com/blogs/the-orthodromic-distance-between-two-geopoints1)
+
+##### Stuart Langridge, sorttable
+[kryogenix.org/code/browser/sorttable](https://kryogenix.org/code/browser/sorttable/)
+
+##### Ruben Barkow-Kuder, table2CSV
+[github.com/rubo77/table2CSV](https://github.com/rubo77/table2CSV)

@@ -1,0 +1,14 @@
+﻿:root {
+    --hovercolor: rgba(49,52,53,1);
+    --fontcolor: rgba(114,119,122,1);
+    --backcolor: rgba(255, 255, 255, 1);
+    --opfontcolor: rgba(20, 30, 40,1);
+    --opbackcolor: rgba(255, 255, 255, 1);
+    --disabledbackcolor: rgba(233,236,239,1);
+    --disabledfontcolor: rgba(165,142,150,1);
+    --checkcolor: rgba(102,102,102,1);
+    --bordercolor: rgba(206,212,218,1);
+    --menucolor: rgb(255, 255, 255);
+    --facecolor: rgb(255, 255, 255);
+    --barcolor: rgba(30, 144, 255,0.7);
+}
